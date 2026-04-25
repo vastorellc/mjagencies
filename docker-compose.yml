@@ -4,8 +4,10 @@
 #   dev: mailhog, pgadmin, stripe-cli
 #
 # Usage:
-#   docker compose up -d                  # core services only (Postgres + Redis)
-#   docker compose --profile dev up -d   # full local dev (adds Mailhog, PgAdmin, Stripe CLI)
+#   docker compose up -d                                                      # core services only
+#   docker compose --profile dev up -d                                        # full local dev
+#   docker compose -f docker-compose.yml -f docker-compose.observability.yml --profile dev up -d
+#     # ^ includes observability stack (Prometheus, Loki, Promtail, Tempo, Grafana)
 #
 # Security: all host port bindings use 127.0.0.1 (no LAN exposure — T-01-201, pitfall §2.16)
 # DO NOT change port bindings to 0.0.0.0 — this is a hard security requirement.
@@ -34,6 +36,9 @@ services:
       start_period: 10s
     labels:
       com.mjagency.agency: shared
+    # host.docker.internal for Linux (macOS/Windows automatic via Docker Desktop)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   redis:
     image: redis:7.4-alpine
@@ -91,10 +96,6 @@ services:
       STRIPE_API_KEY: ${STRIPE_TEST_API_KEY}
     profiles:
       - dev
-
-  # ── Observability stack (Plan 01-04) ─────────────────────────────────────
-  # Prometheus, Loki, Promtail, Tempo, and Grafana are added in Plan 01-04.
-  # They will be appended to this file or via docker-compose.observability.yml merge.
 
 volumes:
   postgres-data:

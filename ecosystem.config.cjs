@@ -1,5 +1,5 @@
 // ecosystem.config.cjs — PM2 dev supervisor for MJAgency local development
-// Manages: 12 PgBouncer processes + Stripe CLI + (Promtail — inactive until Plan 01-04)
+// Manages: 12 PgBouncer processes + Stripe CLI + Promtail (active from Plan 01-04)
 //
 // Usage:
 //   pm2 start ecosystem.config.cjs                         # start all active processes
@@ -13,12 +13,6 @@
 //   branding=6437, strategy=6438, finance=6439, engineering=6440,
 //   product=6441, video=6442, graphic=6443
 //   Port 6444 is reserved for the M002 platform-shared admin connection.
-//
-// Promtail entry:
-//   Promtail config file is created in Plan 01-04. Until then, the promtail entry
-//   will fail to start because infra/promtail/promtail-config.yml does not exist.
-//   The entry below is kept inactive (commented) to avoid PM2 errors on first run.
-//   Uncomment the promtail block AFTER Plan 01-04 ships infra/promtail/promtail-config.yml.
 
 'use strict'
 
@@ -71,27 +65,26 @@ const stripeListenerApp = {
   },
 }
 
-// Promtail entry activates after Plan 01-04 ships infra/promtail/promtail-config.yml.
-// The entry below is a one-line stub kept inactive (commented) to avoid PM2 errors on first run.
-// After Plan 01-04 lands, uncomment the promtailApp definition and add it to the apps array below.
-//
-// const promtailApp = {
-//   name: 'promtail',
-//   script: 'promtail',
-//   args: '-config.file=infra/promtail/promtail-config.yml',
-//   cwd: __dirname,
-//   autorestart: true,
-//   max_restarts: 5,
-//   restart_delay: 3000,
-//   error_file: './logs/promtail.err.log',
-//   out_file: './logs/promtail.out.log',
-//   log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-// }
+// Promtail activated in Plan 01-04 — infra/promtail/promtail-config.yml now exists.
+// Ships logs from all Docker containers to Loki with agency_id labels.
+/** @type {import('pm2').StartOptions} */
+const promtailApp = {
+  name: 'promtail',
+  script: 'promtail',
+  args: '-config.file=infra/promtail/promtail-config.yml',
+  cwd: __dirname,
+  autorestart: true,
+  max_restarts: 5,
+  restart_delay: 3000,
+  error_file: './logs/promtail.err.log',
+  out_file: './logs/promtail.out.log',
+  log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+}
 
 module.exports = {
   apps: [
     ...pgbouncerApps,
     stripeListenerApp,
-    // promtailApp,  // Activate after Plan 01-04 ships infra/promtail/promtail-config.yml
+    promtailApp,
   ],
 }
