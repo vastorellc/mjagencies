@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'mjagency-apps'
+    static_configs:
+      - targets:
+          - 'host.docker.internal:3000'   # web-main / brand
+          - 'host.docker.internal:3001'   # ecommerce
+          - 'host.docker.internal:3002'   # growth
+          - 'host.docker.internal:3003'   # webdev
+          - 'host.docker.internal:3004'   # ai
+          - 'host.docker.internal:3005'   # branding
+          - 'host.docker.internal:3006'   # strategy
+          - 'host.docker.internal:3007'   # finance
+          - 'host.docker.internal:3008'   # engineering
+          - 'host.docker.internal:3009'   # product
+          - 'host.docker.internal:3010'   # video
+          - 'host.docker.internal:3011'   # graphic
+        labels:
+          environment: development
+    metrics_path: /api/metrics

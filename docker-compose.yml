@@ -1,0 +1,101 @@
+# MJAgency local development stack
+# Profiles:
+#   core (default): postgres, redis
+#   dev: mailhog, pgadmin, stripe-cli
+#
+# Usage:
+#   docker compose up -d                                                      # core services only
+#   docker compose --profile dev up -d                                        # full local dev
+#   docker compose -f docker-compose.yml -f docker-compose.observability.yml --profile dev up -d
+#     # ^ includes observability stack (Prometheus, Loki, Promtail, Tempo, Grafana)
+#
+# Security: all host port bindings use 127.0.0.1 (no LAN exposure — T-01-201, pitfall §2.16)
+# DO NOT change port bindings to 0.0.0.0 — this is a hard security requirement.
+
+services:
+
+  # ── Core profile ──────────────────────────────────────────────────────────
+
+  postgres:
+    image: postgres:17.2-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    labels:
+      com.mjagency.agency: shared
+    # host.docker.internal for Linux (macOS/Windows automatic via Docker Desktop)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    # Container-internal bind is 0.0.0.0 so compose-networked services can reach it,
+    # but the host port mapping uses 127.0.0.1 (no LAN exposure).
+    command: redis-server --requirepass ${REDIS_PASSWORD} --bind 0.0.0.0
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    labels:
+      com.mjagency.agency: shared
+
+  # ── Dev profile ───────────────────────────────────────────────────────────
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+    profiles:
+      - dev
+    labels:
+      com.mjagency.agency: shared
+
+  pgadmin:
+    image: dpage/pgadmin4:8.13
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dev@localhost
+      PGADMIN_DEFAULT_PASSWORD: dev
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - ./infra/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    ports:
+      - "127.0.0.1:5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - dev
+
+  stripe-cli:
+    image: stripe/stripe-cli:v1.21.8
+    restart: unless-stopped
+    # SECURITY: only sk_test_* keys — live keys are PROHIBITED here (D-03, pitfall 3.10, T-01-007, T-01-203)
+    command: listen --forward-to host.docker.internal:3000/api/stripe/webhook
+    environment:
+      STRIPE_API_KEY: ${STRIPE_TEST_API_KEY}
+    profiles:
+      - dev
+
+volumes:
+  postgres-data:
