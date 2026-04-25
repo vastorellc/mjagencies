@@ -4,7 +4,7 @@ import { withPayload } from '@payloadcms/next/withPayload'
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    // CRITICAL: dangerouslyAllowSVG MUST stay false (REQ-098, SEC-N4)
+    // SEC-N4: SVG is not allowed via Next.js Image — sanitize via DOMPurify+SVGO instead
     remotePatterns: [
       { protocol: 'https', hostname: '*.cloudflare.com' },
       { protocol: 'https', hostname: 'imagedelivery.net' },
