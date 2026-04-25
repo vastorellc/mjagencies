@@ -210,6 +210,73 @@ The `stripe-cli` service (dev profile) forwards incoming Stripe events to
 `host.docker.internal:3000/api/stripe/webhook`. This requires a `sk_test_*` test-mode key in
 `STRIPE_TEST_API_KEY`. Never use a live key here — see D-03 and pitfall 3.10.
 
+## Bundle-size workflow
+
+MJAgency enforces bundle-size budgets via **D-16** thresholds (+10% warn / +25% hard fail) using
+`scripts/check-bundle-size.ts` backed by [size-limit](https://github.com/ai/size-limit).
+
+### Running locally
+
+```bash
+# Build all apps first
+pnpm turbo run build
+
+# Run size-limit to see raw byte sizes
+pnpm turbo run size-limit
+
+# Run the D-16 growth gate (reads .size-baseline.json for comparison)
+pnpm tsx scripts/check-bundle-size.ts
+```
+
+### Understanding thresholds (D-16)
+
+| Growth vs baseline | Result |
+|---|---|
+| < +10% | OK — no annotation |
+| +10% to +24.9% | `::warning` annotation on the CI check — PR is still mergeable |
+| +25% or more | `::error` annotation + exit 1 — **PR is blocked** |
+| Negative (shrink) | OK — logged as improvement |
+
+### Where the baseline lives
+
+`.size-baseline.json` at repo root stores per-bundle byte baselines. It is automatically
+updated by the `update-size-baseline` job in `.github/workflows/main.yml` after every successful
+merge to `main`. The file starts empty (`{}`); the first merge populates it.
+
+### When to manually update the baseline
+
+Intentional dependency upgrades (e.g. React version bump, new shared chunk) may cause legitimate
+bundle growth that you want to bless and record as the new baseline. The correct process:
+
+1. Discuss the growth in your PR — add a comment explaining why the size increase is intentional
+2. Merge the PR after review sign-off
+3. The `update-size-baseline` job runs automatically on the `main` push and commits the new baseline
+
+Do NOT manually edit `.size-baseline.json` in your PR — the file is only updated by the automated
+post-merge job. If you need to force-update the baseline locally for testing:
+
+```bash
+# Build and capture size-limit JSON
+pnpm turbo run build
+pnpm size-limit --json > /tmp/size-current.json
+
+# Update the baseline file
+pnpm tsx scripts/check-bundle-size.ts --update-baseline /tmp/size-current.json
+
+# Commit only if you intend to override — requires explicit review
+git add .size-baseline.json
+git commit -m "chore: manually update bundle-size baseline after <reason>"
+```
+
+### Per-app size budgets
+
+Current size budgets are defined in each app's `.size-limit.json`. For `apps/web-main`:
+
+| Bundle | Budget |
+|---|---|
+| First Load JS (homepage) | 150 KB gzip |
+| Admin chunk | 500 KB gzip |
+
 ## Troubleshooting
 
 - **`pnpm install` fails with frozen-lockfile**: run `pnpm install` (no flag) to regenerate the lockfile, then commit `pnpm-lock.yaml`.

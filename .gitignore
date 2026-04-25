@@ -39,5 +39,4 @@ pnpm-debug.log
 # Coverage
 coverage/
 
-# Size baseline (committed manually)
-.size-baseline.json
+# .size-baseline.json is tracked in git — updated by main.yml post-merge job
