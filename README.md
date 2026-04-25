@@ -1,1 +1,3 @@
-# mjagencies
+# MJAgency Monorepo
+
+This is the MJAgency multi-agency platform — brand.com plus 11 active agency subdomains (ecommerce, growth, webdev, ai, branding, strategy, finance, engineering, product, video, graphic) running as a Turborepo monorepo. It contains 12 Next.js 15 + Payload 3.82.1 apps under `apps/`, 13 shared packages under `packages/`, and all infra scripts under `scripts/` and `infra/`. For the project vision and architecture decisions, see `mjagency/PROJECT.md`. For the current build state and active plan, see `.planning/STATE.md`. For first-time local dev setup (Docker Compose, hosts script, Doppler), see `docs/runbooks/local-dev.md`.
