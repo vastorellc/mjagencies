@@ -46,12 +46,12 @@ Parallel-safe: M006+M007 (both depend on M005 only); M009 starts after M003 (par
 **Plans**: 6 plans (one per slice)
 
 Plans:
-- [ ] 01-01: Turborepo + pnpm workspaces + Next.js 15 + Payload 3.82.1 base template (web-main + scaffolds for 11 agency apps)
-- [ ] 01-02: Docker Compose (Postgres x13 in shared instance, Redis, Mailhog, Stripe CLI, PgAdmin) + PgBouncer per agency
-- [ ] 01-03: Cloudflare pipeline — Images, Stream, R2 SDKs in `packages/media`; `packages/builder` + `packages/tools` scaffolds (types-only at M001)
-- [ ] 01-04: OpenTelemetry (sdk-node, traceparent, Pino + redact, DB query trace_id injection) + Prometheus/Loki/Grafana/Tempo dashboards
-- [ ] 01-05: GitHub Actions CI — install/build/test, ESLint, typecheck, bundle-size, version-pin checks, npm audit, secret-pattern grep
-- [ ] 01-06: Doppler workspace setup — per-agency project + shared project, CLI injection at build, secret-rotation runbook
+- [ ] 01-01-PLAN.md (Wave 1) — Turborepo + pnpm workspaces + Next.js 15 + Payload 3.82.1 base template (web-main + scaffolds for 11 agency apps)
+- [ ] 01-02-PLAN.md (Wave 2) — Docker Compose (Postgres x13 in shared instance, Redis, Mailhog, Stripe CLI, PgAdmin) + PgBouncer per agency
+- [ ] 01-03-PLAN.md (Wave 2) — Cloudflare pipeline — Images, Stream, R2 SDKs in `packages/media`; `packages/builder` + `packages/tools` scaffolds (types-only at M001)
+- [ ] 01-04-PLAN.md (Wave 3) — OpenTelemetry (sdk-node, traceparent, Pino + redact, DB query trace_id injection) + Prometheus/Loki/Grafana/Tempo dashboards
+- [ ] 01-05-PLAN.md (Wave 4) — GitHub Actions CI — install/build/test, ESLint, typecheck, bundle-size, version-pin checks, npm audit, secret-pattern grep
+- [ ] 01-06-PLAN.md (Wave 3) — Doppler workspace setup — per-agency project + shared project, CLI injection at build, secret-rotation runbook
 
 ### Phase 2: Multi-tenant DB + Migration
 **Goal**: Per-agency Postgres with migrations, seed framework, backup automation, permissions vault, hash-chained audit log.
