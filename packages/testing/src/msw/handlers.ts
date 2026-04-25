@@ -1,6 +1,8 @@
 import type { HttpHandler } from 'msw'
+import { cloudflareHandlers } from './cloudflare-handlers'
 
-// Base MSW handlers at M001 — empty array.
-// Plan 01-02 adds Stripe webhook handler at the route stub.
+// Base MSW handlers — includes all handler groups.
 // Plan 01-03 adds Cloudflare Images handler for media package tests.
-export const baseHandlers: HttpHandler[] = []
+export { cloudflareHandlers } from './cloudflare-handlers'
+
+export const baseHandlers: HttpHandler[] = [...cloudflareHandlers]
