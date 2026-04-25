@@ -222,3 +222,27 @@ No new threat surface introduced beyond what was in the plan's threat model. T-0
 ---
 *Phase: 01-foundation-infra*
 *Completed: 2026-04-25*
+
+## Self-Check: PASSED
+
+All created files verified present on disk:
+- packages/media/src/types.ts — FOUND
+- packages/media/src/cloudflare-images.ts — FOUND
+- packages/media/src/cloudflare-stream.ts — FOUND
+- packages/media/src/r2.ts — FOUND
+- packages/media/src/blurhash.ts — FOUND
+- packages/media/src/cache-tags.ts — FOUND
+- packages/media/src/index.ts — FOUND
+- packages/media/src/__tests__/cache-tags.test.ts — FOUND
+- packages/media/src/__tests__/cloudflare-images.unit.test.ts — FOUND
+- packages/media/src/__tests__/r2.unit.test.ts — FOUND
+- packages/media/src/__tests__/cloudflare-images.integration.test.ts — FOUND
+- packages/builder/src/types.ts — FOUND
+- packages/tools/src/types.ts — FOUND
+- packages/testing/src/msw/cloudflare-handlers.ts — FOUND
+- .planning/phases/01-foundation-infra/01-03-SUMMARY.md — FOUND
+
+Commits verified in git log:
+- f262c42 feat(01-03): cloudflare media + builder + tools types — FOUND
+- 5a31458 fix(01-03): improve r2.ts PutObjectCommand Body type cast — FOUND
+- 6e874b9 docs(01-03): complete cloudflare media + builder/tools types plan — FOUND
