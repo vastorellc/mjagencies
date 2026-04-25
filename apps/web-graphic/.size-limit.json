@@ -1,0 +1,14 @@
+[
+  {
+    "name": "First Load JS (homepage)",
+    "path": ".next/static/chunks/main-*.js",
+    "limit": "150 KB",
+    "gzip": true
+  },
+  {
+    "name": "Admin chunk",
+    "path": ".next/static/chunks/app/(payload)/admin/**/*.js",
+    "limit": "500 KB",
+    "gzip": true
+  }
+]

@@ -21,7 +21,744 @@ importers:
         specifier: 5.6.3
         version: 5.6.3
 
+  apps/web-ai:
+    dependencies:
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@mjagency/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))
+      '@payloadcms/next':
+        specifier: 3.82.1
+        version: 3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@mjagency/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
+      '@size-limit/preset-app':
+        specifier: 11.1.6
+        version: 11.1.6(size-limit@11.1.6)
+      '@tailwindcss/postcss':
+        specifier: 4.2.4
+        version: 4.2.4
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/react-dom':
+        specifier: 19.0.0
+        version: 19.0.0
+      eslint-config-next:
+        specifier: 15.5.15
+        version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
+      size-limit:
+        specifier: 11.1.6
+        version: 11.1.6
+      tailwindcss:
+        specifier: 4.2.4
+        version: 4.2.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(lightningcss@1.32.0)(msw@2.6.8(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+
+  apps/web-branding:
+    dependencies:
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@mjagency/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))
+      '@payloadcms/next':
+        specifier: 3.82.1
+        version: 3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@mjagency/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
+      '@size-limit/preset-app':
+        specifier: 11.1.6
+        version: 11.1.6(size-limit@11.1.6)
+      '@tailwindcss/postcss':
+        specifier: 4.2.4
+        version: 4.2.4
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/react-dom':
+        specifier: 19.0.0
+        version: 19.0.0
+      eslint-config-next:
+        specifier: 15.5.15
+        version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
+      size-limit:
+        specifier: 11.1.6
+        version: 11.1.6
+      tailwindcss:
+        specifier: 4.2.4
+        version: 4.2.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(lightningcss@1.32.0)(msw@2.6.8(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+
+  apps/web-ecommerce:
+    dependencies:
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@mjagency/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))
+      '@payloadcms/next':
+        specifier: 3.82.1
+        version: 3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@mjagency/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
+      '@size-limit/preset-app':
+        specifier: 11.1.6
+        version: 11.1.6(size-limit@11.1.6)
+      '@tailwindcss/postcss':
+        specifier: 4.2.4
+        version: 4.2.4
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/react-dom':
+        specifier: 19.0.0
+        version: 19.0.0
+      eslint-config-next:
+        specifier: 15.5.15
+        version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
+      size-limit:
+        specifier: 11.1.6
+        version: 11.1.6
+      tailwindcss:
+        specifier: 4.2.4
+        version: 4.2.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(lightningcss@1.32.0)(msw@2.6.8(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+
+  apps/web-engineering:
+    dependencies:
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@mjagency/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))
+      '@payloadcms/next':
+        specifier: 3.82.1
+        version: 3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@mjagency/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
+      '@size-limit/preset-app':
+        specifier: 11.1.6
+        version: 11.1.6(size-limit@11.1.6)
+      '@tailwindcss/postcss':
+        specifier: 4.2.4
+        version: 4.2.4
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/react-dom':
+        specifier: 19.0.0
+        version: 19.0.0
+      eslint-config-next:
+        specifier: 15.5.15
+        version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
+      size-limit:
+        specifier: 11.1.6
+        version: 11.1.6
+      tailwindcss:
+        specifier: 4.2.4
+        version: 4.2.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(lightningcss@1.32.0)(msw@2.6.8(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+
+  apps/web-finance:
+    dependencies:
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@mjagency/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))
+      '@payloadcms/next':
+        specifier: 3.82.1
+        version: 3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@mjagency/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
+      '@size-limit/preset-app':
+        specifier: 11.1.6
+        version: 11.1.6(size-limit@11.1.6)
+      '@tailwindcss/postcss':
+        specifier: 4.2.4
+        version: 4.2.4
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/react-dom':
+        specifier: 19.0.0
+        version: 19.0.0
+      eslint-config-next:
+        specifier: 15.5.15
+        version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
+      size-limit:
+        specifier: 11.1.6
+        version: 11.1.6
+      tailwindcss:
+        specifier: 4.2.4
+        version: 4.2.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(lightningcss@1.32.0)(msw@2.6.8(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+
+  apps/web-graphic:
+    dependencies:
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@mjagency/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))
+      '@payloadcms/next':
+        specifier: 3.82.1
+        version: 3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@mjagency/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
+      '@size-limit/preset-app':
+        specifier: 11.1.6
+        version: 11.1.6(size-limit@11.1.6)
+      '@tailwindcss/postcss':
+        specifier: 4.2.4
+        version: 4.2.4
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/react-dom':
+        specifier: 19.0.0
+        version: 19.0.0
+      eslint-config-next:
+        specifier: 15.5.15
+        version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
+      size-limit:
+        specifier: 11.1.6
+        version: 11.1.6
+      tailwindcss:
+        specifier: 4.2.4
+        version: 4.2.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(lightningcss@1.32.0)(msw@2.6.8(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+
+  apps/web-growth:
+    dependencies:
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@mjagency/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))
+      '@payloadcms/next':
+        specifier: 3.82.1
+        version: 3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@mjagency/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
+      '@size-limit/preset-app':
+        specifier: 11.1.6
+        version: 11.1.6(size-limit@11.1.6)
+      '@tailwindcss/postcss':
+        specifier: 4.2.4
+        version: 4.2.4
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/react-dom':
+        specifier: 19.0.0
+        version: 19.0.0
+      eslint-config-next:
+        specifier: 15.5.15
+        version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
+      size-limit:
+        specifier: 11.1.6
+        version: 11.1.6
+      tailwindcss:
+        specifier: 4.2.4
+        version: 4.2.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(lightningcss@1.32.0)(msw@2.6.8(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+
   apps/web-main:
+    dependencies:
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@mjagency/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))
+      '@payloadcms/next':
+        specifier: 3.82.1
+        version: 3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@mjagency/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
+      '@size-limit/preset-app':
+        specifier: 11.1.6
+        version: 11.1.6(size-limit@11.1.6)
+      '@tailwindcss/postcss':
+        specifier: 4.2.4
+        version: 4.2.4
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/react-dom':
+        specifier: 19.0.0
+        version: 19.0.0
+      eslint-config-next:
+        specifier: 15.5.15
+        version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
+      size-limit:
+        specifier: 11.1.6
+        version: 11.1.6
+      tailwindcss:
+        specifier: 4.2.4
+        version: 4.2.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(lightningcss@1.32.0)(msw@2.6.8(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+
+  apps/web-product:
+    dependencies:
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@mjagency/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))
+      '@payloadcms/next':
+        specifier: 3.82.1
+        version: 3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@mjagency/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
+      '@size-limit/preset-app':
+        specifier: 11.1.6
+        version: 11.1.6(size-limit@11.1.6)
+      '@tailwindcss/postcss':
+        specifier: 4.2.4
+        version: 4.2.4
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/react-dom':
+        specifier: 19.0.0
+        version: 19.0.0
+      eslint-config-next:
+        specifier: 15.5.15
+        version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
+      size-limit:
+        specifier: 11.1.6
+        version: 11.1.6
+      tailwindcss:
+        specifier: 4.2.4
+        version: 4.2.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(lightningcss@1.32.0)(msw@2.6.8(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+
+  apps/web-strategy:
+    dependencies:
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@mjagency/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))
+      '@payloadcms/next':
+        specifier: 3.82.1
+        version: 3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@mjagency/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
+      '@size-limit/preset-app':
+        specifier: 11.1.6
+        version: 11.1.6(size-limit@11.1.6)
+      '@tailwindcss/postcss':
+        specifier: 4.2.4
+        version: 4.2.4
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/react-dom':
+        specifier: 19.0.0
+        version: 19.0.0
+      eslint-config-next:
+        specifier: 15.5.15
+        version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
+      size-limit:
+        specifier: 11.1.6
+        version: 11.1.6
+      tailwindcss:
+        specifier: 4.2.4
+        version: 4.2.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(lightningcss@1.32.0)(msw@2.6.8(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+
+  apps/web-video:
+    dependencies:
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@mjagency/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))
+      '@payloadcms/next':
+        specifier: 3.82.1
+        version: 3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      next:
+        specifier: 15.5.15
+        version: 15.5.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@mjagency/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
+      '@size-limit/preset-app':
+        specifier: 11.1.6
+        version: 11.1.6(size-limit@11.1.6)
+      '@tailwindcss/postcss':
+        specifier: 4.2.4
+        version: 4.2.4
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/react-dom':
+        specifier: 19.0.0
+        version: 19.0.0
+      eslint-config-next:
+        specifier: 15.5.15
+        version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
+      size-limit:
+        specifier: 11.1.6
+        version: 11.1.6
+      tailwindcss:
+        specifier: 4.2.4
+        version: 4.2.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(lightningcss@1.32.0)(msw@2.6.8(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+
+  apps/web-webdev:
     dependencies:
       '@mjagency/config':
         specifier: workspace:*
@@ -9236,7 +9973,7 @@ snapshots:
   tsx@4.21.0:
     dependencies:
       esbuild: 0.27.7
-      get-tsconfig: 4.8.1
+      get-tsconfig: 4.14.0
     optionalDependencies:
       fsevents: 2.3.3
 
