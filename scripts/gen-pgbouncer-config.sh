@@ -1,0 +1,176 @@
+#!/usr/bin/env bash
+# gen-pgbouncer-config.sh — idempotent generator for PgBouncer configs
+#
+# Generates:
+#   infra/pgbouncer/pgbouncer.<slug>.ini  — one per agency (12 total)
+#   infra/pgbouncer/userlist.<slug>.txt   — SCRAM-SHA-256 userlist per agency
+#
+# Requires:
+#   - Per-agency env vars: BRAND_DB_PASSWORD, ECOMMERCE_DB_PASSWORD, ... (or .env loaded)
+#   - node OR python3 for SCRAM-SHA-256 hash generation
+#
+# Usage:
+#   bash scripts/gen-pgbouncer-config.sh
+#   source .env && bash scripts/gen-pgbouncer-config.sh
+#
+# Idempotent: running twice with same env vars produces byte-identical output.
+# Source: RESEARCH §2.4 PgBouncer verbatim template + pitfall 3.3
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+INI_DIR="$REPO_ROOT/infra/pgbouncer"
+
+mkdir -p "$INI_DIR"
+
+# Agency slug list in canonical order (matches packages/config/src/agency-constants.ts)
+AGENCIES=(brand ecommerce growth webdev ai branding strategy finance engineering product video graphic)
+BASE_PORT=6432
+
+# Load .env if present and env vars not already set
+if [ -f "$REPO_ROOT/.env" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$REPO_ROOT/.env"
+  set +a
+fi
+
+# Helper: generate SCRAM-SHA-256 password hash compatible with PgBouncer userlist.txt
+# PgBouncer 1.21+ supports SCRAM-SHA-256 in auth_type=scram-sha-256 mode.
+# The hash format is: SCRAM-SHA-256$<iterations>:<base64-salt>$<base64-stored-key>:<base64-server-key>
+#
+# Rotation procedure:
+#   1. Update <UPPER>_DB_PASSWORD in Doppler (Plan 01-06)
+#   2. Re-run this script
+#   3. Restart PgBouncer: pm2 restart pgbouncer-<slug>
+#   4. Run: ALTER ROLE <slug>_user PASSWORD '<new-password>' in Postgres
+
+generate_scram_hash() {
+  local password="$1"
+  local username="$2"
+
+  # Try Node.js first (always available in this project — Node 22 LTS)
+  if command -v node >/dev/null 2>&1; then
+    node - "$password" "$username" 2>/dev/null << 'JSEOF'
+const crypto = require('crypto')
+const password = Buffer.from(process.argv[2], 'utf8')
+const username = process.argv[3]
+
+// Use deterministic salt derived from username+password for idempotency
+// In production, Postgres generates the actual hash; this provides a structurally
+// valid SCRAM-SHA-256 hash for dev environments without a live Postgres.
+const saltInput = Buffer.from(username + process.argv[2], 'utf8')
+const salt = crypto.createHash('sha256').update(saltInput).digest().slice(0, 16)
+
+const iterations = 4096
+
+// SCRAM-SHA-256 key derivation (RFC 5802)
+const saltedPw = crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha256')
+const clientKey = crypto.createHmac('sha256', saltedPw).update('Client Key').digest()
+const storedKey = crypto.createHash('sha256').update(clientKey).digest()
+const serverKey = crypto.createHmac('sha256', saltedPw).update('Server Key').digest()
+
+const saltB64 = salt.toString('base64')
+const storedB64 = storedKey.toString('base64')
+const serverB64 = serverKey.toString('base64')
+
+process.stdout.write(`SCRAM-SHA-256$${iterations}:${saltB64}$${storedB64}:${serverB64}`)
+JSEOF
+    return
+  fi
+
+  # Try python3 fallback
+  if command -v python3 >/dev/null 2>&1; then
+    python3 - "$password" "$username" 2>/dev/null << 'PYEOF'
+import sys, base64, hashlib, hmac
+
+password = sys.argv[1].encode('utf-8')
+username_bytes = sys.argv[2].encode('utf-8')
+salt_input = username_bytes + sys.argv[1].encode('utf-8')
+salt = hashlib.sha256(salt_input).digest()[:16]
+iterations = 4096
+
+salted_pw = hashlib.pbkdf2_hmac('sha256', password, salt, iterations)
+client_key = hmac.new(salted_pw, b'Client Key', hashlib.sha256).digest()
+stored_key = hashlib.sha256(client_key).digest()
+server_key = hmac.new(salted_pw, b'Server Key', hashlib.sha256).digest()
+
+salt_b64 = base64.b64encode(salt).decode('ascii')
+stored_b64 = base64.b64encode(stored_key).decode('ascii')
+server_b64 = base64.b64encode(server_key).decode('ascii')
+print(f'SCRAM-SHA-256${iterations}:{salt_b64}${stored_b64}:{server_b64}', end='')
+PYEOF
+    return
+  fi
+
+  # No hash generator available — emit placeholder with correct format prefix
+  echo "SCRAM-SHA-256\$4096:$(echo -n "${username}${password}" | base64 | head -c 24)\$PLACEHOLDER_STORED:PLACEHOLDER_SERVER"
+}
+
+echo "Generating PgBouncer configs in $INI_DIR..."
+
+for i in "${!AGENCIES[@]}"; do
+  slug="${AGENCIES[$i]}"
+  port=$((BASE_PORT + i))
+  UPPER="${slug^^}"
+  PW_VAR="${UPPER}_DB_PASSWORD"
+  PW="${!PW_VAR:-dev-secret-12345}"
+
+  # auth_file: PgBouncer resolves relative paths relative to the config file location.
+  # Using just the filename (no directory) since both .ini and userlist.txt are in the same
+  # infra/pgbouncer/ directory. This makes the config portable across machines.
+  AUTH_FILE="userlist.${slug}.txt"
+
+  # ── Generate .ini file ────────────────────────────────────────────────────
+  cat > "$INI_DIR/pgbouncer.${slug}.ini" << INI
+; PgBouncer config for ${slug} agency
+; Generated by scripts/gen-pgbouncer-config.sh — do not hand-edit
+; Regenerate: bash scripts/gen-pgbouncer-config.sh
+;
+; CRITICAL — pitfall 3.3 (Drizzle prepared statements in transaction mode):
+;   max_prepared_statements = 100 is MANDATORY. Without this, Drizzle's default
+;   server-side prepared statements break with "prepared statement does not exist"
+;   in transaction pool mode (each query may land on a different Postgres connection).
+;   Source: pganalyze.com/blog/5mins-postgres-pgbouncer-prepared-statements-transaction-mode
+
+[databases]
+${slug}_db = host=127.0.0.1 port=5432 dbname=${slug}_db
+
+[pgbouncer]
+listen_addr = 127.0.0.1
+listen_port = ${port}
+pool_mode = transaction
+max_client_conn = 200
+default_pool_size = 20
+auth_type = scram-sha-256
+auth_file = ${AUTH_FILE}
+max_prepared_statements = 100
+ignore_startup_parameters = extra_float_digits
+log_connections = 0
+log_disconnections = 0
+admin_users = postgres
+INI
+
+  # ── Generate userlist file ────────────────────────────────────────────────
+  SCRAM_HASH=$(generate_scram_hash "$PW" "${slug}_user")
+  printf '"%s_user" "%s"\n' "${slug}" "${SCRAM_HASH}" > "$INI_DIR/userlist.${slug}.txt"
+
+  echo "  Generated: pgbouncer.${slug}.ini (port ${port}) + userlist.${slug}.txt"
+done
+
+echo ""
+echo "Done. Generated ${#AGENCIES[@]} .ini files + ${#AGENCIES[@]} userlist files in $INI_DIR/"
+echo ""
+echo "Port assignments:"
+for i in "${!AGENCIES[@]}"; do
+  slug="${AGENCIES[$i]}"
+  port=$((BASE_PORT + i))
+  printf "  %-15s port %d\n" "${slug}:" "$port"
+done
+echo ""
+echo "Note: Port 6444 is reserved for the M002 platform-shared admin connection (not generated here)."
+echo ""
+echo "After Postgres is running, verify hashes match Postgres by running:"
+echo "  psql -h 127.0.0.1 -p 5432 -U postgres -c \"SELECT rolname, rolpassword FROM pg_authid WHERE rolname LIKE '%_user';\""
+echo "  Then copy the Postgres hash to infra/pgbouncer/userlist.<slug>.txt if different."
