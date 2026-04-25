@@ -49,7 +49,7 @@ Plans:
 - [x] 01-01-PLAN.md (Wave 1) — Turborepo + pnpm workspaces + Next.js 15 + Payload 3.82.1 base template (web-main + scaffolds for 11 agency apps)
 - [x] 01-02-PLAN.md (Wave 2) — Docker Compose (Postgres x13 in shared instance, Redis, Mailhog, Stripe CLI, PgAdmin) + PgBouncer per agency
 - [x] 01-03-PLAN.md (Wave 2) — Cloudflare pipeline — Images, Stream, R2 SDKs in `packages/media`; `packages/builder` + `packages/tools` scaffolds (types-only at M001)
-- [ ] 01-04-PLAN.md (Wave 3) — OpenTelemetry (sdk-node, traceparent, Pino + redact, DB query trace_id injection) + Prometheus/Loki/Grafana/Tempo dashboards
+- [x] 01-04-PLAN.md (Wave 3) — OpenTelemetry (sdk-node, traceparent, Pino + redact, DB query trace_id injection) + Prometheus/Loki/Grafana/Tempo dashboards
 - [ ] 01-05-PLAN.md (Wave 4) — GitHub Actions CI — install/build/test, ESLint, typecheck, bundle-size, version-pin checks, npm audit, secret-pattern grep
 - [ ] 01-06-PLAN.md (Wave 3) — Doppler workspace setup — per-agency project + shared project, CLI injection at build, secret-rotation runbook
 
