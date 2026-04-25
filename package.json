@@ -1,0 +1,22 @@
+{
+  "name": "mjagency-monorepo",
+  "private": true,
+  "engines": { "node": ">=22.0.0", "pnpm": ">=10.0.0" },
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "size-limit": "turbo run size-limit",
+    "format": "prettier --write .",
+    "setup-hosts": "scripts/setup-hosts.sh"
+  },
+  "devDependencies": {
+    "turbo": "2.9.6",
+    "typescript": "5.6.3",
+    "prettier": "3.3.3",
+    "eslint": "9.13.0"
+  }
+}

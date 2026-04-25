@@ -26,3 +26,18 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Turborepo
+.turbo
+
+# pnpm
+pnpm-debug.log
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Coverage
+coverage/
+
+# Size baseline (committed manually)
+.size-baseline.json
