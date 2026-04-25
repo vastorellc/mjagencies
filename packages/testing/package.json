@@ -9,6 +9,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./msw": {
+      "types": "./src/msw/handlers.ts",
+      "default": "./src/msw/handlers.ts"
     }
   },
   "scripts": {
