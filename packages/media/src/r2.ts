@@ -22,7 +22,7 @@ export function createR2Client(env: R2Env): R2Client {
 
   return {
     async putObject({ key, body, contentType }) {
-      await client.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body as string, ContentType: contentType }))
+      await client.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body as Buffer, ContentType: contentType }))
     },
     async getObject({ key }) {
       const res = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }))
