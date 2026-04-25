@@ -11,8 +11,8 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 Phase: 1 of 12 (Foundation + Infra)
 Plan: 0 of 6 in current phase
-Status: Ready to plan (CONTEXT pending — run `/gsd-discuss-phase 1`)
-Last activity: 2026-04-25 — `.planning/` bootstrapped from `mjagency/` GSD-2 docs
+Status: Ready to plan (CONTEXT.md captured — run `/gsd-plan-phase 1`)
+Last activity: 2026-04-25 — Phase 1 context gathered (4 areas discussed, 18 decisions captured in 01-CONTEXT.md)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -65,7 +65,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-25
-Stopped at: `.planning/` scaffolded from `mjagency/` GSD-2 docs (PROJECT.md, REQUIREMENTS.md, ROADMAP.md, STATE.md, phase dirs created). Ready to begin Phase 1.
-Resume file: None
+Stopped at: Phase 1 context gathered (`/gsd-discuss-phase 1` complete — 18 decisions across 4 areas: VPS+CI, local DB topology, observability scope, repo strictness).
+Resume file: `.planning/phases/01-foundation-infra/01-CONTEXT.md`
 
-Next step: `/gsd-discuss-phase 1`
+Next step: `/gsd-plan-phase 1`
