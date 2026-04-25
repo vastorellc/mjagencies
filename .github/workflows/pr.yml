@@ -1,0 +1,176 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security-grep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: REQ-502 jose-only (no jsonwebtoken)
+        run: |
+          if grep -rn "jsonwebtoken" apps packages --include='*.ts' --include='*.tsx' --include='*.js' --include='package.json'; then
+            echo "::error::REQ-502 violation: jsonwebtoken found. Use jose."
+            exit 1
+          fi
+      - name: REQ-503 no NEXT_PUBLIC_*KEY env names
+        run: |
+          if grep -rnE "NEXT_PUBLIC_[A-Z_]*KEY" apps packages --include='*.ts' --include='*.tsx' --include='*.env*'; then
+            echo "::error::REQ-503 violation: NEXT_PUBLIC_*KEY env name detected."
+            exit 1
+          fi
+      - name: REQ-N4 no dangerouslyAllowSVG
+        run: |
+          if grep -rn "dangerouslyAllowSVG" apps packages --include='*.ts' --include='*.tsx' --include='*.mjs'; then
+            echo "::error::dangerouslyAllowSVG is forbidden (SEC-N4)."
+            exit 1
+          fi
+
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - name: REQ-501 Payload version pin
+        run: pnpm list payload --depth=0 | grep "payload 3.82.1" || (echo "::error::REQ-501: payload must be 3.82.1 exact" && exit 1)
+      - name: CLAUDE.md / PROJECT.md byte-parity (mjagency/ vs root)
+        run: bash scripts/check-claude-md-parity.sh
+      - name: npm audit
+        run: pnpm audit --audit-level=high || true
+
+  lint-typecheck-test:
+    needs: install
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        task: [lint, typecheck, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run ${{ matrix.task }}
+
+  build:
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - uses: dopplerhq/cli-action@v3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+
+  bundle-size:
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build
+      - run: pnpm tsx scripts/check-bundle-size.ts
+
+  npm-audit:
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - name: pnpm audit (high severity)
+        run: pnpm audit --audit-level=high
+
+  compose-smoke:
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tsx scripts/compose-smoke.ts
+
+  dev-smoke:
+    needs: [install, compose-smoke]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - uses: dopplerhq/cli-action@v3
+      - run: pnpm install --frozen-lockfile
+      - run: docker compose -f docker-compose.yml -f docker-compose.observability.yml --profile dev up -d postgres redis
+      - run: pnpm tsx scripts/dev-smoke.ts
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+
+  next-data-secret-audit:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - uses: dopplerhq/cli-action@v3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build --filter=@mjagency/web-main
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+      - name: REQ-427 scan __NEXT_DATA__ for secret patterns
+        run: pnpm tsx scripts/scan-next-data.ts

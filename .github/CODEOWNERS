@@ -1,0 +1,19 @@
+# Default ownership — all files require review from maintainers
+*                                   @mjagency/maintainers
+
+# Critical infra paths require review by infra group
+/apps/web-main/payload.config.ts    @mjagency/infra
+/infra/                             @mjagency/infra
+/.github/workflows/                 @mjagency/infra
+/docker-compose.yml                 @mjagency/infra
+/docker-compose.observability.yml   @mjagency/infra
+
+# Secrets and runbooks require security group review
+/docs/runbooks/secrets*.md          @mjagency/security
+/docs/runbooks/vps-provisioning.md  @mjagency/security
+
+# Doctrine files require maintainers review
+/CLAUDE.md                          @mjagency/maintainers
+/PROJECT.md                         @mjagency/maintainers
+/mjagency/CLAUDE.md                 @mjagency/maintainers
+/mjagency/PROJECT.md                @mjagency/maintainers

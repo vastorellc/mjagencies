@@ -1,0 +1,58 @@
+name: Main
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  full-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - uses: dopplerhq/cli-action@v3
+      - run: pnpm install --frozen-lockfile
+      - name: REQ-501 Payload version pin
+        run: pnpm list payload --depth=0 | grep "payload 3.82.1" || (echo "::error::REQ-501: payload must be 3.82.1 exact" && exit 1)
+      - name: CLAUDE.md / PROJECT.md byte-parity
+        run: bash scripts/check-claude-md-parity.sh
+      - run: pnpm turbo run lint typecheck test build size-limit
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+      - name: REQ-427 scan __NEXT_DATA__ for secret patterns
+        run: pnpm tsx scripts/scan-next-data.ts
+
+  update-size-baseline:
+    runs-on: ubuntu-latest
+    needs: full-suite
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build
+      - run: pnpm size-limit --json > /tmp/size-current.json
+      - run: pnpm tsx scripts/check-bundle-size.ts --update-baseline /tmp/size-current.json
+      - name: Commit baseline update
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "github-actions"
+          if [[ -n "$(git status --porcelain .size-baseline.json)" ]]; then
+            git add .size-baseline.json
+            git commit -m "chore(01-05): update bundle-size baseline [skip ci]"
+            git push
+          fi
