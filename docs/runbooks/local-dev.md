@@ -125,9 +125,95 @@ After completing Steps 1–5, hit `http://brand.localhost:3000/admin` in a brows
 
 Note: At M001 (Plan 01-01), the health route (`/api/health`) verifies the app boots, but the admin wizard gate is deferred to Plan 01-02 when Postgres is available.
 
+## Compose Stack
+
+### Profiles
+
+The `docker-compose.yml` ships two profiles:
+
+| Profile | Services included | Use case |
+|---------|-------------------|----------|
+| *(none, default)* | `postgres`, `redis` | Minimal local stack; fastest startup |
+| `dev` | `postgres`, `redis`, `mailhog`, `pgadmin`, `stripe-cli` | Full local dev with email preview, DB GUI, and Stripe webhook forwarding |
+
+### Starting the stack
+
+```bash
+# Core only (Postgres 17 + Redis 7) — suitable for backend-only work
+docker compose up -d
+
+# Full dev stack — required for first-user Payload wizard and email testing
+docker compose --profile dev up -d
+
+# Stop all services
+docker compose --profile dev down
+```
+
+### Service inventory
+
+| Service | Image | Host port | Purpose |
+|---------|-------|-----------|---------|
+| `postgres` | `postgres:17.2-alpine` | `127.0.0.1:5432` | Single container with 12 logical DBs + roles |
+| `redis` | `redis:7.4-alpine` | `127.0.0.1:6379` | Shared, namespaced by `agency:<id>:*` prefix |
+| `mailhog` *(dev)* | `mailhog/mailhog:v1.0.1` | `127.0.0.1:1025` (SMTP), `127.0.0.1:8025` (UI) | Catch-all email preview |
+| `pgadmin` *(dev)* | `dpage/pgadmin4:8.13` | `127.0.0.1:5050` | DB GUI pre-configured with all 12 agency connections |
+| `stripe-cli` *(dev)* | `stripe/stripe-cli:v1.21.8` | — | Forwards webhooks to `host.docker.internal:3000/api/stripe/webhook` |
+
+Security note: all host port bindings use `127.0.0.1` (not `0.0.0.0`) — no LAN exposure.
+
+### Database layout
+
+Postgres 17 hosts 12 logical databases, one per agency:
+
+| Agency | Database | Role | PgBouncer port |
+|--------|----------|------|----------------|
+| brand | `brand_db` | `brand_user` | 6432 |
+| ecommerce | `ecommerce_db` | `ecommerce_user` | 6433 |
+| growth | `growth_db` | `growth_user` | 6434 |
+| webdev | `webdev_db` | `webdev_user` | 6435 |
+| ai | `ai_db` | `ai_user` | 6436 |
+| branding | `branding_db` | `branding_user` | 6437 |
+| strategy | `strategy_db` | `strategy_user` | 6438 |
+| finance | `finance_db` | `finance_user` | 6439 |
+| engineering | `engineering_db` | `engineering_user` | 6440 |
+| product | `product_db` | `product_user` | 6441 |
+| video | `video_db` | `video_user` | 6442 |
+| graphic | `graphic_db` | `graphic_user` | 6443 |
+
+Port 6444 is reserved for the M002 platform-shared admin connection.
+
+### Waiting for Postgres before starting apps (pitfall 3.12)
+
+Apps that start before Postgres is ready will fail with connection errors. Always confirm
+Postgres is ready before running `pnpm dev`:
+
+```bash
+# Wait until Postgres accepts connections on port 5432
+wait-on tcp:5432
+
+# Or manually check:
+docker compose ps postgres   # look for Status = "healthy"
+```
+
+The `scripts/compose-smoke.ts` helper (used by CI) polls all containers until healthy
+with a 120-second timeout.
+
+### PgAdmin
+
+Navigate to `http://127.0.0.1:5050` after running `docker compose --profile dev up -d`.
+All 12 agency connections are pre-configured via `infra/pgadmin/servers.json`. No manual
+setup is required. Credentials: `dev@localhost` / `dev` (local only, not used in production).
+
+### Stripe CLI webhook forwarding
+
+The `stripe-cli` service (dev profile) forwards incoming Stripe events to
+`host.docker.internal:3000/api/stripe/webhook`. This requires a `sk_test_*` test-mode key in
+`STRIPE_TEST_API_KEY`. Never use a live key here — see D-03 and pitfall 3.10.
+
 ## Troubleshooting
 
 - **`pnpm install` fails with frozen-lockfile**: run `pnpm install` (no flag) to regenerate the lockfile, then commit `pnpm-lock.yaml`.
 - **Port already in use**: each agency app uses a fixed port (brand=3000, ecommerce=3001, …, graphic=3011). Run `lsof -i :3000` (macOS/Linux) or `netstat -ano | findstr :3000` (Windows) to find the conflicting process.
 - **`brand.localhost` does not resolve**: check `/etc/hosts` on both Windows and WSL2 (if applicable). Flush DNS: `ipconfig /flushdns` (Windows) or `sudo dscacheutil -flushcache` (macOS).
 - **Payload admin loads but shows DB error**: Postgres is not running. Run `docker compose --profile dev up -d` and wait for the healthcheck to pass.
+- **PgAdmin cannot reach Postgres**: `host.docker.internal` must resolve to the Docker host. On Linux, add `--add-host=host.docker.internal:host-gateway` to the pgadmin service if the connection fails (this is automatic on Docker Desktop for macOS/Windows).

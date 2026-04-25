@@ -1,0 +1,29 @@
+-- Template: infra/postgres/init.sql.tmpl
+-- Generated output: infra/postgres/init.sql
+-- Regenerate: bash scripts/gen-postgres-init.sh
+--
+-- This template describes the structure. The generator substitutes {slug} and {password}
+-- for each of the 12 agency databases + roles.
+--
+-- For each agency slug in (brand, ecommerce, growth, webdev, ai, branding,
+-- strategy, finance, engineering, product, video, graphic):
+
+-- Agency: {slug}
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '{slug}_user') THEN
+    CREATE ROLE {slug}_user WITH LOGIN PASSWORD '{UPPER_SLUG}_DB_PASSWORD_env_var';
+  ELSE
+    ALTER ROLE {slug}_user WITH PASSWORD '{UPPER_SLUG}_DB_PASSWORD_env_var';
+  END IF;
+END
+$$;
+
+SELECT 'CREATE DATABASE {slug}_db'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{slug}_db') \gexec
+
+GRANT ALL PRIVILEGES ON DATABASE {slug}_db TO {slug}_user;
+ALTER DATABASE {slug}_db OWNER TO {slug}_user;
+
+-- (Repeated × 12)
+-- 13th slot (port 6444) reserved for M002 platform-shared admin connection

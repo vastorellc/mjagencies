@@ -1,0 +1,124 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "brand_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "brand_db",
+      "Username": "brand_user",
+      "SSLMode": "prefer",
+      "Comment": "Brand agency database — primary DB for web-main (Payload CMS)"
+    },
+    "2": {
+      "Name": "ecommerce_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "ecommerce_db",
+      "Username": "ecommerce_user",
+      "SSLMode": "prefer",
+      "Comment": "Ecommerce agency database — PgBouncer port 6433"
+    },
+    "3": {
+      "Name": "growth_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "growth_db",
+      "Username": "growth_user",
+      "SSLMode": "prefer",
+      "Comment": "Growth agency database — PgBouncer port 6434"
+    },
+    "4": {
+      "Name": "webdev_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "webdev_db",
+      "Username": "webdev_user",
+      "SSLMode": "prefer",
+      "Comment": "WebDev agency database — PgBouncer port 6435"
+    },
+    "5": {
+      "Name": "ai_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "ai_db",
+      "Username": "ai_user",
+      "SSLMode": "prefer",
+      "Comment": "AI agency database — PgBouncer port 6436"
+    },
+    "6": {
+      "Name": "branding_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "branding_db",
+      "Username": "branding_user",
+      "SSLMode": "prefer",
+      "Comment": "Branding agency database — PgBouncer port 6437"
+    },
+    "7": {
+      "Name": "strategy_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "strategy_db",
+      "Username": "strategy_user",
+      "SSLMode": "prefer",
+      "Comment": "Strategy agency database — PgBouncer port 6438"
+    },
+    "8": {
+      "Name": "finance_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "finance_db",
+      "Username": "finance_user",
+      "SSLMode": "prefer",
+      "Comment": "Finance agency database — PgBouncer port 6439"
+    },
+    "9": {
+      "Name": "engineering_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "engineering_db",
+      "Username": "engineering_user",
+      "SSLMode": "prefer",
+      "Comment": "Engineering agency database — PgBouncer port 6440"
+    },
+    "10": {
+      "Name": "product_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "product_db",
+      "Username": "product_user",
+      "SSLMode": "prefer",
+      "Comment": "Product agency database — PgBouncer port 6441"
+    },
+    "11": {
+      "Name": "video_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "video_db",
+      "Username": "video_user",
+      "SSLMode": "prefer",
+      "Comment": "Video agency database — PgBouncer port 6442"
+    },
+    "12": {
+      "Name": "graphic_db",
+      "Group": "MJAgency",
+      "Host": "host.docker.internal",
+      "Port": 5432,
+      "MaintenanceDB": "graphic_db",
+      "Username": "graphic_user",
+      "SSLMode": "prefer",
+      "Comment": "Graphic agency database — PgBouncer port 6443"
+    }
+  }
+}
