@@ -1,11 +1,69 @@
-/* MJAgency Design System — Theme Tokens
- * Single @theme block consumed by all 12 agency apps via Tailwind v4.
- * M004 populates real brand values (colors, typography, spacing, radius).
- * At M001 this establishes the file so every app's build pipeline resolves the import.
+/* packages/ui/styles/theme.css
+ * MJAgency Design System — Theme Tokens
+ * Single entry consumed by all 12 agency apps via Tailwind v4.
+ * REQ-040 — 6-layer token schema. REQ-046 — dark mode via attribute.
+ * REQ-047 — no hex literals (OKLCH only).
  */
-@theme {
-  /* Colors — filled in M004 */
-  --color-brand-50: #f0f9ff;
-  --color-brand-500: #0ea5e9;
-  --color-brand-900: #0c4a6e;
+
+@import "tailwindcss";
+
+/* Import all 6 token layers — order matters (cascade respects file order) */
+@import "../tokens/layer-1-primitives.css";
+@import "../tokens/layer-2-semantic-color.css";
+@import "../tokens/layer-3-typography.css";
+@import "../tokens/layer-4-layout.css";
+@import "../tokens/layer-5-effects.css";
+@import "../tokens/layer-6-components.css";
+
+/* Dark mode override block — only Layer 2 colors flip */
+@import "../tokens/dark-mode.css";
+
+/* Bridge --mj-* tokens → Tailwind v4 utility vars via @theme inline.
+ * @theme inline preserves var() references at use-time (Pitfall 2 + Assumption A3).
+ * After this block, `bg-brand-500`, `text-text-primary`, `p-4`, `shadow-md`, etc. resolve. */
+@theme inline {
+  /* Colors → bg-*, text-*, border-*, fill-*, stroke-* */
+  --color-brand-50:    var(--mj-color-brand-50);
+  --color-brand-500:   var(--mj-color-brand-500);
+  --color-brand-900:   var(--mj-color-brand-900);
+  --color-bg-primary:  var(--mj-color-bg-primary);
+  --color-bg-secondary:var(--mj-color-bg-secondary);
+  --color-text-primary:   var(--mj-color-text-primary);
+  --color-text-secondary: var(--mj-color-text-secondary);
+  --color-border-default: var(--mj-color-border-default);
+  --color-accent:    var(--mj-color-accent-primary);
+  --color-success:   var(--mj-color-success);
+  --color-warning:   var(--mj-color-warning);
+  --color-error:     var(--mj-color-error);
+
+  /* Spacing → p-*, m-*, gap-*, w-* */
+  --spacing-1:  var(--mj-space-1);
+  --spacing-2:  var(--mj-space-2);
+  --spacing-4:  var(--mj-space-4);
+  --spacing-6:  var(--mj-space-6);
+  --spacing-8:  var(--mj-space-8);
+  --spacing-12: var(--mj-space-12);
+  --spacing-16: var(--mj-space-16);
+
+  /* Typography → font-*, text-* */
+  --font-sans:  var(--mj-font-sans);
+  --font-serif: var(--mj-font-serif);
+  --font-mono:  var(--mj-font-mono);
+  --font-brand: var(--mj-font-brand);
+
+  /* Shadows → shadow-* */
+  --shadow-sm: var(--mj-shadow-sm);
+  --shadow-md: var(--mj-shadow-md);
+  --shadow-lg: var(--mj-shadow-lg);
+
+  /* Border radius → rounded-* */
+  --radius-sm:   var(--mj-radius-sm);
+  --radius-base: var(--mj-radius-base);
+  --radius-md:   var(--mj-radius-md);
+  --radius-lg:   var(--mj-radius-lg);
+  --radius-xl:   var(--mj-radius-xl);
+  --radius-full: var(--mj-radius-full);
 }
+
+/* Dark mode variant — `dark:` Tailwind utilities target [data-theme="dark"] */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));

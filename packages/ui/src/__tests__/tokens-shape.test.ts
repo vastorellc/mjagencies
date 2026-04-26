@@ -36,7 +36,7 @@ describe('tokens-shape', () => {
     const css = readToken('tokens/layer-2-semantic-color.css')
 
     // Extract all var(--mj-*) references
-    const varRefs = [...css.matchAll(/var\(--mj-([\w-]+)/g)].map((m) => m[1])
+    const varRefs = [...css.matchAll(/var\(--mj-([\w-]+)/g)].map((m) => m[1] ?? '')
 
     for (const ref of varRefs) {
       const isAllowed =
@@ -108,7 +108,7 @@ describe('tokens-shape', () => {
     for (const decl of declarations) {
       const propMatch = decl.match(/--mj-([\w-]+)/)
       if (!propMatch) continue
-      const prop = propMatch[1]
+      const prop = propMatch[1] ?? ''
       const isAllowed =
         prop.startsWith('color-') ||
         prop.startsWith('card-') ||

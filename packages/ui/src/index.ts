@@ -1,13 +1,6 @@
-// @mjagency/ui — shared component library
-// M004 fills this package with the full design system (theme tokens, Tailwind v4 config,
-// base components). At M001 this is a typed stub so every app can import the package
-// and the workspace typechecks cleanly.
+// @mjagency/ui — shared design system package
+// Phase 4 (Plan 04-01): 6-layer CSS token schema + Tailwind v4 @theme inline bridge.
+// Plans 04-02 (validator), 04-03 (resolution stack), 04-04 (12 niche themes), 04-05 (Storybook)
+// all extend from this foundation. Keep exports granular for clean tree-shaking.
 
-export type ThemeToken = {
-  name: string
-  value: string
-}
-
-export function getThemeTokens(): ThemeToken[] {
-  return []
-}
+export type { MjColorToken, MjThemeLayer, ThemeTokenValue, ThemeJson } from './theme/types.js';

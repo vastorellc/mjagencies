@@ -9,12 +9,21 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./styles/theme.css": "./styles/theme.css",
+    "./tokens/*.css": "./tokens/*.css",
+    "./theme/types": {
+      "types": "./src/theme/types.ts",
+      "default": "./src/theme/types.ts"
     }
   },
   "scripts": {
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
+  },
+  "peerDependencies": {
+    "tailwindcss": "^4.2.0"
   },
   "devDependencies": {
     "@types/node": "22.9.0",

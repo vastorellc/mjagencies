@@ -1,0 +1,5 @@
+/* apps/web-main/src/app/globals.css
+ * MJAgency web-main root global styles — used by root layout.tsx.
+ * Imports the shared design system token layer and Tailwind v4 utilities.
+ */
+@import "@mjagency/ui/styles/theme.css";
