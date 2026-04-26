@@ -39,8 +39,19 @@ export { regenerateSession } from './session.js'
 export { createAuthRedis } from './redis.js'
 
 // SSO state token helpers (Node-runtime only — not for middleware.ts)
-// Stub created in Plan 03-04; Plan 03-03 replaces with HMAC implementation.
-export { generateSsoState, verifySsoState, type SsoStateResult } from './sso-state.js'
+// Plan 03-03: real HMAC-SHA256 + timingSafeEqual implementation (replaces 03-04 stub).
+export {
+  generateSsoState,
+  verifySsoState,
+  type SsoStateVerifyResult,
+} from './sso-state.js'
+
+// SSO opaque-code store — cross-agency platform namespace accounts:sso:code:* (Plan 03-03, Q2).
+export {
+  createSsoCode,
+  redeemSsoCode,
+  type SsoCodePayload,
+} from './sso-code.js'
 
 // Edge-safe helpers — also exported from '@mjagency/auth/middleware' sub-path (lean Edge bundle).
 // The sub-path is the preferred import in app middleware.ts files (keeps Node-only modules
