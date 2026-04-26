@@ -130,8 +130,8 @@ Plans:
 Plans:
 - [x] 05-01-PLAN.md (Wave 1) — Payload 3.82.1 setup: withPayload(), (payload) route group, packages/cms config builder + access helpers
 - [x] 05-02-PLAN.md (Wave 1) — Core Payload collections (10) + global_blocks; content validators (word count, FTC, playbook ranges); BullMQ scheduled-publish hook; Vitest validator tests
-- [ ] 05-03a-PLAN.md (Wave 2) — Hero (4) + Content (8) + CTA (5) blocks — 17 React components, --mj-* tokens only
-- [ ] 05-03b-PLAN.md (Wave 2) — Service (6) + Trust (6) + Media (5) blocks — 17 React components, --mj-* tokens only
+- [x] 05-03a-PLAN.md (Wave 2) — Hero (4) + Content (8) + CTA (5) blocks — 17 React components, --mj-* tokens only
+- [x] 05-03b-PLAN.md (Wave 2) — Service (6) + Trust (6) + Media (5) blocks — 17 React components, --mj-* tokens only
 - [ ] 05-03c-PLAN.md (Wave 3) — Blog (4) + Tool (3) + Form (2) + Utility (2) blocks + barrel index + PAYLOAD_BLOCKS array (45 Payload block configs)
 - [ ] 05-04-PLAN.md (Wave 4) — Full Lexical editor (27 features + slash menu) + BlocksFeature wired with PAYLOAD_BLOCKS; SEO/AIO/GEO panel stub; AI hooks stub; BullMQ publish worker in instrumentation.node.ts
 - [ ] 05-05-PLAN.md (Wave 4) — DAM: SVG sanitization (req.file.data buffer + DOMPurify + SVGO), color/BlurHash extraction populating columns, 3 views, search, brand portal signed URLs (jose), living brand book
