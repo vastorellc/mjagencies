@@ -1,0 +1,120 @@
+{
+  "$schema": "../schemas/theme.schema.json",
+  "meta": {
+    "slug": "growth",
+    "name": "MJ Growth",
+    "niche": "growth",
+    "version": "1.0.0",
+    "description": "Dashboard, data-dense, SaaS default theme for growth agency"
+  },
+  "scopes": {
+    "brand": {
+      "primary":   "oklch(0.60 0.20 280)",
+      "secondary": "oklch(0.28 0.10 280)",
+      "tertiary":  "var(--mj-primitive-neutral-50)"
+    },
+    "color": {
+      "bg-primary":     "var(--mj-primitive-neutral-0)",
+      "bg-secondary":   "var(--mj-primitive-neutral-50)",
+      "text-primary":   "var(--mj-primitive-neutral-950)",
+      "text-secondary": "var(--mj-primitive-neutral-600)",
+      "accent-primary": "oklch(0.80 0.15 280)",
+      "brand-50":       "oklch(0.97 0.020 280)",
+      "brand-500":      "oklch(0.60 0.20 280)",
+      "brand-900":      "oklch(0.28 0.10 280)"
+    },
+    "type": {
+      "font-brand":      "'Plus Jakarta Sans', system-ui, sans-serif",
+      "font-body":       "'Plus Jakarta Sans', system-ui, sans-serif",
+      "font-mono":       "'JetBrains Mono', monospace",
+      "scale-base":      "1rem",
+      "weight-heading":  "700"
+    },
+    "spacing": {
+      "base-unit":   "4px",
+      "section-gap": "var(--mj-space-20)"
+    },
+    "layout": {
+      "container-max": "1280px",
+      "grid-cols":     "12",
+      "gutter":        "var(--mj-space-6)"
+    },
+    "components": {
+      "btn-radius":  "var(--mj-radius-md)",
+      "card-radius": "var(--mj-radius-xl)",
+      "form-radius": "var(--mj-radius-md)"
+    },
+    "header": {
+      "bg":     "var(--mj-color-bg-primary)",
+      "border": "var(--mj-color-border-subtle)",
+      "height": "var(--mj-space-16)"
+    },
+    "footer": {
+      "bg":   "var(--mj-color-bg-inverse)",
+      "text": "var(--mj-color-text-inverse)"
+    },
+    "hero": {
+      "bg":         "var(--mj-color-brand-500)",
+      "text":       "var(--mj-color-text-inverse)",
+      "min-height": "80vh"
+    },
+    "blocks": {
+      "section-bg-alt": "var(--mj-color-bg-secondary)",
+      "divider-color":  "var(--mj-color-border-subtle)"
+    },
+    "templates": {
+      "blog-layout":    "wide",
+      "service-layout": "sidebar"
+    },
+    "motion": {
+      "duration-base":   "var(--mj-duration-base)",
+      "easing-default":  "var(--mj-ease-default)",
+      "reduce-for-a11y": "false"
+    },
+    "icons": {
+      "size-sm":       "16px",
+      "size-base":     "20px",
+      "size-lg":       "24px",
+      "color-default": "var(--mj-icon-primary)"
+    },
+    "imagery": {
+      "radius":      "var(--mj-radius-lg)",
+      "aspect-hero": "16/9",
+      "aspect-card": "3/2"
+    },
+    "theme": {
+      "default-mode":  "light",
+      "supports-dark": "true"
+    },
+    "a11y": {
+      "focus-ring-width":  "2px",
+      "focus-ring-offset": "2px",
+      "focus-ring-color":  "var(--mj-color-border-focus)",
+      "min-contrast-aa":   "4.5"
+    },
+    "perf": {
+      "critical-font-preload":  "2",
+      "above-fold-css-inline":  "true"
+    },
+    "seo-defaults": {
+      "og-image-aspect": "1200x630",
+      "schema-type":     "LocalBusiness",
+      "locale":          "en_US"
+    },
+    "custom-css": "",
+    "code-injection": {
+      "head":       "",
+      "body-start": "",
+      "body-end":   ""
+    }
+  },
+  "dark": {
+    "color": {
+      "bg-primary":     "var(--mj-primitive-neutral-950)",
+      "bg-secondary":   "var(--mj-primitive-neutral-900)",
+      "text-primary":   "var(--mj-primitive-neutral-0)",
+      "text-secondary": "var(--mj-primitive-neutral-400)",
+      "border-default": "var(--mj-primitive-neutral-700)"
+    }
+  }
+}
