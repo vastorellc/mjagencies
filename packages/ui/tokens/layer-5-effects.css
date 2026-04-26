@@ -1,0 +1,32 @@
+/* packages/ui/tokens/layer-5-effects.css
+ * Layer 5 — Shadows, blurs, transition durations, easing curves.
+ * REQ-040 — 6-layer token schema. REQ-047 — OKLCH alpha for color-space consistency.
+ * Shadows use oklch(0 0 0 / N) NOT rgba(0,0,0,N) for perceptual uniformity (RESEARCH §1.2).
+ */
+:root {
+  /* Shadows — OKLCH alpha for perceptual consistency */
+  --mj-shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.05);
+  --mj-shadow-sm: 0 1px 3px 0 oklch(0 0 0 / 0.10), 0 1px 2px -1px oklch(0 0 0 / 0.10);
+  --mj-shadow-md: 0 4px 6px -1px oklch(0 0 0 / 0.10), 0 2px 4px -2px oklch(0 0 0 / 0.10);
+  --mj-shadow-lg: 0 10px 15px -3px oklch(0 0 0 / 0.10), 0 4px 6px -4px oklch(0 0 0 / 0.10);
+  --mj-shadow-xl: 0 20px 25px -5px oklch(0 0 0 / 0.10), 0 8px 10px -6px oklch(0 0 0 / 0.10);
+
+  /* Blur */
+  --mj-blur-sm: 4px;
+  --mj-blur-md: 8px;
+  --mj-blur-lg: 16px;
+  --mj-blur-xl: 24px;
+
+  /* Durations */
+  --mj-duration-instant: 0ms;
+  --mj-duration-fast:    100ms;
+  --mj-duration-base:    200ms;
+  --mj-duration-slow:    300ms;
+  --mj-duration-slower:  500ms;
+
+  /* Easing */
+  --mj-ease-default: cubic-bezier(0.4, 0,    0.2, 1);
+  --mj-ease-in:      cubic-bezier(0.4, 0,    1,   1);
+  --mj-ease-out:     cubic-bezier(0,   0,    0.2, 1);
+  --mj-ease-spring:  cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}

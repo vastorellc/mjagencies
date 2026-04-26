@@ -1,0 +1,55 @@
+/* packages/ui/tokens/layer-6-components.css
+ * Layer 6 — Composed component tokens: btn, card, form, illustration, icon.
+ * Components and assets ONLY reference these — never primitives directly.
+ * This layer ONLY references Layer 2 (semantic color), Layer 3 (typography),
+ * Layer 4 (layout/spacing/radius), and Layer 5 (effects/shadow/duration/ease).
+ * Exception: --mj-ill-neutral uses --mj-primitive-neutral-500 because illustrations
+ * need a true neutral, not a brand-tinted semantic value.
+ * Per-agency theme.json may override any of these via [data-agency="..."] block (Plan 04-04).
+ * REQ-040 — 6-layer token schema.
+ */
+:root {
+  /* Button */
+  --mj-btn-padding-x:       var(--mj-space-4);
+  --mj-btn-padding-y:       var(--mj-space-2);
+  --mj-btn-radius:          var(--mj-radius-md);
+  --mj-btn-font-weight:     var(--mj-weight-semibold);
+  --mj-btn-font-size:       var(--mj-text-size-sm);
+  --mj-btn-bg-primary:      var(--mj-color-brand-500);
+  --mj-btn-color-primary:   var(--mj-color-text-inverse);
+  --mj-btn-border-primary:  transparent;
+  --mj-btn-transition:      var(--mj-duration-fast) var(--mj-ease-default);
+
+  /* Card */
+  --mj-card-radius:  var(--mj-radius-xl);
+  --mj-card-padding: var(--mj-space-6);
+  --mj-card-bg:      var(--mj-color-bg-primary);
+  --mj-card-border:  var(--mj-color-border-default);
+  --mj-card-shadow:  var(--mj-shadow-sm);
+
+  /* Form field */
+  --mj-form-radius:     var(--mj-radius-md);
+  --mj-form-padding-x:  var(--mj-space-3);
+  --mj-form-padding-y:  var(--mj-space-2);
+  --mj-form-border:     var(--mj-color-border-default);
+  --mj-form-bg:         var(--mj-color-bg-primary);
+  --mj-form-font-size:  var(--mj-text-size-sm);
+  --mj-form-focus-ring: var(--mj-color-border-focus);
+
+  /* Illustration tokens (referenced by SVGs — REQ-047, NO hex literals) */
+  --mj-ill-primary:   var(--mj-color-brand-500);
+  --mj-ill-secondary: var(--mj-color-brand-900);
+  --mj-ill-accent:    var(--mj-color-accent-primary);
+  --mj-ill-neutral:   var(--mj-primitive-neutral-500);
+  --mj-ill-bg:        var(--mj-color-bg-primary);
+  --mj-ill-shadow:    var(--mj-shadow-sm);
+
+  /* Icon tokens */
+  --mj-icon-primary:   var(--mj-color-text-primary);
+  --mj-icon-secondary: var(--mj-color-text-secondary);
+  --mj-icon-accent:    var(--mj-color-accent-primary);
+  --mj-icon-inverse:   var(--mj-color-text-inverse);
+  --mj-icon-success:   var(--mj-color-success);
+  --mj-icon-warning:   var(--mj-color-warning);
+  --mj-icon-error:     var(--mj-color-error);
+}

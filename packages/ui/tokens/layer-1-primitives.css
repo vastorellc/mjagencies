@@ -1,0 +1,29 @@
+/* packages/ui/tokens/layer-1-primitives.css
+ * Layer 1 — Raw OKLCH primitives. Never referenced by components directly.
+ * Layer 2 maps these to semantic names.
+ * REQ-040 — 6-layer token schema. REQ-047 — NO hex literals.
+ * OKLCH for perceptual uniformity (verified Tailwind v4 docs, RESEARCH §1.2).
+ */
+:root {
+  /* Blue (default brand for `brand` agency) */
+  --mj-primitive-blue-50:   oklch(0.97 0.013 250);
+  --mj-primitive-blue-100:  oklch(0.93 0.030 250);
+  --mj-primitive-blue-200:  oklch(0.85 0.060 250);
+  --mj-primitive-blue-500:  oklch(0.55 0.19  250);
+  --mj-primitive-blue-700:  oklch(0.40 0.12  250);
+  --mj-primitive-blue-900:  oklch(0.25 0.08  250);
+
+  /* Neutral scale (gray) */
+  --mj-primitive-neutral-0:    oklch(1     0     0);   /* white */
+  --mj-primitive-neutral-50:   oklch(0.98  0     0);
+  --mj-primitive-neutral-100:  oklch(0.95  0     0);
+  --mj-primitive-neutral-200:  oklch(0.90  0     0);
+  --mj-primitive-neutral-300:  oklch(0.83  0     0);
+  --mj-primitive-neutral-400:  oklch(0.70  0     0);
+  --mj-primitive-neutral-500:  oklch(0.55  0     0);
+  --mj-primitive-neutral-600:  oklch(0.45  0     0);
+  --mj-primitive-neutral-700:  oklch(0.35  0     0);
+  --mj-primitive-neutral-800:  oklch(0.20  0     0);
+  --mj-primitive-neutral-900:  oklch(0.12  0     0);
+  --mj-primitive-neutral-950:  oklch(0.08  0     0);   /* near-black */
+}

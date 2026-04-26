@@ -1,0 +1,49 @@
+/* packages/ui/tokens/layer-3-typography.css
+ * Layer 3 — Font families, type scale, weights, line heights, letter spacing.
+ * REQ-040 — 6-layer token schema.
+ *
+ * next/font/google indirection: per-agency layouts inject --font-brand (and --font-sans,
+ * --font-mono) via Next.js `next/font/google` at <html> element.
+ * e.g., `Inter({ variable: '--font-brand' })` in the agency root layout.
+ * The --mj-font-* tokens read them via fallback chain so the correct agency font
+ * is applied automatically without any component-level changes.
+ * Open Q3 resolution: RESEARCH §1.2, §10.1.
+ */
+:root {
+  /* Font families (next/font/google injects --font-* vars at <html>; we read them via fallback chain) */
+  --mj-font-sans:  var(--font-sans,  system-ui, -apple-system, sans-serif);
+  --mj-font-serif: var(--font-serif, Georgia, 'Times New Roman', serif);
+  --mj-font-mono:  var(--font-mono,  'JetBrains Mono', 'Fira Code', monospace);
+  --mj-font-brand: var(--font-brand, var(--mj-font-sans));
+
+  /* Type scale (modular, 8pt-aligned) */
+  --mj-text-size-xs:    0.75rem;   /* 12px */
+  --mj-text-size-sm:    0.875rem;  /* 14px */
+  --mj-text-size-base:  1rem;      /* 16px */
+  --mj-text-size-lg:    1.125rem;  /* 18px */
+  --mj-text-size-xl:    1.25rem;   /* 20px */
+  --mj-text-size-2xl:   1.5rem;    /* 24px */
+  --mj-text-size-3xl:   1.875rem;  /* 30px */
+  --mj-text-size-4xl:   2.25rem;   /* 36px */
+  --mj-text-size-5xl:   3rem;      /* 48px */
+  --mj-text-size-6xl:   3.75rem;   /* 60px */
+
+  /* Weights */
+  --mj-weight-normal:    400;
+  --mj-weight-medium:    500;
+  --mj-weight-semibold:  600;
+  --mj-weight-bold:      700;
+  --mj-weight-extrabold: 800;
+
+  /* Line heights */
+  --mj-leading-tight:    1.25;
+  --mj-leading-snug:     1.375;
+  --mj-leading-normal:   1.5;
+  --mj-leading-relaxed:  1.625;
+
+  /* Letter spacing */
+  --mj-tracking-tight:   -0.025em;
+  --mj-tracking-normal:   0em;
+  --mj-tracking-wide:     0.025em;
+  --mj-tracking-widest:   0.1em;
+}

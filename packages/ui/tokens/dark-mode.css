@@ -1,0 +1,21 @@
+/* packages/ui/tokens/dark-mode.css
+ * Pure token reassignment — Layer 2 colors flip to neutral-900..950 backgrounds.
+ * No image swaps, no class toggles on components, no JS.
+ * Selector [data-theme="dark"] propagates via CSS inheritance from <html>.
+ * REQ-046 — dark mode via attribute, not class. No asset reload.
+ */
+[data-theme="dark"] {
+  --mj-color-bg-primary:    var(--mj-primitive-neutral-950);
+  --mj-color-bg-secondary:  var(--mj-primitive-neutral-900);
+  --mj-color-bg-inverse:    var(--mj-primitive-neutral-0);
+  --mj-color-text-primary:  var(--mj-primitive-neutral-0);
+  --mj-color-text-secondary:var(--mj-primitive-neutral-400);
+  --mj-color-text-inverse:  var(--mj-primitive-neutral-950);
+  --mj-color-border-default:var(--mj-primitive-neutral-700);
+  --mj-color-border-subtle: var(--mj-primitive-neutral-800);
+
+  /* Card / form dark surfaces */
+  --mj-card-bg:    var(--mj-primitive-neutral-900);
+  --mj-form-bg:    var(--mj-primitive-neutral-800);
+  --mj-card-border:var(--mj-primitive-neutral-700);
+}

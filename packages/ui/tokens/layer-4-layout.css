@@ -1,0 +1,43 @@
+/* packages/ui/tokens/layer-4-layout.css
+ * Layer 4 — 8px-grid spacing scale, container widths, grid columns, border radius.
+ * REQ-040 — 6-layer token schema.
+ */
+:root {
+  /* Spacing — 8px base grid */
+  --mj-space-0:  0px;
+  --mj-space-1:  4px;
+  --mj-space-2:  8px;
+  --mj-space-3:  12px;
+  --mj-space-4:  16px;
+  --mj-space-5:  20px;
+  --mj-space-6:  24px;
+  --mj-space-8:  32px;
+  --mj-space-10: 40px;
+  --mj-space-12: 48px;
+  --mj-space-16: 64px;
+  --mj-space-20: 80px;
+  --mj-space-24: 96px;
+  --mj-space-32: 128px;
+
+  /* Container widths */
+  --mj-container-sm:   640px;
+  --mj-container-md:   768px;
+  --mj-container-lg:  1024px;
+  --mj-container-xl:  1280px;
+  --mj-container-2xl: 1440px;
+  --mj-container-3xl: 1600px;
+
+  /* Grid */
+  --mj-grid-cols-default: 12;
+  --mj-layout-gutter:     var(--mj-space-6);
+
+  /* Border radius */
+  --mj-radius-none: 0;
+  --mj-radius-sm:    2px;
+  --mj-radius-base:  4px;
+  --mj-radius-md:    6px;
+  --mj-radius-lg:    8px;
+  --mj-radius-xl:   12px;
+  --mj-radius-2xl:  16px;
+  --mj-radius-full: 9999px;
+}

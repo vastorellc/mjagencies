@@ -1,0 +1,37 @@
+/* packages/ui/tokens/layer-2-semantic-color.css
+ * Layer 2 — Semantic colors composed from Layer 1 primitives.
+ * Brand palette overridden per agency in Plan 04-04 via [data-agency="..."] block.
+ * REQ-040 — 6-layer token schema.
+ */
+:root {
+  /* Background */
+  --mj-color-bg-primary:    var(--mj-primitive-neutral-0);
+  --mj-color-bg-secondary:  var(--mj-primitive-neutral-50);
+  --mj-color-bg-inverse:    var(--mj-primitive-neutral-950);
+
+  /* Text */
+  --mj-color-text-primary:    var(--mj-primitive-neutral-950);
+  --mj-color-text-secondary:  var(--mj-primitive-neutral-500);
+  --mj-color-text-inverse:    var(--mj-primitive-neutral-0);
+  --mj-color-text-link:       var(--mj-color-brand-500);
+
+  /* Border */
+  --mj-color-border-default: var(--mj-primitive-neutral-200);
+  --mj-color-border-subtle:  var(--mj-primitive-neutral-100);
+  --mj-color-border-focus:   var(--mj-color-brand-500);
+
+  /* Brand (overridden per agency in Plan 04-04 via [data-agency="..."] block) */
+  --mj-color-brand-50:   var(--mj-primitive-blue-50);
+  --mj-color-brand-500:  var(--mj-primitive-blue-500);
+  --mj-color-brand-900:  var(--mj-primitive-blue-900);
+
+  /* Accent */
+  --mj-color-accent-primary:    var(--mj-color-brand-500);
+  --mj-color-accent-secondary:  var(--mj-primitive-neutral-500);
+
+  /* State (no per-agency override; consistent across themes) */
+  --mj-color-success: oklch(0.72 0.17 142);
+  --mj-color-warning: oklch(0.83 0.17 78);
+  --mj-color-error:   oklch(0.63 0.21 25);
+  --mj-color-info:    oklch(0.60 0.17 250);
+}
