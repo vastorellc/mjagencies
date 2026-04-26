@@ -9,6 +9,12 @@
  *   - Mirrors the PgBouncer .ini port assignments in infra/pgbouncer/.
  *   - Passwords are NEVER stored here — sourced from Doppler at runtime (Plan 01-06).
  *
+ * Exports:
+ *   - agencyConnection(slug) — PgBouncer connection metadata for an agency
+ *   - buildDatabaseUrl(slug, password) — PgBouncer URL (transaction-mode pool, ports 6432-6443)
+ *   - allAgencyConnections() — all agency connection metadata
+ *   - buildDirectUrl(slug, password) — DIRECT Postgres URL (port 5432, migration runner ONLY)
+ *
  * PgBouncer port layout (D-05, RESEARCH §2.4):
  *   brand=6432, ecommerce=6433, growth=6434, webdev=6435, ai=6436,
  *   branding=6437, strategy=6438, finance=6439, engineering=6440,
@@ -89,4 +95,26 @@ export function buildDatabaseUrl(
  */
 export function allAgencyConnections(): AgencyConnection[] {
   return AGENCIES.map((slug) => agencyConnection(slug))
+}
+
+/**
+ * Builds a DIRECT Postgres URL (port 5432, bypassing PgBouncer) for migration use ONLY.
+ *
+ * Returns a connection string authenticated as `migrations_runner` (the BYPASSRLS role
+ * provisioned in Plan 02-01). NEVER use this for application queries — application code
+ * goes through PgBouncer (port 6432-6443) as `<slug>_user`.
+ *
+ * Direct port 5432 is required because PgBouncer transaction mode breaks multi-statement
+ * DDL (pitfall 8.2). The migration runner is the sole legitimate consumer.
+ *
+ * @example
+ *   const url = buildDirectUrl('ecommerce', process.env.MIGRATIONS_DB_PASSWORD!)
+ *   // 'postgresql://migrations_runner:***@127.0.0.1:5432/ecommerce_db'
+ */
+export function buildDirectUrl(
+  slug: (typeof AGENCIES)[number],
+  password: string
+): string {
+  const conn = agencyConnection(slug)
+  return `postgresql://migrations_runner:${encodeURIComponent(password)}@127.0.0.1:5432/${conn.dbName}`
 }

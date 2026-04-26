@@ -13,6 +13,10 @@
     "./lint": {
       "types": "./src/lint/index.ts",
       "default": "./src/lint/index.ts"
+    },
+    "./migrate": {
+      "types": "./src/migrate/index.ts",
+      "default": "./src/migrate/index.ts"
     }
   },
   "scripts": {
@@ -20,7 +24,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "db:generate": "drizzle-kit generate",
-    "db:check": "drizzle-kit check"
+    "db:check": "drizzle-kit check",
+    "db:migrate": "tsx ../../scripts/migrate-runner.ts --all",
+    "db:migrate:dry": "tsx ../../scripts/migrate-runner.ts --dry-run --all",
+    "db:migrate:canary": "tsx ../../scripts/migrate-runner.ts --canary"
   },
   "dependencies": {
     "@mjagency/config": "workspace:*",
