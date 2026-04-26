@@ -37,3 +37,10 @@ export { rotateRefreshToken, revokeFamilyTokens, type RotationResult } from './r
 export { regenerateSession } from './session.js'
 
 export { createAuthRedis } from './redis.js'
+
+// Edge-safe helpers — also exported from '@mjagency/auth/middleware' sub-path (lean Edge bundle).
+// The sub-path is the preferred import in app middleware.ts files (keeps Node-only modules
+// from leaking into the Edge bundle via transitive imports on the '.' export).
+export { applySecurityHeaders } from './security-headers.js'
+export { extractAgencyFromHost } from './agency-from-host.js'
+export { createAuthMiddleware } from './middleware.js'
