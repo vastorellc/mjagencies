@@ -31,3 +31,9 @@ export {
   MfaRequiredError,
   TokenReplayError,
 } from './errors.js'
+
+export { rotateRefreshToken, revokeFamilyTokens, type RotationResult } from './refresh.js'
+
+export { regenerateSession } from './session.js'
+
+export { createAuthRedis } from './redis.js'

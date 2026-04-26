@@ -25,6 +25,10 @@
     "./seed": {
       "types": "./src/seed/index.ts",
       "default": "./src/seed/index.ts"
+    },
+    "./schema": {
+      "types": "./src/schema/index.ts",
+      "default": "./src/schema/index.ts"
     }
   },
   "scripts": {
