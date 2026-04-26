@@ -1,5 +1,6 @@
 // @ts-check
 import tseslint from 'typescript-eslint'
+import { noSessionSet } from '@mjagency/db/lint'
 
 export default [
   ...tseslint.configs.recommended,
@@ -30,6 +31,21 @@ export default [
           message: 'Do not access NEXT_PUBLIC_*KEY env vars in code — secrets must be server-side only (REQ-503, CLAUDE.md §7).',
         },
       ],
+    },
+  },
+  // REQ-011 + T-02-001 — block session-scoped SET app.agency_id across PgBouncer pools
+  // See: packages/db/src/lint/no-session-set.ts, docs/runbooks/pgbouncer-rls.md
+  {
+    files: ['packages/*/src/**/*.{ts,tsx}', 'apps/*/src/**/*.{ts,tsx}'],
+    plugins: {
+      'mjagency-db': {
+        rules: {
+          'no-session-set': noSessionSet,
+        },
+      },
+    },
+    rules: {
+      'mjagency-db/no-session-set': 'error',
     },
   },
 ]
