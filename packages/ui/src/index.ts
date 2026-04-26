@@ -3,7 +3,8 @@
 // Phase 4 (Plan 04-02): AJV theme.json validator + SVG hex scanner + full ThemeJson type.
 // Phase 4 (Plan 04-03): Theme resolution stack (resolveTheme + compileThemeToCss + getDataAttrs).
 // Phase 4 (Plan 04-04): 12 niche default themes — NICHE_PALETTES + NICHE_FONTS single TS source.
-// Plans 04-05 (Storybook) extends from this foundation. Keep exports granular for tree-shaking.
+// Phase 4 (Plan 04-05): A/B framework types + marketplace stub + Storybook v9.1.20 harness.
+// Keep exports granular for tree-shaking.
 
 export type {
   MjColorToken,
@@ -30,3 +31,12 @@ export { usePageTheme } from './hooks/use-page-theme.js';
 
 export { NICHE_PALETTES, type NichePalette } from './theme/niche-palettes.js';
 export { NICHE_FONTS,    type NicheFontStack } from './theme/font-stacks.js';
+
+// Plan 04-05: A/B framework (types-only at M004; Phase 9 swaps noopAbAdapter; Phase 11 swaps assignVariant)
+export type { AbVariant, AbAssignment, AbExperimentConfig } from './theme/ab-types.js';
+export { assignVariant, resolveVariantFromCookie } from './theme/ab-assignment.js';
+export { type AbAnalyticsAdapter, noopAbAdapter } from './theme/ab-analytics-hook.js';
+
+// Plan 04-05: Marketplace stub (types-only at M004; M010 implements the service)
+export type { MarketplaceTheme, ThemeMarketplaceQuery, ThemeMarketplacePage, ThemeMarketplaceService } from './marketplace/types.js';
+export { marketplaceStub } from './marketplace/stub.js';
