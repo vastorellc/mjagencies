@@ -135,7 +135,7 @@ Plans:
 - [x] 05-03c-PLAN.md (Wave 3) — Blog (4) + Tool (3) + Form (2) + Utility (2) blocks + barrel index + PAYLOAD_BLOCKS array (45 Payload block configs)
 - [x] 05-04-PLAN.md (Wave 4) — Full Lexical editor (27 features + slash menu) + BlocksFeature wired with PAYLOAD_BLOCKS; SEO/AIO/GEO panel stub; AI hooks stub; BullMQ publish worker in instrumentation.node.ts
 - [x] 05-05-PLAN.md (Wave 4) — DAM: SVG sanitization (req.file.data buffer + DOMPurify + SVGO), color/BlurHash extraction populating columns, 3 views, search, brand portal signed URLs (jose), living brand book
-- [ ] 05-06-PLAN.md (Wave 5) — Content sprint: packages/ai generateContent() (LiteLLM flash-lite), packages/seo stub scorer, seeds 1+ agency end-to-end
+- [x] 05-06-PLAN.md (Wave 5) — Content sprint: packages/ai generateContent() (LiteLLM flash-lite), packages/seo stub scorer, seeds 1+ agency end-to-end
 
 ### Phase 6: SEO/AIO/GEO Plugin Engine
 **Goal**: 3 SEO plugins runtime-configurable from admin, self-learning loop, algorithm watcher, AIO TL;DR + FAQ schema.
