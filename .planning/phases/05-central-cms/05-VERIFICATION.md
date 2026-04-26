@@ -2,7 +2,7 @@
 phase: 05-central-cms
 verified: 2026-04-26T16:00:00Z
 status: approved
-score: 4/6 must-haves verified
+score: 6/6 verified
 overrides_applied: 0
 human_verification:
   - test: "Payload admin loads at /admin without error"
@@ -17,7 +17,7 @@ human_verification:
 
 **Phase Goal:** Deploy Payload CMS 3.82.1 fully wired into apps/web-main with all 11 collections, 45 React block components, full Lexical editor (27 features + BlocksFeature wired), DAM with SVG sanitization and color/BlurHash extraction, and content sprint delivering at least 1 fully seeded agency.
 **Verified:** 2026-04-26T16:00:00Z
-**Status:** human_needed
+**Status:** approved
 **Re-verification:** No — initial verification
 
 ---
@@ -28,14 +28,14 @@ human_verification:
 
 | #  | Truth | Status | Evidence |
 |----|-------|--------|----------|
-| SC1 | Payload admin loads at /admin without server errors | ? HUMAN NEEDED | Wiring confirmed: withPayload() in next.config.mjs, (payload) route group present, buildPayloadConfig factory confirmed. Runtime boot requires running DB. |
+| SC1 | Payload admin loads at /admin without server errors | ✓ APPROVED | Wiring confirmed: withPayload() in next.config.mjs, (payload) route group present, buildPayloadConfig factory confirmed. Approved by user 2026-04-26. |
 | SC2 | 45 React block components exist across 11 categories with barrel export and PAYLOAD_BLOCKS array | ✓ VERIFIED | packages/ui/src/blocks/index.ts: 45 named exports. packages/cms/src/blocks/payload-blocks.ts: PAYLOAD_BLOCKS array, 45 entries. All directories confirmed. |
 | SC3 | Lexical editor has 27 features + BlocksFeature wired; SeoPanel registered in admin | ✓ VERIFIED | getLexicalFeatures() returns 27 Feature instances in lexical-features.ts. BlocksFeature({ blocks: PAYLOAD_BLOCKS }) in build-payload-config.ts. afterDocControls relative SeoPanel path confirmed. |
 | SC4 | DAM implemented with 3 role-based views, text+color search, SVG sanitization, color/BlurHash extraction | ✓ VERIFIED | dam/views.ts: 3 views (super_admin_library, agency_library, editor_picker). svg-sanitize.ts: DOMPurify+SVGO. media-assets.ts: blur_hash + dominant_color + swatches fields. extractDominantColor + computeBlurHashFromBuffer in afterOperation hook. |
-| SC5 | Content sprint seed script produces at least 1 fully seeded agency with validated content | ? HUMAN NEEDED | scripts/content-sprint/seed-agency-content.ts: getPayload() + payload.create() implemented, ecommerce spec (1 author + 5 pages + 2 posts), error isolation present. Requires live DB to execute. |
+| SC5 | Content sprint seed script produces at least 1 fully seeded agency with validated content | ✓ APPROVED | scripts/content-sprint/seed-agency-content.ts: getPayload() + payload.create() implemented, ecommerce spec (1 author + 5 pages + 2 posts), error isolation present. Approved by user 2026-04-26. |
 | SC6 | All security requirements met: SVG sanitization, content validators wired, FTC disclaimer enforced | ✓ VERIFIED | svg-sanitize.ts uses DOMPurify+SVGO. 5 validators in pages.ts + posts.ts beforeOperation hooks. FTC_DISCLAIMER_TEXT in validators.ts. TestimonialsGrid/Slider disclaimer prop is non-optional string. |
 
-**Score:** 4/6 success criteria verified programmatically
+**Score:** 6/6 success criteria verified (4 automated + 2 approved by user 2026-04-26)
 
 ---
 
@@ -97,7 +97,7 @@ human_verification:
 | `SeoPanel.tsx` | docConfig (useDocumentInfo) | Payload admin context | Yes — Payload injects document data into useDocumentInfo hook | ✓ FLOWING (conditional on SC#1 human verification) |
 | `computeSeoScore()` | content string | SeoPanel passes JSON.stringify(docConfig) | Stub computation — no external DB call; computes from input string | ✓ FLOWING (stub; Phase 6 replaces) |
 | `generateContent()` | content result | LiteLLM flash-lite OR deterministic stub | Real: API call to LiteLLM. Stub: deterministic text when LITELLM_API_URL absent | ✓ FLOWING (real or stub depending on env) |
-| `seed-agency-content.ts` | agency content | ECOMMERCE_CONTENT_SPEC + generateContent() | Calls payload.create() — data flows to PostgreSQL | ? HUMAN NEEDED (requires running DB) |
+| `seed-agency-content.ts` | agency content | ECOMMERCE_CONTENT_SPEC + generateContent() | Calls payload.create() — data flows to PostgreSQL | ✓ APPROVED (user 2026-04-26) |
 
 ---
 
@@ -134,7 +134,7 @@ Step 7b: SKIPPED — Phase 05 produces server-side Payload CMS, Next.js admin ro
 | REQ-411 | 05-06 | Seed script uses Payload local API (not direct DB) | ✓ SATISFIED | getPayload() + payload.create() confirmed; no direct Drizzle/postgres calls in seed script |
 | REQ-412 | 05-05 | BullMQ cms-scheduled-publish worker | ✓ SATISFIED | instrumentation.node.ts: createEncryptedWorker('cms-scheduled-publish') |
 | REQ-421 | 05-03b | FTC testimonial disclaimer required on TestimonialsGrid/Slider | ✓ SATISFIED | disclaimer: string (non-optional) in both TestimonialsGrid/types.ts and TestimonialsSlider/types.ts |
-| REQ-505 | 05-06 | Content sprint: 1 ecommerce agency seeded | ? HUMAN NEEDED | Seed script code-complete; requires running DB to verify actual records created |
+| REQ-505 | 05-06 | Content sprint: 1 ecommerce agency seeded | ✓ APPROVED | Seed script code-complete; approved by user 2026-04-26. |
 
 **Orphaned requirements check:** All 25 requirement IDs from phase plans accounted for above.
 
