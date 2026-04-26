@@ -20,7 +20,7 @@ Parallel-safe: M006+M007 (both depend on M005 only); M009 starts after M003 (par
 - [ ] **Phase 1: Foundation + Infra** — Working monorepo, Docker Compose, Cloudflare pipeline, OTel, CI/CD, Doppler secrets
 - [ ] **Phase 2: Multi-tenant DB + Migration** — Per-agency Postgres, PgBouncer, Drizzle schema, RLS, migration runner, backups, audit log
 - [ ] **Phase 3: Auth + SSO + Edge Routing** — JWT (jose), MFA, SSO, Cloudflare middleware, audit log, server-action auth pattern
-- [ ] **Phase 4: Design System + Theme Engine** — CSS variable tokens, theme.json validator, 12 niche themes, A/B framework
+- [x] **Phase 4: Design System + Theme Engine** — CSS variable tokens, theme.json validator, 12 niche themes, A/B framework
 - [ ] **Phase 5: Central CMS + Block Library + Editor UX** — Payload 3.82.1, 45 blocks, Lexical editor, DAM, content sprint kickoff
 - [ ] **Phase 6: SEO/AIO/GEO Plugin Engine** — 3 plugins, real-time scoring, self-learning loop, algorithm watcher
 - [ ] **Phase 7: AI Assistant + Anti-Fabrication** — LiteLLM gateway, 20 editor AI features, anti-fab guards, brand voice, PII redaction
@@ -112,7 +112,7 @@ Plans:
 - [x] 04-02-PLAN.md (Wave 1) — `theme.json` JSON Schema validator (AJV 8.20.0) — rejects hex literals + url() SSRF (REQ-041, REQ-042, REQ-047)
 - [x] 04-03-PLAN.md (Wave 2) — Theme resolution stack: pure CSS cascade with 5 `[data-*]` attribute layers + FOUC inline script (REQ-043, REQ-045, REQ-046)
 - [x] 04-04-PLAN.md (Wave 2) — 12 niche default themes (one per AGENCIES slug) — OKLCH palettes + RESEARCH §5 fonts (REQ-044, REQ-042, REQ-046)
-- [ ] 04-05-PLAN.md (Wave 3) — A/B framework + marketplace stub (types-only) + Storybook v9.1.20 visual-regression CI (REQ-048, REQ-044, REQ-046)
+- [x] 04-05-PLAN.md (Wave 3) — A/B framework + marketplace stub (types-only) + Storybook v9.1.20 visual-regression CI (REQ-048, REQ-044, REQ-046)
 
 ### Phase 5: Central CMS + Block Library + Editor UX
 **Goal**: Payload 3.82.1 admin running, 45 blocks, Lexical editor with full toolbar + SEO panel, DAM, content sprint workstream kickoff.
