@@ -1,5 +1,13 @@
-// @mjagency/cms stub — see README.md for the milestone that fills this package.
+/**
+ * @mjagency/cms — Payload CMS 3.82.1 config builder and access control helpers.
+ * Filled by Phase 5 (Plans 05-01 through 05-04).
+ */
+export { buildPayloadConfig } from './config/build-payload-config.js'
+export type { BuildPayloadConfigOptions } from './config/build-payload-config.js'
 
-export async function cmsPlaceholder(): Promise<null> {
-  return null
-}
+export {
+  collectionAccess,
+  deleteAccess,
+  fieldImmutable,
+  superAdminOnly,
+} from './access/collection-access.js'

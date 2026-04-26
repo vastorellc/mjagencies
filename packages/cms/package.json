@@ -16,7 +16,17 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
+  "dependencies": {
+    "@mjagency/auth": "workspace:*",
+    "@mjagency/config": "workspace:*",
+    "@mjagency/queue": "workspace:*"
+  },
+  "peerDependencies": {
+    "payload": "3.82.1"
+  },
   "devDependencies": {
+    "@payloadcms/db-postgres": "3.82.1",
+    "@payloadcms/richtext-lexical": "3.82.1",
     "@types/node": "22.9.0",
     "typescript": "5.6.3",
     "vitest": "2.1.8"
