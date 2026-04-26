@@ -19,7 +19,13 @@
   "dependencies": {
     "@mjagency/auth": "workspace:*",
     "@mjagency/config": "workspace:*",
-    "@mjagency/queue": "workspace:*"
+    "@mjagency/media": "workspace:*",
+    "@mjagency/queue": "workspace:*",
+    "@mjagency/ui": "workspace:*",
+    "dompurify": "^3.2.3",
+    "jose": "6.2.2",
+    "jsdom": "^25.0.1",
+    "svgo": "^3.3.2"
   },
   "peerDependencies": {
     "payload": "3.82.1"
@@ -27,6 +33,8 @@
   "devDependencies": {
     "@payloadcms/db-postgres": "3.82.1",
     "@payloadcms/richtext-lexical": "3.82.1",
+    "@types/dompurify": "^3.0.5",
+    "@types/jsdom": "^21.1.7",
     "@types/node": "22.9.0",
     "payload": "3.82.1",
     "typescript": "5.6.3",
