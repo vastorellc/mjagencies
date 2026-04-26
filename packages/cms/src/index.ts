@@ -71,3 +71,14 @@ export {
 } from './editor/ai-hooks-stub.js'
 export type { AiActionResult } from './editor/ai-hooks-stub.js'
 export { PAYLOAD_BLOCKS } from './blocks/payload-blocks.js'
+
+// Plan 05-05 DAM additions
+export { DAM_VIEWS, getDamViewForRole } from './dam/views.js'
+export type { DamViewId, DamViewConfig, DamTab } from './dam/views.js'
+export { searchDamAssets } from './dam/search.js'
+export type { DamSearchParams, DamSearchResult } from './dam/search.js'
+export { generateBrandPortalUrl } from './dam/brand-portal.js'
+export type { BrandPortalTokenClaims } from './dam/brand-portal.js'
+export { getLivingBrandBook } from './dam/living-brand-book.js'
+export type { LivingBrandBook, LivingBrandBookColor, LivingBrandBookFont } from './dam/living-brand-book.js'
+export { svgSanitizeHook } from './hooks/svg-sanitize.js'

@@ -6,15 +6,20 @@
  *
  * REQ-052: media_assets collection
  * REQ-060, REQ-061, REQ-062, REQ-063: DAM features
- * REQ-305: SVG sanitization (DOMPurify + SVGO) — hook is stubbed here; Plan 05-05 implements
+ * REQ-305: SVG sanitization (DOMPurify + SVGO) — implemented in Plan 05-05
  *
  * Fields:
  *   blur_hash        — 32-char BlurHash string computed at upload via `blurhash` npm (specs/media.md)
  *   dominant_color   — hex string from color-thief-node (specs/media.md)
  *   swatches         — top-3 hex array JSON from color-thief-node (specs/media.md)
  */
-import type { CollectionBeforeOperationHook, CollectionConfig, Field } from 'payload'
+import type { CollectionConfig, Field } from 'payload'
 import { collectionAccess, deleteAccess, fieldImmutable } from '../access/collection-access.js'
+import { svgSanitizeHook } from '../hooks/svg-sanitize.js'
+import { extractDominantColor, computeBlurHashFromBuffer } from '@mjagency/media'
+import { createLogger } from '@mjagency/config'
+
+const logger = createLogger({ service: 'cms.media-assets' })
 
 const AGENCY_ID_FIELD: Field = {
   name: 'agency_id',
@@ -22,23 +27,6 @@ const AGENCY_ID_FIELD: Field = {
   required: true,
   admin: { readOnly: true, position: 'sidebar' },
   access: { update: fieldImmutable },
-}
-
-/**
- * SVG sanitization stub — Plan 05-05 implements full DOMPurify + SVGO (REQ-305, CLAUDE.md §7).
- * This hook validates the MIME type and logs a warning if SVG is uploaded without sanitization.
- */
-const svgSanitizeHook: CollectionBeforeOperationHook = async ({ args, operation }) => {
-  if (operation !== 'create') return
-  const data = args.data as Record<string, unknown> | undefined
-  if (!data) return
-  const mimeType = data['mimeType'] as string | undefined
-  if (mimeType === 'image/svg+xml') {
-    // Plan 05-05 replaces this stub with full DOMPurify + SVGO pipeline (REQ-305)
-    console.warn(
-      '[CMS] SVG upload detected — sanitization hook stub active. Plan 05-05 installs full DOMPurify + SVGO pipeline.'
-    )
-  }
 }
 
 export const mediaAssetsCollection: CollectionConfig = {
@@ -60,6 +48,57 @@ export const mediaAssetsCollection: CollectionConfig = {
   },
   hooks: {
     beforeOperation: [svgSanitizeHook],
+    afterOperation: [
+      async ({ args, result, operation }: {
+        args: { req?: { file?: { data?: Buffer; mimetype?: string }; payload?: import('payload').Payload } }
+        result: { id?: string | number } & Record<string, unknown>
+        operation: string
+      }) => {
+        if (operation !== 'create' && operation !== 'update') return result
+        const file = args.req?.file
+        const payload = args.req?.payload
+        if (!file?.data || !Buffer.isBuffer(file.data) || !payload || !result.id) return result
+
+        // Skip extraction for non-bitmap (e.g. SVG, PDF) — color-thief only handles raster
+        const mime = (file.mimetype ?? '').toLowerCase()
+        const isBitmap = mime === 'image/jpeg' || mime === 'image/png' ||
+                         mime === 'image/webp' || mime === 'image/avif'
+        if (!isBitmap) return result
+
+        try {
+          // Run extraction in parallel; both produce strings stored on the row
+          const [color, blurHash] = await Promise.all([
+            extractDominantColor(file.data),
+            // computeBlurHashFromBuffer accepts a Buffer and returns Promise<string|undefined>
+            computeBlurHashFromBuffer(file.data).catch(() => undefined),
+          ])
+
+          // Persist via Payload local API — bypass access control because we
+          // are completing an already-authorized create/update on the same row.
+          // NOTE: collection slug is `'media_assets'` (underscore). Plan 05-02
+          // defines it as such; ALL relationTo refs in 05-03c also use the
+          // underscore form. The hyphenated form `'media-assets'` is the file
+          // basename only and is NOT a valid collection slug — using it would
+          // throw "Collection not found" at runtime and silently leave
+          // dominant_color/swatches/blur_hash empty (REQ-061 regression).
+          await payload.update({
+            collection: 'media_assets',
+            id: result.id,
+            data: {
+              dominant_color: color.dominantColor,
+              swatches: color.swatches,
+              ...(blurHash ? { blur_hash: blurHash } : {}),
+            },
+            overrideAccess: true,
+          })
+        } catch (err) {
+          // Never block the upload — log and continue. Search degrades gracefully
+          // for assets where extraction fails (color filter just won't match them).
+          logger.warn({ err, assetId: result.id }, 'color extraction failed')
+        }
+        return result
+      },
+    ],
   },
   fields: [
     AGENCY_ID_FIELD,
@@ -107,8 +146,7 @@ export const mediaAssetsCollection: CollectionConfig = {
       type: 'text',
       admin: {
         readOnly: true,
-        description:
-          'BlurHash placeholder string — auto-generated at upload via `blurhash` npm (Plan 05-05 wires the pipeline).',
+        description: 'BlurHash placeholder string — auto-generated at upload via the afterOperation hook.',
         position: 'sidebar',
       },
     },
@@ -117,8 +155,7 @@ export const mediaAssetsCollection: CollectionConfig = {
       type: 'text',
       admin: {
         readOnly: true,
-        description:
-          'Dominant color hex — extracted at upload via color-thief-node (Plan 05-05 wires the pipeline).',
+        description: 'Dominant color hex — extracted at upload via color-thief-node.',
         position: 'sidebar',
       },
     },
@@ -127,8 +164,7 @@ export const mediaAssetsCollection: CollectionConfig = {
       type: 'json',
       admin: {
         readOnly: true,
-        description:
-          'Top-3 color swatch hex array — extracted at upload via color-thief-node (Plan 05-05 wires the pipeline).',
+        description: 'Top-3 color swatch hex array — extracted at upload via color-thief-node.',
       },
     },
     {
