@@ -90,7 +90,7 @@ Application code MUST use `<slug>_user` — never `migrations_runner`. The migra
 | Table | RLS Enabled | FORCE RLS | agency_id | Audit Trigger | Plan |
 |-------|-------------|-----------|-----------|---------------|------|
 | `agencies` | No | No | No (owns itself) | Yes (003) | 02-01 |
-| `users` | Yes | Yes (002) | Yes | Yes (003) | 02-01 |
+| `users` | Yes | Yes (002) | Yes | Yes (003) | 02-01 — last-admin delete trigger (006) added Plan 03-06 |
 | `sessions` | Yes | Yes (002) | Yes | Yes (003) | 02-01 |
 | `permissions_vault` | Yes | Yes (002) | Yes | Yes (003) | 02-01 |
 | `audit_log` | No (pitfall 8.8) | No | Yes (col only) | N/A | 02-06 |
@@ -108,6 +108,7 @@ Migrations are applied by Plan 02-03's runner in this exact order per agency DB:
 5. `src/migrations/custom/003_audit_triggers.sql` — audit hash chain + per-table capture triggers (Plan 02-06)
 6. `src/migrations/custom/004_partition_audit_log.sql` — monthly RANGE partition on audit_log (Plan 02-06)
 7. `src/migrations/custom/005_audit_mfa_config.sql` — mfa_config: agency_id immutability + FORCE RLS + audit trigger + grants (Plan 03-02)
+8. `src/migrations/custom/006_prevent_last_admin_delete.sql` — `prevent_last_admin_delete()` BEFORE DELETE trigger on users; DB backstop preventing deletion of the last admin per agency (Plan 03-06, REQ-028/REQ-400)
 
 This ordering is mandatory. Custom migrations reference tables created in the drizzle-kit generated steps.
 

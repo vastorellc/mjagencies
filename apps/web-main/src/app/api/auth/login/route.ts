@@ -23,9 +23,10 @@
  *               401 Invalid credentials (dev mode)
  *               501 Not implemented (production — password column not yet added)
  *
- * Open redirect defense (Plan 03-06 follow-up):
- *   returnTo uses a temporary inline same-origin check: new URL(returnTo, origin).origin !== origin → '/dashboard'.
- *   Plan 03-06 ships the canonical validateReturnTo() helper which will replace this inline check.
+ * Open redirect defense (Plan 03-06):
+ *   returnTo is validated via validateReturnTo() from @mjagency/auth — same-origin URL gate.
+ *   Rejects external URLs, protocol-relative URLs, javascript:/data:/vbscript:/file: schemes.
+ *   REQ-308, REQ-424, SEC-N5. The inline validateReturnToInline() helper was removed in Plan 03-06.
  *
  * Node runtime only — server-only guard prevents accidental Edge import.
  */
@@ -38,6 +39,7 @@ import {
   regenerateSession,
   setAuthCookies,
   createSsoCode,
+  validateReturnTo,
 } from '@mjagency/auth'
 import { AGENCIES, type AgencySlug } from '@mjagency/config'
 
@@ -48,22 +50,6 @@ const BodySchema = z.object({
   returnTo: z.string().optional(),
   state:    z.string().optional(),
 })
-
-/**
- * Inline same-origin returnTo validation.
- * Plan 03-06 will replace this with the canonical validateReturnTo() helper.
- * Returns '/dashboard' if returnTo is invalid or points cross-origin.
- */
-function validateReturnToInline(returnTo: string | undefined, origin: string): string {
-  if (!returnTo) return '/dashboard'
-  try {
-    const resolved = new URL(returnTo, origin)
-    if (resolved.origin !== origin) return '/dashboard'
-    return returnTo
-  } catch {
-    return '/dashboard'
-  }
-}
 
 export async function POST(req: Request): Promise<NextResponse> {
   // T-03-013: Production returns 501 BEFORE any credential check.
@@ -135,7 +121,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   // Direct login path (no state): set cookies on accounts.brand.com itself
   const origin = new URL(req.url).origin
-  const safeReturnTo = validateReturnToInline(returnTo, origin)
+  const safeReturnTo = validateReturnTo(returnTo, origin)
 
   await setAuthCookies(session.accessToken, session.refreshToken)
   return NextResponse.json({ ok: true, returnTo: safeReturnTo })

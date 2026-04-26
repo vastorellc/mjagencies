@@ -85,3 +85,11 @@ export {
 // NOT re-exported from '@mjagency/auth/middleware' to keep the Edge bundle lean.
 // MUST be the FIRST call in every server action (CLAUDE.md §3, REQ-031, REQ-301).
 export { requireSession, type RequireSessionOpts } from './require-session.js'
+
+// Open-redirect prevention (Plan 03-06) — canonical same-origin URL gate.
+// REQ-308, REQ-424, SEC-N5. Plan 03-03's login route migrates to this helper.
+export { validateReturnTo } from './redirect.js'
+
+// Agency-owner self-delete guard (Plan 03-06) — server-action layer (REQ-028, REQ-400).
+// Backed by DB trigger 006_prevent_last_admin_delete.sql (defense-in-depth).
+export { assertNotAgencyOwner } from './guards.js'
