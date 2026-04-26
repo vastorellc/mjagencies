@@ -54,6 +54,8 @@ Follow these six steps in order:
    ```
    This starts 13 PgBouncer processes (ports 6432–6444) plus Promtail and Stripe CLI in dev mode.
 
+   > **RLS context — see `docs/runbooks/pgbouncer-rls.md` before writing any DB code that sets `app.agency_id`.** All agency-scoped queries MUST go through `withAgencyContext` from `@mjagency/db`. Session-scoped `SET app.agency_id` leaks across PgBouncer transaction-mode pool connections and causes cross-tenant data exposure (pitfall 8.1). The `no-session-set` ESLint rule enforces this at compile time.
+
 5. **Authenticate Doppler and pull secrets** (Plan 01-06 ships `doppler.yaml`)
    ```bash
    doppler login
