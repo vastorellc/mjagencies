@@ -128,12 +128,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 05-01: Payload 3.82.1 setup (`withPayload`, collections scaffold)
-- [ ] 05-02: Core Payload collections — pages, posts, authors, categories, media (kicks off content sprint workstream)
-- [ ] 05-03: 45-block library across 11 categories
-- [ ] 05-04: Lexical editor — full toolbar, fixed+inline, SEO panel, AI hooks
-- [ ] 05-05: DAM — library UX, 3 views, text/semantic/visual/color search, permissions vault, brand portal, living brand book
-- [ ] 05-06: Content sprint workstream — LiteLLM drafts content per agency, REST API writes, validators on every save
+- [ ] 05-01-PLAN.md (Wave 1) — Payload 3.82.1 setup: withPayload(), (payload) route group, packages/cms config builder + access helpers
+- [ ] 05-02-PLAN.md (Wave 1) — Core Payload collections: pages/posts/authors/categories/media_assets/tools/forms/redirects/settings/templates/global_blocks; validators; BullMQ hook
+- [ ] 05-03-PLAN.md (Wave 2) — 45-block library in packages/ui/src/blocks/ (11 categories); PAYLOAD_BLOCKS config array
+- [ ] 05-04-PLAN.md (Wave 2) — Full Lexical editor (28 features + slash menu); SEO/AIO/GEO panel stub; AI hooks stub; BullMQ publish worker
+- [ ] 05-05-PLAN.md (Wave 3) — DAM: SVG sanitization, 3 views, text+color+semantic-stub search, brand portal signed URLs (jose), living brand book
+- [ ] 05-06-PLAN.md (Wave 3) — Content sprint: packages/ai generateContent() (LiteLLM flash-lite), packages/seo stub scorer, seeds ecommerce agency
 
 ### Phase 6: SEO/AIO/GEO Plugin Engine
 **Goal**: 3 SEO plugins runtime-configurable from admin, self-learning loop, algorithm watcher, AIO TL;DR + FAQ schema.
