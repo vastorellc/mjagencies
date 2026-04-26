@@ -108,11 +108,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 04-01: CSS variable token schema — all 6 layers
-- [ ] 04-02: `theme.json` manifest + JSON Schema validator (rejects hex literals)
-- [ ] 04-03: Theme resolution stack — base → agency → page (20 customization scopes per agency)
-- [ ] 04-04: 12 niche default themes pre-built (one per agency)
-- [ ] 04-05: A/B test framework + marketplace stub + Storybook visual-regression CI
+- [ ] 04-01-PLAN.md (Wave 1) — 6-layer CSS variable token schema (--mj-*) + Tailwind v4 `@theme inline` bridge in `packages/ui` (REQ-040, REQ-046, REQ-047)
+- [ ] 04-02-PLAN.md (Wave 1) — `theme.json` JSON Schema validator (AJV 8.20.0) — rejects hex literals + url() SSRF (REQ-041, REQ-042, REQ-047)
+- [ ] 04-03-PLAN.md (Wave 2) — Theme resolution stack: pure CSS cascade with 5 `[data-*]` attribute layers + FOUC inline script (REQ-043, REQ-045, REQ-046)
+- [ ] 04-04-PLAN.md (Wave 2) — 12 niche default themes (one per AGENCIES slug) — OKLCH palettes + RESEARCH §5 fonts (REQ-044, REQ-042, REQ-046)
+- [ ] 04-05-PLAN.md (Wave 3) — A/B framework + marketplace stub (types-only) + Storybook v9.1.20 visual-regression CI (REQ-048, REQ-044, REQ-046)
 
 ### Phase 5: Central CMS + Block Library + Editor UX
 **Goal**: Payload 3.82.1 admin running, 45 blocks, Lexical editor with full toolbar + SEO panel, DAM, content sprint workstream kickoff.
