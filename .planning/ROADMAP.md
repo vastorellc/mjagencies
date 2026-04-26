@@ -67,12 +67,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 02-01: Drizzle schema design — all base tables with `agency_id` + RLS + `agency_id` immutable access rule
-- [ ] 02-02: PgBouncer per-agency config (transaction mode, pool_size=20, ports 6432–6444) + PM2 supervision
-- [ ] 02-03: Migration runner — parallel, per-agency, dry-run, canary stage, rollback path
-- [ ] 02-04: Seed framework — per-agency, transactional, resume on fail
-- [ ] 02-05: Backup automation — WAL streaming, hourly snapshots, R2 upload, quarterly DR drill
-- [ ] 02-06: Permissions vault schema (encrypted, 7yr retention) + audit log (hash-chained, append-only)
+- [ ] 02-01-PLAN.md (Wave 1) — Drizzle schema + RLS policies + agency_id immutable trigger + migrations_runner role
+- [ ] 02-02-PLAN.md (Wave 1) — PgBouncer/RLS audit + no-session-set ESLint rule + RLS+pool verifier + runbook
+- [ ] 02-03-PLAN.md (Wave 2) — Migration runner (parallel, dry-run, canary, snapshot, rollback) + buildDirectUrl
+- [ ] 02-04-PLAN.md (Wave 3) — Resumable per-agency seed framework + 2 real steps (agencies + admin-users)
+- [ ] 02-05-PLAN.md (Wave 2) — pgBackRest + R2 backups (WAL + 3-tier snapshots, AES-256-CBC) + DR drill
+- [ ] 02-06-PLAN.md (Wave 2) — AES-GCM-256 permissions vault + hash-chain audit log + BullMQ encrypted queue
 
 ### Phase 3: Auth + SSO + Edge Routing
 **Goal**: Secure auth, Cloudflare routing, MFA, audit log, server-action auth pattern locked into the codebase.
