@@ -190,3 +190,54 @@ jobs:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
       - name: REQ-427 scan __NEXT_DATA__ for secret patterns
         run: pnpm tsx scripts/scan-next-data.ts
+
+  # Plan 04-05: Theme validation — validates theme.json schema AND checks agencies.generated.css drift
+  # T-04-009: git diff --exit-code catches hand-edits that bypass the source-of-truth (theme-{slug}.json)
+  theme-validation:
+    name: Theme Validation
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - name: Validate themes
+        run: pnpm theme:validate
+      - name: Regenerate agencies CSS and check drift
+        run: |
+          pnpm theme:generate
+          git diff --exit-code packages/ui/styles/agencies.generated.css || (echo "agencies.generated.css is out of date — run pnpm theme:generate locally and commit the result" && exit 1)
+
+  # Plan 04-05: Visual regression — builds Storybook, serves via http-server, runs test-runner
+  # REQ-048: 540 stories at Phase 5 (45 blocks × 12 themes); harness ships now for Phase 5 to inherit.
+  # Pitfall 6 mitigation: --maxWorkers=4 --testTimeout=60000 to avoid OOM and timeout flakiness.
+  # Open Q1 resolution: self-hosted @storybook/test-runner + Playwright (no Chromatic SaaS at M004).
+  visual-regression:
+    name: Visual Regression (Storybook)
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install chromium --with-deps
+      - name: Build Storybook
+        run: pnpm --filter=@mjagency/ui build-storybook
+      - name: Serve Storybook + Run Test Runner
+        run: |
+          npx concurrently -k -s first -n "SB,TEST" \
+            "npx http-server packages/ui/storybook-static --port 6006 --silent" \
+            "npx wait-on tcp:127.0.0.1:6006 && pnpm --filter=@mjagency/ui test-storybook --maxWorkers=4 --testTimeout=60000"
