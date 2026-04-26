@@ -21,7 +21,10 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "test:e2e": "playwright test --config=playwright.config.ts"
+    "test:e2e": "playwright test --config=playwright.config.ts",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "test-storybook": "test-storybook"
   },
   "dependencies": {
     "ajv": "8.20.0",
@@ -34,14 +37,24 @@
     "tailwindcss": "^4.2.0"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "3.2.0",
     "@playwright/test": "^1.44.0",
+    "@storybook/addon-themes": "9.1.20",
+    "@storybook/nextjs-vite": "9.1.20",
+    "@storybook/test-runner": "0.24.3",
     "@testing-library/react": "^16.0.0",
+    "@types/jest-image-snapshot": "6.4.0",
     "@types/node": "22.9.0",
     "@types/react": "^18 || ^19",
+    "concurrently": "9.x",
+    "http-server": "14.x",
+    "jest-image-snapshot": "6.4.0",
     "jsdom": "^25.0.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "storybook": "9.1.20",
     "typescript": "5.6.3",
-    "vitest": "2.1.8"
+    "vitest": "2.1.8",
+    "wait-on": "8.x"
   }
 }
