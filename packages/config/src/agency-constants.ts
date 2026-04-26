@@ -40,3 +40,10 @@ export const REDIS_KEY = {
   bullPrefix: (a: string) => `agency:${a}:bull`,
   rateLimit: (a: string, ip: string) => `agency:${a}:ratelimit:${ip}`,
 } as const
+
+/**
+ * Reserved UUID for non-user audit operations (migrations, cron, system actions).
+ * Used as `actor_id` in audit_log rows where no authenticated user is present.
+ * Open Q4 resolution per Plan 02-06.
+ */
+export const SYSTEM_ACTOR_ID = '00000000-0000-0000-0000-000000000001' as const
