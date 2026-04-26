@@ -2,8 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
-    "paths": { "@/*": ["./src/*"] }
+    "paths": {
+      "@/*": ["./src/*"],
+      "@payload-config": ["./payload.config.ts"]
+    }
   },
-  "include": ["next-env.d.ts", "src/**/*", "instrumentation.ts", "next.config.mjs", ".next/types/**/*"],
+  "include": ["next-env.d.ts", "src/**/*", "payload.config.ts", "instrumentation.ts", "next.config.mjs", ".next/types/**/*"],
   "exclude": ["node_modules", ".next", "dist"]
 }

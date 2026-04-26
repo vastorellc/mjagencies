@@ -1,28 +1,17 @@
 // SOURCE: payloadcms.com/docs/getting-started/installation
-import { buildConfig } from 'payload'
-import { postgresAdapter } from '@payloadcms/db-postgres'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+// Pinned: payload 3.82.1 — DO NOT UPGRADE (CLAUDE.md §1, REQ-050, REQ-500)
+import { buildPayloadConfig } from '@mjagency/cms'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-export default buildConfig({
-  admin: {
-    user: 'users', // collection at M003
-    importMap: { baseDir: path.resolve(dirname) },
-  },
+export default buildPayloadConfig({
+  dirname,
+  databaseUrl: process.env.DATABASE_URL ?? '',
+  secret: process.env.PAYLOAD_SECRET ?? '',
   collections: [
-    // M001: empty — minimum to boot is zero collections + Payload generates `users`
-    // M005 fills these from packages/cms
+    // Plan 05-02 adds all 10 core collections here
   ],
-  editor: lexicalEditor({}),
-  secret: process.env.PAYLOAD_SECRET || '',
-  typescript: {
-    outputFile: path.resolve(dirname, 'payload-types.ts'),
-  },
-  db: postgresAdapter({
-    pool: { connectionString: process.env.DATABASE_URL || '' },
-  }),
 })

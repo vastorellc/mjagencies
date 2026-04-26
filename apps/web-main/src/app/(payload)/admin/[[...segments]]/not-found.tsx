@@ -1,6 +1,12 @@
 import { NotFoundPage } from '@payloadcms/next/views'
-import type { ReactNode } from 'react'
+import config from '@payload-config'
+import { importMap } from '../../importMap'
 
-export default async function NotFound(): Promise<ReactNode> {
-  return NotFoundPage({})
+export default async function NotFound() {
+  return NotFoundPage({
+    config,
+    importMap,
+    params: Promise.resolve({ segments: [] }),
+    searchParams: Promise.resolve({}),
+  })
 }

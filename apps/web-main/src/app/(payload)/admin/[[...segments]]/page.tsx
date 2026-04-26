@@ -1,13 +1,17 @@
 import type { Metadata } from 'next'
 import { RootPage, generatePageMetadata } from '@payloadcms/next/views'
-import type { ServerProps } from 'payload'
+import config from '@payload-config'
+import { importMap } from '../../importMap'
 
-export async function generateMetadata({ params, searchParams }: ServerProps): Promise<Metadata> {
-  const metadata = await generatePageMetadata({ params, searchParams })
-  return metadata
+type Props = {
+  params: Promise<{ segments?: string[] }>
+  searchParams: Promise<{ [key: string]: string | string[] }>
 }
 
-export default async function Page({ params, searchParams }: ServerProps) {
-  const pageData = await RootPage({ params, searchParams })
-  return pageData
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  return generatePageMetadata({ config, params, searchParams })
+}
+
+export default async function Page({ params, searchParams }: Props) {
+  return RootPage({ config, importMap, params: params as Promise<{ segments: string[] }>, searchParams })
 }

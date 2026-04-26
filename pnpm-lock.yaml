@@ -526,6 +526,9 @@ importers:
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@mjagency/cms':
+        specifier: workspace:*
+        version: link:../../packages/cms
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -958,7 +961,26 @@ importers:
         version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(jsdom@25.0.1)(lightningcss@1.32.0)(msw@2.7.0(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
 
   packages/cms:
+    dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@mjagency/config':
+        specifier: workspace:*
+        version: link:../config
+      '@mjagency/queue':
+        specifier: workspace:*
+        version: link:../queue
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
     devDependencies:
+      '@payloadcms/db-postgres':
+        specifier: 3.82.1
+        version: 3.82.1(@opentelemetry/api@1.9.0)(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(postgres@3.4.9)
+      '@payloadcms/richtext-lexical':
+        specifier: 3.82.1
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
       '@types/node':
         specifier: 22.9.0
         version: 22.9.0

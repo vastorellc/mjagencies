@@ -19,7 +19,8 @@
  *   - Key prefix: REDIS_KEY.bullPrefix(agencyId) from @mjagency/config
  *   - Worker imported by apps/web-main instrumentation.node.ts (not in this file)
  */
-import type { Config, CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
+import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
@@ -35,9 +36,9 @@ export interface BuildPayloadConfigOptions {
   collections?: CollectionConfig[]
 }
 
-export function buildPayloadConfig(opts: BuildPayloadConfigOptions): Config {
+export function buildPayloadConfig(opts: BuildPayloadConfigOptions): ReturnType<typeof buildConfig> {
   const { dirname, databaseUrl, secret, collections = [] } = opts
-  return {
+  return buildConfig({
     admin: {
       user: 'users',
       importMap: { baseDir: path.resolve(dirname) },
@@ -57,5 +58,5 @@ export function buildPayloadConfig(opts: BuildPayloadConfigOptions): Config {
     }),
     // Payload 3.82.1 pin: do not remove the version comment — CI gate checks this
     // pnpm list payload | grep 3.82.1 (REQ-501)
-  }
+  })
 }
