@@ -17,6 +17,10 @@
     "./migrate": {
       "types": "./src/migrate/index.ts",
       "default": "./src/migrate/index.ts"
+    },
+    "./vault": {
+      "types": "./src/vault/index.ts",
+      "default": "./src/vault/index.ts"
     }
   },
   "scripts": {
