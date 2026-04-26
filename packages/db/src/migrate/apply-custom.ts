@@ -35,11 +35,21 @@ const CUSTOM_DIR = path.resolve(__dirname, '../migrations/custom')
 
 /**
  * Ordered list of custom DDL files to apply after drizzle-kit generated migrations.
- * Plan 02-06 will append entries to this array (e.g., '003_audit_triggers.sql', '004_partition_audit_log.sql').
+ *
+ * Apply order (per Plans 02-01, 02-03, 02-06):
+ *   001 — agency_id immutability trigger (Plan 02-01)
+ *   002 — FORCE RLS + per-agency app role grants (Plan 02-01)
+ *   003 — audit log hash chain trigger + per-table capture triggers (Plan 02-06)
+ *   004 — convert audit_log to monthly RANGE-partitioned table (Plan 02-06)
+ *
+ * Cross-plan touch: entries 003 and 004 were appended by Plan 02-06.
+ * Plan 02-03 shipped entries 001 and 002.
  */
 export const CUSTOM_FILES: readonly string[] = [
   '001_agency_id_immutable.sql',
   '002_force_rls_and_app_role.sql',
+  '003_audit_triggers.sql',
+  '004_partition_audit_log.sql',
 ]
 
 /**
