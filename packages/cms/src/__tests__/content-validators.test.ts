@@ -28,17 +28,19 @@ import {
 } from '../hooks/content-validators.js'
 import type { CollectionBeforeOperationHook } from 'payload'
 
-/** Helper to invoke a hook with data and operation. Returns the promise. */
+/**
+ * Minimal hook invocation helper.
+ * Payload's CollectionBeforeOperationHook has a deeply-generic arg type tied to collection slugs.
+ * We cast via unknown to pass a minimal synthetic arg — the hook implementations only access
+ * `args.data` and `operation`, so this is safe for unit testing.
+ */
 function callHook(
   hook: CollectionBeforeOperationHook,
   data: Record<string, unknown>,
   operation: 'create' | 'update' = 'update'
 ) {
-  return hook({
-    args: { data } as Parameters<CollectionBeforeOperationHook>[0]['args'],
-    operation,
-    req: {} as Parameters<CollectionBeforeOperationHook>[0]['req'],
-  })
+  const arg = { args: { data }, operation, req: {} }
+  return hook(arg as unknown as Parameters<CollectionBeforeOperationHook>[0])
 }
 
 /** Repeat a word n times to generate body text */
