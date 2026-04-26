@@ -21,6 +21,10 @@
     "./vault": {
       "types": "./src/vault/index.ts",
       "default": "./src/vault/index.ts"
+    },
+    "./seed": {
+      "types": "./src/seed/index.ts",
+      "default": "./src/seed/index.ts"
     }
   },
   "scripts": {
@@ -31,7 +35,9 @@
     "db:check": "drizzle-kit check",
     "db:migrate": "tsx ../../scripts/migrate-runner.ts --all",
     "db:migrate:dry": "tsx ../../scripts/migrate-runner.ts --dry-run --all",
-    "db:migrate:canary": "tsx ../../scripts/migrate-runner.ts --canary"
+    "db:migrate:canary": "tsx ../../scripts/migrate-runner.ts --canary",
+    "db:seed": "tsx ../../scripts/seed-runner.ts --all",
+    "db:seed:one": "tsx ../../scripts/seed-runner.ts --agency"
   },
   "dependencies": {
     "@mjagency/config": "workspace:*",
@@ -45,6 +51,7 @@
     "@mjagency/testing": "workspace:*",
     "@types/node": "22.9.0",
     "drizzle-kit": "0.31.10",
+    "drizzle-seed": "0.3.1",
     "eslint": "9.13.0",
     "typescript": "5.6.3",
     "vitest": "2.1.8"

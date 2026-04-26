@@ -29,3 +29,5 @@ export * as vault from './vault/index.js'
 export { encryptVaultValue, decryptVaultValue } from './vault/crypto.js'
 // Audit namespace (Plan 02-06)
 export * as audit from './audit/index.js'
+// Seed framework namespace (Plan 02-04)
+export * as seed from './seed/index.js'
