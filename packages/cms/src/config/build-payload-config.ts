@@ -5,15 +5,22 @@
  * Pinned to Payload CMS 3.82.1 — DO NOT UPGRADE (CLAUDE.md §1, REQ-050).
  *
  * Plan 05-01 output — Plan 05-02 adds CORE_COLLECTIONS via the `collections` option.
- * Plan 05-04 adds full Lexical feature set via the `editor` option.
+ * Plan 05-04: full Lexical feature set + BlocksFeature + SeoPanel sidebar component.
  *
- * NOTE: This factory does not import @payloadcms/db-postgres or @payloadcms/richtext-lexical
- * directly — those are consumed by each app's payload.config.ts (they are app-level deps).
- * The factory only imports from 'payload' which is a peer dep of @mjagency/cms.
+ * Architecture note: This factory self-contains the editor and db adapter construction
+ * so all agency apps share a single canonical Lexical config. Apps pass databaseUrl
+ * and secret; the factory handles adapter wiring.
  */
 
+// SOURCE: payloadcms.com/docs/getting-started/installation
+// Pinned: payload 3.82.1 — DO NOT UPGRADE (CLAUDE.md §1, REQ-050, REQ-500)
 import { buildConfig } from 'payload'
 import type { CollectionConfig, Config } from 'payload'
+import { postgresAdapter } from '@payloadcms/db-postgres'
+import { lexicalEditor, BlocksFeature } from '@payloadcms/richtext-lexical'
+import path from 'path'
+import { getLexicalFeatures } from '../editor/lexical-features.js'
+import { PAYLOAD_BLOCKS } from '../blocks/payload-blocks.js'
 
 export interface BuildPayloadConfigOptions {
   /** Absolute directory of the calling app (pass `path.dirname(fileURLToPath(import.meta.url))`) */
@@ -24,24 +31,7 @@ export interface BuildPayloadConfigOptions {
   secret: string
   /** Additional collections to register (e.g. CORE_COLLECTIONS from Plan 05-02) */
   collections?: CollectionConfig[]
-  /**
-   * Database adapter — must be constructed by the calling app:
-   * ```ts
-   * import { postgresAdapter } from '@payloadcms/db-postgres'
-   * db: postgresAdapter({ pool: { connectionString: databaseUrl } })
-   * ```
-   */
-  db: Config['db']
-  /**
-   * Rich-text editor — must be constructed by the calling app:
-   * ```ts
-   * import { lexicalEditor } from '@payloadcms/richtext-lexical'
-   * editor: lexicalEditor({})
-   * ```
-   * Plan 05-04 replaces this with the full Lexical feature set.
-   */
-  editor: Config['editor']
-  /** Override Payload config options (merged, collections-override not allowed) */
+  /** Override Payload config options (merged, collections/db/editor override not allowed) */
   overrides?: Partial<Omit<Config, 'collections' | 'db' | 'editor'>>
 }
 
@@ -51,8 +41,6 @@ export interface BuildPayloadConfigOptions {
  * Usage in apps/web-<agency>/payload.config.ts:
  * ```ts
  * import { buildPayloadConfig, CORE_COLLECTIONS } from '@mjagency/cms'
- * import { postgresAdapter } from '@payloadcms/db-postgres'
- * import { lexicalEditor } from '@payloadcms/richtext-lexical'
  * import path from 'path'
  * import { fileURLToPath } from 'url'
  *
@@ -61,39 +49,54 @@ export interface BuildPayloadConfigOptions {
  *
  * export default buildPayloadConfig({
  *   dirname,
- *   databaseUrl: process.env.DATABASE_URL ?? '',
- *   secret: process.env.PAYLOAD_SECRET ?? '',
+ *   databaseUrl: process.env['DATABASE_URL'] ?? '',
+ *   secret: process.env['PAYLOAD_SECRET'] ?? '',
  *   collections: CORE_COLLECTIONS,
- *   db: postgresAdapter({ pool: { connectionString: process.env.DATABASE_URL ?? '' } }),
- *   editor: lexicalEditor({}),
  * })
  * ```
  */
 export function buildPayloadConfig({
   dirname,
+  databaseUrl,
   secret,
   collections = [],
-  db,
-  editor,
   overrides = {},
 }: BuildPayloadConfigOptions): ReturnType<typeof buildConfig> {
   return buildConfig({
     admin: {
       user: 'users',
-      importMap: { baseDir: dirname },
+      importMap: { baseDir: path.resolve(dirname) },
       meta: {
         // Prevent indexing of admin routes (cms.md PAYLOAD ADMIN SECURITY)
         robots: 'noindex,nofollow',
       },
+      // SEO/AIO/GEO panel registered as afterDocControls component.
+      // IMPORTANT: Use relative string path (NOT path.resolve absolute) so importMap resolves it.
+      // Payload 3.82.1 resolves component paths via importMap.baseDir; absolute paths fail.
+      components: {
+        afterDocControls: [
+          './src/app/(payload)/admin/components/SeoPanel',
+        ],
+      },
       ...overrides.admin,
     },
     collections,
-    editor,
+    editor: lexicalEditor({
+      features: ({ defaultFeatures }) => [
+        ...defaultFeatures,
+        ...getLexicalFeatures(),
+        // Register all 45 blocks so Payload Lexical exposes them in the block picker
+        // and slash menu. PAYLOAD_BLOCKS is the array of Block configs from Plan 05-03c.
+        BlocksFeature({ blocks: PAYLOAD_BLOCKS }),
+      ],
+    }),
     secret,
     typescript: {
-      outputFile: `${dirname}/payload-types.ts`,
+      outputFile: path.resolve(dirname, 'payload-types.ts'),
     },
-    db,
+    db: postgresAdapter({
+      pool: { connectionString: databaseUrl },
+    }),
     ...overrides,
   })
 }

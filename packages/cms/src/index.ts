@@ -52,3 +52,22 @@ export {
 } from './hooks/content-validators.js'
 export { schedulePublishHook } from './hooks/scheduled-publish.js'
 export type { ScheduledPublishJobData } from './hooks/scheduled-publish.js'
+
+// Plan 05-04 additions
+export { getLexicalFeatures, SLASH_COMMANDS } from './editor/lexical-features.js'
+export type { SlashCommand } from './editor/lexical-features.js'
+export { computeSeoScore } from './editor/seo-panel-stub.js'
+export type { SeoScores } from './editor/seo-panel-stub.js'
+export {
+  aiRewrite,
+  aiExpand,
+  aiShorten,
+  aiBrandVoiceRewrite,
+  aiGenerateFaq,
+  aiSuggestInternalLinks,
+  aiTldr,
+  aiMetaDescription,
+  aiAltText,
+} from './editor/ai-hooks-stub.js'
+export type { AiActionResult } from './editor/ai-hooks-stub.js'
+export { PAYLOAD_BLOCKS } from './blocks/payload-blocks.js'
