@@ -196,6 +196,18 @@ None - no external service configuration required for this plan. `DATABASE_URL` 
 - **Access helpers ready:** `collectionAccess`, `deleteAccess`, `fieldImmutable`, `superAdminOnly` are exported from `@mjagency/cms` for immediate use in all 05-02 collection definitions
 - **Concern:** Pre-existing TypeScript errors in `packages/db` and `packages/config` may surface during 05-02 integration testing if those packages are transitively typechecked. Phase owners should address the Drizzle RLS type issue and OTel semantic conventions version mismatch.
 
+## Self-Check: PASSED
+
+| Check | Result |
+|-------|--------|
+| `packages/cms/src/access/collection-access.ts` exists | FOUND |
+| `packages/cms/src/config/build-payload-config.ts` exists | FOUND |
+| `apps/web-main/src/app/(payload)/importMap.ts` exists | FOUND |
+| `.planning/phases/05-central-cms/05-01-SUMMARY.md` exists | FOUND |
+| Task 1 commit `031a2e9` in git log | FOUND |
+| Task 2 commit `0207c44` in git log | FOUND |
+| SUMMARY commit `dfa1ec7` in git log | FOUND |
+
 ---
 *Phase: 05-central-cms*
 *Completed: 2026-04-26*
