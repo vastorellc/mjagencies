@@ -150,12 +150,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 06-01: Plugin runtime + parameter store
-- [ ] 06-02: seo-classic plugin
-- [ ] 06-03: aio-citations plugin
-- [ ] 06-04: geo-chunking plugin
-- [ ] 06-05: Self-learning loop — GSC/GA4 signals → AI tuner → suggestions
-- [ ] 06-06: Algorithm watcher (RSS monitoring of Google Search Central)
+- [ ] 06-01-PLAN.md (Wave 1) — Plugin runtime + parameter store: lexical-parser, plugin-defaults, config-cache, engine skeleton, settings seo_plugins field, computeLiveScore server action, SeoPanel upgrade (REQ-071, REQ-072, REQ-075)
+- [ ] 06-02-PLAN.md (Wave 2) — seo-classic plugin: TDD, 7 sub-factors (title/meta/keyword/words/H1/H2/links), engine registration (REQ-070, REQ-071, REQ-072)
+- [ ] 06-03-PLAN.md (Wave 2) — aio-citations plugin + AIO TL;DR validator + faqs collection + FAQPage JSON-LD utility (REQ-070, REQ-075, REQ-076)
+- [ ] 06-04-PLAN.md (Wave 2) — geo-chunking plugin: TDD, city entity mention scoring, engine registration (REQ-070, REQ-071, REQ-072)
+- [ ] 06-05-PLAN.md (Wave 3) — Self-learning loop: seo_suggestions collection, GSC + GA4 signal fetcher, AI tuner, BullMQ daily job (REQ-073)
+- [ ] 06-06-PLAN.md (Wave 3) — Algorithm watcher: algo_alerts collection, RSS parser, GUID dedup, BullMQ 6h job, [BLOCKING] Payload migrate (REQ-074)
 
 ### Phase 7: AI Assistant + Anti-Fabrication
 **Goal**: LiteLLM gateway with per-agency cost caps, 20 editor AI features, anti-fab guards, brand voice + glossary, PII redactor, prompt-injection protection.
