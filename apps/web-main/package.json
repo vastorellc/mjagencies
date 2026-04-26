@@ -21,6 +21,7 @@
     "@payloadcms/db-postgres": "3.82.1",
     "@payloadcms/richtext-lexical": "3.82.1",
     "pino": "10.3.1",
+    "@mjagency/cms": "workspace:*",
     "@mjagency/config": "workspace:*",
     "@mjagency/ui": "workspace:*",
     "@mjagency/auth": "workspace:*",

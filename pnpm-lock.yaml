@@ -526,6 +526,9 @@ importers:
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@mjagency/cms':
+        specifier: workspace:*
+        version: link:../../packages/cms
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
