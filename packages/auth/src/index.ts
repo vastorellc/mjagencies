@@ -93,3 +93,9 @@ export { validateReturnTo } from './redirect.js'
 // Agency-owner self-delete guard (Plan 03-06) — server-action layer (REQ-028, REQ-400).
 // Backed by DB trigger 006_prevent_last_admin_delete.sql (defense-in-depth).
 export { assertNotAgencyOwner } from './guards.js'
+
+// Audit emit helpers (Plan 03-06):
+//   setAppActor    — SET LOCAL app.actor_id for Phase 2 capture_audit_row() (REQ-027, T-03-023)
+//   emitAuthAudit  — Pino observability (NOT the compliance audit log; complements DB hash chain)
+//   AuthEventName  — locked union of auth event name strings
+export { setAppActor, emitAuthAudit, type AuthEventName } from './audit-emit.js'

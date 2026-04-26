@@ -121,6 +121,22 @@ jobs:
       - name: pnpm audit (high severity)
         run: pnpm audit --audit-level=high
 
+  cve-2025-29927-gate:
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - name: REQ-029 next.js >= 15.2.3 (CVE-2025-29927)
+        run: pnpm tsx scripts/check-next-version.ts
+
   compose-smoke:
     needs: install
     runs-on: ubuntu-latest
