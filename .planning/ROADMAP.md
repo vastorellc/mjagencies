@@ -50,7 +50,7 @@ Plans:
 - [x] 01-02-PLAN.md (Wave 2) — Docker Compose (Postgres x13 in shared instance, Redis, Mailhog, Stripe CLI, PgAdmin) + PgBouncer per agency
 - [x] 01-03-PLAN.md (Wave 2) — Cloudflare pipeline — Images, Stream, R2 SDKs in `packages/media`; `packages/builder` + `packages/tools` scaffolds (types-only at M001)
 - [x] 01-04-PLAN.md (Wave 3) — OpenTelemetry (sdk-node, traceparent, Pino + redact, DB query trace_id injection) + Prometheus/Loki/Grafana/Tempo dashboards
-- [ ] 01-05-PLAN.md (Wave 4) — GitHub Actions CI — install/build/test, ESLint, typecheck, bundle-size, version-pin checks, npm audit, secret-pattern grep
+- [x] 01-05-PLAN.md (Wave 4) — GitHub Actions CI — install/build/test, ESLint, typecheck, bundle-size, version-pin checks, npm audit, secret-pattern grep
 - [ ] 01-06-PLAN.md (Wave 3) — Doppler workspace setup — per-agency project + shared project, CLI injection at build, secret-rotation runbook
 
 ### Phase 2: Multi-tenant DB + Migration
