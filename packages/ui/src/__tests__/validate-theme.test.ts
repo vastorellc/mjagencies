@@ -66,7 +66,8 @@ describe('assertValidTheme', () => {
     const theme = makeValidTheme();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (theme.meta as any)['niche'] = 'invalid';
-    expect(() => assertValidTheme(theme, 'test.json')).toThrow(/enum/i);
+    // AJV reports enum violations as "must be equal to one of the allowed values"
+    expect(() => assertValidTheme(theme, 'test.json')).toThrow(/allowedValues|allowed values|must be equal/i);
   });
 
   it('Test 5: invalid version pattern fails', () => {

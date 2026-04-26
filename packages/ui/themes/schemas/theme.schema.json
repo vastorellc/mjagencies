@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mjagency.com/schemas/theme.schema.json",
+  "title": "MJAgency Theme",
+  "type": "object",
+  "required": ["meta", "scopes"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["slug", "name", "niche", "version"],
+      "properties": {
+        "slug":    { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "name":    { "type": "string", "minLength": 1 },
+        "niche":   {
+          "type": "string",
+          "enum": ["brand","ecommerce","growth","webdev","ai","branding",
+                   "strategy","finance","engineering","product","video","graphic"]
+        },
+        "version":     { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "description": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "scopes": {
+      "type": "object",
+      "required": [
+        "brand","color","type","spacing","layout","components",
+        "header","footer","hero","blocks","templates","motion",
+        "icons","imagery","theme","a11y","perf","seo-defaults",
+        "custom-css","code-injection"
+      ],
+      "properties": {
+        "brand":          { "$ref": "#/$defs/scopeObject" },
+        "color":          { "$ref": "#/$defs/scopeObject" },
+        "type":           { "$ref": "#/$defs/scopeObject" },
+        "spacing":        { "$ref": "#/$defs/scopeObject" },
+        "layout":         { "$ref": "#/$defs/scopeObject" },
+        "components":     { "$ref": "#/$defs/scopeObject" },
+        "header":         { "$ref": "#/$defs/scopeObject" },
+        "footer":         { "$ref": "#/$defs/scopeObject" },
+        "hero":           { "$ref": "#/$defs/scopeObject" },
+        "blocks":         { "$ref": "#/$defs/scopeObject" },
+        "templates":      { "$ref": "#/$defs/scopeObject" },
+        "motion":         { "$ref": "#/$defs/scopeObject" },
+        "icons":          { "$ref": "#/$defs/scopeObject" },
+        "imagery":        { "$ref": "#/$defs/imageryScope" },
+        "theme":          { "$ref": "#/$defs/scopeObject" },
+        "a11y":           { "$ref": "#/$defs/scopeObject" },
+        "perf":           { "$ref": "#/$defs/scopeObject" },
+        "seo-defaults":   { "$ref": "#/$defs/scopeObject" },
+        "custom-css":     { "type": "string" },
+        "code-injection": {
+          "type": "object",
+          "properties": {
+            "head":       { "type": "string" },
+            "body-start": { "type": "string" },
+            "body-end":   { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "dark": {
+      "type": "object",
+      "description": "Dark mode token overrides — same scope structure, partial allowed",
+      "additionalProperties": { "$ref": "#/$defs/scopeObject" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "noHexValue": {
+      "type": "string",
+      "allOf": [
+        {
+          "not": { "pattern": "#[0-9a-fA-F]{3,8}\\b" },
+          "description": "Value must NOT be a hex literal — use var(--mj-*) or oklch()/hsl()/rgb() functions"
+        },
+        {
+          "not": { "pattern": "url\\(" },
+          "description": "Value must NOT contain url() — SSRF/data-uri injection vector"
+        }
+      ]
+    },
+    "scopeObject": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/noHexValue" }
+    },
+    "imageryScope": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "not": { "pattern": "#[0-9a-fA-F]{3,8}\\b" },
+        "description": "Imagery scope allows url() (legitimate image references) but still forbids hex"
+      }
+    }
+  }
+}
