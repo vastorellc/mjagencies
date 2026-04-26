@@ -19,3 +19,4 @@ export { agencyConnection, buildDatabaseUrl, allAgencyConnections } from './conn
 export * as schema from './schema/index.js'
 export { createAgencyDb, withAgencyContext } from './client.js'
 export type { AgencyDb } from './client.js'
+export * as migrate from './migrate/index.js'
