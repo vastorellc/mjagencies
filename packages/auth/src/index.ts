@@ -69,3 +69,8 @@ export {
   recordFailedAttempt,
   clearLockout,
 } from './mfa-lockout.js'
+
+// Server-action session helper — Node-runtime only (uses next/headers + next/navigation).
+// NOT re-exported from '@mjagency/auth/middleware' to keep the Edge bundle lean.
+// MUST be the FIRST call in every server action (CLAUDE.md §3, REQ-031, REQ-301).
+export { requireSession, type RequireSessionOpts } from './require-session.js'
