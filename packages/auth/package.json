@@ -16,9 +16,21 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
+  "dependencies": {
+    "jose": "6.2.2",
+    "ioredis": "5.10.1",
+    "@mjagency/db": "workspace:*",
+    "@mjagency/config": "workspace:*",
+    "drizzle-orm": "0.45.2",
+    "server-only": "0.0.1"
+  },
   "devDependencies": {
     "@types/node": "22.9.0",
+    "@mjagency/testing": "workspace:*",
     "typescript": "5.6.3",
     "vitest": "2.1.8"
+  },
+  "peerDependencies": {
+    "next": ">=15.2.3"
   }
 }

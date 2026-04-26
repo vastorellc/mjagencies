@@ -35,10 +35,17 @@ export const AGENCY_PORTS: Record<AgencySlug, number> = {
 
 // Agency-isolation Redis/BullMQ key helpers (CLAUDE.md §8, RESEARCH pitfall 3.9)
 export const REDIS_KEY = {
-  cache: (a: string, k: string) => `agency:${a}:cache:${k}`,
-  session: (a: string, u: string) => `agency:${a}:session:${u}`,
-  bullPrefix: (a: string) => `agency:${a}:bull`,
+  cache:     (a: string, k: string)  => `agency:${a}:cache:${k}`,
+  bullPrefix:(a: string)             => `agency:${a}:bull`,
   rateLimit: (a: string, ip: string) => `agency:${a}:ratelimit:${ip}`,
+  // session.* — per-agency. SSO is cross-agency and lives in `accounts.*` (Plan 03-03 adds it).
+  session: {
+    user:       (a: string, u: string)   => `agency:${a}:session:${u}`,        // back-compat alias for the previous session() signature
+    rt:         (a: string, jti: string) => `agency:${a}:session:rt:${jti}`,
+    family:     (a: string, f: string)   => `agency:${a}:session:family:${f}`,
+    revoked:    (a: string, jti: string) => `agency:${a}:session:revoked:${jti}`,
+    mfaLockout: (a: string, u: string)   => `agency:${a}:session:mfa-lockout:${u}`,
+  },
 } as const
 
 /**
