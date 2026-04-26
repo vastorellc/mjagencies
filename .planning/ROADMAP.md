@@ -108,7 +108,7 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 04-01-PLAN.md (Wave 1) — 6-layer CSS variable token schema (--mj-*) + Tailwind v4 `@theme inline` bridge in `packages/ui` (REQ-040, REQ-046, REQ-047)
+- [x] 04-01-PLAN.md (Wave 1) — 6-layer CSS variable token schema (--mj-*) + Tailwind v4 `@theme inline` bridge in `packages/ui` (REQ-040, REQ-046, REQ-047)
 - [ ] 04-02-PLAN.md (Wave 1) — `theme.json` JSON Schema validator (AJV 8.20.0) — rejects hex literals + url() SSRF (REQ-041, REQ-042, REQ-047)
 - [ ] 04-03-PLAN.md (Wave 2) — Theme resolution stack: pure CSS cascade with 5 `[data-*]` attribute layers + FOUC inline script (REQ-043, REQ-045, REQ-046)
 - [ ] 04-04-PLAN.md (Wave 2) — 12 niche default themes (one per AGENCIES slug) — OKLCH palettes + RESEARCH §5 fonts (REQ-044, REQ-042, REQ-046)
