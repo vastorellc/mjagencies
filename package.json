@@ -13,8 +13,13 @@
     "format": "prettier --write .",
     "setup-hosts": "scripts/setup-hosts.sh"
   },
+  "dependencies": {
+    "@mjagency/config": "workspace:*",
+    "@mjagency/db": "workspace:*"
+  },
   "devDependencies": {
     "turbo": "2.9.6",
+    "tsx": "4.19.2",
     "typescript": "5.6.3",
     "prettier": "3.3.3",
     "eslint": "9.13.0"
