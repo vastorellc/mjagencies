@@ -19,3 +19,7 @@ export type {
 } from './theme/types.js';
 
 export { assertValidTheme, assertNoHexLiterals } from './theme/validate-theme.js';
+
+export { compileThemeToCss } from './theme/compile-theme.js';
+export { resolveTheme, type ThemeResolution, type ThemeResolutionInput } from './theme/resolve-theme.js';
+export { getDataAttrs, type DataAttrsInput } from './theme/data-attrs.js';
