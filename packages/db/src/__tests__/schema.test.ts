@@ -12,13 +12,28 @@ import * as schema from '../schema/index.js'
 import { createAgencyDb, withAgencyContext } from '../client.js'
 
 describe('schema exports', () => {
-  it('exports the six expected table objects', () => {
+  it('exports the seven expected table objects (includes mfaConfig from Plan 03-02)', () => {
     expect(schema.agencies).toBeDefined()
     expect(schema.users).toBeDefined()
     expect(schema.sessions).toBeDefined()
     expect(schema.permissionsVault).toBeDefined()
     expect(schema.auditLog).toBeDefined()
     expect(schema.seedState).toBeDefined()
+    expect(schema.mfaConfig).toBeDefined()
+  })
+
+  it('mfaConfig table has agencyBaseColumns plus MFA-specific columns', () => {
+    const cols = Object.keys(schema.mfaConfig)
+    expect(cols).toContain('id')
+    expect(cols).toContain('agencyId')
+    expect(cols).toContain('createdAt')
+    expect(cols).toContain('updatedAt')
+    expect(cols).toContain('userId')
+    expect(cols).toContain('recoveryHashes')
+    expect(cols).toContain('mfaEnabledAt')
+    expect(cols).toContain('lastVerifiedAt')
+    expect(cols).toContain('failedAttempts')
+    expect(cols).toContain('lockoutUntil')
   })
 
   it('exports agencyBaseColumns spread object', () => {

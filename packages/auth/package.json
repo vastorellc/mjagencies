@@ -26,10 +26,15 @@
     "@mjagency/db": "workspace:*",
     "@mjagency/config": "workspace:*",
     "drizzle-orm": "0.45.2",
-    "server-only": "0.0.1"
+    "server-only": "0.0.1",
+    "otpauth": "9.5.1",
+    "qrcode": "1.5.4",
+    "bcrypt": "6.0.0"
   },
   "devDependencies": {
     "@types/node": "22.9.0",
+    "@types/bcrypt": "5.0.2",
+    "@types/qrcode": "1.5.5",
     "@mjagency/testing": "workspace:*",
     "typescript": "5.6.3",
     "vitest": "2.1.8"
