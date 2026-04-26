@@ -128,8 +128,8 @@ Plans:
 **Plans**: 8 plans (05-03 split into 03a/b/c during planning to fit context budget)
 
 Plans:
-- [ ] 05-01-PLAN.md (Wave 1) — Payload 3.82.1 setup: withPayload(), (payload) route group, packages/cms config builder + access helpers
-- [ ] 05-02-PLAN.md (Wave 1) — Core Payload collections (10) + global_blocks; content validators (word count, FTC, playbook ranges); BullMQ scheduled-publish hook; Vitest validator tests
+- [x] 05-01-PLAN.md (Wave 1) — Payload 3.82.1 setup: withPayload(), (payload) route group, packages/cms config builder + access helpers
+- [x] 05-02-PLAN.md (Wave 1) — Core Payload collections (10) + global_blocks; content validators (word count, FTC, playbook ranges); BullMQ scheduled-publish hook; Vitest validator tests
 - [ ] 05-03a-PLAN.md (Wave 2) — Hero (4) + Content (8) + CTA (5) blocks — 17 React components, --mj-* tokens only
 - [ ] 05-03b-PLAN.md (Wave 2) — Service (6) + Trust (6) + Media (5) blocks — 17 React components, --mj-* tokens only
 - [ ] 05-03c-PLAN.md (Wave 3) — Blog (4) + Tool (3) + Form (2) + Utility (2) blocks + barrel index + PAYLOAD_BLOCKS array (45 Payload block configs)
