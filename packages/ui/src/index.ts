@@ -40,3 +40,6 @@ export { type AbAnalyticsAdapter, noopAbAdapter } from './theme/ab-analytics-hoo
 // Plan 04-05: Marketplace stub (types-only at M004; M010 implements the service)
 export type { MarketplaceTheme, ThemeMarketplaceQuery, ThemeMarketplacePage, ThemeMarketplaceService } from './marketplace/types.js';
 export { marketplaceStub } from './marketplace/stub.js';
+
+// Plan 05-03c: 45-block library
+export * from './blocks/index.js';
