@@ -1,5 +1,7 @@
-// @mjagency/seo stub — see README.md for the milestone that fills this package.
-
-export async function seoPlaceholder(): Promise<null> {
-  return null
-}
+/**
+ * @mjagency/seo — SEO plugin engine.
+ * Phase 5: stub scorer for content sprint validation.
+ * Phase 6: full seo-classic, aio-citations, geo-chunking plugins.
+ */
+export { computeSeoScoreForContent } from './stub-scorer.js'
+export type { SeoScoreInput, SeoScoreOutput } from './stub-scorer.js'
