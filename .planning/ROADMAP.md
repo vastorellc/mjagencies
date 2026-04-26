@@ -92,7 +92,7 @@ Plans:
 - [x] 03-02-PLAN.md (Wave 2) — MFA TOTP (otpauth) + 8 single-use bcrypt recovery codes + 3-fail/15min Redis lockout + mfa_config schema (REQ-024/025/309)
 - [ ] 03-03-PLAN.md (Wave 3) — SSO at accounts.brand.com (HMAC state + opaque code, accounts:sso:* namespace) + login/logout/refresh routes (REQ-026/310/408)
 - [x] 03-04-PLAN.md (Wave 1) — Cloudflare middleware (12 apps share @mjagency/auth/middleware) + matcher exclusions + security headers + WAF runbook (REQ-029/030/310/408)
-- [ ] 03-05-PLAN.md (Wave 2) — requireSession() helper + ESLint rule require-session-first + RuleTester suite + runbook (REQ-024/031/301/310)
+- [x] 03-05-PLAN.md (Wave 2) — requireSession() helper + ESLint rule require-session-first + RuleTester suite + runbook (REQ-024/031/301/310)
 - [ ] 03-06-PLAN.md (Wave 3) — validateReturnTo + assertNotAgencyOwner + DB trigger 006 + audit emit (setAppActor + Pino) + CVE-2025-29927 CI gate (REQ-027/028/029/308/400/424)
 
 ### Phase 4: Design System + Theme Engine
