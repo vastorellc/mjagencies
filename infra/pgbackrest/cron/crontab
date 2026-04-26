@@ -1,0 +1,20 @@
+# infra/pgbackrest/cron/crontab — pgBackRest 3-tier backup schedule
+#
+# Install as the postgres OS user:
+#   crontab -u postgres infra/pgbackrest/cron/crontab
+#
+# Or via systemd timer (preferred on Debian/Ubuntu — see vps-provisioning.md).
+#
+# Schedule rationale:
+#   02:00 daily incr   — incremental; lightest I/O; ~5-50 MB/day with zstd
+#   03:00 weekly diff  — differential since last full; Sunday, low-traffic
+#   04:00 monthly full — full backup; 1st of month; lowest traffic hour per T-02-014 mitigation
+#
+# Each entry pipes stdout/stderr via logger(1) so output flows into syslog and Loki
+# (Plan 01-04 promtail). Shell wrappers (pgbackrest-daily.sh, pgbackrest-weekly.sh,
+# pgbackrest-monthly.sh) are available in the same directory for alternative invocation.
+#
+# Columns: m  h  dom  mon  dow  user  command
+0  2  *  *  *  postgres  /usr/local/bin/pgbackrest --stanza=postgres-main --config=/etc/pgbackrest/pgbackrest.conf --type=incr backup 2>&1 | logger -t pgbackrest-daily
+0  3  *  *  0  postgres  /usr/local/bin/pgbackrest --stanza=postgres-main --config=/etc/pgbackrest/pgbackrest.conf --type=diff backup 2>&1 | logger -t pgbackrest-weekly
+0  4  1  *  *  postgres  /usr/local/bin/pgbackrest --stanza=postgres-main --config=/etc/pgbackrest/pgbackrest.conf --type=full backup 2>&1 | logger -t pgbackrest-monthly

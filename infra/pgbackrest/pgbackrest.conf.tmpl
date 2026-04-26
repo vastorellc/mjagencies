@@ -1,0 +1,41 @@
+# infra/pgbackrest/pgbackrest.conf.tmpl
+# Source-of-truth pgBackRest configuration template.
+# Rendered into pgbackrest.conf by scripts/gen-pgbackrest-config.sh via envsubst.
+#
+# Variables substituted at render time (all supplied via Doppler in production):
+#   R2_ACCOUNT_ID          — Cloudflare account ID (hex string)
+#   R2_ACCESS_KEY          — R2 access key ID
+#   R2_SECRET_KEY          — R2 secret access key
+#   PGBACKREST_CIPHER_PASS — AES-256-CBC encryption passphrase (Doppler-managed)
+#
+# Plan-time decisions (RESEARCH §4.1–4.3, Open Q3 resolved):
+#   - Single bucket `mjagency-backups` with path prefix /postgres-main
+#   - AES-256-CBC at repo level (pgBackRest does not support AES-GCM at repo level;
+#     Plan 02-06 uses AES-GCM at the application layer for permissions_vault independently)
+#   - Retention: WAL 1095 days (3yr), diff 12 sets, full 84 months (7yr, aligns with REQ-018 vault)
+#   - zstd level 3: fast + good compression ratio; low CPU overhead per T-02-014 mitigation
+#   - process-max=4: bounded parallelism to avoid I/O saturation (T-02-014 mitigation)
+
+[global]
+repo1-type=s3
+repo1-path=/postgres-main
+repo1-s3-region=auto
+repo1-s3-endpoint=${R2_ACCOUNT_ID}.r2.cloudflarestorage.com
+repo1-s3-bucket=mjagency-backups
+repo1-s3-key=${R2_ACCESS_KEY}
+repo1-s3-key-secret=${R2_SECRET_KEY}
+repo1-cipher-type=aes-256-cbc
+repo1-cipher-pass=${PGBACKREST_CIPHER_PASS}
+repo1-retention-full=84
+repo1-retention-diff=12
+repo1-retention-archive=1095
+
+compress-type=zstd
+compress-level=3
+
+process-max=4
+
+[postgres-main]
+pg1-path=/var/lib/postgresql/17/main
+pg1-port=5432
+pg1-user=postgres
