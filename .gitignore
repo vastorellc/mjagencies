@@ -40,3 +40,7 @@ pnpm-debug.log
 coverage/
 
 # .size-baseline.json is tracked in git — updated by main.yml post-merge job
+
+# Playwright
+test-results/
+playwright-report/
