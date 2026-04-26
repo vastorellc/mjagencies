@@ -12,7 +12,8 @@
     "size-limit": "turbo run size-limit",
     "format": "prettier --write .",
     "setup-hosts": "scripts/setup-hosts.sh",
-    "theme:validate": "tsx scripts/validate-themes.ts"
+    "theme:validate": "tsx scripts/validate-themes.ts",
+    "theme:generate": "tsx scripts/generate-agency-css.ts"
   },
   "dependencies": {
     "@mjagency/config": "workspace:*",

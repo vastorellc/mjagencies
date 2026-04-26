@@ -86,10 +86,13 @@ describe('Niche default themes (12 × OKLCH)', () => {
       const theme = readTheme(agency) as ThemeJson;
       assertValidTheme(theme, `theme-${agency}.json`);
       expect(theme.dark, `theme-${agency}.json must have a dark overlay`).toBeDefined();
-      const darkColor = (theme.dark as Record<string, Record<string, string>>)['color'];
+      const darkOverlay = theme.dark as Record<string, Record<string, string>>;
+      const darkColor   = darkOverlay['color'];
       expect(darkColor, `theme-${agency}.json dark.color must be defined`).toBeDefined();
+      // Narrow after expect — darkColor is defined at this point
+      const darkColorKeys = Object.keys(darkColor ?? {});
       expect(
-        Object.keys(darkColor).length,
+        darkColorKeys.length,
         `theme-${agency}.json dark.color must have at least 5 keys`,
       ).toBeGreaterThanOrEqual(5);
     }
