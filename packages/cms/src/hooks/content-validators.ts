@@ -54,8 +54,9 @@ function countInternalLinks(lexicalJson: unknown, siteUrl = ''): number {
 
 /** Detect exact numeric figures (not ranges like "30-45%") in text */
 function hasExactFigures(text: string): boolean {
-  // Ranges like "30-45%" or "30 to 45%" are allowed; lone exact percentages like "42%" are not
-  const exactFigurePattern = /\b(\d{1,3}(?:\.\d+)?)\s*%(?!\s*[-–]\s*\d)/g
+  // Ranges like "30-45%" are allowed; lone exact percentages like "42%" are not.
+  // Negative lookbehind ensures we don't flag the trailing number in "30-45%" (the "45%").
+  const exactFigurePattern = /(?<!\d[-–])\b(\d{1,3}(?:\.\d+)?)\s*%(?!\s*[-–]\s*\d)/g
   return exactFigurePattern.test(text)
 }
 
