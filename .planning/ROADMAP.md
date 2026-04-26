@@ -68,7 +68,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md (Wave 1) — Drizzle schema + RLS policies + agency_id immutable trigger + migrations_runner role
-- [ ] 02-02-PLAN.md (Wave 1) — PgBouncer/RLS audit + no-session-set ESLint rule + RLS+pool verifier + runbook
+- [x] 02-02-PLAN.md (Wave 1) — PgBouncer/RLS audit + no-session-set ESLint rule + RLS+pool verifier + runbook
 - [ ] 02-03-PLAN.md (Wave 2) — Migration runner (parallel, dry-run, canary, snapshot, rollback) + buildDirectUrl
 - [ ] 02-04-PLAN.md (Wave 3) — Resumable per-agency seed framework + 2 real steps (agencies + admin-users)
 - [ ] 02-05-PLAN.md (Wave 2) — pgBackRest + R2 backups (WAL + 3-tier snapshots, AES-256-CBC) + DR drill
