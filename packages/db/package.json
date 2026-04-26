@@ -14,13 +14,19 @@
   "scripts": {
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "db:generate": "drizzle-kit generate",
+    "db:check": "drizzle-kit check"
   },
   "dependencies": {
-    "@mjagency/config": "workspace:*"
+    "@mjagency/config": "workspace:*",
+    "drizzle-orm": "0.45.2",
+    "postgres": "3.4.9"
   },
   "devDependencies": {
+    "@mjagency/testing": "workspace:*",
     "@types/node": "22.9.0",
+    "drizzle-kit": "0.31.10",
     "typescript": "5.6.3",
     "vitest": "2.1.8"
   }

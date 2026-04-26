@@ -1,14 +1,21 @@
 /**
- * @mjagency/db — Database access layer for the MJAgency multi-tenant platform.
+ * packages/db/src/index.ts
  *
- * At M001 this package exports:
- *   - Connection-string helpers (agencyConnection, buildDatabaseUrl, allAgencyConnections)
- *   - Agency → port → role mapping for all 12 agency databases
+ * Main export barrel for @mjagency/db.
  *
- * The Drizzle ORM wrapper, schema definitions, RLS hooks, and trace_id query-comment
- * middleware land in M002 (Phase 2). See README.md for the full roadmap and the
- * CRITICAL prepared-statement pitfall warning.
+ * Exports:
+ *   - Connection helpers (from Plan 01-02)
+ *   - Schema modules (Plan 02-01)
+ *   - Drizzle client factory + transaction wrapper (Plan 02-01)
+ *
+ * Consumers:
+ *   - Applications: import { createAgencyDb, withAgencyContext } from '@mjagency/db'
+ *   - Migration runner: import * as schema from '@mjagency/db' (via schema re-export)
+ *   - Health checks: import { allAgencyConnections } from '@mjagency/db'
  */
 
 export type { AgencyConnection } from './connection.js'
 export { agencyConnection, buildDatabaseUrl, allAgencyConnections } from './connection.js'
+export * as schema from './schema/index.js'
+export { createAgencyDb, withAgencyContext } from './client.js'
+export type { AgencyDb } from './client.js'

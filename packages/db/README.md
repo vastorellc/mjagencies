@@ -1,64 +1,150 @@
 # @mjagency/db
 
-Database access layer for MJAgency. At M001, this package exports connection-string helpers and the agency → port → role mapping consumed by every app's environment.
+Database layer for all MJAgency apps. Uses Drizzle ORM with per-agency PostgreSQL databases accessed through PgBouncer (transaction mode, pool_size=20). Exports typed connection helpers, the Drizzle client factory, and the RLS transaction wrapper.
 
-The Drizzle ORM wrapper, schema definitions, RLS policy hooks, and `/* trace_id=<id> */` query-comment middleware land in M002 (Phase 2). Until then, downstream consumers should:
+## Pitfall 3.3 — PgBouncer + Drizzle Prepared Statements
 
-- Use `agencyConnection(slug)` and `buildDatabaseUrl(slug, password)` from this package to construct DATABASE_URL strings.
-- Source the password from Doppler (`<UPPER>_DB_PASSWORD`); never hardcode.
+**Error:** `ERROR: prepared statement "drizzle_s..." does not exist`
 
-## CRITICAL: PgBouncer transaction-mode prepared-statement compatibility
+PgBouncer in **transaction mode** multiplexes many app connections onto fewer physical Postgres connections. Drizzle uses server-side prepared statements by default. When a PREPARE statement runs on physical connection A and then the EXECUTE arrives on physical connection B (because the pool reassigned it), Postgres raises this error.
 
-PgBouncer at M001 runs in **transaction mode** with `pool_size=20`. Drizzle creates server-side prepared statements by default; in transaction mode each query may land on a different physical Postgres connection, causing:
+**Mitigations applied (belt-and-suspenders):**
 
+1. **PgBouncer `max_prepared_statements = 100`** — PgBouncer 1.21+ tracks prepared statement names and routes EXECUTE to the correct physical connection. Configured in `infra/pgbouncer/pgbouncer.<slug>.ini`.
+
+2. **Drizzle `prepare: false`** — All `createAgencyDb()` clients pass `prepare: false` to the postgres-js driver, disabling server-side prepared statements entirely. This is the safer mitigation; `max_prepared_statements` is defense-in-depth.
+
+Source: pganalyze.com/blog/prepared-transactions-pgbouncer
+
+## 12-Agency Layout
+
+| Agency | DB | Role | PgBouncer Port | Direct Port |
+|--------|----|------|----------------|-------------|
+| brand | brand_db | brand_user | 6432 | 5432 |
+| ecommerce | ecommerce_db | ecommerce_user | 6433 | 5432 |
+| growth | growth_db | growth_user | 6434 | 5432 |
+| webdev | webdev_db | webdev_user | 6435 | 5432 |
+| ai | ai_db | ai_user | 6436 | 5432 |
+| branding | branding_db | branding_user | 6437 | 5432 |
+| strategy | strategy_db | strategy_user | 6438 | 5432 |
+| finance | finance_db | finance_user | 6439 | 5432 |
+| engineering | engineering_db | engineering_user | 6440 | 5432 |
+| product | product_db | product_user | 6441 | 5432 |
+| video | video_db | video_user | 6442 | 5432 |
+| graphic | graphic_db | graphic_user | 6443 | 5432 |
+
+Port 6444: reserved for platform-shared admin connection (M002).
+
+## RLS + Transaction Context
+
+**`withAgencyContext()` is the ONLY approved path for running agency-scoped queries.**
+
+### Why
+
+PgBouncer transaction mode reuses physical connections across transactions. A session-level `SET app.agency_id = '...'` persists on the physical connection after the transaction ends and leaks to the NEXT tenant's transaction on the same physical connection. This is a critical cross-tenant data disclosure bug.
+
+**WRONG (session-scoped — leaks across pool connections):**
+```typescript
+// NEVER do this
+await db.execute(sql`SET app.agency_id = ${agencyId}`)
+// queries below may run on a DIFFERENT physical connection
 ```
-ERROR: prepared statement "<name>" does not exist
+
+**CORRECT (transaction-scoped via set_config):**
+```typescript
+const rows = await withAgencyContext(db, agencyId, async (tx) => {
+  return tx.select().from(users)
+})
 ```
 
-Mitigations applied at M001:
+`set_config('app.agency_id', agencyId, true)` — the third argument `true` means SET LOCAL: the setting is automatically reverted when the transaction ends.
 
-- All 12 PgBouncer `.ini` files set `max_prepared_statements = 100` (PgBouncer 1.21+ tracks protocol-level prepared statements within transaction mode per connection).
-- The Drizzle wrapper added at M002 will pass `prepare: false` on the postgres-js client OR opt into PgBouncer 1.21+ built-in prepared-statement support, depending on the Drizzle version available at that time.
+Reference: RESEARCH §1.3, pitfall 8.1
 
-Source: [pganalyze.com/blog/5mins-postgres-pgbouncer-prepared-statements-transaction-mode](https://pganalyze.com/blog/5mins-postgres-pgbouncer-prepared-statements-transaction-mode)
-
-## Port Layout
-
-| Agency | Database | Role | PgBouncer port |
-|--------|----------|------|----------------|
-| brand | `brand_db` | `brand_user` | 6432 |
-| ecommerce | `ecommerce_db` | `ecommerce_user` | 6433 |
-| growth | `growth_db` | `growth_user` | 6434 |
-| webdev | `webdev_db` | `webdev_user` | 6435 |
-| ai | `ai_db` | `ai_user` | 6436 |
-| branding | `branding_db` | `branding_user` | 6437 |
-| strategy | `strategy_db` | `strategy_user` | 6438 |
-| finance | `finance_db` | `finance_user` | 6439 |
-| engineering | `engineering_db` | `engineering_user` | 6440 |
-| product | `product_db` | `product_user` | 6441 |
-| video | `video_db` | `video_user` | 6442 |
-| graphic | `graphic_db` | `graphic_user` | 6443 |
-
-Port 6444 is reserved for the M002 platform-shared admin connection.
-
-## Usage
+### Usage
 
 ```typescript
-import { agencyConnection, buildDatabaseUrl } from '@mjagency/db'
+import { createAgencyDb, withAgencyContext } from '@mjagency/db'
+import * as schema from '@mjagency/db/schema'  // or via barrel
 
-// Get connection metadata (no password — source from Doppler)
-const conn = agencyConnection('ecommerce')
-// { agencySlug: 'ecommerce', pgbouncerPort: 6433, dbName: 'ecommerce_db', role: 'ecommerce_user' }
+const db = createAgencyDb('brand', process.env.BRAND_DB_PASSWORD!)
 
-// Build DATABASE_URL for PgBouncer pool
-const url = buildDatabaseUrl('ecommerce', process.env.ECOMMERCE_DB_PASSWORD!)
-// 'postgresql://ecommerce_user:***@127.0.0.1:6433/ecommerce_db'
+const users = await withAgencyContext(db, agencyId, async (tx) => {
+  return tx.select().from(schema.users)
+})
 ```
+
+## Roles
+
+| Role | BYPASSRLS | Purpose | Connection |
+|------|-----------|---------|------------|
+| `migrations_runner` | YES | DDL + migrations; Plan 02-03 runner | Direct port 5432 (never PgBouncer) |
+| `<slug>_user` (e.g. `brand_user`) | NO | App DML; RLS enforced | Via PgBouncer (port 6432-6443) |
+
+`migrations_runner` is created by `infra/postgres/init.sql` (generated by `scripts/gen-postgres-init.sh`). It has `BYPASSRLS` so it can run `drizzle-kit` migrations without being filtered by RLS policies.
+
+Application code MUST use `<slug>_user` — never `migrations_runner`. The migration runner (Plan 02-03) enforces this at the connection level.
+
+## Migration Apply Order
+
+Migrations are applied by Plan 02-03's runner in this exact order per agency DB:
+
+1. `src/migrations/0000_initial.sql` — generated by drizzle-kit; creates all tables + RLS ENABLE + policies
+2. `src/migrations/custom/001_agency_id_immutable.sql` — `prevent_agency_id_change()` trigger on all agency-scoped tables
+3. `src/migrations/custom/002_force_rls_and_app_role.sql` — `FORCE ROW LEVEL SECURITY` + `REVOKE UPDATE/DELETE ON audit_log` + per-agency DML grants
+
+This ordering is mandatory. Custom migrations reference tables created in step 1.
+
+## Plan-Time Decisions (Phase 2)
+
+These decisions are locked and documented here per RESEARCH §A1.
+
+**Open Q5 — Payload CMS tables and RLS:**
+RLS in Phase 2 applies ONLY to the tables defined in this package (`users`, `sessions`, `permissions_vault`, `audit_log`, `_seed_state`). Payload CMS collections are managed by `withPayload()` and do not receive Phase-2 RLS policies. Phase 5 owns the RLS strategy for Payload tables.
+
+**`FORCE ROW LEVEL SECURITY` on all agency-scoped tables:**
+Applied to `users`, `sessions`, `permissions_vault` via custom migration 002. This ensures even the table owner (`migrations_runner`) must satisfy RLS policies unless it has `BYPASSRLS`. Without FORCE, the table owner silently bypasses RLS during integration tests, masking broken policies (pitfall 8.4).
+
+**`audit_log` is exempt from RLS (pitfall 8.8):**
+Enabling RLS on `audit_log` creates a circular dependency: the audit trigger (to be wired in Plan 02-06) fires on INSERT/UPDATE/DELETE, but the trigger itself must INSERT into `audit_log`, which would then check RLS again. To avoid this, `audit_log` has no RLS. Tenant isolation is enforced via the `agency_id` column + `REVOKE UPDATE, DELETE ON audit_log FROM PUBLIC` (migration 002).
 
 ## Roadmap
 
-| Milestone | Capability |
-|-----------|------------|
-| M001 (current) | Connection helpers, port/role constants |
-| M002 | Drizzle ORM wrapper, schema, migrations, RLS hooks, trace_id SQL comment middleware |
-| M003+ | Per-agency schema evolution, tenant-scoped migration runner |
+| Milestone | Status | Notes |
+|-----------|--------|-------|
+| M001 (Foundation) | DELIVERED in Plan 01-02 | connection helpers, PgBouncer config |
+| M002 (Multi-tenant DB) | DELIVERED in Plan 02-01 | schema, RLS, immutability trigger, withAgencyContext |
+| M002 (Migration Runner) | Plan 02-03 | parallel drizzle-kit runner across 12 DBs |
+| M002 (Seed Framework) | Plan 02-04 | resumable seeds with _seed_state |
+| M002 (Vault + Audit) | Plan 02-06 | AES-GCM vault + hash-chain audit triggers |
+
+## Integration Tests
+
+Integration tests require a running Postgres instance with migrations applied. They skip gracefully when env vars are not set.
+
+### Required env vars
+
+| Variable | Description |
+|----------|-------------|
+| `INTEGRATION_DATABASE_URL` | Connection URL for any agency DB (used as gate check) |
+| `INTEGRATION_APP_DB_URL` | URL connecting as `<slug>_user` (RLS enforced) |
+| `INTEGRATION_MIGRATIONS_URL` | URL connecting as `migrations_runner` (BYPASSRLS) |
+
+### Running tests
+
+```bash
+# Schema unit tests (no DB required)
+pnpm --filter=@mjagency/db vitest run src/__tests__/schema.test.ts
+
+# Immutability trigger test (requires DB + migrations applied)
+INTEGRATION_DATABASE_URL=postgresql://migrations_runner:pw@127.0.0.1:5432/brand_db \
+pnpm --filter=@mjagency/db vitest run src/__tests__/immutable.integration.test.ts
+
+# RLS isolation test (requires DB + migrations applied + app role)
+INTEGRATION_DATABASE_URL=postgresql://brand_user:pw@127.0.0.1:5432/brand_db \
+INTEGRATION_APP_DB_URL=postgresql://brand_user:pw@127.0.0.1:5432/brand_db \
+INTEGRATION_MIGRATIONS_URL=postgresql://migrations_runner:pw@127.0.0.1:5432/brand_db \
+pnpm --filter=@mjagency/db vitest run src/__tests__/rls.integration.test.ts
+```
+
+Without the env vars set, both integration tests show `X skipped` — they never fail in CI without a Postgres instance.
