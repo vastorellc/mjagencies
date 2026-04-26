@@ -11,7 +11,8 @@
     "typecheck": "turbo run typecheck",
     "size-limit": "turbo run size-limit",
     "format": "prettier --write .",
-    "setup-hosts": "scripts/setup-hosts.sh"
+    "setup-hosts": "scripts/setup-hosts.sh",
+    "theme:validate": "tsx scripts/validate-themes.ts"
   },
   "dependencies": {
     "@mjagency/config": "workspace:*",
