@@ -48,3 +48,24 @@ export { generateSsoState, verifySsoState, type SsoStateResult } from './sso-sta
 export { applySecurityHeaders } from './security-headers.js'
 export { extractAgencyFromHost } from './agency-from-host.js'
 export { createAuthMiddleware } from './middleware.js'
+
+// MFA — TOTP + recovery codes + lockout (Plan 03-02)
+export {
+  generateTotpSecret,
+  createTotpUri,
+  generateQrCodeDataUrl,
+  verifyTotp,
+} from './mfa.js'
+
+export {
+  generateRecoveryCodes,
+  hashRecoveryCodes,
+  verifyRecoveryCode,
+  invalidateRecoverySlot,
+} from './recovery-codes.js'
+
+export {
+  isLockedOut,
+  recordFailedAttempt,
+  clearLockout,
+} from './mfa-lockout.js'
