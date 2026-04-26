@@ -13,12 +13,16 @@
     "./middleware": {
       "types": "./src/middleware.ts",
       "default": "./src/middleware.ts"
+    },
+    "./eslint": {
+      "default": "./eslint/index.js"
     }
   },
   "scripts": {
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "test:eslint": "node eslint/require-session-first.test.js"
   },
   "dependencies": {
     "jose": "6.2.2",

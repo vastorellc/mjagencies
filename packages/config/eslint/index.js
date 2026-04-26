@@ -1,6 +1,7 @@
 // @ts-check
 import tseslint from 'typescript-eslint'
 import { noSessionSet } from '@mjagency/db/lint'
+import authEslintPlugin from '@mjagency/auth/eslint'
 
 export default [
   ...tseslint.configs.recommended,
@@ -46,6 +47,17 @@ export default [
     },
     rules: {
       'mjagency-db/no-session-set': 'error',
+    },
+  },
+  // Plan 03-05 — REQ-031, CLAUDE.md §3 — server actions must call requireSession() first
+  // See: packages/auth/eslint/require-session-first.js, docs/runbooks/server-action-pattern.md
+  {
+    files: ['packages/*/src/**/*.{ts,tsx}', 'apps/*/src/**/*.{ts,tsx}'],
+    plugins: {
+      'mjagency-auth': authEslintPlugin,
+    },
+    rules: {
+      'mjagency-auth/require-session-first': 'error',
     },
   },
 ]
