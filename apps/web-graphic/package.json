@@ -22,7 +22,8 @@
     "@payloadcms/richtext-lexical": "3.82.1",
     "pino": "10.3.1",
     "@mjagency/config": "workspace:*",
-    "@mjagency/ui": "workspace:*"
+    "@mjagency/ui": "workspace:*",
+    "@mjagency/auth": "workspace:*"
   },
   "devDependencies": {
     "@mjagency/testing": "workspace:*",

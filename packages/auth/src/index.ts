@@ -38,6 +38,10 @@ export { regenerateSession } from './session.js'
 
 export { createAuthRedis } from './redis.js'
 
+// SSO state token helpers (Node-runtime only — not for middleware.ts)
+// Stub created in Plan 03-04; Plan 03-03 replaces with HMAC implementation.
+export { generateSsoState, verifySsoState, type SsoStateResult } from './sso-state.js'
+
 // Edge-safe helpers — also exported from '@mjagency/auth/middleware' sub-path (lean Edge bundle).
 // The sub-path is the preferred import in app middleware.ts files (keeps Node-only modules
 // from leaking into the Edge bundle via transitive imports on the '.' export).

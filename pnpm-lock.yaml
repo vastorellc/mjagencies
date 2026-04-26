@@ -33,6 +33,9 @@ importers:
 
   apps/web-ai:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -100,6 +103,9 @@ importers:
 
   apps/web-branding:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -167,6 +173,9 @@ importers:
 
   apps/web-ecommerce:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -234,6 +243,9 @@ importers:
 
   apps/web-engineering:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -301,6 +313,9 @@ importers:
 
   apps/web-finance:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -368,6 +383,9 @@ importers:
 
   apps/web-graphic:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -435,6 +453,9 @@ importers:
 
   apps/web-growth:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -502,6 +523,9 @@ importers:
 
   apps/web-main:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -569,6 +593,9 @@ importers:
 
   apps/web-product:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -636,6 +663,9 @@ importers:
 
   apps/web-strategy:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -703,6 +733,9 @@ importers:
 
   apps/web-video:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -770,6 +803,9 @@ importers:
 
   apps/web-webdev:
     dependencies:
+      '@mjagency/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
