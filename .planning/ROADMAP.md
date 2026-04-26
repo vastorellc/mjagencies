@@ -21,7 +21,7 @@ Parallel-safe: M006+M007 (both depend on M005 only); M009 starts after M003 (par
 - [ ] **Phase 2: Multi-tenant DB + Migration** — Per-agency Postgres, PgBouncer, Drizzle schema, RLS, migration runner, backups, audit log
 - [ ] **Phase 3: Auth + SSO + Edge Routing** — JWT (jose), MFA, SSO, Cloudflare middleware, audit log, server-action auth pattern
 - [x] **Phase 4: Design System + Theme Engine** — CSS variable tokens, theme.json validator, 12 niche themes, A/B framework
-- [ ] **Phase 5: Central CMS + Block Library + Editor UX** — Payload 3.82.1, 45 blocks, Lexical editor, DAM, content sprint kickoff
+- [x] **Phase 5: Central CMS + Block Library + Editor UX** — Payload 3.82.1, 45 blocks, Lexical editor, DAM, content sprint kickoff
 - [ ] **Phase 6: SEO/AIO/GEO Plugin Engine** — 3 plugins, real-time scoring, self-learning loop, algorithm watcher
 - [ ] **Phase 7: AI Assistant + Anti-Fabrication** — LiteLLM gateway, 20 editor AI features, anti-fab guards, brand voice, PII redaction
 - [ ] **Phase 8: Public Frontend + Page Tree** — 12 agency apps, ISR + tag purge, image pipeline, RUM, WCAG 2.2 AA, P0 pages

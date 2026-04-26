@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 1 planned (`/gsd-plan-phase 1` complete — 6 plans, 4 waves, verification PASSED).
-last_updated: "2026-04-25T20:40:45.652Z"
-last_activity: 2026-04-25 -- Phase 01 execution started
+stopped_at: Phase 05 approved — Payload CMS + 45 blocks + Lexical editor + DAM + content sprint complete.
+last_updated: "2026-04-26T17:00:00.000Z"
+last_activity: 2026-04-26 -- Phase 05 approved, advancing to Phase 06
 progress:
   total_phases: 12
-  completed_phases: 0
-  total_plans: 6
-  completed_plans: 0
-  percent: 0
+  completed_phases: 5
+  total_plans: 36
+  completed_plans: 35
+  percent: 42
 ---
 
 # Project State
@@ -21,43 +21,47 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Every page, every agency, every image slot is 100% real and complete at launch — only the Brand Setup Wizard remains for the user post-generate.
-**Current focus:** Phase 01 — foundation-infra
+**Current focus:** Phase 06 — seo-plugin-engine (unplanned — needs /gsd-plan-phase 6)
 
 ## Current Position
 
-Phase: 01 (foundation-infra) — EXECUTING
-Plan: 1 of 6
-Status: Executing Phase 01
-Last activity: 2026-04-25 -- Phase 01 execution started
+Phase: 06 (seo-plugin-engine) — NOT YET PLANNED
+Status: Phase 05 approved 2026-04-26, Phase 06 next
+Last activity: 2026-04-26 -- Phase 05 (Central CMS + Block Library) approved
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [####░░░░░░] 42% (5/12 phases complete)
+
+## Completed Phases
+
+| Phase | Plans | Key Deliverable | Status |
+|-------|-------|-----------------|--------|
+| 01 (foundation-infra) | 5/6 done | Turborepo monorepo, Next.js 15, Payload 3.82.1, Docker Compose, CI/CD, OTel | ✓ (01-06 Doppler deferred) |
+| 02 (multi-tenant-db) | 6/6 | Per-agency Postgres + PgBouncer + Drizzle schema + RLS + audit log | ✓ |
+| 03 (auth-sso-edge) | 6/6 | JWT/jose auth, MFA, SSO, Cloudflare middleware, server-action auth pattern | ✓ |
+| 04 (design-system) | 4/5 done | 6-layer CSS tokens, 12 OKLCH themes, AJV validator, A/B framework, Storybook CI | ✓ (04-02 summary missing) |
+| 05 (central-cms) | 8/8 | Payload CMS wired, 11 collections, 45 blocks, Lexical editor, DAM, content sprint | ✓ |
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0
-- Average duration: —
-- Total execution time: 0h
+- Total plans completed: 35
+- Phases completed: 5 (of 12)
+- Execution sessions: autonomous (phases 1-5)
 
 **By Phase:**
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| — | — | — | — |
-
-**Recent Trend:**
-
-- Last 5 plans: —
-- Trend: —
-
-*Updated after each plan completion*
+| Phase | Plans | Status |
+|-------|-------|--------|
+| 01 | 5/6 | 01-06 deferred (needs doppler login) |
+| 02 | 6/6 | complete |
+| 03 | 6/6 | complete |
+| 04 | 4/5 | 04-02 summary missing (code committed) |
+| 05 | 8/8 | complete + approved |
 
 ## Accumulated Context
 
 ### Decisions
-
-Decisions are logged in PROJECT.md Key Decisions table. Notable locks (carried in from `mjagency/` GSD-2 docs):
 
 - Payload CMS pinned to 3.82.1 exactly — never upgrade without explicit approval
 - `jose` only for JWT — `jsonwebtoken` banned (Edge runtime incompatible)
@@ -65,36 +69,30 @@ Decisions are logged in PROJECT.md Key Decisions table. Notable locks (carried i
 - Content-Complete at build time — only Brand Setup Wizard remains for user post-generate
 - Per-agency Postgres + PgBouncer + RLS — strong tenant isolation
 - Yjs real-time collaboration deferred to v2
+- 45 React block components use `var(--mj-*)` tokens only — zero hex literals
+- SEO/AIO/GEO panels are stubs in Phase 5 — Phase 6 replaces with real plugin engine
+- AI hooks stubs in Phase 5 (`isStub: true`) — Phase 7 wires real LiteLLM calls
 
 ### Pending Todos
 
-None yet — capture via `/gsd-add-todo` when ideas surface during sessions.
+- Run `doppler login` then resume Plan 01-06 (Doppler workspace bootstrap)
+- Write missing 04-02 SUMMARY.md (code is done, commits b48476c–711f0b8)
 
 ### Blockers/Concerns
 
-None yet.
+None.
 
 ## Deferred Items
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| Infra | Plan 01-06: Doppler workspace bootstrap | Blocked on `doppler login` (interactive OAuth) | 2026-04-26 |
+| Docs | Plan 04-02 SUMMARY.md missing | Code committed (b48476c, 938cdea, 9b7a889); summary never written | 2026-04-26 |
 
 ## Session Continuity
 
-Last session: 2026-04-25
-Stopped at: Phase 1 planned (`/gsd-plan-phase 1` complete — 6 plans, 4 waves, verification PASSED).
-Resume file: `.planning/phases/01-foundation-infra/01-01-PLAN.md` (first wave plan)
+Last session: 2026-04-26
+Stopped at: Phase 05 approved — Central CMS + Block Library complete.
+Resume file: —
 
-Next step: `/gsd-execute-phase 1`
-
-**Planned Phase:** 1 (Foundation + Infra) — 6 plans — 2026-04-25T20:10:24.397Z
-
-### Phase 1 Wave Structure
-
-| Wave | Plans | Notes |
-|------|-------|-------|
-| 1 | 01-01 | Turborepo + pnpm + Next 15 + Payload 3.82.1 + 12 apps + 13 packages |
-| 2 | 01-02, 01-03 | Docker Compose + PgBouncer; Cloudflare scaffolds + builder/tools types |
-| 3 | 01-04, 01-06 | OTel + Prometheus + Loki + Tempo + Grafana; Doppler bootstrap (`autonomous: false` — Task 6.0 is a decision checkpoint) |
-| 4 | 01-05 | GitHub Actions PR + main pipelines + security gates + bundle-size + Dependabot |
+Next step: `/gsd-plan-phase 6`
