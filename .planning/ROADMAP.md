@@ -235,7 +235,7 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 10-01: Tool engine — calculator, benchmark datasets, result renderer
+- [x] 10-01: Tool engine — calculator, benchmark datasets, result renderer
 - [ ] 10-02: 36 tools built (3 per agency × 12) with real-source benchmarks (12-month expiry)
 - [ ] 10-03: Tool content — full page per tool, 2200+ words, full SEO/AIO content
 - [ ] 10-04: Proposal builder — hosted page, view tracking, 14-day expiry → grace → nurture
