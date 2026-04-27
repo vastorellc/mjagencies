@@ -15,6 +15,8 @@
  * Puck's Config<any> type after import.
  */
 
+import type React from 'react'
+
 import { HeroImage } from './hero/HeroImage/index.js'
 import { HeroVideo } from './hero/HeroVideo/index.js'
 import { HeroSplit } from './hero/HeroSplit/index.js'
@@ -63,6 +65,7 @@ import { Divider } from './utility/Divider/index.js'
  * Minimal Puck component config shape.
  * Compatible with @measured/puck Config<any>.
  * @mjagency/ui does not depend on @measured/puck to avoid circular deps.
+ * Components are typed as ComponentType<any> to avoid requiring @measured/puck.
  */
 export interface PuckComponentEntry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,8 +81,13 @@ export interface MjBlockConfig {
   components: Record<string, PuckComponentEntry>
 }
 
-// React import required for JSX in consuming components — kept here for the type
-import type React from 'react'
+// Helper to cast any block component to PuckComponentEntry.render without TypeScript objecting.
+// This is safe: Puck passes props from its JSON state — strong prop types are enforced at
+// design-time via Puck field definitions, not at this registry level.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function asBlock(component: React.ComponentType<any>): PuckComponentEntry {
+  return { render: component, fields: {}, defaultProps: {} }
+}
 
 /**
  * Returns a Puck-compatible Config containing all registered @mjagency/ui block
@@ -92,57 +100,57 @@ export function getBlockConfig(): MjBlockConfig {
   return {
     components: {
       // Hero blocks
-      HeroImage: { render: HeroImage as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: { headline: '', imageUrl: '', imageAlt: '' } },
-      HeroVideo: { render: HeroVideo as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: { headline: '', videoUrl: '' } },
-      HeroSplit: { render: HeroSplit as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: { headline: '' } },
-      HeroMinimal: { render: HeroMinimal as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: { headline: '' } },
+      HeroImage: asBlock(HeroImage),
+      HeroVideo: asBlock(HeroVideo),
+      HeroSplit: asBlock(HeroSplit),
+      HeroMinimal: asBlock(HeroMinimal),
       // Content blocks
-      RichText: { render: RichText as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      TwoColumn: { render: TwoColumn as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      ThreeColumn: { render: ThreeColumn as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      ImageText: { render: ImageText as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      TextImage: { render: TextImage as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      StatsBar: { render: StatsBar as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      QuoteBlock: { render: QuoteBlock as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      Timeline: { render: Timeline as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
+      RichText: asBlock(RichText),
+      TwoColumn: asBlock(TwoColumn),
+      ThreeColumn: asBlock(ThreeColumn),
+      ImageText: asBlock(ImageText),
+      TextImage: asBlock(TextImage),
+      StatsBar: asBlock(StatsBar),
+      QuoteBlock: asBlock(QuoteBlock),
+      Timeline: asBlock(Timeline),
       // CTA blocks
-      CtaFull: { render: CtaFull as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      CtaInline: { render: CtaInline as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      CtaCard: { render: CtaCard as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      CtaFloating: { render: CtaFloating as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      NewsletterCta: { render: NewsletterCta as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
+      CtaFull: asBlock(CtaFull),
+      CtaInline: asBlock(CtaInline),
+      CtaCard: asBlock(CtaCard),
+      CtaFloating: asBlock(CtaFloating),
+      NewsletterCta: asBlock(NewsletterCta),
       // Service blocks
-      ServiceGrid: { render: ServiceGrid as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      ServiceDetail: { render: ServiceDetail as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      ProcessSteps: { render: ProcessSteps as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      FeatureList: { render: FeatureList as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      ComparisonTable: { render: ComparisonTable as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      PricingTable: { render: PricingTable as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
+      ServiceGrid: asBlock(ServiceGrid),
+      ServiceDetail: asBlock(ServiceDetail),
+      ProcessSteps: asBlock(ProcessSteps),
+      FeatureList: asBlock(FeatureList),
+      ComparisonTable: asBlock(ComparisonTable),
+      PricingTable: asBlock(PricingTable),
       // Trust blocks
-      ClientLogos: { render: ClientLogos as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      TestimonialsGrid: { render: TestimonialsGrid as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      TestimonialsSlider: { render: TestimonialsSlider as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      CaseStudyCard: { render: CaseStudyCard as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      AwardsBar: { render: AwardsBar as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      TeamGrid: { render: TeamGrid as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
+      ClientLogos: asBlock(ClientLogos),
+      TestimonialsGrid: asBlock(TestimonialsGrid),
+      TestimonialsSlider: asBlock(TestimonialsSlider),
+      CaseStudyCard: asBlock(CaseStudyCard),
+      AwardsBar: asBlock(AwardsBar),
+      TeamGrid: asBlock(TeamGrid),
       // Media blocks
-      ImageGallery: { render: ImageGallery as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      VideoEmbed: { render: VideoEmbed as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      VideoHero: { render: VideoHero as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      PortfolioGrid: { render: PortfolioGrid as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      BeforeAfter: { render: BeforeAfter as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
+      ImageGallery: asBlock(ImageGallery),
+      VideoEmbed: asBlock(VideoEmbed),
+      VideoHero: asBlock(VideoHero),
+      PortfolioGrid: asBlock(PortfolioGrid),
+      BeforeAfter: asBlock(BeforeAfter),
       // Blog blocks
-      BlogGrid: { render: BlogGrid as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      BlogFeatured: { render: BlogFeatured as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      BlogRelated: { render: BlogRelated as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      AuthorBio: { render: AuthorBio as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
+      BlogGrid: asBlock(BlogGrid),
+      BlogFeatured: asBlock(BlogFeatured),
+      BlogRelated: asBlock(BlogRelated),
+      AuthorBio: asBlock(AuthorBio),
       // Tool blocks
-      ToolEmbed: { render: ToolEmbed as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      ToolResult: { render: ToolResult as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      ToolCta: { render: ToolCta as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
+      ToolEmbed: asBlock(ToolEmbed),
+      ToolResult: asBlock(ToolResult),
+      ToolCta: asBlock(ToolCta),
       // Utility blocks
-      FaqAccordion: { render: FaqAccordion as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
-      Divider: { render: Divider as React.ComponentType<Record<string, unknown>>, fields: {}, defaultProps: {} },
+      FaqAccordion: asBlock(FaqAccordion),
+      Divider: asBlock(Divider),
     },
   }
 }
