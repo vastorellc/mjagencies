@@ -2,11 +2,13 @@ import { NodeSDK } from '@opentelemetry/sdk-node'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node'
 import { resourceFromAttributes } from '@opentelemetry/resources'
+import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
+// ATTR_SERVICE_NAMESPACE and ATTR_DEPLOYMENT_ENVIRONMENT_NAME are experimental/incubating
+// in @opentelemetry/semantic-conventions@1.36.0 — import from /incubating path (07-04 fix)
 import {
-  ATTR_SERVICE_NAME,
   ATTR_SERVICE_NAMESPACE,
   ATTR_DEPLOYMENT_ENVIRONMENT_NAME,
-} from '@opentelemetry/semantic-conventions'
+} from '@opentelemetry/semantic-conventions/incubating'
 import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino'
 
 export function startNodeSdk(opts: { agencyId: string }): NodeSDK {

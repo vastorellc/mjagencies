@@ -4,8 +4,8 @@
  * Barrel export for all core Payload CMS collections.
  * CORE_COLLECTIONS is the array passed to `buildPayloadConfig({ collections })`.
  *
- * 16 collections in canonical order (matches specs/cms.md CORE COLLECTIONS + seo_suggestions + algo_alerts + brand_voice + brand_glossary):
- *   pages, posts, authors, categories, media_assets, tools,
+ * 17 collections in canonical order (matches specs/cms.md CORE COLLECTIONS + seo_suggestions + algo_alerts + brand_voice + brand_glossary + users):
+ *   users (Payload admin auth — required), pages, posts, authors, categories, media_assets, tools,
  *   forms, redirects, settings, faqs, templates, global_blocks, seo_suggestions, algo_alerts,
  *   brand_voice, brand_glossary
  */
@@ -26,8 +26,10 @@ import { seoSuggestionsCollection } from './seo-suggestions.js'
 import { algoAlertsCollection } from './algo-alerts.js'
 import { brandVoiceCollection } from './brand-voice.js'
 import { brandGlossaryCollection } from './brand-glossary.js'
+import { usersCollection } from './users.js'
 
 export const CORE_COLLECTIONS: CollectionConfig[] = [
+  usersCollection,
   pagesCollection,
   postsCollection,
   authorsCollection,
@@ -47,6 +49,7 @@ export const CORE_COLLECTIONS: CollectionConfig[] = [
 ]
 
 export {
+  usersCollection,
   pagesCollection,
   postsCollection,
   authorsCollection,

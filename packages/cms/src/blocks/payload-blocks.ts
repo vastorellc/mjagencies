@@ -2,8 +2,16 @@
  * packages/cms/src/blocks/payload-blocks.ts
  * Payload 3.82.1 Block configurations for all 45 CMS blocks (REQ-052).
  * Used by Plan 05-04's buildPayloadConfig() via BlocksFeature({ blocks: PAYLOAD_BLOCKS }).
+ *
+ * Rule 3 fix (07-04): Payload 3.82.1 requires richText fields nested inside blocks to
+ * explicitly set an `editor` prop — otherwise sanitizeConfig throws MissingEditorProp.
+ * Added `lexicalEditor({})` (default features) to all nested richText fields.
  */
 import type { Block } from 'payload'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
+
+/** Minimal lexical editor for richText fields inside blocks. Uses Payload default features. */
+const blockEditor = lexicalEditor({})
 
 // Define one Block config per block. slug is kebab-case matching component name.
 // All image/video fields use relationTo: 'media_assets'.
@@ -58,11 +66,11 @@ const heroMinimalBlock: Block = {
 }
 
 // Content blocks (8)
-const richTextBlock: Block = { slug: 'rich-text', labels: { singular: 'Rich Text', plural: 'Rich Text' }, fields: [{ name: 'content', type: 'richText', required: true }] }
-const twoColumnBlock: Block = { slug: 'two-column', labels: { singular: 'Two Column', plural: 'Two Columns' }, fields: [{ name: 'left_content', type: 'richText', required: true }, { name: 'right_content', type: 'richText', required: true }] }
-const threeColumnBlock: Block = { slug: 'three-column', labels: { singular: 'Three Column', plural: 'Three Columns' }, fields: [{ name: 'columns', type: 'array', fields: [{ name: 'content', type: 'richText', required: true }], minRows: 3, maxRows: 3 }] }
-const imageTextBlock: Block = { slug: 'image-text', labels: { singular: 'Image + Text', plural: 'Image + Text' }, fields: [{ name: 'headline', type: 'text', required: true }, { name: 'body', type: 'richText', required: true }, { name: 'image', type: 'upload', relationTo: 'media_assets', required: true }, { name: 'image_position', type: 'select', defaultValue: 'left', options: [{ label: 'Left', value: 'left' }, { label: 'Right', value: 'right' }] }] }
-const textImageBlock: Block = { slug: 'text-image', labels: { singular: 'Text + Image', plural: 'Text + Image' }, fields: [{ name: 'headline', type: 'text', required: true }, { name: 'body', type: 'richText', required: true }, { name: 'image', type: 'upload', relationTo: 'media_assets', required: true }] }
+const richTextBlock: Block = { slug: 'rich-text', labels: { singular: 'Rich Text', plural: 'Rich Text' }, fields: [{ name: 'content', type: 'richText', required: true, editor: blockEditor }] }
+const twoColumnBlock: Block = { slug: 'two-column', labels: { singular: 'Two Column', plural: 'Two Columns' }, fields: [{ name: 'left_content', type: 'richText', required: true, editor: blockEditor }, { name: 'right_content', type: 'richText', required: true, editor: blockEditor }] }
+const threeColumnBlock: Block = { slug: 'three-column', labels: { singular: 'Three Column', plural: 'Three Columns' }, fields: [{ name: 'columns', type: 'array', fields: [{ name: 'content', type: 'richText', required: true, editor: blockEditor }], minRows: 3, maxRows: 3 }] }
+const imageTextBlock: Block = { slug: 'image-text', labels: { singular: 'Image + Text', plural: 'Image + Text' }, fields: [{ name: 'headline', type: 'text', required: true }, { name: 'body', type: 'richText', required: true, editor: blockEditor }, { name: 'image', type: 'upload', relationTo: 'media_assets', required: true }, { name: 'image_position', type: 'select', defaultValue: 'left', options: [{ label: 'Left', value: 'left' }, { label: 'Right', value: 'right' }] }] }
+const textImageBlock: Block = { slug: 'text-image', labels: { singular: 'Text + Image', plural: 'Text + Image' }, fields: [{ name: 'headline', type: 'text', required: true }, { name: 'body', type: 'richText', required: true, editor: blockEditor }, { name: 'image', type: 'upload', relationTo: 'media_assets', required: true }] }
 const statsBarBlock: Block = { slug: 'stats-bar', labels: { singular: 'Stats Bar', plural: 'Stats Bars' }, fields: [{ name: 'stats', type: 'array', fields: [{ name: 'value', type: 'text', required: true }, { name: 'label', type: 'text', required: true }, { name: 'source', type: 'text' }], minRows: 1 }] }
 const quoteBlock: Block = { slug: 'quote-block', labels: { singular: 'Quote Block', plural: 'Quote Blocks' }, fields: [{ name: 'quote', type: 'textarea', required: true }, { name: 'attribution', type: 'text', required: true }, { name: 'role', type: 'text' }, { name: 'avatar', type: 'upload', relationTo: 'media_assets' }] }
 const timelineBlock: Block = { slug: 'timeline', labels: { singular: 'Timeline', plural: 'Timelines' }, fields: [{ name: 'items', type: 'array', fields: [{ name: 'date', type: 'text', required: true }, { name: 'title', type: 'text', required: true }, { name: 'description', type: 'textarea', required: true }], minRows: 1 }] }
@@ -76,7 +84,7 @@ const newsletterCtaBlock: Block = { slug: 'newsletter-cta', labels: { singular: 
 
 // Service blocks (6)
 const serviceGridBlock: Block = { slug: 'service-grid', labels: { singular: 'Service Grid', plural: 'Service Grids' }, fields: [{ name: 'items', type: 'array', fields: [{ name: 'title', type: 'text', required: true }, { name: 'description', type: 'textarea', required: true }, { name: 'icon', type: 'upload', relationTo: 'media_assets' }, { name: 'href', type: 'text' }], minRows: 1 }, { name: 'columns', type: 'select', defaultValue: '3', options: [{ label: '2', value: '2' }, { label: '3', value: '3' }] }] }
-const serviceDetailBlock: Block = { slug: 'service-detail', labels: { singular: 'Service Detail', plural: 'Service Details' }, fields: [{ name: 'title', type: 'text', required: true }, { name: 'description', type: 'richText', required: true }, { name: 'features', type: 'array', fields: [{ name: 'feature', type: 'text', required: true }] }, { name: 'cta_text', type: 'text' }, { name: 'cta_href', type: 'text' }, { name: 'icon', type: 'upload', relationTo: 'media_assets' }] }
+const serviceDetailBlock: Block = { slug: 'service-detail', labels: { singular: 'Service Detail', plural: 'Service Details' }, fields: [{ name: 'title', type: 'text', required: true }, { name: 'description', type: 'richText', required: true, editor: blockEditor }, { name: 'features', type: 'array', fields: [{ name: 'feature', type: 'text', required: true }] }, { name: 'cta_text', type: 'text' }, { name: 'cta_href', type: 'text' }, { name: 'icon', type: 'upload', relationTo: 'media_assets' }] }
 const processStepsBlock: Block = { slug: 'process-steps', labels: { singular: 'Process Steps', plural: 'Process Steps' }, fields: [{ name: 'steps', type: 'array', fields: [{ name: 'step', type: 'number', required: true }, { name: 'title', type: 'text', required: true }, { name: 'description', type: 'textarea', required: true }, { name: 'icon', type: 'upload', relationTo: 'media_assets' }], minRows: 1 }] }
 const featureListBlock: Block = { slug: 'feature-list', labels: { singular: 'Feature List', plural: 'Feature Lists' }, fields: [{ name: 'headline', type: 'text', required: true }, { name: 'features', type: 'array', fields: [{ name: 'title', type: 'text', required: true }, { name: 'description', type: 'textarea', required: true }, { name: 'included', type: 'checkbox', defaultValue: true }], minRows: 1 }] }
 const comparisonTableBlock: Block = { slug: 'comparison-table', labels: { singular: 'Comparison Table', plural: 'Comparison Tables' }, fields: [{ name: 'headline', type: 'text', required: true }, { name: 'headers', type: 'array', fields: [{ name: 'header', type: 'text', required: true }], minRows: 2 }, { name: 'rows', type: 'array', fields: [{ name: 'feature', type: 'text', required: true }, { name: 'values', type: 'array', fields: [{ name: 'value', type: 'text', required: true }] }], minRows: 1 }] }

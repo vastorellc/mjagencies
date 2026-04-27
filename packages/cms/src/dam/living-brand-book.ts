@@ -12,8 +12,10 @@
  * Phase 8: the living brand book page is served at /brand-book on each agency app.
  */
 import type { AgencySlug } from '@mjagency/config'
-import type { ThemeJson } from '@mjagency/ui'
-import { assertValidTheme } from '@mjagency/ui'
+// Deep imports to avoid loading resolve-theme.ts (which imports 'server-only') via the barrel
+// when running in non-Next.js contexts (e.g. Payload migrate CLI). Rule 3 fix — 07-04.
+import type { ThemeJson } from '@mjagency/ui/theme/types'
+import { assertValidTheme } from '@mjagency/ui/theme/validate-theme'
 import { readFile } from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url'

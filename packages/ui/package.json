@@ -15,6 +15,10 @@
     "./theme/types": {
       "types": "./src/theme/types.ts",
       "default": "./src/theme/types.ts"
+    },
+    "./theme/validate-theme": {
+      "types": "./src/theme/validate-theme.ts",
+      "default": "./src/theme/validate-theme.ts"
     }
   },
   "scripts": {
