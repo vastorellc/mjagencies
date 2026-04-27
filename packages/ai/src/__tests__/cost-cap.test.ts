@@ -116,10 +116,11 @@ describe('checkAgencyCostCap', () => {
 // ---------------------------------------------------------------------------
 describe('recordAgencySpend', () => {
   it('increments agency:<id>:ai:monthly-spend by the given cents', async () => {
-    await recordAgencySpend('ecommerce', 25)
-    // After recording, the check against a 50-cent cap should resolve (25 < 50)
-    process.env['LITELLM_BUDGET_ECOMMERCE'] = '50'
-    await expect(checkAgencyCostCap('ecommerce')).resolves.toBeUndefined()
+    // Use a unique agency to avoid cross-test state pollution in ioredis-mock
+    await recordAgencySpend('increments-test-agency', 25)
+    // After recording, the check against a 200-cent cap should resolve (25 < 200)
+    process.env['LITELLM_BUDGET_INCREMENTS_TEST_AGENCY'] = '200'
+    await expect(checkAgencyCostCap('increments-test-agency')).resolves.toBeUndefined()
   })
 
   it('accumulates multiple spend recordings', async () => {

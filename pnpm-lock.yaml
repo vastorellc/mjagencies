@@ -898,6 +898,9 @@ importers:
         specifier: 5.4.1
         version: 5.4.1
     devDependencies:
+      '@types/ioredis-mock':
+        specifier: 8.2.7
+        version: 8.2.7(ioredis@5.4.1)
       '@types/node':
         specifier: 22.9.0
         version: 22.9.0

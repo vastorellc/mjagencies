@@ -1,8 +1,8 @@
 /**
  * packages/ai/src/generate-content.ts
  *
- * generateContent() — Calls LiteLLM flash-lite to draft CMS content.
- * Used by the content sprint workstream (Plan 05-06) and future Phase 7 AI features.
+ * generateContent() — Calls LiteLLM to draft CMS content.
+ * Used by the content sprint workstream (Plan 05-06) and Phase 7 AI features.
  *
  * ANTI-FABRICATION RULES (CLAUDE.md §6):
  *   - Never invent statistics without a real cited source
@@ -10,22 +10,32 @@
  *   - Numbers in content must be ranges, not exact figures
  *   - AI content >70% requires disclosure metadata
  *
- * LiteLLM proxy (Phase 7 wires per-agency cost caps via LiteLLM budget manager):
- *   - Model: flash-lite (set in LiteLLM config.yaml)
- *   - Env vars: LITELLM_API_URL, LITELLM_API_KEY
- *   - Phase 5: no per-agency cost cap — single global key
- *   - Phase 7: per-agency LITELLM_API_KEY from agency budget manager
+ * Phase 5: single global LiteLLM key, no per-agency cost cap, model hardcoded to 'flash-lite'.
+ * Phase 7 (this file): per-agency API key, model routing by tier, monthly cost cap enforcement,
+ *   LiteLLM budget metadata tagging. All new fields are optional — Phase 5/6 callers unchanged.
+ *
+ * Pipeline order (Phase 7): checkAgencyCostCap → fetch LiteLLM → recordAgencySpend
  */
+import type { ModelTier } from './model-routing.js'
+import { getModelForTier } from './model-routing.js'
+import { checkAgencyCostCap, recordAgencySpend, getAgencyLiteLLMKey } from './cost-cap.js'
 
 export interface GenerateContentParams {
   /** Prompt describing what to generate */
   prompt: string
-  /** Agency slug — used for brand voice context in Phase 7 */
+  /** Agency slug — used for brand voice context */
   agencySlug: string
   /** Page type determines word count floor requirements (blog=1500, tool=2200) */
   pageType: 'home' | 'about' | 'services' | 'blog' | 'contact' | 'tool' | 'landing' | 'legal'
   /** Max tokens to request */
   maxTokens?: number
+  // Phase 7 additions (all optional — callers without agencyId fall back to global key, no cap):
+  /** Agency ID for per-agency key resolution, cost cap, and LiteLLM budget tagging */
+  agencyId?: string
+  /** Model tier for routing. Default: 'tier1-bulk' (gemini-2.5-flash-lite) */
+  tier?: ModelTier
+  /** Optional system prompt override; default keeps anti-fab system prompt */
+  systemPrompt?: string
 }
 
 export interface GenerateContentResult {
@@ -41,20 +51,30 @@ export interface GenerateContentResult {
 interface LiteLLMChatResponse {
   choices: Array<{ message: { content: string } }>
   model: string
+  usage?: { total_tokens?: number; prompt_tokens?: number; completion_tokens?: number }
 }
 
+/** Anti-fabrication system prompt (shared between Phase 5 and Phase 7 paths) */
+const ANTI_FAB_SYSTEM_PROMPT = [
+  'You are a professional content writer for digital marketing agencies.',
+  'CRITICAL RULES: Never invent statistics. Use ranges not exact figures (e.g. "30-45%" not "42%").',
+  'Never create fake testimonials or client names.',
+  'Never write placeholder text like "Lorem ipsum" or "[insert]" or "Coming soon".',
+  'All content must be real, complete, and publishable.',
+].join(' ')
+
 /**
- * Generates CMS content by calling LiteLLM flash-lite.
+ * Generates CMS content by calling LiteLLM.
  * Returns the generated text or throws on API error.
  *
- * Phase 5 behavior: calls real LiteLLM if LITELLM_API_URL is set;
+ * Phase 5 behavior (no agencyId, no tier): calls real LiteLLM if LITELLM_API_URL is set;
  * falls back to a deterministic stub response if env var is missing (for CI/local dev).
+ * Phase 7 behavior (agencyId provided): per-agency key, model routing, cost cap enforcement.
  */
 export async function generateContent(params: GenerateContentParams): Promise<GenerateContentResult> {
   const { prompt, agencySlug, pageType, maxTokens = 2000 } = params
 
   const litellmUrl = process.env['LITELLM_API_URL']
-  const litellmKey = process.env['LITELLM_API_KEY'] ?? ''
 
   // Fallback for local dev / CI when LiteLLM is not available
   if (!litellmUrl) {
@@ -87,6 +107,22 @@ export async function generateContent(params: GenerateContentParams): Promise<Ge
     }
   }
 
+  // Phase 7: enforce per-agency cost cap BEFORE making the LiteLLM call
+  if (params.agencyId) {
+    await checkAgencyCostCap(params.agencyId)
+  }
+
+  // Resolve API key: per-agency key falls back to global LITELLM_API_KEY
+  const litellmKey = params.agencyId
+    ? getAgencyLiteLLMKey(params.agencyId)
+    : (process.env['LITELLM_API_KEY'] ?? '')
+
+  // Resolve model from tier routing (Phase 7); legacy callers get tier1-bulk (flash-lite equivalent)
+  const model = getModelForTier(params.tier)
+
+  // System prompt: use override if provided, else anti-fabrication default
+  const systemPrompt = params.systemPrompt ?? ANTI_FAB_SYSTEM_PROMPT
+
   const response = await fetch(`${litellmUrl}/chat/completions`, {
     method: 'POST',
     headers: {
@@ -94,22 +130,17 @@ export async function generateContent(params: GenerateContentParams): Promise<Ge
       Authorization: `Bearer ${litellmKey}`,
     },
     body: JSON.stringify({
-      model: 'flash-lite',
+      model,
       messages: [
-        {
-          role: 'system',
-          content: [
-            'You are a professional content writer for digital marketing agencies.',
-            'CRITICAL RULES: Never invent statistics. Use ranges not exact figures (e.g. "30-45%" not "42%").',
-            'Never create fake testimonials or client names.',
-            'Never write placeholder text like "Lorem ipsum" or "[insert]" or "Coming soon".',
-            'All content must be real, complete, and publishable.',
-          ].join(' '),
-        },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: prompt },
       ],
       temperature: 0.7,
       max_tokens: maxTokens,
+      // LiteLLM budget tagging: enables per-agency spend tracking in LiteLLM dashboard
+      ...(params.agencyId
+        ? { metadata: { tags: [`agency:${params.agencyId}`] } }
+        : {}),
     }),
   })
 
@@ -122,10 +153,18 @@ export async function generateContent(params: GenerateContentParams): Promise<Ge
   const text = json.choices[0]?.message?.content ?? ''
   if (!text) throw new Error('LiteLLM returned empty content')
 
+  // Phase 7: record spend after successful response (swallowed on error — never breaks user request)
+  if (params.agencyId) {
+    // Estimate cost: total_tokens * 0.0002 cents (rough heuristic per plan spec)
+    const tokens = json.usage?.total_tokens ?? (maxTokens + Math.ceil(prompt.length / 4))
+    const cents = Math.ceil(tokens * 0.0002)
+    await recordAgencySpend(params.agencyId, cents)
+  }
+
   return {
     text,
-    aiContentRatio: 1, // Phase 7 computes real ratio
+    aiContentRatio: 1, // Phase 7 computes real ratio via REQ-409
     isAiGenerated: true,
-    model: json.model ?? 'flash-lite',
+    model: json.model ?? model,
   }
 }
