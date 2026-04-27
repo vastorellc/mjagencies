@@ -46,3 +46,7 @@ export * from './blocks/index.js';
 
 // Plan 08-01: WebVitalsReporter — RUM component for all 12 agency apps (REQ-097)
 export { WebVitalsReporter } from './rum/web-vitals.js';
+
+// Plan 09-03: ContactFormClient — WCAG 2.2 AA contact form with honeypot, inline validation
+export { ContactFormClient } from './components/contact-form-client.js';
+export type { ContactFormClientProps } from './components/contact-form-client.js';
