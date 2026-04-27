@@ -1,0 +1,13 @@
+{
+  "key": "petcare-boarding",
+  "sourceName": "IBISWorld Pet Hotels & Kennels Industry Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.ibisworld.com/united-states/market-research-reports/pet-hotels-kennels-industry/",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgOccupancyRate": 0.65,
+    "avgNightlyRateDog": 42,
+    "avgNightlyRateCat": 28,
+    "avgKennelRevenueAnnual": 385000
+  }
+}

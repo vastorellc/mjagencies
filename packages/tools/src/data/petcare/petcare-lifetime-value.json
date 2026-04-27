@@ -1,0 +1,13 @@
+{
+  "key": "petcare-lifetime-value",
+  "sourceName": "APPA American Pet Products Association National Pet Owners Survey",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.americanpetproducts.org/press_industrytrends.asp",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgPetOwnerLtv": 10800,
+    "avgAnnualSpendDog": 1533,
+    "avgAnnualSpendCat": 902,
+    "avgPetOwnershipYears": 8
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "key": "education-tuition",
+  "sourceName": "NCES — National Center for Education Statistics Digest of Education Statistics",
+  "sourceYear": 2024,
+  "sourceUrl": "https://nces.ed.gov/programs/digest/",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgEnrollmentGrowthRate": 3.2,
+    "avgTuitionIncreaseRateAnnual": 2.8,
+    "avgStudentRetentionRate": 0.74,
+    "avgRevenuePerFteStudent": 19800
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "key": "education-enrollment",
+  "sourceName": "Salesforce Education Trends Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.salesforce.com/resources/research-reports/connected-student-report/",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgEnrollmentConversionRate": 0.20,
+    "avgInquiryToApplicationRate": 0.42,
+    "avgApplicationToEnrollmentRate": 0.55,
+    "avgCostPerEnrolledStudent": 1850
+  }
+}

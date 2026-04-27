@@ -1,0 +1,13 @@
+{
+  "key": "petcare-grooming",
+  "sourceName": "IBISWorld Pet Grooming & Boarding Services Industry Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.ibisworld.com/united-states/market-research-reports/pet-grooming-boarding-services-industry/",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgGroomingVisitsPerYear": 5.5,
+    "avgGroomingPrice": 65,
+    "avgGroomingRevenuePerStylist": 72000,
+    "groomingMarketGrowthRate": 0.054
+  }
+}

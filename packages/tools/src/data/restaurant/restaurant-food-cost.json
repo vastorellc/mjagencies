@@ -1,0 +1,13 @@
+{
+  "key": "restaurant-food-cost",
+  "sourceName": "Toast Restaurant Industry Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://pos.toasttab.com/resources/restaurant-industry-report",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgNetMargin": 3.5,
+    "avgFoodCostPercent": 28,
+    "avgLaborCostPercent": 30,
+    "avgOverheadPercent": 25
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "key": "financial-referral",
+  "sourceName": "Cerulli Associates — Advisor Client Acquisition Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.cerulli.com/reports/advisor-metrics",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgReferralsPerClientPerYear": 1.1,
+    "referralShareOfNewClients": 0.42,
+    "avgReferredClientAUM": 350000,
+    "avgClientLifespanYears": 12
+  }
+}
