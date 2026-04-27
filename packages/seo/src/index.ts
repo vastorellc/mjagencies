@@ -44,3 +44,7 @@ export type { FaqItem } from './plugins/faq-jsonld.js'
 // Plan 06-04: geo-chunking plugin (self-registers on export; same pattern as seo-classic)
 export { scoreGeoChunking } from './plugins/geo-chunking.js'
 export type { GeoChunkingConfig, GeoChunkingResult } from './plugins/geo-chunking.js'
+
+// Plan 06-05: self-learning loop worker (REQ-073)
+export { runSelfLearningForAgency } from './self-learning/worker.js'
+export type { SelfLearningJobData } from './self-learning/worker.js'
