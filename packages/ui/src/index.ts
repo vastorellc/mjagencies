@@ -43,3 +43,6 @@ export { marketplaceStub } from './marketplace/stub.js';
 
 // Plan 05-03c: 45-block library
 export * from './blocks/index.js';
+
+// Plan 08-01: WebVitalsReporter — RUM component for all 12 agency apps (REQ-097)
+export { WebVitalsReporter } from './rum/web-vitals.js';
