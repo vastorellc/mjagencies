@@ -46,3 +46,7 @@ export type { AiEditorActionResult } from './editor-actions.js'
 
 // Phase 7: per-agency brand voice context loader (REQ-083)
 export { getBrandVoiceContext } from './brand-context.js'
+
+// Phase 7: PII redactor — strips email/phone/SSN/CC/IP before LiteLLM calls (REQ-084)
+export { redactPii, restoreFromTokens, PII_PATTERNS } from './pii-redactor.js'
+export type { PiiRedactionResult } from './pii-redactor.js'
