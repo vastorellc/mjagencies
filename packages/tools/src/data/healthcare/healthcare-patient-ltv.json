@@ -1,0 +1,13 @@
+{
+  "key": "healthcare-patient-ltv",
+  "sourceName": "MGMA Medical Group Management Association Physician Compensation and Production Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.mgma.com/data/benchmarking-data/mgma-datadive",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgPatientLtv": 1500,
+    "avgVisitsPerPatientPerYear": 3.8,
+    "avgRevenuePerVisitPrimarycare": 185,
+    "avgRevenuePerVisitSpecialty": 320
+  }
+}

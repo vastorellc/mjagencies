@@ -1,0 +1,13 @@
+{
+  "key": "legal-case-roi",
+  "sourceName": "Clio Legal Trends Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.clio.com/resources/legal-trends/",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgCaseRoi": 230,
+    "avgPersonalInjurySettlement": 52900,
+    "avgBusinessLitigationValue": 91000,
+    "avgLitigationCostPercent": 0.30
+  }
+}

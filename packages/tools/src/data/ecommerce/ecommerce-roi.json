@@ -1,0 +1,12 @@
+{
+  "key": "ecommerce-roi",
+  "sourceName": "Statista Digital Advertising Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.statista.com/statistics/digital-advertising-roas",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgRoas": 4.2,
+    "medianRoas": 3.8,
+    "topQuartileRoas": 7.1
+  }
+}

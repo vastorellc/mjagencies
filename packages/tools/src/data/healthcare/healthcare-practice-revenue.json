@@ -1,0 +1,13 @@
+{
+  "key": "healthcare-practice-revenue",
+  "sourceName": "AHA Health Statistics — Hospital & Practice Utilization Benchmarks",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.aha.org/statistics",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgPracticeOccupancy": 0.82,
+    "topQuartileOccupancy": 0.92,
+    "bottomQuartileOccupancy": 0.65,
+    "avgRevenuePerPhysicianAnnual": 850000
+  }
+}

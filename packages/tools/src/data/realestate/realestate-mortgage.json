@@ -1,0 +1,13 @@
+{
+  "key": "realestate-mortgage",
+  "sourceName": "Federal Reserve Mortgage Rate Survey",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.federalreserve.gov/releases/h15/",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avg30YearRate": 7.25,
+    "avg15YearRate": 6.65,
+    "avgDtiThreshold": 0.43,
+    "frontEndRatio": 0.28
+  }
+}

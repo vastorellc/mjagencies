@@ -1,0 +1,12 @@
+{
+  "key": "realestate-home-value",
+  "sourceName": "NAR Existing-Home Sales Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.nar.realtor/research-and-statistics/housing-statistics/existing-home-sales",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "nationalAvgAppreciation": 4.2,
+    "medianSalePriceUSA": 407200,
+    "avgPricePerSqftNational": 210
+  }
+}

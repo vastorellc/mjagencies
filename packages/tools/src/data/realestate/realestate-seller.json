@@ -1,0 +1,12 @@
+{
+  "key": "realestate-seller",
+  "sourceName": "NAR Profile of Home Buyers and Sellers",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.nar.realtor/research-and-statistics/research-reports/highlights-from-the-profile-of-home-buyers-and-sellers",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgCommissionRate": 0.056,
+    "avgClosingCostPercent": 0.02,
+    "avgDaysOnMarket": 23
+  }
+}

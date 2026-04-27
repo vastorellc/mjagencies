@@ -1,0 +1,13 @@
+{
+  "key": "ecommerce-cart-abandonment",
+  "sourceName": "Baymard Institute Cart Abandonment Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://baymard.com/lists/cart-abandonment-rate",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgAbandonRate": 0.7003,
+    "mobileAbandonRate": 0.854,
+    "desktopAbandonRate": 0.628,
+    "avgRecoveryRate": 0.15
+  }
+}

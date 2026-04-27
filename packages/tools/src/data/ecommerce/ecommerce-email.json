@@ -1,0 +1,13 @@
+{
+  "key": "ecommerce-email",
+  "sourceName": "Klaviyo Email Benchmarks Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.klaviyo.com/resources/benchmarks",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgOpenRate": 0.214,
+    "avgCtr": 0.025,
+    "avgConvRate": 0.032,
+    "avgRevenuePerEmail": 0.12
+  }
+}

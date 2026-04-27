@@ -1,0 +1,13 @@
+{
+  "key": "legal-client-acquisition",
+  "sourceName": "Thomson Reuters State of US Small Law Firms Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://legal.thomsonreuters.com/en/insights/reports/state-of-us-small-law-firms",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgCac": 900,
+    "avgMarketingBudgetPercent": 0.04,
+    "avgClientLifespanYears": 3.2,
+    "digitalLeadConversionRate": 0.08
+  }
+}

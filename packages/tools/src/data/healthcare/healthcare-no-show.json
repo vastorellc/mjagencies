@@ -1,0 +1,13 @@
+{
+  "key": "healthcare-no-show",
+  "sourceName": "MGMA STAT Poll — Appointment No-Show Rates",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.mgma.com/mgma-stat/no-shows-cost-the-u-s-healthcare-system-150b-annually",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgNoShowRate": 0.18,
+    "annualSystemCostUSD": 150000000000,
+    "avgCostPerNoShow": 200,
+    "remindersReduceNoShowBy": 0.5
+  }
+}
