@@ -111,7 +111,7 @@
 **: Per-agency plugin overrides — P0
 - [x] **REQ-073
 **: Self-learning loop (signals → AI tuner → suggestions) — P1
-- [ ] **REQ-074**: Algorithm watcher (RSS monitoring of Google Search Central) — P1
+- [x] **REQ-074**: Algorithm watcher (RSS monitoring of Google Search Central) — P1
 - [x] **REQ-075
 **: AIO TL;DR required on all indexable pages (≤120 chars) — P0
 - [x] **REQ-076**: FAQ schema auto-generated on all FAQ-eligible pages — P0

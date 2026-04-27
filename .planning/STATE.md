@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
 status: completed
-stopped_at: "Completed 06-05: self-learning loop — GSC/GA4 signals + BullMQ daily cron + seo_suggestions collection"
-last_updated: "2026-04-27T02:17:58.966Z"
-last_activity: 2026-04-27 -- Plan 06-05 complete — self-learning loop, seo_suggestions collection, BullMQ daily cron
+stopped_at: "Completed 06-06: algo_alerts collection + RSS algorithm watcher + BullMQ 6h cron + GUID dedup"
+last_updated: "2026-04-27T02:26:08Z"
+last_activity: 2026-04-27 -- Plan 06-06 complete — algo_alerts collection, RSS processRssFeed, registerAlgoWatcher BullMQ job
 progress:
   total_phases: 13
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 37
-  completed_plans: 36
-  percent: 97
+  completed_plans: 37
+  percent: 100
 ---
 
 # Project State
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Every page, every agency, every image slot is 100% real and complete at launch — only the Brand Setup Wizard remains for the user post-generate.
-**Current focus:** Phase 06 — seo-plugin-engine (executing — 5/6 plans complete)
+**Current focus:** Phase 06 — seo-plugin-engine (COMPLETE — 6/6 plans done)
 
 ## Current Position
 
-Phase: 06 (seo-plugin-engine) — EXECUTING, 5/6 plans complete (06-01, 06-02, 06-03, 06-04, 06-05 done)
-Status: Plan 06-05 complete 2026-04-27 — self-learning loop, seo_suggestions collection, BullMQ daily cron
-Last activity: 2026-04-27 -- Plan 06-05 complete — self-learning loop, seo_suggestions collection, BullMQ daily cron
+Phase: 06 (seo-plugin-engine) — COMPLETE, 6/6 plans complete (06-01 through 06-06 done)
+Status: Plan 06-06 complete 2026-04-27 — algo_alerts collection, RSS watcher, BullMQ 6h cron, GUID dedup
+Last activity: 2026-04-27 -- Plan 06-06 complete — algo_alerts collection, RSS processRssFeed, registerAlgoWatcher BullMQ job
 
-Progress: [█████████░] 97%
+Progress: [██████████] 100%
 
 ## Completed Phases
 
@@ -63,6 +63,7 @@ Progress: [█████████░] 97%
 | Phase 06-seo-plugin-engine P03 | 6 | 3 commits (TDD+feat) | 10 files |
 | Phase 06-seo-plugin-engine P04 | 3 | 3 commits (TDD) | 3 files |
 | Phase 06-seo-plugin-engine P05 | 15 | 2 tasks | 7 files |
+| Phase 06-seo-plugin-engine P06 | 6 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,9 @@ Progress: [█████████░] 97%
 - seo_suggestions collection is global (superAdminOnly, no agency_id) — same pattern as algo-alerts
 - Self-learning worker uses auth.GoogleAuth from @googleapis/searchconsole AuthPlus (googleapis not installed)
 - generateContent() returns GenerateContentResult.text (not raw string); self-learning worker uses result.text
+- algoAlertsCollection is global (no agency_id), superAdminOnly x4 — algo intelligence must not leak to agency editors
+- No-match RSS items also marked seen via Redis pipeline SADD+EXPIRE — prevents reprocessing on every 6h poll
+- JSDoc cron expression avoids */6 sequence — TypeScript misparses as closing JSDoc comment block
 
 ### Pending Todos
 
@@ -110,8 +114,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-27T02:17:58.951Z
-Stopped at: Completed 06-05: self-learning loop — GSC/GA4 signals + BullMQ daily cron + seo_suggestions collection
+Last session: 2026-04-27T02:26:08Z
+Stopped at: Completed 06-06: algo_alerts collection + RSS algorithm watcher + BullMQ 6h cron + GUID dedup
 Resume file: None
 
-Next step: `/gsd-execute-phase 6` (continue with plan 06-06: algo-alerts collection + RSS algorithm watcher)
+Next step: Phase 06 is complete. Proceed to Phase 07 (content-sprint or next phase per ROADMAP.md).

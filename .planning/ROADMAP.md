@@ -22,7 +22,7 @@ Parallel-safe: M006+M007 (both depend on M005 only); M009 starts after M003 (par
 - [ ] **Phase 3: Auth + SSO + Edge Routing** — JWT (jose), MFA, SSO, Cloudflare middleware, audit log, server-action auth pattern
 - [x] **Phase 4: Design System + Theme Engine** — CSS variable tokens, theme.json validator, 12 niche themes, A/B framework
 - [x] **Phase 5: Central CMS + Block Library + Editor UX** — Payload 3.82.1, 45 blocks, Lexical editor, DAM, content sprint kickoff
-- [ ] **Phase 6: SEO/AIO/GEO Plugin Engine** — 3 plugins, real-time scoring, self-learning loop, algorithm watcher
+- [x] **Phase 6: SEO/AIO/GEO Plugin Engine** — 3 plugins, real-time scoring, self-learning loop, algorithm watcher
 - [ ] **Phase 7: AI Assistant + Anti-Fabrication** — LiteLLM gateway, 20 editor AI features, anti-fab guards, brand voice, PII redaction
 - [ ] **Phase 8: Public Frontend + Page Tree** — 12 agency apps, ISR + tag purge, image pipeline, RUM, WCAG 2.2 AA, P0 pages
 - [ ] **Phase 9: CRM + Forms + Booking** — CRM core, lead scoring, forms, email engine, Cal.com, Twilio SMS, niche pre-seeds
@@ -154,8 +154,8 @@ Plans:
 - [x] 06-02-PLAN.md (Wave 2) — seo-classic plugin: TDD, 7 sub-factors (title/meta/keyword/words/H1/H2/links), engine registration (REQ-070, REQ-071, REQ-072)
 - [x] 06-03-PLAN.md (Wave 2) — aio-citations plugin + AIO TL;DR validator + faqs collection + FAQPage JSON-LD utility (REQ-070, REQ-075, REQ-076)
 - [x] 06-04-PLAN.md (Wave 2) — geo-chunking plugin: TDD, city entity mention scoring, engine registration (REQ-070, REQ-071, REQ-072)
-- [ ] 06-05-PLAN.md (Wave 3) — Self-learning loop: seo_suggestions collection, GSC + GA4 signal fetcher, AI tuner, BullMQ daily job (REQ-073)
-- [ ] 06-06-PLAN.md (Wave 3) — Algorithm watcher: algo_alerts collection, RSS parser, GUID dedup, BullMQ 6h job, [BLOCKING] Payload migrate (REQ-074)
+- [x] 06-05-PLAN.md (Wave 3) — Self-learning loop: seo_suggestions collection, GSC + GA4 signal fetcher, AI tuner, BullMQ daily job (REQ-073)
+- [x] 06-06-PLAN.md (Wave 3) — Algorithm watcher: algo_alerts collection, RSS parser, GUID dedup, BullMQ 6h job, [BLOCKING] Payload migrate (REQ-074)
 
 ### Phase 7: AI Assistant + Anti-Fabrication
 **Goal**: LiteLLM gateway with per-agency cost caps, 20 editor AI features, anti-fab guards, brand voice + glossary, PII redactor, prompt-injection protection.
