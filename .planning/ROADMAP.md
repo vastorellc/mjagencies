@@ -151,7 +151,7 @@ Plans:
 
 Plans:
 - [ ] 06-01-PLAN.md (Wave 1) — Plugin runtime + parameter store: lexical-parser, plugin-defaults, config-cache, engine skeleton, settings seo_plugins field, computeLiveScore server action, SeoPanel upgrade (REQ-071, REQ-072, REQ-075)
-- [ ] 06-02-PLAN.md (Wave 2) — seo-classic plugin: TDD, 7 sub-factors (title/meta/keyword/words/H1/H2/links), engine registration (REQ-070, REQ-071, REQ-072)
+- [x] 06-02-PLAN.md (Wave 2) — seo-classic plugin: TDD, 7 sub-factors (title/meta/keyword/words/H1/H2/links), engine registration (REQ-070, REQ-071, REQ-072)
 - [ ] 06-03-PLAN.md (Wave 2) — aio-citations plugin + AIO TL;DR validator + faqs collection + FAQPage JSON-LD utility (REQ-070, REQ-075, REQ-076)
 - [ ] 06-04-PLAN.md (Wave 2) — geo-chunking plugin: TDD, city entity mention scoring, engine registration (REQ-070, REQ-071, REQ-072)
 - [ ] 06-05-PLAN.md (Wave 3) — Self-learning loop: seo_suggestions collection, GSC + GA4 signal fetcher, AI tuner, BullMQ daily job (REQ-073)

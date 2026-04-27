@@ -104,7 +104,7 @@
 
 ### SEO / AIO / GEO (Phase 6)
 
-- [ ] **REQ-070**: 3 SEO plugins — seo-classic, aio-citations, geo-chunking — P0
+- [x] **REQ-070**: 3 SEO plugins — seo-classic, aio-citations, geo-chunking — P0
 - [x] **REQ-071
 **: Plugin runtime — all weights/rules editable in admin (no code) — P0
 - [x] **REQ-072
