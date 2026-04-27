@@ -1,0 +1,13 @@
+{
+  "key": "homeservices-seasonal",
+  "sourceName": "Angi Pro Insights — Home Services Industry Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.angi.com/articles/state-of-home-spending.htm",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgJobsPerTechnicianYear": 240,
+    "q2Q3RevenueSharePercent": 58,
+    "avgJobValueNational": 1750,
+    "avgRevenueSmallContractor": 420000
+  }
+}

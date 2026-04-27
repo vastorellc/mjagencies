@@ -1,0 +1,13 @@
+{
+  "key": "automotive-service",
+  "sourceName": "NADA Data — Annual Dealership Financial Profile",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.nada.org/nada/nada-data/",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgROValue": 380,
+    "avgDailyROsPerServiceBay": 3.2,
+    "avgServiceDeptGrossMargin": 0.62,
+    "avgServiceRevenuePerDealership": 5200000
+  }
+}

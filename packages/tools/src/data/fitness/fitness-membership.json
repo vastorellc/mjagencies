@@ -1,0 +1,13 @@
+{
+  "key": "fitness-membership",
+  "sourceName": "IHRSA Global Health & Fitness Industry Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.ihrsa.org/publications/the-ihrsa-global-report/",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgMonthlyRevenuePerMember": 65,
+    "avgMembershipFeeUS": 48,
+    "avgPersonalTrainingRevenuePercent": 0.22,
+    "avgAnnualRevenuePerFacility": 847000
+  }
+}

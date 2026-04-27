@@ -1,0 +1,13 @@
+{
+  "key": "dental-hygiene-recall",
+  "sourceName": "ADA Health Policy Institute — Dental Hygiene Benchmarks",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.ada.org/resources/research/health-policy-institute",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgRecallRate": 0.65,
+    "avgHygieneVisitValue": 185,
+    "avgPatientVisitsPerYear": 1.8,
+    "hygieneRevenueShareOfPractice": 0.30
+  }
+}

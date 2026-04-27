@@ -1,0 +1,13 @@
+{
+  "key": "homeservices-job-margin",
+  "sourceName": "IBISWorld Home Services Industry Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.ibisworld.com/united-states/market-research-reports/home-services-franchises-industry/",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgGrossMargin": 42,
+    "avgLaborCostPercent": 35,
+    "avgMaterialCostPercent": 20,
+    "avgNetMargin": 12
+  }
+}

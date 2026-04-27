@@ -1,0 +1,13 @@
+{
+  "key": "dental-treatment-acceptance",
+  "sourceName": "Dental Economics Practice Management Report",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.dentaleconomics.com/practice/management/article/treatment-plan-acceptance-rates",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgAcceptanceRate": 0.65,
+    "topQuartileAcceptanceRate": 0.82,
+    "avgTreatmentPlanValue": 2800,
+    "avgCaseAcceptanceRevenueImpact": 150000
+  }
+}

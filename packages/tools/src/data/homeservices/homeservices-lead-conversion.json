@@ -1,0 +1,13 @@
+{
+  "key": "homeservices-lead-conversion",
+  "sourceName": "Angi Pro Insights — Lead Conversion Benchmarks",
+  "sourceYear": 2024,
+  "sourceUrl": "https://pro.angi.com/resources/lead-conversion-rate-benchmarks",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgLeadToBookingRate": 0.20,
+    "topQuartileConversionRate": 0.35,
+    "avgCostPerLead": 28,
+    "avgJobValueHomeServices": 1750
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "key": "automotive-lead-response",
+  "sourceName": "Cox Automotive Car Buyer Journey Study",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.coxautoinc.com/market-insights/car-buyer-journey/",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgInternetLeadCloseRate": 0.10,
+    "avgLeadResponseTimeMinutes": 47,
+    "sub5MinResponseCloseRateBoost": 0.22,
+    "avgInternetLeadCost": 25
+  }
+}

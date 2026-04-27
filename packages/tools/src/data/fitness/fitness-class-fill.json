@@ -1,0 +1,13 @@
+{
+  "key": "fitness-class-fill",
+  "sourceName": "Club Industry Research — Group Fitness Benchmarks",
+  "sourceYear": 2024,
+  "sourceUrl": "https://www.clubindustry.com/research",
+  "updatedAt": "2024-10-01T00:00:00Z",
+  "data": {
+    "avgClassFillRate": 0.68,
+    "topQuartileFillRate": 0.85,
+    "avgClassCapacity": 20,
+    "avgDropInFee": 22
+  }
+}
