@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
 status: completed
-stopped_at: "Completed 06-03: aio-citations plugin + FAQPage JSON-LD utility + faqs collection"
-last_updated: "2026-04-27T01:55:00Z"
-last_activity: 2026-04-27 -- Plan 06-03 complete — aio-citations plugin, faq-jsonld utility, faqs collection, validateAioTldr hook
+stopped_at: "Completed 06-04: geo-chunking plugin — three-plugin SEO engine complete"
+last_updated: "2026-04-27T02:01:14Z"
+last_activity: 2026-04-27 -- Plan 06-04 complete — geo-chunking scoring plugin, 19 tests, all 3 plugins now registered
 progress:
   total_phases: 13
   completed_phases: 5
   total_plans: 37
-  completed_plans: 34
-  percent: 92
+  completed_plans: 35
+  percent: 95
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Every page, every agency, every image slot is 100% real and complete at launch — only the Brand Setup Wizard remains for the user post-generate.
-**Current focus:** Phase 06 — seo-plugin-engine (executing — 2/6 plans complete)
+**Current focus:** Phase 06 — seo-plugin-engine (executing — 4/6 plans complete)
 
 ## Current Position
 
-Phase: 06 (seo-plugin-engine) — EXECUTING, 3/6 plans complete (06-01, 06-02, 06-03 done)
-Status: Plan 06-03 complete 2026-04-27 — aio-citations plugin, faq-jsonld utility, faqs collection, validateAioTldr
-Last activity: 2026-04-27 -- Plan 06-03 complete — aio-citations plugin, faq-jsonld utility, faqs collection, validateAioTldr hook
+Phase: 06 (seo-plugin-engine) — EXECUTING, 4/6 plans complete (06-01, 06-02, 06-03, 06-04 done)
+Status: Plan 06-04 complete 2026-04-27 — geo-chunking plugin, 3-plugin engine now complete
+Last activity: 2026-04-27 -- Plan 06-04 complete — geo-chunking scoring plugin, 19 tests, all 3 plugins registered
 
 Progress: [█████████░] 86%
 
@@ -61,6 +61,7 @@ Progress: [█████████░] 86%
 | Phase 06-seo-plugin-engine P01 | 14 | 2 tasks | 13 files |
 | Phase 06-seo-plugin-engine P02 | 5 | 3 commits (TDD) | 4 files |
 | Phase 06-seo-plugin-engine P03 | 6 | 3 commits (TDD+feat) | 10 files |
+| Phase 06-seo-plugin-engine P04 | 3 | 3 commits (TDD) | 3 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,8 @@ Progress: [█████████░] 86%
 - blockPublishOnUnsourcedStat flag preserved in AioCitationsConfig interface but not used by scorer (only CMS publish gate)
 - FAQPage JSON-LD injection in page <head> is Phase 8 scope; Phase 6 delivers utility functions only
 - validateAioTldr exempt from legal pages; enforced only on status=published
+- geo-chunking plugin registration follows same index.ts export chain pattern (not engine.ts side-effect import) — consistent with seo-classic and aio-citations
+- Non-applicable short-circuit (pageType != services) checked before empty-cities check — blog/home pages always score 100 regardless of city config
 
 ### Pending Todos
 
@@ -103,8 +106,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-27T01:55:00Z
-Stopped at: Completed 06-03: aio-citations plugin + FAQPage JSON-LD utility + faqs collection
+Last session: 2026-04-27T02:01:14Z
+Stopped at: Completed 06-04: geo-chunking plugin — three-plugin SEO engine complete
 Resume file: None
 
-Next step: `/gsd-execute-phase 6` (continue with plan 06-04: geo-chunking plugin)
+Next step: `/gsd-execute-phase 6` (continue with plan 06-05: self-learning loop / GSC-GA4 signals)
