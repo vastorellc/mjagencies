@@ -68,7 +68,11 @@ export async function handleResendPdf(input: ResendPdfInput): Promise<ResendPdfO
   })
 
   // sensitiveData: true — email address is PII (REQ-402, CLAUDE.md BullMQ rule)
-  await queue.add('send-pdf', jobData, { sensitiveData: true })
+  // Cast required: createEncryptedQueue<T> returns Queue<EncryptedPayload> but the proxy
+  // accepts T — same pattern as Phase 9 ContactForm API route.
+  await (queue as unknown as {
+    add: (name: string, data: EmailGateJobData, opts: Record<string, unknown>) => Promise<void>
+  }).add('send-pdf', jobData, { sensitiveData: true })
 
   log.info({ toolSlug: input.toolSlug }, 'resend-pdf: pdf job re-enqueued')
   return { ok: true }

@@ -88,7 +88,11 @@ export async function handleEmailGate(input: EmailGateInput): Promise<EmailGateO
   })
 
   // T-10-02-02: sensitiveData: true — email address is PII, encrypted AES-GCM-256 in Redis
-  await queue.add('send-pdf', jobData, { sensitiveData: true })
+  // Cast required: createEncryptedQueue<T> returns Queue<EncryptedPayload> but the proxy
+  // accepts T — same pattern as Phase 9 ContactForm API route.
+  await (queue as unknown as {
+    add: (name: string, data: EmailGateJobData, opts: Record<string, unknown>) => Promise<void>
+  }).add('send-pdf', jobData, { sensitiveData: true })
 
   log.info({ toolSlug: input.toolSlug }, 'email-gate: pdf job enqueued')
   return { ok: true }
