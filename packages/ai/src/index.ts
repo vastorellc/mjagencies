@@ -18,3 +18,28 @@ export {
 // Phase 7: model routing by tier
 export { getModelForTier, MODEL_ROUTING } from './model-routing.js'
 export type { ModelTier } from './model-routing.js'
+
+// Phase 7: 20 AI editor action functions (REQ-081)
+export {
+  aiDraftFromTitle,
+  aiRewrite,
+  aiShorten,
+  aiExpand,
+  aiSimplify,
+  aiFixGrammar,
+  aiToneFormal,
+  aiToneConversational,
+  aiTonePersuasive,
+  aiSummarizeParagraph,
+  aiMetaDescription,
+  aiSuggestH2,
+  aiWriteFaqAnswer,
+  aiGenerateCta,
+  aiTranslateSpanish,
+  aiAddTransition,
+  aiBulletExtract,
+  aiCounterArgument,
+  aiSuggestStat,
+  aiBrandVoiceRewrite,
+} from './editor-actions.js'
+export type { AiEditorActionResult } from './editor-actions.js'
