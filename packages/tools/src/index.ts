@@ -18,3 +18,12 @@ export type { RunCalculatorInput, RunCalculatorOutput, RunCalculatorError } from
 
 export { loadBenchmarks, isBenchmarkExpired, formatBenchmarkUpdatedLabel } from './engine/benchmark-loader.js'
 export { renderToolResult } from './engine/result-renderer.js'
+
+// Tool definitions
+export { ALL_TOOLS, getToolBySlug, getToolsByAgency } from './tools/index.js'
+
+// Email gate + resend
+export { handleEmailGate } from './actions/email-gate.js'
+export type { EmailGateInput, EmailGateJobData, EmailGateOutput } from './actions/email-gate.js'
+export { handleResendPdf } from './actions/resend-pdf.js'
+export type { ResendPdfInput, ResendPdfOutput } from './actions/resend-pdf.js'
