@@ -16,6 +16,17 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
+  "dependencies": {
+    "@mjagency/queue": "workspace:*",
+    "@mjagency/config": "workspace:*",
+    "nodemailer": "^6.9.0",
+    "@types/nodemailer": "^6.4.0",
+    "ioredis": "^5.3.0",
+    "payload": "3.82.1"
+  },
+  "peerDependencies": {
+    "payload": "3.82.1"
+  },
   "devDependencies": {
     "@types/node": "22.9.0",
     "typescript": "5.6.3",
