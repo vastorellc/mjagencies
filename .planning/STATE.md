@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
-status: executing
-stopped_at: "Completed 06-02: seo-classic scoring plugin (TDD)"
-last_updated: "2026-04-27T01:46:30Z"
-last_activity: 2026-04-27 -- Plan 06-02 complete — seo-classic plugin, 25/25 tests pass
+status: completed
+stopped_at: "Completed 06-03: aio-citations plugin + FAQPage JSON-LD utility + faqs collection"
+last_updated: "2026-04-27T01:55:00Z"
+last_activity: 2026-04-27 -- Plan 06-03 complete — aio-citations plugin, faq-jsonld utility, faqs collection, validateAioTldr hook
 progress:
   total_phases: 13
   completed_phases: 5
   total_plans: 37
-  completed_plans: 33
-  percent: 89
+  completed_plans: 34
+  percent: 92
 ---
 
 # Project State
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 06 (seo-plugin-engine) — EXECUTING, 2/6 plans complete (06-01, 06-02 done)
-Status: Plan 06-02 complete 2026-04-27 — seo-classic TDD plugin, 25/25 tests passing
-Last activity: 2026-04-27 -- Plan 06-02 complete — seo-classic plugin, 25/25 tests pass
+Phase: 06 (seo-plugin-engine) — EXECUTING, 3/6 plans complete (06-01, 06-02, 06-03 done)
+Status: Plan 06-03 complete 2026-04-27 — aio-citations plugin, faq-jsonld utility, faqs collection, validateAioTldr
+Last activity: 2026-04-27 -- Plan 06-03 complete — aio-citations plugin, faq-jsonld utility, faqs collection, validateAioTldr hook
 
 Progress: [█████████░] 86%
 
@@ -60,6 +60,7 @@ Progress: [█████████░] 86%
 | 05 | 8/8 | complete + approved |
 | Phase 06-seo-plugin-engine P01 | 14 | 2 tasks | 13 files |
 | Phase 06-seo-plugin-engine P02 | 5 | 3 commits (TDD) | 4 files |
+| Phase 06-seo-plugin-engine P03 | 6 | 3 commits (TDD+feat) | 10 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,10 @@ Progress: [█████████░] 86%
 - computeLiveScore uses requireSession() (not auth()) per project auth pattern
 - seo-classic plugin registration via index.ts export chain (not engine.ts bottom import) — avoids circular ESM dependency
 - PluginDefaults not re-exported from engine.ts; seo-classic.ts receives pre-merged SeoClassicConfig via config.seo_classic
+- aio-citations plugin follows same index.ts export self-registration pattern as seo-classic
+- blockPublishOnUnsourcedStat flag preserved in AioCitationsConfig interface but not used by scorer (only CMS publish gate)
+- FAQPage JSON-LD injection in page <head> is Phase 8 scope; Phase 6 delivers utility functions only
+- validateAioTldr exempt from legal pages; enforced only on status=published
 
 ### Pending Todos
 
@@ -98,8 +103,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-27T01:46:30Z
-Stopped at: Completed 06-02: seo-classic scoring plugin (TDD)
+Last session: 2026-04-27T01:55:00Z
+Stopped at: Completed 06-03: aio-citations plugin + FAQPage JSON-LD utility + faqs collection
 Resume file: None
 
-Next step: `/gsd-execute-phase 6` (continue with plan 06-03: aio-citations plugin)
+Next step: `/gsd-execute-phase 6` (continue with plan 06-04: geo-chunking plugin)

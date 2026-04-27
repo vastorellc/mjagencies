@@ -113,7 +113,7 @@
 - [ ] **REQ-074**: Algorithm watcher (RSS monitoring of Google Search Central) — P1
 - [x] **REQ-075
 **: AIO TL;DR required on all indexable pages (≤120 chars) — P0
-- [ ] **REQ-076**: FAQ schema auto-generated on all FAQ-eligible pages — P0
+- [x] **REQ-076**: FAQ schema auto-generated on all FAQ-eligible pages — P0
 
 ### AI Assistant (Phase 7)
 
@@ -257,7 +257,7 @@
 | REQ-020…REQ-031, REQ-300, REQ-308, REQ-309, REQ-310, REQ-400, REQ-408, REQ-424 | Phase 3 | Pending |
 | REQ-040…REQ-048 | Phase 4 | Pending |
 | REQ-050…REQ-063, REQ-201, REQ-203, REQ-205, REQ-207, REQ-305, REQ-410, REQ-411, REQ-412, REQ-421, REQ-505 | Phase 5 | Pending |
-| REQ-070…REQ-076 | Phase 6 | Pending |
+| REQ-070…REQ-076 | Phase 6 | REQ-070, REQ-071, REQ-072, REQ-075, REQ-076 complete (plans 06-01 through 06-03) |
 | REQ-080…REQ-086, REQ-409 | Phase 7 | Pending |
 | REQ-090…REQ-098 | Phase 8 | Pending |
 | REQ-100…REQ-114, REQ-302, REQ-303, REQ-403, REQ-404, REQ-405, REQ-414, REQ-417, REQ-420, REQ-423 | Phase 9 | Pending |
