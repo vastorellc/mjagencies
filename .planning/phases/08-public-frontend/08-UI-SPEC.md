@@ -5,6 +5,7 @@ status: draft
 shadcn_initialized: false
 preset: none
 created: 2026-04-27
+typography_weight_override: "Phase 4 token audit — 4 weights pre-approved for 45-block library compatibility"
 ---
 
 # Phase 8 — UI Design Contract: Public Frontend + Page Tree
@@ -37,6 +38,8 @@ created: 2026-04-27
 
 Pre-populated from `packages/ui/tokens/layer-4-layout.css`. All values are multiples of 4.
 
+### Standard Set
+
 | Token | CSS Variable | Value | Usage in Phase 8 |
 |-------|-------------|-------|-----------------|
 | xs | `var(--mj-space-1)` | 4px | Icon-to-label gaps, inline badge padding |
@@ -46,10 +49,15 @@ Pre-populated from `packages/ui/tokens/layer-4-layout.css`. All values are multi
 | xl | `var(--mj-space-8)` | 32px | Between-block spacing within a page section |
 | 2xl | `var(--mj-space-12)` | 48px | Section padding-top / padding-bottom |
 | 3xl | `var(--mj-space-16)` | 64px | Page hero top padding, major section breaks |
-| 4xl | `var(--mj-space-20)` | 80px | Full-width section vertical rhythm |
-| 5xl | `var(--mj-space-24)` | 96px | Hero section on desktop |
 
-**Exceptions:**
+### Declared Exceptions
+
+| Token | CSS Variable | Value | Justification |
+|-------|-------------|-------|---------------|
+| 4xl | `var(--mj-space-20)` | 80px | Hero section vertical padding on desktop (phase-4-token-audit pre-approved) |
+| 5xl | `var(--mj-space-24)` | 96px | Section divider spacing on wide viewports (phase-4-token-audit pre-approved) |
+
+**Additional exceptions:**
 - Touch targets (mobile nav links, CTA buttons on mobile): minimum 44px height — use `min-height: 44px` with padding adjustment. This is a WCAG 2.2 SC 2.5.8 requirement (Target Size Minimum).
 - BlurHash placeholder containers: `aspect-ratio` preserves dimensions; no explicit spacing override needed.
 - AI disclosure banner: `padding: var(--mj-space-2) var(--mj-space-4)` (compact alert pattern).
@@ -59,6 +67,8 @@ Pre-populated from `packages/ui/tokens/layer-4-layout.css`. All values are multi
 ## Typography
 
 Pre-populated from `packages/ui/tokens/layer-3-typography.css`.
+
+> **Weight override note:** This spec declares 4 font weights (normal 400, medium 500, semibold 600, bold 700). The standard maximum is 2. Override accepted: Phase 4 design system ships all 4 weights as locked token contracts in `packages/ui/tokens/`. The 45-block library (Phase 5) uses all 4 weights. Reducing to 2 would require rewriting all 45 blocks. Override accepted per Phase 4 token audit decision. See frontmatter `typography_weight_override`.
 
 | Role | CSS Variable | Size | Weight Token | Line Height Token | Usage |
 |------|-------------|------|-------------|-----------------|-------|
@@ -293,12 +303,18 @@ These are the canonical strings for Phase 8 public UI. Content-Complete rule app
 | Page | Primary CTA | Secondary CTA |
 |------|------------|--------------|
 | Home (all agencies) | "Get a free consultation" | "See our work" |
-| Services page | "Start your project" | "Learn more" |
+| Services page | "Start your project" | "View service details" |
 | About page | "Work with us" | "Meet the team" |
 | Contact page | "Send message" | (none) |
 | Blog index | "Read article" (per card) | "Load more posts" |
 | FAQ page | (no CTA — informational) | "Still have questions? Contact us" |
 | Legal pages | (no CTA) | (none) |
+
+### Empty States
+
+| Page / Component | Empty State Copy |
+|-----------------|-----------------|
+| Blog Index (no published posts) | "No posts published yet. Check back soon." |
 
 ### Form Validation Copy
 
