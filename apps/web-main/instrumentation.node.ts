@@ -40,3 +40,7 @@ createEncryptedWorker<ScheduledPublishJobData>(
   },
   { host: REDIS_HOST, port: REDIS_PORT },
 )
+
+// Phase 6: SEO self-learning repeatable job (REQ-073)
+import { registerSelfLearning } from './src/jobs/self-learning.js'
+await registerSelfLearning()
