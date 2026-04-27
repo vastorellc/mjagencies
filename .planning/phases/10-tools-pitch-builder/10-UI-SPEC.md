@@ -56,18 +56,16 @@ Exceptions:
 
 All values map to established tokens from `packages/ui/tokens/layer-3-typography.css`.
 
+Exactly 4 roles, exactly 2 weights.
+
 | Role | CSS Variable | Size | Weight Variable | Weight | Line Height Variable | Line Height | Usage |
 |------|-------------|------|----------------|--------|---------------------|-------------|-------|
 | Body | `var(--mj-text-size-base)` | 16px | `var(--mj-weight-normal)` | 400 | `var(--mj-leading-normal)` | 1.5 | Tool page copy, proposal body, invoice line items |
-| Label | `var(--mj-text-size-sm)` | 14px | `var(--mj-weight-medium)` | 500 | `var(--mj-leading-normal)` | 1.5 | Form field labels, status badge text, benchmark source attribution |
-| Heading | `var(--mj-text-size-2xl)` | 24px | `var(--mj-weight-semibold)` | 600 | `var(--mj-leading-tight)` | 1.25 | Section headings (calculator title, proposal section heads, invoice heading) |
+| Label | `var(--mj-text-size-sm)` | 14px | `var(--mj-weight-normal)` | 400 | `var(--mj-leading-normal)` | 1.5 | Form field labels, status badge text, benchmark source attribution, disclaimer copy, FTC notice, ESIGN legal footnote, benchmark data-source citation |
+| Heading | `var(--mj-text-size-2xl)` | 24px | `var(--mj-weight-bold)` | 700 | `var(--mj-leading-tight)` | 1.25 | Section headings (calculator title, proposal section heads, invoice heading), sub-headings within calculator output card, proposal expiry countdown |
 | Display | `var(--mj-text-size-4xl)` | 36px | `var(--mj-weight-bold)` | 700 | `var(--mj-leading-tight)` | 1.25 | Tool result primary output number, proposal total amount, invoice balance due |
 
-Additional sizes in use (within the established scale — not new additions):
-- `var(--mj-text-size-xs)` (12px, weight 400): Disclaimer copy, FTC notice, ESIGN legal footnote, benchmark data-source citation
-- `var(--mj-text-size-lg)` (18px, weight 600): Sub-heading within calculator output card, proposal expiry countdown
-
-> Source: Pre-populated from `packages/ui/tokens/layer-3-typography.css`. Phase 10 uses 4 roles from the 10-step scale — no new sizes introduced.
+> Source: Pre-populated from `packages/ui/tokens/layer-3-typography.css`. Phase 10 uses exactly 4 roles from the 10-step scale — no new sizes introduced. Disclaimer/legal copy merges into Label role (14px). Sub-headings merge into Heading role (24px). Weights reduced to 2: normal (400) for Body and Label, bold (700) for Heading and Display.
 
 ---
 
@@ -145,7 +143,7 @@ Accent is NOT used for: decorative borders, background fills, icon color in non-
 | Decline confirmation heading | "Decline This Proposal?" |
 | Decline confirmation body | "Let us know you're not moving forward. Your decision is final and the agency will be notified." |
 | Decline confirmation CTA | "Yes, Decline" |
-| Decline cancel CTA | "Go Back" |
+| Decline cancel CTA | "Back to Proposal" |
 
 ### Surface 4 — Invoice UI (Invoice state machine, REQ-418)
 
@@ -166,7 +164,7 @@ Accent is NOT used for: decorative borders, background fills, icon color in non-
 | Refund initiation heading | "Initiate Refund?" |
 | Refund confirmation body | "This will refund [amount] to the client's original payment method. This action cannot be undone." |
 | Refund CTA | "Confirm Refund" |
-| Refund cancel CTA | "Cancel" |
+| Refund cancel CTA | "Keep Invoice" |
 | Error — payment failed | "Payment could not be processed. Please check your payment details and try again, or contact your bank." |
 | Empty state (admin — no invoices) | "No invoices yet" / "Invoices are created automatically when a proposal is signed." |
 
@@ -211,6 +209,7 @@ Accent is NOT used for: decorative borders, background fills, icon color in non-
 
 ### Tool Calculator
 
+- Primary visual anchor: tool result output number (Display, 36px, bold, `var(--mj-color-text-primary)`).
 - Input fields: type="number" with min/max/step attributes matching benchmark dataset constraints. No LLM in calculation path (REQ-122).
 - Calculate button: disabled until all required fields have valid values. Re-enables on any field change after first calculation.
 - Result section: renders inline on same page below the input form — NOT a new URL route (REQ-413). `id="tool-result"` with `scroll-margin-top: var(--mj-space-16)` for smooth scroll after calculation.
