@@ -47,14 +47,44 @@ interface AccessClaims {
 }
 
 /**
+ * Public paths that must NEVER redirect to /login — these are the public-facing marketing
+ * pages accessible to all visitors without authentication.
+ *
+ * Plan 08-01 requirement: P0 public frontend pages are excluded from auth redirect so that
+ * agency landing pages, blog, services, FAQ, and legal pages are fully accessible.
+ */
+const PUBLIC_PATHS: ReadonlySet<string> = new Set([
+  '/',
+  '/about',
+  '/contact',
+  '/faq',
+  '/privacy',
+  '/terms',
+  '/404',
+  '/_not-found',
+])
+
+/**
+ * Returns true if the given pathname should bypass authentication.
+ * Handles exact matches (PUBLIC_PATHS) and prefix matches for /blog/* and /services/*.
+ */
+function isPublicPath(pathname: string): boolean {
+  if (PUBLIC_PATHS.has(pathname)) return true
+  if (pathname.startsWith('/blog')) return true
+  if (pathname.startsWith('/services')) return true
+  return false
+}
+
+/**
  * Returns a Next.js-compatible middleware function that:
  *   1. Extracts the agency slug from the Host header (404 on unknown subdomain — T-03-017).
- *   2. Bypasses auth for /login, /sso, /auth/callback (SSO handshake paths).
- *   3. Reads the access cookie; redirects to /login if absent.
- *   4. Verifies the JWT via jose jwtVerify with explicit alg/iss/aud (REQ-310).
- *   5. Compares payload.agencyId against the subdomain slug (anti-cross-tenant, T-03-016).
- *   6. Injects x-agency-id, x-user-id, x-user-role request-context headers for server components.
- *   7. Applies security headers on every response (REQ-029 HSTS layer).
+ *   2. Bypasses auth for public P0 marketing paths (isPublicPath — Plan 08-01).
+ *   3. Bypasses auth for /login, /sso, /auth/callback (SSO handshake paths).
+ *   4. Reads the access cookie; redirects to /login if absent.
+ *   5. Verifies the JWT via jose jwtVerify with explicit alg/iss/aud (REQ-310).
+ *   6. Compares payload.agencyId against the subdomain slug (anti-cross-tenant, T-03-016).
+ *   7. Injects x-agency-id, x-user-id, x-user-role request-context headers for server components.
+ *   8. Applies security headers on every response (REQ-029 HSTS layer).
  */
 export function createAuthMiddleware() {
   return async function middleware(req: NextRequest): Promise<NextResponse> {
@@ -66,8 +96,16 @@ export function createAuthMiddleware() {
       return new NextResponse(null, { status: 404 })
     }
 
-    // Bypass auth for the login route itself + /sso entry + /auth/callback so the SSO flow can complete
+    // Public P0 paths — skip auth entirely (Plan 08-01: REQ-090 public frontend)
     const path = url.pathname
+    if (isPublicPath(path)) {
+      const passthrough = NextResponse.next()
+      passthrough.headers.set('x-agency-id', agency)
+      applySecurityHeaders(passthrough)
+      return passthrough
+    }
+
+    // Bypass auth for the login route itself + /sso entry + /auth/callback so the SSO flow can complete
     if (path === '/login' || path === '/sso' || path.startsWith('/auth/callback')) {
       const passthrough = NextResponse.next()
       passthrough.headers.set('x-agency-id', agency)
