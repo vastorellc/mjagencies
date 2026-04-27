@@ -10,7 +10,7 @@
 
 | New/Modified File | Role | Data Flow | Closest Analog | Match Quality |
 |---|---|---|---|---|
-| `packages/ai/src/gateway.ts` | service | request-response | `packages/ai/src/generate-content.ts` | exact |
+| ~~`packages/ai/src/gateway.ts`~~ _(not created)_ | — gateway is `generate-content.ts` | — | — | see note |
 | `packages/ai/src/cost-cap.ts` | service | CRUD | `packages/seo/src/config-cache.ts` | role-match |
 | `packages/ai/src/pii-redactor.ts` | middleware | transform | `packages/cms/src/hooks/svg-sanitize.ts` | role-match |
 | `packages/ai/src/prompt-guard.ts` | middleware | transform | `packages/cms/src/hooks/svg-sanitize.ts` | role-match |
@@ -22,95 +22,25 @@
 | `packages/cms/src/hooks/ai-disclosure.ts` | middleware | transform | `packages/cms/src/hooks/content-validators.ts` | role-match |
 | `packages/cms/src/collections/brand-voice.ts` | model | CRUD | `packages/cms/src/collections/settings.ts` | exact |
 | `packages/cms/src/collections/glossary.ts` | model | CRUD | `packages/cms/src/collections/algo-alerts.ts` | role-match |
-| `packages/cms/src/collections/banned-phrases.ts` | model | CRUD | `packages/cms/src/collections/algo-alerts.ts` | role-match |
+| ~~`packages/cms/src/collections/banned-phrases.ts`~~ _(not created)_ | — embedded as `avoid_phrases` in `brand_glossary.ts` | — | — | see note |
 | `packages/cms/src/collections/index.ts` | config | — | `packages/cms/src/collections/index.ts` | exact (extend) |
 | `packages/seo/src/__tests__/anti-fab.test.ts` | test | — | `packages/cms/src/__tests__/content-validators.test.ts` | exact |
 | `packages/ai/src/__tests__/pii-redactor.test.ts` | test | — | `packages/cms/src/__tests__/content-validators.test.ts` | role-match |
 | `packages/ai/src/__tests__/prompt-guard.test.ts` | test | — | `packages/cms/src/__tests__/content-validators.test.ts` | role-match |
-| `packages/ai/src/__tests__/gateway.test.ts` | test | — | `packages/cms/src/__tests__/content-validators.test.ts` | role-match |
+| ~~`packages/ai/src/__tests__/gateway.test.ts`~~ _(not created)_ | — `generate-content.test.ts` covers this | — | — | see note |
 
 ---
 
 ## Pattern Assignments
 
-### `packages/ai/src/gateway.ts` (service, request-response)
+### ~~`packages/ai/src/gateway.ts`~~ — NOT a Phase 7 deliverable
 
-**Analog:** `packages/ai/src/generate-content.ts`
-
-**Imports pattern** (lines 1–19):
-```typescript
-/**
- * packages/ai/src/generate-content.ts — LiteLLM call wrapper
- */
-export interface GenerateContentParams {
-  prompt: string
-  agencySlug: string
-  pageType: 'home' | 'about' | 'services' | 'blog' | 'contact' | 'tool' | 'landing' | 'legal'
-  maxTokens?: number
-}
-
-export interface GenerateContentResult {
-  text: string
-  aiContentRatio: number
-  isAiGenerated: true
-  model: string
-}
-
-interface LiteLLMChatResponse {
-  choices: Array<{ message: { content: string } }>
-  model: string
-}
-```
-
-**Core LiteLLM call pattern** (lines 90–131):
-```typescript
-const response = await fetch(`${litellmUrl}/chat/completions`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${litellmKey}`,
-  },
-  body: JSON.stringify({
-    model: 'flash-lite',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: prompt },
-    ],
-    temperature: 0.7,
-    max_tokens: maxTokens,
-  }),
-})
-
-if (!response.ok) {
-  const errorText = await response.text()
-  throw new Error(`LiteLLM API error ${response.status}: ${errorText}`)
-}
-
-const json = (await response.json()) as LiteLLMChatResponse
-const text = json.choices[0]?.message?.content ?? ''
-if (!text) throw new Error('LiteLLM returned empty content')
-```
-
-**Anti-fabrication system prompt pattern** (lines 101–108):
-```typescript
-{
-  role: 'system',
-  content: [
-    'You are a professional content writer for digital marketing agencies.',
-    'CRITICAL RULES: Never invent statistics. Use ranges not exact figures (e.g. "30-45%" not "42%").',
-    'Never create fake testimonials or client names.',
-    'Never write placeholder text like "Lorem ipsum" or "[insert]" or "Coming soon".',
-    'All content must be real, complete, and publishable.',
-  ].join(' '),
-},
-```
-
-**Gateway extension for Phase 7:** The gateway wraps `generateContent()` adding:
-1. Per-agency `LITELLM_API_KEY` lookup from budget manager (replace global key)
-2. PII redaction call before sending prompt
-3. Prompt guard call before sending prompt
-4. Cost cap enforcement (check before call, record usage after)
-
+> **Architectural decision (Phase 7):** No separate `gateway.ts` file is created.
+> `packages/ai/src/generate-content.ts` IS the gateway — extended in Plan 07-01 to add
+> per-agency API key resolution, model routing, cost cap enforcement, and metadata tagging.
+> Any plan referencing `gateway.ts` should use `generate-content.ts` instead.
+> The LiteLLM call pattern, anti-fabrication system prompt, and stub fallback remain in
+> `generate-content.ts` (see Plan 07-01 action for the full extended interface).
 ---
 
 ### `packages/ai/src/cost-cap.ts` (service, CRUD)
@@ -464,19 +394,21 @@ export const algoAlertsCollection: CollectionConfig = {
 
 ---
 
-### `packages/cms/src/collections/banned-phrases.ts` (model, CRUD)
+### ~~`packages/cms/src/collections/banned-phrases.ts`~~ — NOT a separate collection
 
-**Analog:** `packages/cms/src/collections/algo-alerts.ts` (same pattern as glossary)
-
-Per-agency collection. Fields: `agency_id` (AGENCY_ID_FIELD), `phrase` (text, required), `reason` (textarea), `severity` (select: error/warning), `created_by` (text).
-
+> **Architectural decision (Phase 7):** No separate `banned-phrases.ts` collection is created.
+> Banned phrases are embedded as an `avoid_phrases` array field within
+> `packages/cms/src/collections/brand_glossary.ts` (the glossary collection).
+> The `avoid_phrases` field is a Payload `array` type with a `phrase` text child field plus
+> optional `reason` textarea, co-located with brand glossary terms per agency.
+> Any plan referencing `banned-phrases.ts` should instead add `avoid_phrases` to the glossary fields.
 ---
 
 ### `packages/cms/src/collections/index.ts` (config, extension)
 
 **Analog:** `packages/cms/src/collections/index.ts`
 
-Read the existing barrel to understand the export pattern before extending it with `brandVoiceCollection`, `glossaryCollection`, `bannedPhrasesCollection`.
+Read the existing barrel to understand the export pattern before extending it with `brandVoiceCollection`, `glossaryCollection` (glossary includes `avoid_phrases` array — no separate bannedPhrasesCollection).
 
 ---
 
@@ -532,7 +464,7 @@ export const validateXxx: CollectionBeforeOperationHook = async ({ args, operati
 
 ### Payload collection: per-agency with AGENCY_ID_FIELD
 **Source:** `packages/cms/src/collections/settings.ts` lines 11–21
-**Apply to:** `brand-voice.ts`, `glossary.ts`, `banned-phrases.ts`
+**Apply to:** `brand-voice.ts`, `glossary.ts` (banned phrases embedded in glossary as `avoid_phrases` array — no separate banned-phrases.ts collection)
 ```typescript
 import { collectionAccess, superAdminOnly, fieldImmutable } from '../access/collection-access.js'
 
@@ -547,7 +479,7 @@ const AGENCY_ID_FIELD: Field = {
 
 ### LiteLLM env guard (fallback when env absent)
 **Source:** `packages/ai/src/generate-content.ts` lines 56–88
-**Apply to:** All gateway calls in `packages/ai/src/gateway.ts`
+**Apply to:** All LiteLLM calls in `packages/ai/src/generate-content.ts` (the gateway — no separate gateway.ts)
 ```typescript
 const litellmUrl = process.env['LITELLM_API_URL']
 const litellmKey = process.env['LITELLM_API_KEY'] ?? ''
@@ -613,5 +545,5 @@ const text = result.text  // NOTE: result.text not result (GenerateContentResult
 3. Per-agency Postgres + RLS + agency_id immutable — apply `fieldImmutable` to `agency_id` on all new collections
 4. `jose` only for JWT — no `jsonwebtoken`
 5. BullMQ queue prefix: `agency:<id>:bull` via `REDIS_KEY.bullPrefix(agencyId)`
-6. Anti-fabrication system prompt already wired in `generate-content.ts` — gateway must preserve it, not replace it
+6. Anti-fabrication system prompt already wired in `generate-content.ts` — `generate-content.ts` IS the gateway (no separate gateway.ts). Phase 7 extended it in Plan 07-01; preserve the anti-fab system prompt.
 7. AI hooks stubs in Phase 5 (`isStub: true`) — Phase 7 replaces stubs; `ai-hooks-stub.ts` is replaced, not extended
