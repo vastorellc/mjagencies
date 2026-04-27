@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: ReactNode }): React
   const attrs = getDataAttrs({ agency: 'brand' });
 
   return (
-    <html suppressHydrationWarning {...attrs}>
+    <html suppressHydrationWarning lang="en" {...attrs}>
       <head>
         {/* FOUC prevention — must be FIRST in <head>, BEFORE any stylesheet links.
             CSP nonce wiring lands in Phase 11 — at M004 the script is unconditional inline. */}

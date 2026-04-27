@@ -4,11 +4,12 @@ import { withPayload } from '@payloadcms/next/withPayload'
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    // SEC-N4: SVG is not allowed via Next.js Image — sanitize via DOMPurify+SVGO instead
+    // SEC-N4: SVG is not allowed via Next.js Image — sanitize via DOMPurify+SVGO instead (CLAUDE.md Rule 7)
     remotePatterns: [
       { protocol: 'https', hostname: '*.cloudflare.com' },
       { protocol: 'https', hostname: 'imagedelivery.net' },
     ],
+    formats: ['image/avif', 'image/webp'],
   },
   experimental: {
     // Pino + OTel instrumentation work well with serverComponentsExternalPackages
