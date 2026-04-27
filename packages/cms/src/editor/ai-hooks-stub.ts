@@ -1,68 +1,115 @@
 /**
  * packages/cms/src/editor/ai-hooks-stub.ts
  *
- * AI editor action stubs (REQ-055).
- * Phase 5: all functions return a clearly labeled stub response.
- * Phase 7: replaces stub implementations with real LiteLLM Flash-Lite calls via @mjagency/ai.
+ * AI editor action hooks (REQ-055).
+ * Phase 5: all functions returned stub responses (isStub: true).
+ * Phase 7: implementations delegate to @mjagency/ai (isStub: false).
+ *
+ * Back-compatibility: external callers keep the same signatures and AiActionResult shape.
+ * Functions that are not in the Phase 7 feature list (aiSuggestInternalLinks, aiAltText)
+ * log a warning and return a fallback response — they will be wired in a later phase.
  *
  * IMPORTANT: These are SERVER functions (called from server actions, not from client directly).
- * When Phase 7 wires real calls, requireSession() will be the first line.
+ * Every caller must have requireSession() as the first line (CLAUDE.md §3).
  */
 
 export interface AiActionResult {
   success: boolean
   text: string
-  /** Stub flag — false in Phase 7 when real AI is wired */
-  isStub: true
+  /** Stub flag — false in Phase 7 now that real AI is wired */
+  isStub: false
 }
 
-const STUB_RESULT = (action: string): AiActionResult => ({
-  success: true,
-  text: `[Phase 5 stub — ${action} will use LiteLLM Flash-Lite in Phase 7]`,
-  isStub: true,
-})
-
-/** Rewrite selected text in 3 variants (stub) */
-export async function aiRewrite(_selection: string, _agencyId: string): Promise<AiActionResult[]> {
-  return [STUB_RESULT('ai-rewrite variant 1'), STUB_RESULT('ai-rewrite variant 2'), STUB_RESULT('ai-rewrite variant 3')]
+/** Wraps a single AiEditorActionResult into AiActionResult for back-compat */
+function wrap(text: string, success: boolean): AiActionResult {
+  return { success, text, isStub: false }
 }
 
-/** Expand selected text (stub) */
-export async function aiExpand(_selection: string, _agencyId: string): Promise<AiActionResult> {
-  return STUB_RESULT('ai-expand')
+/** Rewrite selected text — delegates to aiRewrite (returns array of 1 for back-compat) */
+export async function aiRewrite(selection: string, agencyId: string): Promise<AiActionResult[]> {
+  const { aiRewrite: realRewrite } = await import('@mjagency/ai')
+  const result = await realRewrite(selection, agencyId)
+  // Stub used to return 3 variants; real returns 1 — wrap in array for back-compat
+  return [wrap(result.text, result.success)]
 }
 
-/** Shorten selected text (stub) */
-export async function aiShorten(_selection: string, _agencyId: string): Promise<AiActionResult> {
-  return STUB_RESULT('ai-shorten')
+/** Expand selected text */
+export async function aiExpand(selection: string, agencyId: string): Promise<AiActionResult> {
+  const { aiExpand: realExpand } = await import('@mjagency/ai')
+  const result = await realExpand(selection, agencyId)
+  return wrap(result.text, result.success)
 }
 
-/** Rewrite in brand voice (stub) */
-export async function aiBrandVoiceRewrite(_selection: string, _agencyId: string): Promise<AiActionResult> {
-  return STUB_RESULT('ai-brand-voice-rewrite')
+/** Shorten selected text */
+export async function aiShorten(selection: string, agencyId: string): Promise<AiActionResult> {
+  const { aiShorten: realShorten } = await import('@mjagency/ai')
+  const result = await realShorten(selection, agencyId)
+  return wrap(result.text, result.success)
 }
 
-/** Generate FAQ from content (stub) */
-export async function aiGenerateFaq(_content: string, _agencyId: string): Promise<AiActionResult> {
-  return STUB_RESULT('ai-generate-faq')
+/** Rewrite in brand voice (Plan 07-04 wires the context loader) */
+export async function aiBrandVoiceRewrite(
+  selection: string,
+  agencyId: string,
+): Promise<AiActionResult> {
+  const { aiBrandVoiceRewrite: realBrandVoice } = await import('@mjagency/ai')
+  const result = await realBrandVoice(selection, agencyId)
+  return wrap(result.text, result.success)
 }
 
-/** Suggest internal links (stub) */
-export async function aiSuggestInternalLinks(_content: string, _agencyId: string): Promise<AiActionResult> {
-  return STUB_RESULT('ai-suggest-internal-links')
+/** Generate FAQ from content — delegates to aiWriteFaqAnswer */
+export async function aiGenerateFaq(
+  content: string,
+  agencyId: string,
+): Promise<AiActionResult> {
+  const { aiWriteFaqAnswer } = await import('@mjagency/ai')
+  const result = await aiWriteFaqAnswer(content, agencyId)
+  return wrap(result.text, result.success)
 }
 
-/** Auto-generate AIO TL;DR <=120 chars (stub) */
-export async function aiTldr(_content: string, _agencyId: string): Promise<AiActionResult> {
-  return STUB_RESULT('ai-tldr-auto-generate')
+/**
+ * Suggest internal links — NOT in Phase 7 feature list.
+ * Will be wired in a later phase (Phase 8 / link graph plan).
+ * Returns empty success so callers don't crash.
+ */
+export async function aiSuggestInternalLinks(
+  _content: string,
+  _agencyId: string,
+): Promise<AiActionResult> {
+  console.warn('[ai-hooks-stub] aiSuggestInternalLinks: not yet wired — Phase 8 scope')
+  return wrap('', true)
 }
 
-/** Suggest meta description <=160 chars (stub) */
-export async function aiMetaDescription(_content: string, _agencyId: string): Promise<AiActionResult> {
-  return STUB_RESULT('ai-meta-description-suggest')
+/**
+ * Auto-generate AIO TL;DR — delegates to aiSummarizeParagraph.
+ * Note: full TL;DR generation is handled by generateTldr() in apps/web-main/src/actions/seo-score.ts.
+ * This wrapper provides back-compat for direct callers of the stub.
+ */
+export async function aiTldr(content: string, agencyId: string): Promise<AiActionResult> {
+  const { aiSummarizeParagraph } = await import('@mjagency/ai')
+  const result = await aiSummarizeParagraph(content, agencyId)
+  return wrap(result.text, result.success)
 }
 
-/** Suggest alt text for image (stub) */
-export async function aiAltText(_imageUrl: string, _agencyId: string): Promise<AiActionResult> {
-  return STUB_RESULT('ai-alt-text')
+/** Suggest meta description */
+export async function aiMetaDescription(
+  content: string,
+  agencyId: string,
+): Promise<AiActionResult> {
+  const { aiMetaDescription: realMetaDesc } = await import('@mjagency/ai')
+  const result = await realMetaDesc(content, agencyId)
+  return wrap(result.text, result.success)
+}
+
+/**
+ * Suggest alt text for image — NOT in Phase 7 feature list.
+ * Will be wired in a later phase (Phase 8 / media/vision plan).
+ * Returns empty success so callers don't crash.
+ */
+export async function aiAltText(
+  _imageUrl: string,
+  _agencyId: string,
+): Promise<AiActionResult> {
+  console.warn('[ai-hooks-stub] aiAltText: not yet wired — Phase 8 scope')
+  return wrap('', true)
 }

@@ -984,6 +984,9 @@ importers:
 
   packages/cms:
     dependencies:
+      '@mjagency/ai':
+        specifier: workspace:*
+        version: link:../ai
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../auth

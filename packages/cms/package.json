@@ -17,6 +17,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@mjagency/ai": "workspace:*",
     "@mjagency/auth": "workspace:*",
     "@mjagency/config": "workspace:*",
     "@mjagency/media": "workspace:*",
