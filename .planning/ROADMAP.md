@@ -25,7 +25,7 @@ Parallel-safe: M006+M007 (both depend on M005 only); M009 starts after M003 (par
 - [x] **Phase 6: SEO/AIO/GEO Plugin Engine** — 3 plugins, real-time scoring, self-learning loop, algorithm watcher
 - [x] **Phase 7: AI Assistant + Anti-Fabrication** — LiteLLM gateway, 20 editor AI features, anti-fab guards, brand voice, PII redaction
 - [x] **Phase 8: Public Frontend + Page Tree** — 12 agency apps, ISR + tag purge, image pipeline, RUM, WCAG 2.2 AA, P0 pages
-- [ ] **Phase 9: CRM + Forms + Booking** — CRM core, lead scoring, forms, email engine, Cal.com, Twilio SMS, niche pre-seeds
+- [x] **Phase 9: CRM + Forms + Booking** — CRM core, lead scoring, forms, email engine, Cal.com, Twilio SMS, niche pre-seeds
 - [ ] **Phase 10: Tools + Pitch + PDF + Builder** — 36 tools, proposal builder, e-sign, Stripe/PayPal invoicing, Puck builder
 - [ ] **Phase 11: Analytics + Compliance + Security** — GA4, Clarity, Meta CAPI, dashboards, CCPA, WAF, CSP, OWASP scan
 - [ ] **Phase 12: Launch + QA + Seeds + Runbooks** — Full QA matrix, complete seeds, canary deploy, 13 runbooks, Brand Setup Wizard
