@@ -228,9 +228,20 @@ export async function suggestStat(input: AiActionInput): Promise<AiEditorActionR
 export async function brandVoiceRewrite(input: AiActionInput): Promise<AiEditorActionResult> {
   const session = await requireSession()
   if (session.agencyId !== input.agencyId) throw new Error('Forbidden')
-  const { aiBrandVoiceRewrite } = await import('@mjagency/ai')
+
+  const { aiBrandVoiceRewrite, getBrandVoiceContext } = await import('@mjagency/ai')
+
+  // Load per-agency brand context if not provided by caller (Plan 07-04)
+  let brandVoiceContext = input.brandVoiceContext ?? ''
+  if (!brandVoiceContext) {
+    const { getPayload } = await import('payload')
+    const config = await import('@payload-config')
+    const payload = await getPayload({ config: config.default })
+    brandVoiceContext = await getBrandVoiceContext(input.agencyId, payload)
+  }
+
   return aiBrandVoiceRewrite(input.text, input.agencyId, {
     agencySlug: input.agencySlug,
-    brandVoiceContext: input.brandVoiceContext,
+    brandVoiceContext,
   })
 }

@@ -907,6 +907,9 @@ importers:
       ioredis-mock:
         specifier: 8.9.0
         version: 8.9.0(@types/ioredis-mock@8.2.7(ioredis@5.4.1))(ioredis@5.4.1)
+      payload:
+        specifier: 3.82.1
+        version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
       typescript:
         specifier: 5.6.3
         version: 5.6.3

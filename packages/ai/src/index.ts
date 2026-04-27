@@ -43,3 +43,6 @@ export {
   aiBrandVoiceRewrite,
 } from './editor-actions.js'
 export type { AiEditorActionResult } from './editor-actions.js'
+
+// Phase 7: per-agency brand voice context loader (REQ-083)
+export { getBrandVoiceContext } from './brand-context.js'
