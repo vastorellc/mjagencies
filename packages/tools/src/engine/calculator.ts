@@ -67,7 +67,8 @@ export function runCalculator(
   const coercedInputs: ToolInput = {}
   for (const field of tool.fields) {
     const raw = inputs[field.name]
-    coercedInputs[field.name] = field.type === 'number' && raw !== undefined ? Number(raw) : raw
+    if (raw === undefined) continue
+    coercedInputs[field.name] = field.type === 'number' ? Number(raw) : raw
   }
 
   const result = tool.calculate(coercedInputs, benchmarks)
