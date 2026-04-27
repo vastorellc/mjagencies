@@ -48,3 +48,7 @@ await registerSelfLearning()
 // Phase 6: Algorithm watcher repeatable job (REQ-074)
 import { registerAlgoWatcher } from './src/jobs/algo-watcher.js'
 await registerAlgoWatcher()
+
+// Phase 7: AI cost-cap monthly reset (REQ-080)
+import { registerCostReset } from './src/jobs/cost-reset.js'
+await registerCostReset()
