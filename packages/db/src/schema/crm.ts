@@ -15,7 +15,7 @@
  * REQ-103 (activities/tasks), REQ-302 (agency isolation)
  */
 
-import { pgTable, uuid, text, timestamp, numeric, jsonb, index } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, timestamp, numeric, jsonb, index, uniqueIndex } from 'drizzle-orm/pg-core'
 import { sql } from 'drizzle-orm'
 
 export const crmContacts = pgTable(
@@ -32,13 +32,15 @@ export const crmContacts = pgTable(
     source: text('source'),
     score: numeric('score', { precision: 5, scale: 2 }).default('0'),
     tags: jsonb('tags').$type<string[]>().default([]),
-    externalId: text('external_id'), // used for idempotent seeding
+    externalId: text('external_id'), // used for idempotent seeding (Plan 09-07)
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index('crm_contacts_agency_idx').on(t.agencyId),
     index('crm_contacts_email_agency_idx').on(t.email, t.agencyId),
+    // Unique constraint on external_id enables ON CONFLICT DO NOTHING in seed steps
+    uniqueIndex('crm_contacts_external_id_idx').on(t.externalId),
   ]
 )
 
@@ -68,11 +70,15 @@ export const crmDeals = pgTable(
     // stage values: lead | proposal | negotiation | won | lost
     accountId: uuid('account_id'),
     expectedCloseDate: timestamp('expected_close_date', { withTimezone: true }),
-    externalId: text('external_id'),
+    externalId: text('external_id'), // used for idempotent seeding (Plan 09-07)
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('crm_deals_agency_idx').on(t.agencyId)]
+  (t) => [
+    index('crm_deals_agency_idx').on(t.agencyId),
+    // Unique constraint on external_id enables ON CONFLICT DO NOTHING in seed steps
+    uniqueIndex('crm_deals_external_id_idx').on(t.externalId),
+  ]
 )
 
 export const crmActivities = pgTable(
@@ -87,11 +93,15 @@ export const crmActivities = pgTable(
     loggedBy: uuid('logged_by'),
     body: text('body'),
     status: text('status').notNull().default('logged'),
-    externalId: text('external_id'),
+    externalId: text('external_id'), // used for idempotent seeding (Plan 09-07)
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('crm_activities_agency_idx').on(t.agencyId)]
+  (t) => [
+    index('crm_activities_agency_idx').on(t.agencyId),
+    // Unique constraint on external_id enables ON CONFLICT DO NOTHING in seed steps
+    uniqueIndex('crm_activities_external_id_idx').on(t.externalId),
+  ]
 )
 
 export const crmTasks = pgTable(
