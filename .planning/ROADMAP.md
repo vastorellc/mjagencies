@@ -215,11 +215,11 @@ Plans:
 Plans:
 - [x] 09-01: CRM core — contacts, accounts, deals, activities, tasks
 - [x] 09-02: Lead scoring (ICP 40% / behavior 35% / recency 15% / source 10%) + tagging + automation workflows
-- [ ] 09-03: Form builder — all form types, spam protection, UTM capture
+- [x] 09-03: Form builder — all form types, spam protection, UTM capture
 - [x] 09-04: Email engine — DKIM/SPF/DMARC, sequences, BullMQ async; 35-day warm-up gate
 - [x] 09-05: Cal.com self-hosted integration + CRM sync (white-labeled per agency, 6 meeting types)
 - [x] 09-06: Twilio SMS — TCPA compliant, double opt-in (unchecked default), STOP keyword
-- [ ] 09-07: Per-niche pre-seeded CRM data — pipelines, 30 tags, templates, 8 sequences/agency, multi-touch attribution
+- [x] 09-07: Per-niche pre-seeded CRM data — pipelines, 30 tags, templates, 8 sequences/agency, multi-touch attribution
 
 ### Phase 10: Tools + Pitch + PDF + Builder
 **Goal**: 36 tools (3/agency × 12), proposal builder with view tracking + e-sign, Stripe/PayPal invoicing, Puck visual builder scoped per agency.
