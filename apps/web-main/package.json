@@ -25,6 +25,7 @@
     "@mjagency/ai": "workspace:*",
     "@mjagency/cms": "workspace:*",
     "@mjagency/config": "workspace:*",
+    "@mjagency/email": "workspace:*",
     "@mjagency/queue": "workspace:*",
     "@mjagency/seo": "workspace:*",
     "@mjagency/ui": "workspace:*",
