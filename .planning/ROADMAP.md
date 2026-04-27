@@ -180,7 +180,7 @@ Plans:
 ### Phase 8: Public Frontend + Page Tree
 **Goal**: 12 agency Next.js apps live at their subdomains with ISR, image pipeline, RUM, WCAG, all P0 pages real and complete.
 **Depends on**: Phase 5
-**Requirements**: REQ-090, REQ-091, REQ-092, REQ-093, REQ-094, REQ-095, REQ-096, REQ-097, REQ-098
+**Requirements**: REQ-076, REQ-090, REQ-091, REQ-092, REQ-093, REQ-094, REQ-095, REQ-096, REQ-097, REQ-098
 **Success Criteria** (what must be TRUE):
   1. All 12 agency sites load at their subdomains
   2. LCP < 1.8s desktop / < 2.2s mobile on all P0 pages (Lighthouse CI)
