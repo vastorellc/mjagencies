@@ -310,7 +310,7 @@ describe('LiteLLM metadata tagging', () => {
     fetchSpy.mockRestore()
   })
 
-  it('does not include metadata when agencyId is not provided', async () => {
+  it('includes metadata with empty tags when agencyId is not provided', async () => {
     process.env['LITELLM_API_URL'] = 'http://localhost:4000'
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(mockOkResponse())
 
@@ -322,8 +322,86 @@ describe('LiteLLM metadata tagging', () => {
 
     const callArgs = fetchSpy.mock.calls[0]
     const requestInit = callArgs?.[1] as RequestInit | undefined
-    const body = JSON.parse(requestInit?.body as string) as { metadata?: unknown }
-    expect(body.metadata).toBeUndefined()
+    const body = JSON.parse(requestInit?.body as string) as { metadata?: { tags?: string[] } }
+    expect(body.metadata?.tags).toEqual([])
     fetchSpy.mockRestore()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 8. PII redaction in LiteLLM fetch body (Phase 7 — REQ-084)
+// ---------------------------------------------------------------------------
+describe('PII redaction before LiteLLM fetch', () => {
+  it('redacts email from prompt before sending to LiteLLM', async () => {
+    process.env['LITELLM_API_URL'] = 'http://localhost:4000'
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(mockOkResponse())
+
+    await generateContent({
+      prompt: 'Hi john@example.com please review this',
+      agencySlug: 'ecommerce',
+      pageType: 'home',
+    })
+
+    const callArgs = fetchSpy.mock.calls[0]
+    const requestInit = callArgs?.[1] as RequestInit | undefined
+    const body = JSON.parse(requestInit?.body as string) as {
+      messages: Array<{ role: string; content: string }>
+    }
+    const userMessage = body.messages.find((m) => m.role === 'user')
+    expect(userMessage?.content).not.toContain('john@example.com')
+    expect(userMessage?.content).toContain('[EMAIL_1]')
+    fetchSpy.mockRestore()
+  })
+
+  it('redacts PII from systemPrompt before sending to LiteLLM', async () => {
+    process.env['LITELLM_API_URL'] = 'http://localhost:4000'
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(mockOkResponse())
+
+    await generateContent({
+      prompt: 'Write content',
+      agencySlug: 'ecommerce',
+      pageType: 'home',
+      systemPrompt: 'Contact admin@corp.io for help',
+    })
+
+    const callArgs = fetchSpy.mock.calls[0]
+    const requestInit = callArgs?.[1] as RequestInit | undefined
+    const body = JSON.parse(requestInit?.body as string) as {
+      messages: Array<{ role: string; content: string }>
+    }
+    const systemMessage = body.messages.find((m) => m.role === 'system')
+    expect(systemMessage?.content).not.toContain('admin@corp.io')
+    expect(systemMessage?.content).toContain('[EMAIL_1]')
+    fetchSpy.mockRestore()
+  })
+
+  it('does not expose PII in fetch body — raw email never reaches LiteLLM', async () => {
+    process.env['LITELLM_API_URL'] = 'http://localhost:4000'
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(mockOkResponse())
+
+    await generateContent({
+      prompt: 'Hi john@example.com, SSN 123-45-6789 on file',
+      agencySlug: 'ecommerce',
+      pageType: 'home',
+    })
+
+    const callArgs = fetchSpy.mock.calls[0]
+    const requestInit = callArgs?.[1] as RequestInit | undefined
+    const bodyStr = requestInit?.body as string
+    expect(bodyStr).not.toContain('john@example.com')
+    expect(bodyStr).not.toContain('123-45-6789')
+    expect(bodyStr).toContain('[EMAIL_1]')
+    expect(bodyStr).toContain('[SSN_1]')
+    fetchSpy.mockRestore()
+  })
+
+  it('stub path still works (LITELLM_API_URL absent) — no PII redaction required for stub', async () => {
+    delete process.env['LITELLM_API_URL']
+    const result = await generateContent({
+      prompt: 'Hi john@example.com',
+      agencySlug: 'ecommerce',
+      pageType: 'home',
+    })
+    expect(result.model).toBe('stub')
   })
 })

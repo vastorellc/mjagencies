@@ -14,11 +14,12 @@
  * Phase 7 (this file): per-agency API key, model routing by tier, monthly cost cap enforcement,
  *   LiteLLM budget metadata tagging. All new fields are optional — Phase 5/6 callers unchanged.
  *
- * Pipeline order (Phase 7): checkAgencyCostCap → fetch LiteLLM → recordAgencySpend
+ * Pipeline order (Phase 7): checkAgencyCostCap → redactPii → fetch LiteLLM → recordAgencySpend
  */
 import type { ModelTier } from './model-routing.js'
 import { getModelForTier } from './model-routing.js'
 import { checkAgencyCostCap, recordAgencySpend, getAgencyLiteLLMKey } from './cost-cap.js'
+import { redactPii } from './pii-redactor.js'
 
 export interface GenerateContentParams {
   /** Prompt describing what to generate */
@@ -121,7 +122,11 @@ export async function generateContent(params: GenerateContentParams): Promise<Ge
   const model = getModelForTier(params.tier)
 
   // System prompt: use override if provided, else anti-fabrication default
-  const systemPrompt = params.systemPrompt ?? ANTI_FAB_SYSTEM_PROMPT
+  const sysPrompt = params.systemPrompt ?? ANTI_FAB_SYSTEM_PROMPT
+
+  // Phase 7 — redact PII from prompt + systemPrompt before LiteLLM call (REQ-084)
+  const redactedPrompt = redactPii(prompt).redacted
+  const redactedSystemPrompt = redactPii(sysPrompt).redacted
 
   const response = await fetch(`${litellmUrl}/chat/completions`, {
     method: 'POST',
@@ -132,15 +137,12 @@ export async function generateContent(params: GenerateContentParams): Promise<Ge
     body: JSON.stringify({
       model,
       messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt },
+        { role: 'system', content: redactedSystemPrompt },
+        { role: 'user', content: redactedPrompt },
       ],
       temperature: 0.7,
       max_tokens: maxTokens,
-      // LiteLLM budget tagging: enables per-agency spend tracking in LiteLLM dashboard
-      ...(params.agencyId
-        ? { metadata: { tags: [`agency:${params.agencyId}`] } }
-        : {}),
+      metadata: { tags: params.agencyId ? ['agency:' + params.agencyId] : [] },
     }),
   })
 
