@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
-status: Phase 07 complete 2026-04-27, ready for Phase 08
-stopped_at: Phase 07 verified — 6 plans complete, 229 tests pass
-last_updated: "2026-04-27T05:30:00Z"
-last_activity: 2026-04-27 -- Phase 07 (AI Assistant + Anti-Fabrication) complete — LiteLLM gateway, 20 AI features, anti-fab guards, brand voice, PII redactor, prompt guard
+status: executing Phase 09 crm-forms-booking
+stopped_at: "Phase 08 complete — all 7 plans done"
+last_updated: "2026-04-27T12:00:00Z"
+last_activity: 2026-04-27 -- Phase 08 (public-frontend) complete — 132 P0 page routes, RUM, WCAG axe gate, MjImage
 progress:
   total_phases: 13
-  completed_phases: 7
-  total_plans: 43
-  completed_plans: 43
+  completed_phases: 8
+  total_plans: 50
+  completed_plans: 50
   percent: 100
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Every page, every agency, every image slot is 100% real and complete at launch — only the Brand Setup Wizard remains for the user post-generate.
-**Current focus:** Phase 07 — ai-assistant-anti-fabrication (next phase)
+**Current focus:** Phase --phase — 08
 
 ## Current Position
 
-Phase: 08 (public-frontend) — NOT STARTED
-Status: Phase 07 complete 2026-04-27 — 6/6 plans, 229 tests pass, VERIFICATION.md created
-Last activity: 2026-04-27 -- Phase 07 (AI Assistant + Anti-Fabrication) complete — cost-cap, 20 editor actions, anti-fab validators, brand_voice collection, PII redactor, prompt guard
+Phase: 09 (crm-forms-booking) — NEXT
+Status: Phase 08 complete — ready to plan Phase 09
+Last activity: 2026-04-27 -- Phase 08 complete (7/7 plans, 132 P0 pages, RUM, axe-core gate, MjImage)
 
-Progress: [██████████] 100%
+Progress: [████████░░] 62% (8/13 phases complete)
 
 ## Completed Phases
 
@@ -42,6 +42,7 @@ Progress: [██████████] 100%
 | 05 (central-cms) | 8/8 | Payload CMS wired, 11 collections, 45 blocks, Lexical editor, DAM, content sprint | ✓ |
 | 06 (seo-plugin-engine) | 6/6 | 3 SEO plugins, merge-patch config, SeoPanel live scoring, self-learning loop, algo watcher | ✓ |
 | 07 (ai-assistant) | 6/6 | LiteLLM gateway, 20 editor AI features, anti-fab validators, brand voice, PII redactor, prompt guard | ✓ |
+| 08 (public-frontend) | 7/7 | WebVitalsReporter, ISR purge hooks, MjImage AVIF/BlurHash, axe-core gate, 132 P0 page routes | ✓ |
 
 ## Performance Metrics
 
@@ -109,6 +110,12 @@ Progress: [██████████] 100%
 - Quote attribution allows plain parenthetical (Source Name Year) and "said Name" — stat citations still require verifiable hyperlinks
 - brand_voice + brand_glossary tables require live DB + `CI=true PAYLOAD_MIGRATING=true npx payload migrate`
 - lexical-features.ts pre-existing renames fixed in 07-04 (AlignmentFeature, BoldTextFeature etc. — 5 pre-existing issues resolved)
+- AGENCY_ID constant pattern: each agency app declares `const AGENCY_ID = '<slug>'` at module scope — matches agency_id in Payload collections
+- fetchPageBySlug(AGENCY_ID, slug) returns null → caller invokes notFound(); all slug routes have generateStaticParams
+- ISR cache tags: `agency:<id>:page:<slug>` and `agency:<id>:collection:pages` — purged by isrPurgeHook (08-03)
+- axe-core requires DOM attachment: runAxeTest() attaches container to document.body before axe.run(), removes in finally block
+- esbuild JSX without plugin: `esbuild: { jsx: 'automatic', jsxImportSource: 'react' }` in vitest config — works without @vitejs/plugin-react
+- Python3 unavailable in bash env on this Windows machine — use Node.js ESM for generation scripts
 
 ### Pending Todos
 
@@ -128,8 +135,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-27T02:26:08Z
-Stopped at: Completed 06-06: algo_alerts collection + RSS algorithm watcher + BullMQ 6h cron + GUID dedup
+Last session: 2026-04-27T12:00:00Z
+Stopped at: Phase 08 complete — all 7 plans done, 132 P0 page routes across 12 agency apps
 Resume file: None
 
-Next step: `/gsd-plan-phase 8` (Phase 08: Public Frontend + Page Tree)
+Next step: `/gsd-plan-phase 9` (Phase 09: CRM + Forms + Booking + Lead Routing)

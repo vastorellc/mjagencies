@@ -24,7 +24,7 @@ Parallel-safe: M006+M007 (both depend on M005 only); M009 starts after M003 (par
 - [x] **Phase 5: Central CMS + Block Library + Editor UX** — Payload 3.82.1, 45 blocks, Lexical editor, DAM, content sprint kickoff
 - [x] **Phase 6: SEO/AIO/GEO Plugin Engine** — 3 plugins, real-time scoring, self-learning loop, algorithm watcher
 - [x] **Phase 7: AI Assistant + Anti-Fabrication** — LiteLLM gateway, 20 editor AI features, anti-fab guards, brand voice, PII redaction
-- [ ] **Phase 8: Public Frontend + Page Tree** — 12 agency apps, ISR + tag purge, image pipeline, RUM, WCAG 2.2 AA, P0 pages
+- [x] **Phase 8: Public Frontend + Page Tree** — 12 agency apps, ISR + tag purge, image pipeline, RUM, WCAG 2.2 AA, P0 pages
 - [ ] **Phase 9: CRM + Forms + Booking** — CRM core, lead scoring, forms, email engine, Cal.com, Twilio SMS, niche pre-seeds
 - [ ] **Phase 10: Tools + Pitch + PDF + Builder** — 36 tools, proposal builder, e-sign, Stripe/PayPal invoicing, Puck builder
 - [ ] **Phase 11: Analytics + Compliance + Security** — GA4, Clarity, Meta CAPI, dashboards, CCPA, WAF, CSP, OWASP scan
@@ -191,13 +191,13 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 08-01: Base Next.js app template (shared across all 12 agencies)
-- [ ] 08-02: Per-agency app scaffold (12 apps, each with niche theme)
-- [ ] 08-03: ISR + tag-based cache purge (Payload `afterChange` → `revalidateTag`)
-- [ ] 08-04: Image pipeline — AVIF, WebP, BlurHash, art-directed `<picture>`
-- [ ] 08-05: RUM script — web-vitals (LCP/INP/CLS), GA4 events
-- [ ] 08-06: WCAG 2.2 AA + axe-core CI tests
-- [ ] 08-07: All P0 pages per agency — home, about, services, blog, contact, etc.
+- [x] 08-01: Base Next.js app template (shared across all 12 agencies)
+- [x] 08-02: Per-agency app scaffold (12 apps, each with niche theme)
+- [x] 08-03: ISR + tag-based cache purge (Payload `afterChange` → `revalidateTag`)
+- [x] 08-04: Image pipeline — AVIF, WebP, BlurHash, art-directed `<picture>`
+- [x] 08-05: RUM script — web-vitals (LCP/INP/CLS), GA4 events
+- [x] 08-06: WCAG 2.2 AA + axe-core CI tests
+- [x] 08-07: All P0 pages per agency — home, about, services, blog, contact, etc.
 
 ### Phase 9: CRM + Forms + Booking + Lead Routing
 **Goal**: Per-agency CRM, lead scoring, form builder, email engine (DKIM/SPF/DMARC), Cal.com self-hosted, Twilio SMS, niche pre-seeds.
