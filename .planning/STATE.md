@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
 status: executing Phase 09 crm-forms-booking
-stopped_at: "Phase 08 complete — all 7 plans done"
-last_updated: "2026-04-27T12:00:00Z"
-last_activity: 2026-04-27 -- Phase 08 (public-frontend) complete — 132 P0 page routes, RUM, WCAG axe gate, MjImage
+stopped_at: "Phase 09 plan 09-06 complete — Twilio SMS TCPA opt-in + encrypted queue + status webhook"
+last_updated: "2026-04-27T20:45:00Z"
+last_activity: 2026-04-27 -- Phase 09 plan 09-06 complete — packages/sms, TCPA guard, 11 Vitest tests
 progress:
   total_phases: 13
   completed_phases: 8
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 09 (crm-forms-booking) — NEXT
-Status: Phase 08 complete — ready to plan Phase 09
-Last activity: 2026-04-27 -- Phase 08 complete (7/7 plans, 132 P0 pages, RUM, axe-core gate, MjImage)
+Phase: 09 (crm-forms-booking) — IN PROGRESS (plan 06 of 7 complete)
+Status: Executing Phase 09 — Wave 3 in progress
+Last activity: 2026-04-27 -- Phase 09 plan 09-06 complete (packages/sms, TCPA double opt-in, BullMQ encrypted queue, status webhook, 11 tests)
 
 Progress: [████████░░] 62% (8/13 phases complete)
 
@@ -116,6 +116,10 @@ Progress: [████████░░] 62% (8/13 phases complete)
 - axe-core requires DOM attachment: runAxeTest() attaches container to document.body before axe.run(), removes in finally block
 - esbuild JSX without plugin: `esbuild: { jsx: 'automatic', jsxImportSource: 'react' }` in vitest config — works without @vitejs/plugin-react
 - Python3 unavailable in bash env on this Windows machine — use Node.js ESM for generation scripts
+- TCPA SMS opt-in consent stored in Redis with no TTL — consent persists until explicit STOP opt-out
+- Phone hashed SHA-256 before Redis key insertion — raw phone never appears in key names
+- TcpaConsentError thrown in SMS worker before any Twilio call — worker is the hard TCPA gate (not just queue-side check)
+- Twilio status webhook uses runtime = 'nodejs' (not Edge) — Twilio SDK requires Node.js
 
 ### Pending Todos
 
