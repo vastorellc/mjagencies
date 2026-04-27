@@ -4,8 +4,7 @@
  */
 import type { CollectionConfig, Field } from 'payload'
 import { collectionAccess, deleteAccess, fieldImmutable } from '../access/collection-access.js'
-// leadRoutingHook wired in 09-02 — import will be uncommented when hook is created
-// import { leadRoutingHook } from '../hooks/lead-routing-hook.js'
+import { leadRoutingHook } from '../hooks/lead-routing-hook.js'
 
 const AGENCY_ID_FIELD: Field = {
   name: 'agency_id',
@@ -29,7 +28,7 @@ export const contactsCollection: CollectionConfig = {
     delete: deleteAccess,
   },
   hooks: {
-    // afterChange: [leadRoutingHook], // uncomment after 09-02 creates the hook
+    afterChange: [leadRoutingHook],
   },
   fields: [
     AGENCY_ID_FIELD,
