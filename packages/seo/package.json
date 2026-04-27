@@ -17,6 +17,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "ioredis": "5.10.1",
+    "lexical": "0.41.0",
     "rss-parser": "3.13.0",
     "schema-dts": "2.0.0"
   },

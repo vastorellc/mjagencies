@@ -5,7 +5,7 @@
  * Replaces the approximate JSON.stringify approach in content-validators.ts
  * for per-plugin scoring that requires accurate heading/link extraction.
  */
-import type { SerializedEditorState, SerializedLexicalNode } from '@payloadcms/richtext-lexical'
+import type { SerializedEditorState, SerializedLexicalNode } from 'lexical'
 
 export interface LexicalExtracts {
   plainText: string
@@ -16,11 +16,11 @@ export interface LexicalExtracts {
 }
 
 function nodeText(node: SerializedLexicalNode): string {
-  if ('text' in node && typeof (node as { text?: string }).text === 'string') {
-    return (node as { text: string }).text
+  if ('text' in node && typeof ((node as unknown) as { text?: string }).text === 'string') {
+    return ((node as unknown) as { text: string }).text
   }
-  if ('children' in node && Array.isArray((node as { children?: unknown[] }).children)) {
-    return (node as { children: SerializedLexicalNode[] }).children.map(nodeText).join('')
+  if ('children' in node && Array.isArray(((node as unknown) as { children?: unknown[] }).children)) {
+    return ((node as unknown) as { children: SerializedLexicalNode[] }).children.map(nodeText).join('')
   }
   return ''
 }
@@ -40,13 +40,13 @@ export function parseLexicalJson(raw: unknown): LexicalExtracts {
       const t = node.type
       if (t === 'heading') {
         headings.push({
-          tag: (node as { tag: string }).tag as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+          tag: ((node as unknown) as { tag: string }).tag as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
           text: nodeText(node),
         })
       } else if (t === 'paragraph') {
         paragraphs.push(nodeText(node))
       } else if (t === 'link' || t === 'autolink') {
-        const url = (node as { url?: string }).url ?? ''
+        const url = ((node as unknown) as { url?: string }).url ?? ''
         if (
           url.startsWith('/') ||
           (process.env['NEXT_PUBLIC_SITE_URL'] !== undefined &&
@@ -55,8 +55,8 @@ export function parseLexicalJson(raw: unknown): LexicalExtracts {
           internalLinks++
         }
       }
-      if ('children' in node && Array.isArray((node as { children?: unknown[] }).children)) {
-        walk((node as { children: SerializedLexicalNode[] }).children)
+      if ('children' in node && Array.isArray(((node as unknown) as { children?: unknown[] }).children)) {
+        walk(((node as unknown) as { children: SerializedLexicalNode[] }).children)
       }
     }
   }

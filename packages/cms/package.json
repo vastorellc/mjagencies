@@ -21,6 +21,7 @@
     "@mjagency/config": "workspace:*",
     "@mjagency/media": "workspace:*",
     "@mjagency/queue": "workspace:*",
+    "@mjagency/seo": "workspace:*",
     "@mjagency/ui": "workspace:*",
     "dompurify": "^3.2.3",
     "jose": "6.2.2",

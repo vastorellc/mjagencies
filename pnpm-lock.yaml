@@ -523,6 +523,9 @@ importers:
 
   apps/web-main:
     dependencies:
+      '@mjagency/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -535,6 +538,9 @@ importers:
       '@mjagency/queue':
         specifier: workspace:*
         version: link:../../packages/queue
+      '@mjagency/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       '@mjagency/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -980,6 +986,9 @@ importers:
       '@mjagency/queue':
         specifier: workspace:*
         version: link:../queue
+      '@mjagency/seo':
+        specifier: workspace:*
+        version: link:../seo
       '@mjagency/ui':
         specifier: workspace:*
         version: link:../ui
@@ -1186,6 +1195,12 @@ importers:
 
   packages/seo:
     dependencies:
+      ioredis:
+        specifier: 5.10.1
+        version: 5.10.1
+      lexical:
+        specifier: 0.41.0
+        version: 0.41.0
       rss-parser:
         specifier: 3.13.0
         version: 3.13.0
