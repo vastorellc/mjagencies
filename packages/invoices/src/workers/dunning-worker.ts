@@ -15,7 +15,7 @@ const PAYLOAD_API_KEY = process.env['PAYLOAD_API_KEY'] ?? ''
 
 type DunningSentInvoice = {
   id: string; title: string; total_amount: number; remaining_balance: number;
-  sent_at: string; due_date?: string; stripe_payment_link_url?: string;
+  sent_at: string; status: string; due_date?: string; stripe_payment_link_url?: string;
   contact_id?: { email?: string }; agency_id: string
 }
 
@@ -34,7 +34,7 @@ export function startDunningWorker(): void {
 
   createEncryptedWorker<DunningJobData>(
     'invoice-dunning',
-    async (_job) => {
+    async (_job: import('bullmq').Job<DunningJobData>) => {
       const log = createLogger({ service: 'mjagency-invoices', agencyId: 'platform' })
       const now = new Date()
 

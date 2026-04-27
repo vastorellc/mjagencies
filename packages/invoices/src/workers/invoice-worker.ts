@@ -20,7 +20,7 @@ interface StripeInvoiceEventJobData { event: Stripe.Event; agencyId: string }
 export function startInvoiceWorker(): void {
   createEncryptedWorker<StripeInvoiceEventJobData>(
     'stripe-invoice-event',
-    async (job) => {
+    async (job: import('bullmq').Job<StripeInvoiceEventJobData>) => {
       const { event, agencyId } = job.data
       const log = createLogger({ service: 'mjagency-invoices', agencyId })
 
