@@ -40,3 +40,7 @@ export type { AioCitationsConfig, AioCitationsResult, CitationFinding } from './
 // Plan 06-03: FAQPage JSON-LD utility (utility only; Phase 8 SSR injects into <head>)
 export { buildFaqJsonLd, serializeFaqJsonLd } from './plugins/faq-jsonld.js'
 export type { FaqItem } from './plugins/faq-jsonld.js'
+
+// Plan 06-04: geo-chunking plugin (self-registers on export; same pattern as seo-classic)
+export { scoreGeoChunking } from './plugins/geo-chunking.js'
+export type { GeoChunkingConfig, GeoChunkingResult } from './plugins/geo-chunking.js'
