@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
-status: Phase 07 planned 2026-04-27, ready to execute
-stopped_at: Phase 07 planned — 6 plans, 3 waves, executing
-last_updated: "2026-04-27T04:00:00Z"
-last_activity: 2026-04-27 -- Phase 07 (AI Assistant + Anti-Fabrication) planned — 6 plans, executing
+status: Phase 07 complete 2026-04-27, ready for Phase 08
+stopped_at: Phase 07 verified — 6 plans complete, 229 tests pass
+last_updated: "2026-04-27T05:30:00Z"
+last_activity: 2026-04-27 -- Phase 07 (AI Assistant + Anti-Fabrication) complete — LiteLLM gateway, 20 AI features, anti-fab guards, brand voice, PII redactor, prompt guard
 progress:
   total_phases: 13
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 43
-  completed_plans: 37
-  percent: 86
+  completed_plans: 43
+  percent: 100
 ---
 
 # Project State
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 07 (ai-assistant-anti-fabrication) — EXECUTING
-Status: Phase 07 planned 2026-04-27 — 6/6 plans, 3 waves, executing Wave 1
-Last activity: 2026-04-27 -- Phase 07 (AI Assistant + Anti-Fabrication) plans created — LiteLLM gateway, 20 AI features, anti-fab guards, brand voice, PII redactor, prompt guard
+Phase: 08 (public-frontend) — NOT STARTED
+Status: Phase 07 complete 2026-04-27 — 6/6 plans, 229 tests pass, VERIFICATION.md created
+Last activity: 2026-04-27 -- Phase 07 (AI Assistant + Anti-Fabrication) complete — cost-cap, 20 editor actions, anti-fab validators, brand_voice collection, PII redactor, prompt guard
 
 Progress: [██████████] 100%
 
@@ -41,6 +41,7 @@ Progress: [██████████] 100%
 | 04 (design-system) | 4/5 done | 6-layer CSS tokens, 12 OKLCH themes, AJV validator, A/B framework, Storybook CI | ✓ (04-02 summary missing) |
 | 05 (central-cms) | 8/8 | Payload CMS wired, 11 collections, 45 blocks, Lexical editor, DAM, content sprint | ✓ |
 | 06 (seo-plugin-engine) | 6/6 | 3 SEO plugins, merge-patch config, SeoPanel live scoring, self-learning loop, algo watcher | ✓ |
+| 07 (ai-assistant) | 6/6 | LiteLLM gateway, 20 editor AI features, anti-fab validators, brand voice, PII redactor, prompt guard | ✓ |
 
 ## Performance Metrics
 
@@ -102,6 +103,12 @@ Progress: [██████████] 100%
 - Pipeline order in generate-content.ts: guardPrompt() → redactPii() → fetch LiteLLM
 - Per-agency LiteLLM key: LITELLM_API_KEY_${agencyId.toUpperCase()} env var; falls back to LITELLM_API_KEY
 - Monthly spend Redis key: agency:<id>:ai:monthly-spend; reset by BullMQ cron '0 0 1 * *'
+- Phase 7 pipeline order in generate-content.ts: guardPrompt() → redactPii() → checkAgencyCostCap() → fetch LiteLLM
+- LLM output is NOT auto-de-tokenized — PII tokens stay in AI output for safety
+- PromptInjectionError returns user-friendly message "This input cannot be processed. Please rephrase." (not a crash)
+- Quote attribution allows plain parenthetical (Source Name Year) and "said Name" — stat citations still require verifiable hyperlinks
+- brand_voice + brand_glossary tables require live DB + `CI=true PAYLOAD_MIGRATING=true npx payload migrate`
+- lexical-features.ts pre-existing renames fixed in 07-04 (AlignmentFeature, BoldTextFeature etc. — 5 pre-existing issues resolved)
 
 ### Pending Todos
 
@@ -125,4 +132,4 @@ Last session: 2026-04-27T02:26:08Z
 Stopped at: Completed 06-06: algo_alerts collection + RSS algorithm watcher + BullMQ 6h cron + GUID dedup
 Resume file: None
 
-Next step: Execute Phase 07 plans — Wave 1 (07-01), Wave 2 (07-02/03/04/05), Wave 3 (07-06)
+Next step: `/gsd-plan-phase 8` (Phase 08: Public Frontend + Page Tree)

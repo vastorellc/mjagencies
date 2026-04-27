@@ -20,6 +20,7 @@ See `.planning/REQUIREMENTS.md` for the full traceable list (REQ-001…REQ-507).
 - **Phase 04 (design-system):** 6-layer CSS tokens, 12 OKLCH themes, AJV validator, A/B framework, Storybook CI — 4/5 plans (04-02 summary deferred)
 - **Phase 05 (central-cms):** Payload CMS wired, 11 collections, 45 blocks, Lexical editor, DAM, content sprint — 8/8 plans
 - **Phase 06 (seo-plugin-engine):** 3 SEO plugins (seo-classic, aio-citations, geo-chunking), merge-patch config, SeoPanel live scoring, self-learning loop, algo watcher — 6/6 plans, 67/67 tests pass
+- **Phase 07 (ai-assistant):** LiteLLM gateway (per-agency cost caps, 4-tier model routing), 20 editor AI features, anti-fab validators, brand_voice + brand_glossary collections, PII redactor, prompt injection guard — 6/6 plans, 229/229 tests pass
 
 ### Active
 
@@ -79,4 +80,4 @@ Remaining v1 requirements (Phases 7–13) mapped in ROADMAP.md. Phases 1–6 val
 | Git branch per milestone, squash to main on complete | Milestone-level rollback unit; squashed history stays readable | — Pending |
 
 ---
-*Last updated: 2026-04-27 after Phase 06 (seo-plugin-engine) complete — 6 phases done, Phase 07 next*
+*Last updated: 2026-04-27 after Phase 07 (ai-assistant) complete — 7 phases done, Phase 08 next*
