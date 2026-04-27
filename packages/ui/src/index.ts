@@ -44,6 +44,10 @@ export { marketplaceStub } from './marketplace/stub.js';
 // Plan 05-03c: 45-block library
 export * from './blocks/index.js';
 
+// Plan 10-07: Puck builder block config registry — all blocks with DOMPurify sanitization
+export { getBlockConfig } from './blocks/get-block-config.js';
+export type { MjBlockConfig, PuckComponentEntry } from './blocks/get-block-config.js';
+
 // Plan 08-01: WebVitalsReporter — RUM component for all 12 agency apps (REQ-097)
 export { WebVitalsReporter } from './rum/web-vitals.js';
 

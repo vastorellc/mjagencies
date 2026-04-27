@@ -52,3 +52,7 @@ export type { SelfLearningJobData } from './self-learning/worker.js'
 // Plan 06-06: algorithm watcher RSS feed processor (REQ-074)
 export { processRssFeed } from './algo-watcher/rss.js'
 export type { AlgoAlert } from './algo-watcher/rss.js'
+
+// Plan 10-07: computeLiveScore() adapter for Puck builder SEO widget
+export { computeLiveScore } from './actions/compute-live-score.js'
+export type { ComputeLiveScoreInput, ComputeLiveScoreOutput } from './actions/compute-live-score.js'
