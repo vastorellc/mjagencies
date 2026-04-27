@@ -14,12 +14,13 @@
  * Phase 7 (this file): per-agency API key, model routing by tier, monthly cost cap enforcement,
  *   LiteLLM budget metadata tagging. All new fields are optional — Phase 5/6 callers unchanged.
  *
- * Pipeline order (Phase 7): checkAgencyCostCap → redactPii → fetch LiteLLM → recordAgencySpend
+ * Pipeline order (Phase 7): checkAgencyCostCap → guardPrompt → redactPii → fetch LiteLLM → recordAgencySpend
  */
 import type { ModelTier } from './model-routing.js'
 import { getModelForTier } from './model-routing.js'
 import { checkAgencyCostCap, recordAgencySpend, getAgencyLiteLLMKey } from './cost-cap.js'
 import { redactPii } from './pii-redactor.js'
+import { guardPrompt, PromptInjectionError } from './prompt-guard.js'
 
 export interface GenerateContentParams {
   /** Prompt describing what to generate */
@@ -124,8 +125,15 @@ export async function generateContent(params: GenerateContentParams): Promise<Ge
   // System prompt: use override if provided, else anti-fabrication default
   const sysPrompt = params.systemPrompt ?? ANTI_FAB_SYSTEM_PROMPT
 
-  // Phase 7 — redact PII from prompt + systemPrompt before LiteLLM call (REQ-084)
-  const redactedPrompt = redactPii(prompt).redacted
+  // Phase 7 — guard against prompt injection BEFORE redacting PII (REQ-085)
+  const guard = guardPrompt(prompt)
+  if (!guard.safe) {
+    throw new PromptInjectionError(guard.reason ?? 'Prompt injection attempt detected')
+  }
+
+  // Phase 7 — redact PII from (XML-wrapped) prompt + systemPrompt before LiteLLM call (REQ-084)
+  // guard.sanitized contains <user_content>...</user_content> wrapping
+  const redactedPrompt = redactPii(guard.sanitized).redacted
   const redactedSystemPrompt = redactPii(sysPrompt).redacted
 
   const response = await fetch(`${litellmUrl}/chat/completions`, {

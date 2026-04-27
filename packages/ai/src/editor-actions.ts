@@ -6,6 +6,7 @@
  */
 import { generateContent } from './generate-content.js'
 import { AiBudgetExceededError } from './cost-cap.js'
+import { PromptInjectionError } from './prompt-guard.js'
 import type { ModelTier } from './model-routing.js'
 
 export interface AiEditorActionResult {
@@ -48,6 +49,14 @@ async function runAction(
         text: 'AI budget exceeded for this agency.',
         model: 'budget-exceeded',
         error: 'budget-exceeded',
+      }
+    }
+    if (err instanceof PromptInjectionError) {
+      return {
+        success: false,
+        text: 'This input cannot be processed. Please rephrase.',
+        model: 'guard-blocked',
+        error: 'generation-failed',
       }
     }
     return { success: false, text: '', model: 'error', error: 'generation-failed' }
