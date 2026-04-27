@@ -50,7 +50,11 @@ function scoreTitleLength(
   if (len === 0) {
     return {
       pts: 0,
-      finding: { rule: 'title-length', passed: false, detail: 'No title tag found — add a title between 40–60 characters.' },
+      finding: {
+        rule: 'title-length',
+        passed: false,
+        detail: `No title tag found — add a title between ${config.titleMinChars}–${config.titleMaxChars} characters.`,
+      },
     }
   }
   if (len >= config.titleMinChars && len <= config.titleMaxChars) {
@@ -76,7 +80,11 @@ function scoreMetaDescription(
   if (len === 0) {
     return {
       pts: 0,
-      finding: { rule: 'meta-description', passed: false, detail: 'No meta description found — add one between 120–160 characters.' },
+      finding: {
+        rule: 'meta-description',
+        passed: false,
+        detail: `No meta description found — add one between ${config.metaDescMinChars}–${config.metaDescMaxChars} characters.`,
+      },
     }
   }
   if (len >= config.metaDescMinChars && len <= config.metaDescMaxChars) {
