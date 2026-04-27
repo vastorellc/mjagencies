@@ -897,22 +897,25 @@ export async function processRssFeed(
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **One or twelve algo_alerts collections / RSS feed configs?**
    - What we know: D-10/D-12 say "global collection" and "instance-level" keyword config — not per-agency.
    - What's unclear: Does each agency's admin see alerts? Or only super_admin? Context says super_admin only, but Payload admin grouping may need clarification.
    - Recommendation: Implement as super_admin-only global collection. If per-agency visibility is needed later, add `agency_id` filter.
+   - RESOLVED: Single global `algo_alerts` collection, `superAdminOnly` access on all operations. No `agency_id` field. Implemented in plan 06-06.
 
 2. **Self-learning loop GSC/GA4 credential provisioning (REQ-073)**
    - What we know: Service account JSON key required per agency; scope `webmasters.readonly` + GA4 Viewer.
    - What's unclear: Are GSC and GA4 credentials per-agency (each agency has its own property) or single-account? This affects whether `GSC_SERVICE_ACCOUNT_KEY` is one env var or per-agency Doppler secret.
    - Recommendation: Treat as per-agency Doppler secret (`GSC_SERVICE_ACCOUNT_KEY_<AGENCY_ID>`). Worker looks up key by agencyId from env.
+   - RESOLVED: Per-agency Doppler secrets `GSC_SERVICE_ACCOUNT_KEY_<AGENCY_SLUG>` and `GA4_PROPERTY_ID_<AGENCY_SLUG>`. Worker iterates all agencies and skips any without credentials configured. Implemented in plan 06-05.
 
 3. **`useAllFormFields` availability in Payload 3.82.1 vs. 3.84.x**
    - What we know: Payload is pinned to 3.82.1 (CLAUDE.md Rule 1). Current `@payloadcms/ui` on npm is 3.84.1.
    - What's unclear: Whether `useAllFormFields` export exists in the pinned 3.82.1 package or was added later.
    - Recommendation: Verify by checking the installed package: `grep -r "useAllFormFields" node_modules/@payloadcms/ui/src/`. If absent in 3.82.1, fall back to `useDocumentInfo` with serialized `docConfig` for content extraction (existing Phase 5 pattern extended).
+   - RESOLVED: Executor MUST verify availability with `grep -r "useAllFormFields" node_modules/@payloadcms/ui/src/` before implementing SeoPanel. If absent, fall back to `useDocumentInfo` pattern. Documented as first step in 06-01 Task 2 SeoPanel action.
 
 ---
 
