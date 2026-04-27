@@ -16,7 +16,18 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
+  "dependencies": {
+    "@mjagency/db": "workspace:*",
+    "@mjagency/queue": "workspace:*",
+    "@mjagency/config": "workspace:*",
+    "payload": "3.82.1"
+  },
+  "peerDependencies": {
+    "next": ">=15.0.0",
+    "payload": "3.82.1"
+  },
   "devDependencies": {
+    "@mjagency/testing": "workspace:*",
     "@types/node": "22.9.0",
     "typescript": "5.6.3",
     "vitest": "2.1.8"
