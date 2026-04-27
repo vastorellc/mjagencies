@@ -44,3 +44,7 @@ createEncryptedWorker<ScheduledPublishJobData>(
 // Phase 6: SEO self-learning repeatable job (REQ-073)
 import { registerSelfLearning } from './src/jobs/self-learning.js'
 await registerSelfLearning()
+
+// Phase 6: Algorithm watcher repeatable job (REQ-074)
+import { registerAlgoWatcher } from './src/jobs/algo-watcher.js'
+await registerAlgoWatcher()
