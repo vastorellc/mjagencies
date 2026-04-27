@@ -19,6 +19,7 @@ import {
   validatePlaybookNumbers,
   validateFtcDisclaimer,
   validateFtcTestimonial,
+  validateAioTldr,
 } from '../hooks/content-validators.js'
 import { schedulePublishHook } from '../hooks/scheduled-publish.js'
 
@@ -68,6 +69,7 @@ export const pagesCollection: CollectionConfig = {
       validatePlaybookNumbers,
       validateFtcDisclaimer,
       validateFtcTestimonial,
+      validateAioTldr, // Phase 6 — REQ-075
     ],
     afterChange: [schedulePublishHook],
   },
@@ -162,6 +164,24 @@ export const pagesCollection: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description: 'AIO TL;DR — required on all indexable pages (REQ-055).',
+      },
+    },
+    {
+      name: 'focus_keyword',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Focus keyword for SEO scoring — seo-classic keyword density analysis (REQ-070).',
+      },
+    },
+    {
+      name: 'faqs',
+      type: 'relationship',
+      relationTo: 'faqs',
+      hasMany: true,
+      admin: {
+        description:
+          'FAQ items for FAQPage JSON-LD structured data (REQ-076, D-07). buildFaqJsonLd() in Phase 8 SSR reads these.',
       },
     },
     {

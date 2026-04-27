@@ -4,9 +4,9 @@
  * Barrel export for all core Payload CMS collections.
  * CORE_COLLECTIONS is the array passed to `buildPayloadConfig({ collections })`.
  *
- * 11 collections in canonical order (matches specs/cms.md CORE COLLECTIONS):
+ * 12 collections in canonical order (matches specs/cms.md CORE COLLECTIONS):
  *   pages, posts, authors, categories, media_assets, tools,
- *   forms, redirects, settings, templates, global_blocks
+ *   forms, redirects, settings, faqs, templates, global_blocks
  */
 import type { CollectionConfig } from 'payload'
 import { pagesCollection } from './pages.js'
@@ -18,6 +18,7 @@ import { toolsCollection } from './tools.js'
 import { formsCollection } from './forms.js'
 import { redirectsCollection } from './redirects.js'
 import { settingsCollection } from './settings.js'
+import { faqsCollection } from './faqs.js'
 import { templatesCollection } from './templates.js'
 import { globalBlocksCollection } from './global-blocks.js'
 
@@ -31,6 +32,7 @@ export const CORE_COLLECTIONS: CollectionConfig[] = [
   formsCollection,
   redirectsCollection,
   settingsCollection,
+  faqsCollection,
   templatesCollection,
   globalBlocksCollection,
 ]
@@ -45,6 +47,7 @@ export {
   formsCollection,
   redirectsCollection,
   settingsCollection,
+  faqsCollection,
   templatesCollection,
   globalBlocksCollection,
 }

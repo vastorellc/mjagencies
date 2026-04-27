@@ -23,6 +23,7 @@ import {
   validatePlaybookNumbers,
   validateFtcDisclaimer,
   validateFtcTestimonial,
+  validateAioTldr,
   FTC_DISCLAIMER_TEXT,
   FTC_TESTIMONIAL_DISCLAIMER,
 } from '../hooks/content-validators.js'
@@ -326,5 +327,42 @@ describe('validateFtcTestimonial (REQ-421)', () => {
     expect(FTC_TESTIMONIAL_DISCLAIMER).toBe(
       'Individual results may vary. Testimonials are not necessarily representative of all users.'
     )
+  })
+})
+
+// ---------------------------------------------------------------------------
+// validateAioTldr (REQ-075)
+// ---------------------------------------------------------------------------
+describe('validateAioTldr', () => {
+  // Helper: build hook args matching Payload CollectionBeforeOperationHook shape
+  const makeArgs = (data: Record<string, unknown>, operation: string) => ({
+    args: { data },
+    operation,
+  })
+
+  it('throws when aio_tldr is blank and status is published', async () => {
+    await expect(
+      validateAioTldr(makeArgs({ status: 'published', aio_tldr: '' }, 'update') as never)
+    ).rejects.toThrow('AIO TL;DR is required')
+  })
+
+  it('throws when aio_tldr exceeds 120 characters and status is published', async () => {
+    const longTldr = 'a'.repeat(121)
+    await expect(
+      validateAioTldr(makeArgs({ status: 'published', aio_tldr: longTldr }, 'update') as never)
+    ).rejects.toThrow('AIO TL;DR must be ≤120 characters')
+  })
+
+  it('does not throw when status is draft (aio_tldr enforcement skipped)', async () => {
+    await expect(
+      validateAioTldr(makeArgs({ status: 'draft', aio_tldr: '' }, 'update') as never)
+    ).resolves.toBeUndefined()
+  })
+
+  it('does not throw when aio_tldr is exactly 120 characters and status is published', async () => {
+    const exactTldr = 'a'.repeat(120)
+    await expect(
+      validateAioTldr(makeArgs({ status: 'published', aio_tldr: exactTldr }, 'update') as never)
+    ).resolves.toBeUndefined()
   })
 })

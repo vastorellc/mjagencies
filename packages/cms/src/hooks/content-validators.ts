@@ -175,3 +175,34 @@ export const validateFtcTestimonial: CollectionBeforeOperationHook = async ({ ar
     )
   }
 }
+
+/**
+ * Validates AIO TL;DR field at publish time (REQ-075).
+ * Blocks publish if aio_tldr is blank or >120 chars on indexable pages.
+ * Legal pages are exempt (they may not be AI-indexed).
+ *
+ * Does NOT enforce on draft/review/scheduled status — only on 'published'.
+ */
+export const validateAioTldr: CollectionBeforeOperationHook = async ({ args, operation }) => {
+  if (operation !== 'create' && operation !== 'update') return
+  const data = args.data as Record<string, unknown> | undefined
+  if (!data) return
+
+  if (data['status'] !== 'published') return // draft/review: no enforcement
+
+  const pageType = (data['page_type'] as string | undefined) ?? 'blog'
+  const noIndexPageTypes = ['legal'] // legal pages exempt from TL;DR requirement
+  if (noIndexPageTypes.includes(pageType)) return
+
+  const tldr = data['aio_tldr'] as string | undefined
+  if (!tldr || tldr.trim().length === 0) {
+    throw new Error(
+      'AIO TL;DR is required on all indexable pages before publishing (REQ-075).',
+    )
+  }
+  if (tldr.length > 120) {
+    throw new Error(
+      `AIO TL;DR must be ≤120 characters (current: ${tldr.length}) (REQ-075).`,
+    )
+  }
+}
