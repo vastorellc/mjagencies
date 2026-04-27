@@ -3,6 +3,7 @@
 import { buildPayloadConfig, CORE_COLLECTIONS } from '@mjagency/cms'
 import { crmCollections } from '@mjagency/crm'
 import { emailCollections } from '@mjagency/email'
+import { bookingCollections } from '@mjagency/booking'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -13,6 +14,5 @@ export default buildPayloadConfig({
   dirname,
   databaseUrl: process.env['DATABASE_URL'] ?? '',
   secret: process.env['PAYLOAD_SECRET'] ?? '',
-  collections: [...CORE_COLLECTIONS, ...crmCollections, ...emailCollections],
-  // Plan 05-04: lexicalEditor with full feature set + PAYLOAD_BLOCKS now wired inside buildPayloadConfig()
+  collections: [...CORE_COLLECTIONS, ...crmCollections, ...emailCollections, ...bookingCollections],
 })
