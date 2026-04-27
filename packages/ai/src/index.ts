@@ -50,3 +50,13 @@ export { getBrandVoiceContext } from './brand-context.js'
 // Phase 7: PII redactor — strips email/phone/SSN/CC/IP before LiteLLM calls (REQ-084)
 export { redactPii, restoreFromTokens, PII_PATTERNS } from './pii-redactor.js'
 export type { PiiRedactionResult } from './pii-redactor.js'
+
+// Phase 7: prompt guard — XML wrapping + jailbreak classifier (REQ-085)
+export {
+  guardPrompt,
+  detectJailbreakAttempt,
+  wrapUserInput,
+  JAILBREAK_PATTERNS,
+  PromptInjectionError,
+} from './prompt-guard.js'
+export type { GuardResult } from './prompt-guard.js'
