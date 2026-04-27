@@ -18,6 +18,8 @@ import {
   validateFtcDisclaimer,
   validateFtcTestimonial,
 } from '../hooks/content-validators.js'
+import { validateStatSources, validateQuoteSources, validateNoPlaceholders } from '../hooks/anti-fab-validators.js'
+import { computeAiContentRatio } from '../hooks/ai-disclosure.js'
 import { schedulePublishHook } from '../hooks/scheduled-publish.js'
 
 const AGENCY_ID_FIELD: Field = {
@@ -66,6 +68,10 @@ export const postsCollection: CollectionConfig = {
       validatePlaybookNumbers,
       validateFtcDisclaimer,
       validateFtcTestimonial,
+      validateStatSources,      // Phase 7 — REQ-082
+      validateQuoteSources,     // Phase 7 — REQ-082
+      validateNoPlaceholders,   // Phase 7 — REQ-082
+      computeAiContentRatio,    // Phase 7 — REQ-086, REQ-409
     ],
     afterChange: [schedulePublishHook],
   },
@@ -147,6 +153,35 @@ export const postsCollection: CollectionConfig = {
       name: 'featured_image',
       type: 'upload',
       relationTo: 'media_assets',
+    },
+    {
+      name: 'ai_content_ratio',
+      type: 'number',
+      min: 0,
+      max: 1,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        description: 'Auto-computed AI content ratio (REQ-409). Set by computeAiContentRatio hook.',
+      },
+    },
+    {
+      name: 'ai_disclosure_required',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        description: 'Auto-set when ai_content_ratio > 0.70 (REQ-086). Triggers disclosure UI on public page.',
+      },
+    },
+    {
+      name: 'ai_generated_fields',
+      type: 'json',
+      admin: {
+        readOnly: true,
+        description: 'Array of field names produced by AI (e.g. ["title","content"]). Used to compute ai_content_ratio.',
+      },
     },
   ],
 }
