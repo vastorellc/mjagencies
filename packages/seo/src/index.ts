@@ -48,3 +48,7 @@ export type { GeoChunkingConfig, GeoChunkingResult } from './plugins/geo-chunkin
 // Plan 06-05: self-learning loop worker (REQ-073)
 export { runSelfLearningForAgency } from './self-learning/worker.js'
 export type { SelfLearningJobData } from './self-learning/worker.js'
+
+// Plan 06-06: algorithm watcher RSS feed processor (REQ-074)
+export { processRssFeed } from './algo-watcher/rss.js'
+export type { AlgoAlert } from './algo-watcher/rss.js'
