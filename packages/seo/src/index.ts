@@ -32,3 +32,11 @@ export { getAgencySeoConfig, setAgencySeoConfig, deleteSeoConfigCache } from './
 // fully initialized before the side-effect import runs.
 export { scoreSeoClassic } from './plugins/seo-classic.js'
 export type { SeoClassicConfig, SeoClassicResult } from './plugins/seo-classic.js'
+
+// Plan 06-03: aio-citations plugin (self-registers on export; same pattern as seo-classic)
+export { scoreAioCitations } from './plugins/aio-citations.js'
+export type { AioCitationsConfig, AioCitationsResult, CitationFinding } from './plugins/aio-citations.js'
+
+// Plan 06-03: FAQPage JSON-LD utility (utility only; Phase 8 SSR injects into <head>)
+export { buildFaqJsonLd, serializeFaqJsonLd } from './plugins/faq-jsonld.js'
+export type { FaqItem } from './plugins/faq-jsonld.js'

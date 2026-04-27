@@ -85,13 +85,22 @@ describe('scoreAioCitations', () => {
   it('2 total stats, 1 unsourced → score = 50', () => {
     const stat1 = 'According to research, 42% of users prefer mobile sites that load quickly'
     const stat2 = 'Studies show that 3 out of 4 consumers trust online reviews as much as personal recommendations'
-    // lexicalRaw has a link near stat2 only
+    // The adjacency algorithm checks a window of ~400 chars (100 before + 300 after the stat snippet).
+    // To reliably have only stat2 sourced (with a link), we must place the link at least 300+ chars
+    // AFTER stat1's position in the JSON so it falls outside stat1's window but inside stat2's window.
+    // We achieve this by placing a large padding text node between the two paragraphs.
+    const padding = 'x'.repeat(400) // 400 chars of filler to push stat2's link beyond stat1's window
     const lexicalRaw = {
       root: {
         children: [
           {
             type: 'paragraph',
             children: [{ type: 'text', text: stat1 }],
+          },
+          {
+            // Padding paragraph to push stat2's link out of stat1's detection window
+            type: 'paragraph',
+            children: [{ type: 'text', text: padding }],
           },
           {
             type: 'paragraph',
