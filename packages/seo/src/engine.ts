@@ -4,6 +4,8 @@
  * Plugin engine orchestrator — runs all three SEO plugins and aggregates scores.
  * Plugin registry is populated by plans 02–04 via registerPlugin().
  * Until then, unregistered plugins return score: 0.
+ *
+ * Side-effect imports below auto-register plugins on first import of this module.
  */
 import { parseLexicalJson } from './lexical-parser.js'
 import type { LexicalExtracts } from './lexical-parser.js'

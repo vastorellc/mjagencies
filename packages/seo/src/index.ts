@@ -25,3 +25,10 @@ export type {
 } from './plugin-defaults.js'
 
 export { getAgencySeoConfig, setAgencySeoConfig, deleteSeoConfigCache } from './config-cache.js'
+
+// Auto-register all plugins on import of this barrel.
+// Kept in index.ts (not engine.ts) to avoid circular ESM import issues:
+// seo-classic.ts calls registerPlugin() from engine.ts — engine.ts must be
+// fully initialized before the side-effect import runs.
+export { scoreSeoClassic } from './plugins/seo-classic.js'
+export type { SeoClassicConfig, SeoClassicResult } from './plugins/seo-classic.js'
