@@ -14,9 +14,16 @@
   "scripts": {
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@mjagency/queue": "workspace:*",
+    "@mjagency/config": "workspace:*",
+    "isomorphic-dompurify": "^2.15.0",
+    "payload": "3.82.1"
   },
   "devDependencies": {
+    "@mjagency/testing": "workspace:*",
     "@types/node": "22.9.0",
     "typescript": "5.6.3",
     "vitest": "2.1.8"
