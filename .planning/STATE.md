@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
 status: completed
-stopped_at: "Completed 06-04: geo-chunking plugin — three-plugin SEO engine complete"
-last_updated: "2026-04-27T02:01:14Z"
-last_activity: 2026-04-27 -- Plan 06-04 complete — geo-chunking scoring plugin, 19 tests, all 3 plugins now registered
+stopped_at: "Completed 06-05: self-learning loop — GSC/GA4 signals + BullMQ daily cron + seo_suggestions collection"
+last_updated: "2026-04-27T02:17:58.966Z"
+last_activity: 2026-04-27 -- Plan 06-05 complete — self-learning loop, seo_suggestions collection, BullMQ daily cron
 progress:
   total_phases: 13
   completed_phases: 5
   total_plans: 37
-  completed_plans: 35
-  percent: 95
+  completed_plans: 36
+  percent: 97
 ---
 
 # Project State
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Every page, every agency, every image slot is 100% real and complete at launch — only the Brand Setup Wizard remains for the user post-generate.
-**Current focus:** Phase 06 — seo-plugin-engine (executing — 4/6 plans complete)
+**Current focus:** Phase 06 — seo-plugin-engine (executing — 5/6 plans complete)
 
 ## Current Position
 
-Phase: 06 (seo-plugin-engine) — EXECUTING, 4/6 plans complete (06-01, 06-02, 06-03, 06-04 done)
-Status: Plan 06-04 complete 2026-04-27 — geo-chunking plugin, 3-plugin engine now complete
-Last activity: 2026-04-27 -- Plan 06-04 complete — geo-chunking scoring plugin, 19 tests, all 3 plugins registered
+Phase: 06 (seo-plugin-engine) — EXECUTING, 5/6 plans complete (06-01, 06-02, 06-03, 06-04, 06-05 done)
+Status: Plan 06-05 complete 2026-04-27 — self-learning loop, seo_suggestions collection, BullMQ daily cron
+Last activity: 2026-04-27 -- Plan 06-05 complete — self-learning loop, seo_suggestions collection, BullMQ daily cron
 
-Progress: [█████████░] 86%
+Progress: [█████████░] 97%
 
 ## Completed Phases
 
@@ -62,6 +62,7 @@ Progress: [█████████░] 86%
 | Phase 06-seo-plugin-engine P02 | 5 | 3 commits (TDD) | 4 files |
 | Phase 06-seo-plugin-engine P03 | 6 | 3 commits (TDD+feat) | 10 files |
 | Phase 06-seo-plugin-engine P04 | 3 | 3 commits (TDD) | 3 files |
+| Phase 06-seo-plugin-engine P05 | 15 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,9 @@ Progress: [█████████░] 86%
 - validateAioTldr exempt from legal pages; enforced only on status=published
 - geo-chunking plugin registration follows same index.ts export chain pattern (not engine.ts side-effect import) — consistent with seo-classic and aio-citations
 - Non-applicable short-circuit (pageType != services) checked before empty-cities check — blog/home pages always score 100 regardless of city config
+- seo_suggestions collection is global (superAdminOnly, no agency_id) — same pattern as algo-alerts
+- Self-learning worker uses auth.GoogleAuth from @googleapis/searchconsole AuthPlus (googleapis not installed)
+- generateContent() returns GenerateContentResult.text (not raw string); self-learning worker uses result.text
 
 ### Pending Todos
 
@@ -106,8 +110,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-27T02:01:14Z
-Stopped at: Completed 06-04: geo-chunking plugin — three-plugin SEO engine complete
+Last session: 2026-04-27T02:17:58.951Z
+Stopped at: Completed 06-05: self-learning loop — GSC/GA4 signals + BullMQ daily cron + seo_suggestions collection
 Resume file: None
 
-Next step: `/gsd-execute-phase 6` (continue with plan 06-05: self-learning loop / GSC-GA4 signals)
+Next step: `/gsd-execute-phase 6` (continue with plan 06-06: algo-alerts collection + RSS algorithm watcher)
