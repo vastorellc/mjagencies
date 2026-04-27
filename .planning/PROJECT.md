@@ -14,11 +14,16 @@ See `.planning/REQUIREMENTS.md` for the full traceable list (REQ-001…REQ-507).
 
 ### Validated
 
-(None yet — pre-build)
+- **Phase 01 (foundation-infra):** Turborepo monorepo, Next.js 15, Payload CMS 3.82.1, Docker Compose, CI/CD, OTel — 5/6 plans (01-06 Doppler deferred)
+- **Phase 02 (multi-tenant-db):** Per-agency Postgres + PgBouncer + Drizzle schema + RLS + audit log — 6/6 plans
+- **Phase 03 (auth-sso-edge):** JWT/jose auth, MFA, SSO, Cloudflare middleware, server-action auth pattern — 6/6 plans
+- **Phase 04 (design-system):** 6-layer CSS tokens, 12 OKLCH themes, AJV validator, A/B framework, Storybook CI — 4/5 plans (04-02 summary deferred)
+- **Phase 05 (central-cms):** Payload CMS wired, 11 collections, 45 blocks, Lexical editor, DAM, content sprint — 8/8 plans
+- **Phase 06 (seo-plugin-engine):** 3 SEO plugins (seo-classic, aio-citations, geo-chunking), merge-patch config, SeoPanel live scoring, self-learning loop, algo watcher — 6/6 plans, 67/67 tests pass
 
 ### Active
 
-All v1 requirements REQ-001 through REQ-507 mapped across 12 milestones (Phases 1–12 in ROADMAP.md).
+Remaining v1 requirements (Phases 7–13) mapped in ROADMAP.md. Phases 1–6 validated above.
 
 ### Out of Scope
 
@@ -74,4 +79,4 @@ All v1 requirements REQ-001 through REQ-507 mapped across 12 milestones (Phases 
 | Git branch per milestone, squash to main on complete | Milestone-level rollback unit; squashed history stays readable | — Pending |
 
 ---
-*Last updated: 2026-04-25 after `.planning/` bootstrap from `mjagency/` GSD-2 docs*
+*Last updated: 2026-04-27 after Phase 06 (seo-plugin-engine) complete — 6 phases done, Phase 07 next*
