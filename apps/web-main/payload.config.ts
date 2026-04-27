@@ -2,6 +2,7 @@
 // Pinned: payload 3.82.1 — DO NOT UPGRADE (CLAUDE.md §1, REQ-050, REQ-500)
 import { buildPayloadConfig, CORE_COLLECTIONS } from '@mjagency/cms'
 import { crmCollections } from '@mjagency/crm'
+import { emailCollections } from '@mjagency/email'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -12,6 +13,6 @@ export default buildPayloadConfig({
   dirname,
   databaseUrl: process.env['DATABASE_URL'] ?? '',
   secret: process.env['PAYLOAD_SECRET'] ?? '',
-  collections: [...CORE_COLLECTIONS, ...crmCollections],
+  collections: [...CORE_COLLECTIONS, ...crmCollections, ...emailCollections],
   // Plan 05-04: lexicalEditor with full feature set + PAYLOAD_BLOCKS now wired inside buildPayloadConfig()
 })
