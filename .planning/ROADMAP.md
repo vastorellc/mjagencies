@@ -170,12 +170,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 07-01: LiteLLM gateway — per-agency cost caps, model routing
-- [ ] 07-02: 20 editor AI features (draft, rewrite, shorten, expand, etc.)
-- [ ] 07-03: Anti-fabrication guards — stat detector, quote detector, placeholder lint
-- [ ] 07-04: Brand voice + glossary + banned phrases per agency
-- [ ] 07-05: PII redactor before LLM calls
-- [ ] 07-06: Prompt-injection protection — XML wrapping + jailbreak classifier
+- [ ] 07-01-PLAN.md (Wave 1) — LiteLLM gateway: per-agency cost caps via Redis counter, model routing tiers (tier1-bulk/tier2-writing/tier2-research/tier3-max), monthly BullMQ reset cron (REQ-080)
+- [ ] 07-02-PLAN.md (Wave 2) — 20 AI editor server actions wired to AiPanel.tsx (draft/rewrite/shorten/expand/simplify/grammar/3 tones/summarize/meta-desc/H2/FAQ/CTA/translate/transition/bullets/counter-arg/stat-suggest/brand-voice-rewrite) (REQ-081)
+- [ ] 07-03-PLAN.md (Wave 2) — Anti-fab validators (stat sources, quote sources, placeholder lint) + AI disclosure ratio compute (REQ-082, REQ-086, REQ-409)
+- [ ] 07-04-PLAN.md (Wave 2) — brand_voice + brand_glossary Payload collections + getBrandVoiceContext() loader; [BLOCKING] payload migrate (REQ-083)
+- [ ] 07-05-PLAN.md (Wave 2) — PII redactor (email/phone/SSN/CC/IP) wired into generate-content.ts before fetch (REQ-084)
+- [ ] 07-06-PLAN.md (Wave 3) — Prompt-injection guard: XML wrapping + jailbreak classifier; PromptInjectionError caught in editor-actions (REQ-085)
 
 ### Phase 8: Public Frontend + Page Tree
 **Goal**: 12 agency Next.js apps live at their subdomains with ISR, image pipeline, RUM, WCAG, all P0 pages real and complete.
