@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
 status: executing Phase 09 crm-forms-booking
-stopped_at: "Phase 09 plan 09-06 complete — Twilio SMS TCPA opt-in + encrypted queue + status webhook"
-last_updated: "2026-04-27T20:45:00Z"
-last_activity: 2026-04-27 -- Phase 09 plan 09-06 complete — packages/sms, TCPA guard, 11 Vitest tests
+stopped_at: "Phase 09 plan 09-03 complete — forms collections, public contact API, ContactFormClient WCAG, contact pages"
+last_updated: "2026-04-27T21:30:00Z"
+last_activity: 2026-04-27 -- Phase 09 plan 09-03 complete — @mjagency/forms, /api/contact (13 apps), ContactFormClient WCAG 2.2 AA, /contact pages (13 apps), formsCollections wired in all 12 payload.config.ts
 progress:
   total_phases: 13
   completed_phases: 8
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 09 (crm-forms-booking) — IN PROGRESS (plan 06 of 7 complete)
-Status: Executing Phase 09 — Wave 3 in progress
-Last activity: 2026-04-27 -- Phase 09 plan 09-06 complete (packages/sms, TCPA double opt-in, BullMQ encrypted queue, status webhook, 11 tests)
+Phase: 09 (crm-forms-booking) — IN PROGRESS (plans 01,02,03,04,05,06 complete; 09-07 pending)
+Status: Executing Phase 09 — plan 09-03 complete
+Last activity: 2026-04-27 -- Phase 09 plan 09-03 complete (@mjagency/forms package, /api/contact 13 apps, ContactFormClient WCAG, /contact pages 13 apps, payload.config.ts wired)
 
 Progress: [████████░░] 62% (8/13 phases complete)
 
@@ -120,6 +120,10 @@ Progress: [████████░░] 62% (8/13 phases complete)
 - Phone hashed SHA-256 before Redis key insertion — raw phone never appears in key names
 - TcpaConsentError thrown in SMS worker before any Twilio call — worker is the hard TCPA gate (not just queue-side check)
 - Twilio status webhook uses runtime = 'nodejs' (not Edge) — Twilio SDK requires Node.js
+- ContactFormClient uses 'use client' + fetch to /api/contact (not server action) — public form by design
+- Agency slug sourced from NEXT_PUBLIC_AGENCY_SLUG env var per Phase 8 pattern (not hardcoded AGENCY_ID)
+- forms + form_submissions collections use collectionAccess/deleteAccess/fieldImmutable pattern from @mjagency/crm
+- /api/contact honeypot protection only in Phase 09; rate limiting deferred to Phase 11
 
 ### Pending Todos
 
@@ -139,8 +143,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-27T12:00:00Z
-Stopped at: Phase 08 complete — all 7 plans done, 132 P0 page routes across 12 agency apps
+Last session: 2026-04-27T21:30:00Z
+Stopped at: Phase 09 plan 09-03 complete — forms builder, contact API, ContactFormClient, contact pages
 Resume file: None
 
-Next step: `/gsd-plan-phase 9` (Phase 09: CRM + Forms + Booking + Lead Routing)
+Next step: Plan 09-07 (remaining Phase 09 plan)
