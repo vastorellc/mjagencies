@@ -22,7 +22,7 @@
     "@aws-sdk/s3-request-presigner": "3.1037.0",
     "blurhash": "2.0.5",
     "cloudflare": "3.5.0",
-    "color-thief-node": "^2.0.2",
+    "color-thief-node": "1.0.4",
     "sharp": "^0.34.5"
   },
   "devDependencies": {
