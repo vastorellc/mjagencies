@@ -1,6 +1,6 @@
 {
   "workflow": {
-    "_auto_chain_active": false,
+    "_auto_chain_active": true,
     "auto_advance": true,
     "skip_discuss": true
   }

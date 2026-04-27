@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
-status: Phase 06 complete 2026-04-27, ready for Phase 07
-stopped_at: Phase 06 verified — 6 plans complete, 67/67 tests pass
-last_updated: "2026-04-27T03:00:00Z"
-last_activity: 2026-04-27 -- Phase 06 (SEO/AIO/GEO Plugin Engine) complete — 6/6 plans, 67 tests pass
+status: Phase 07 planned 2026-04-27, ready to execute
+stopped_at: Phase 07 planned — 6 plans, 3 waves, executing
+last_updated: "2026-04-27T04:00:00Z"
+last_activity: 2026-04-27 -- Phase 07 (AI Assistant + Anti-Fabrication) planned — 6 plans, executing
 progress:
   total_phases: 13
   completed_phases: 6
-  total_plans: 37
+  total_plans: 43
   completed_plans: 37
-  percent: 100
+  percent: 86
 ---
 
 # Project State
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 07 (ai-assistant-anti-fabrication) — NOT STARTED
-Status: Phase 06 complete 2026-04-27 — 6/6 plans, 67 tests pass, VERIFICATION.md created
-Last activity: 2026-04-27 -- Phase 06 (SEO/AIO/GEO Plugin Engine) complete — 3 plugins, self-learning loop, algo watcher
+Phase: 07 (ai-assistant-anti-fabrication) — EXECUTING
+Status: Phase 07 planned 2026-04-27 — 6/6 plans, 3 waves, executing Wave 1
+Last activity: 2026-04-27 -- Phase 07 (AI Assistant + Anti-Fabrication) plans created — LiteLLM gateway, 20 AI features, anti-fab guards, brand voice, PII redactor, prompt guard
 
 Progress: [██████████] 100%
 
@@ -96,6 +96,12 @@ Progress: [██████████] 100%
 - algoAlertsCollection is global (no agency_id), superAdminOnly x4 — algo intelligence must not leak to agency editors
 - No-match RSS items also marked seen via Redis pipeline SADD+EXPIRE — prevents reprocessing on every 6h poll
 - JSDoc cron expression avoids */6 sequence — TypeScript misparses as closing JSDoc comment block
+- generate-content.ts IS the LiteLLM gateway (no separate gateway.ts file) — Phase 7 extends it with agencyId/cost caps
+- Banned phrases are an avoid_phrases array field inside brand_glossary collection (not a separate banned-phrases collection)
+- computeAiContentRatio uses dynamic populatedTracked denominator (count of non-empty tracked fields per document, not a constant)
+- Pipeline order in generate-content.ts: guardPrompt() → redactPii() → fetch LiteLLM
+- Per-agency LiteLLM key: LITELLM_API_KEY_${agencyId.toUpperCase()} env var; falls back to LITELLM_API_KEY
+- Monthly spend Redis key: agency:<id>:ai:monthly-spend; reset by BullMQ cron '0 0 1 * *'
 
 ### Pending Todos
 
@@ -119,4 +125,4 @@ Last session: 2026-04-27T02:26:08Z
 Stopped at: Completed 06-06: algo_alerts collection + RSS algorithm watcher + BullMQ 6h cron + GUID dedup
 Resume file: None
 
-Next step: `/gsd-discuss-phase 7` or `/gsd-plan-phase 7` (Phase 07: AI Assistant + Anti-Fabrication)
+Next step: Execute Phase 07 plans — Wave 1 (07-01), Wave 2 (07-02/03/04/05), Wave 3 (07-06)
