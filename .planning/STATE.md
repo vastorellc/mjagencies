@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
-status: completed
-stopped_at: Completed 11-04-PLAN.md (Analytics dashboards — Surface 1 per-agency + Surface 2 platform overview, GA4+Postgres+RUM hybrid, 60s polling)
-last_updated: "2026-04-28T07:48:25.102Z"
-last_activity: 2026-04-28 -- Phase 11 plan 11-04 complete — Surface 1 per-agency + Surface 2 platform overview dashboards delivered as Payload custom admin view at /admin/dashboard; GA4+Postgres+RUM hybrid via Promise.allSettled; 60s polling with visibilityState gate; 4 atomic commits, 21/21 tests passing.
+status: Phase 11 COMPLETE — verified 44/45 (1 PARTIAL architectural). Phase 12 next.
+stopped_at: "Phase 11 COMPLETE — all 7 plans verified 44/45 PASS. 7 human-verification items deferred to Phase 12 launch QA (live API smoke tests, terraform apply, payload migrate)."
+last_updated: "2026-04-28T08:30:00Z"
+last_activity: 2026-04-28 -- Phase 11 complete — GA4 + Clarity + Meta CAPI + dashboards + CCPA + WAF + CSP nonce + OWASP ZAP. Verified 44/45.
 progress:
-  total_phases: 12
-  completed_phases: 10
+  total_phases: 13
+  completed_phases: 11
   total_plans: 71
-  completed_plans: 68
-  percent: 96
+  completed_plans: 71
+  percent: 85
 ---
 
 # Project State
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Every page, every agency, every image slot is 100% real and complete at launch — only the Brand Setup Wizard remains for the user post-generate.
-**Current focus:** Phase 11 — analytics-compliance-security
+**Current focus:** Phase 12 — launch + QA + seeds + runbooks + SLA
 
 ## Current Position
 
-Phase: 11 (analytics-security) — IN PROGRESS (plans 11-01/02/03/04/06/07 complete; 11-05 CCPA/ADA remaining)
-Status: Phase 11 wave-3 dashboards live — Surface 1 + Surface 2 wired through Payload custom admin view
-Last activity: 2026-04-28 -- Phase 11 plan 11-04 complete — Analytics dashboards via Payload custom admin view, GA4+Postgres+RUM hybrid, 60s polling with visibilityState gate.
+Phase: 11 (analytics-security) — COMPLETE (all 7 plans verified 44/45 PASS, 1 PARTIAL architectural)
+Status: Phase 11 complete — ready for Phase 12 launch QA
+Last activity: 2026-04-28 -- Phase 11 complete — GA4 + Clarity + Meta CAPI + analytics dashboards + CCPA opt-out/erasure + WAF + CSP nonce + OWASP ZAP CI gates. Verified 44/45.
 
-Progress: [██████████] 96%
+Progress: [███████████░░] 85% (11/13 phases complete)
 
 ## Completed Phases
 
@@ -45,6 +45,7 @@ Progress: [██████████] 96%
 | 08 (public-frontend) | 7/7 | WebVitalsReporter, ISR purge hooks, MjImage AVIF/BlurHash, axe-core gate, 132 P0 page routes | ✓ |
 | 09 (crm-forms-booking) | 7/7 | Per-agency CRM, lead scoring, form builder, Cal.com, Twilio SMS, niche pre-seeds | ✓ |
 | 10 (tools-pitch-builder) | 7/7 | 36 tools, proposal builder, e-sign ESIGN Act, 7-state invoicing, Puck builder | ✓ |
+| 11 (analytics-security) | 7/7 | GA4 + Clarity + Meta CAPI, dashboards, CCPA opt-out + erasure, WAF, CSP nonce, OWASP ZAP | ✓ (44/45 verified, 7 items for Phase 12 QA) |
 
 ## Performance Metrics
 
