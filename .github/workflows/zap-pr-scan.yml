@@ -1,0 +1,97 @@
+name: ZAP Baseline (PR)
+
+# REQ-147 — OWASP ZAP per-PR baseline scan with hard-fail on high-severity findings
+# for changes that touch the security/auth surface (API routes, middleware, auth, compliance).
+#
+# Plan 11-07: Scope limited via `paths:` to avoid running on docs-only PRs. Detects the
+# changed app and starts only that app for the scan target.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/web-*/src/app/api/**'
+      - 'apps/web-*/src/middleware.ts'
+      - 'apps/web-*/middleware.ts'
+      - 'packages/auth/**'
+      - 'packages/compliance/**'
+
+concurrency:
+  group: zap-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  zap-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed app
+        id: detect
+        run: |
+          BASE_SHA=$(git merge-base origin/main HEAD || echo origin/main)
+          APP=$(git diff --name-only "$BASE_SHA" HEAD | grep -oE '^apps/[^/]+' | head -1 | sed 's|apps/||')
+          if [ -z "$APP" ]; then APP=web-main; fi
+          echo "Detected app: $APP"
+          echo "app=$APP" >> "$GITHUB_OUTPUT"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build changed app
+        run: pnpm --filter=@mjagency/${{ steps.detect.outputs.app }} build
+        env:
+          # Provide minimum env so build does not fail on missing required vars
+          JWT_ACCESS_SECRET: ci-test-secret-not-real-32chars
+          JWT_REFRESH_SECRET: ci-test-secret-not-real-32chars-2
+          DB_APP_PASSWORD: ci-placeholder
+          NEXT_PUBLIC_AGENCY_ID: '00000000-0000-0000-0000-000000000000'
+
+      - name: Start changed app
+        run: |
+          pnpm --filter=@mjagency/${{ steps.detect.outputs.app }} start &
+          echo $! > app.pid
+        env:
+          JWT_ACCESS_SECRET: ci-test-secret-not-real-32chars
+          JWT_REFRESH_SECRET: ci-test-secret-not-real-32chars-2
+          DB_APP_PASSWORD: ci-placeholder
+          NEXT_PUBLIC_AGENCY_ID: '00000000-0000-0000-0000-000000000000'
+
+      - name: Wait for app to listen
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:3000/ >/dev/null 2>&1 || \
+               curl -fsS http://localhost:3001/ >/dev/null 2>&1; then
+              echo "app is up"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: 'http://localhost:3000'
+          rules_file_name: '.zap/rules.tsv'
+          fail_action: true
+          allow_issue_writing: false
+          cmd_options: '-a'
+
+      - name: Stop app
+        if: always()
+        run: |
+          if [ -f app.pid ]; then
+            kill "$(cat app.pid)" 2>/dev/null || true
+          fi

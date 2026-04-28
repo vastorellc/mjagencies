@@ -1,0 +1,55 @@
+name: ZAP Weekly Full Sweep
+
+# REQ-147 — Weekly ZAP baseline against all 13 staging targets (web-main + 12 agency apps).
+# fail_action: false — report-only run; high findings open issues but do not block.
+# Plan 11-07: Monday 6am UTC keeps Friday-deploy weekend reports out of view.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  zap-full:
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - web-main
+          - web-ecommerce
+          - web-realestate
+          - web-healthcare
+          - web-legal
+          - web-homeservices
+          - web-fitness
+          - web-dental
+          - web-automotive
+          - web-restaurant
+          - web-education
+          - web-financial
+          - web-petcare
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ZAP Baseline against staging
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: 'https://${{ matrix.app }}.staging.mjagency.com'
+          rules_file_name: '.zap/rules.tsv'
+          fail_action: false
+          allow_issue_writing: false
+          cmd_options: '-a'
+
+      - name: Upload ZAP report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report-${{ matrix.app }}
+          path: |
+            report_html.html
+            report_md.md
+            report_json.json
+          if-no-files-found: ignore
+          retention-days: 14

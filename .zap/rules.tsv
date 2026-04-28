@@ -1,0 +1,16 @@
+# .zap/rules.tsv — OWASP ZAP rule overrides for Plan 11-07
+#
+# Format: <rule-id>\t<level>\t<description>
+# Levels: IGNORE | WARN | FAIL (default behaviour for unmentioned rules: from baseline action)
+#
+# Rationale:
+#   10038  CSP not enforced — D-08 Stage 1 emits Content-Security-Policy-Report-Only by design
+#                              for the first 14 days post-launch. This rule MUST be flipped back
+#                              to default (FAIL) once CSP_ENFORCING=true is rolled out (Stage 2).
+#   10063  Permissions-Policy not set on test endpoints (acceptable on localhost ZAP target)
+#   10202  Absence of Anti-CSRF Tokens — public POST endpoints (csp-report, rum, contact) are
+#                              not state-changing in a CSRF-exploitable way; these are public
+#                              ingestion sinks for anonymous browser telemetry.
+10038	IGNORE	CSP not enforced (D-08 Stage 1 Report-Only by design — Plan 11-07)
+10063	IGNORE	Permissions-Policy not set on local ZAP target endpoints
+10202	IGNORE	Absence of CSRF tokens on public ingestion endpoints (csp-report, rum)

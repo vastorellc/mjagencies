@@ -1,0 +1,59 @@
+name: CSP Static Header Regression Guard
+
+# Plan 11-07 — Pitfall 7.1 prevention: blocks any reintroduction of a static
+# Content-Security-Policy header in packages/auth/src/security-headers.ts.
+# Two CSP headers (one static + one nonce per-request) cause browser intersection
+# that defeats the nonce, allowing inline-script injection.
+#
+# Also enforces CLAUDE.md rule 2 (jose-only — never jsonwebtoken).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/auth/**'
+      - 'apps/**'
+
+concurrency:
+  group: csp-grep-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  csp-static-grep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Block static Content-Security-Policy in security-headers.ts (Pitfall 7.1)
+        run: |
+          if grep -nE "h\.set\(\s*['\"]Content-Security-Policy" packages/auth/src/security-headers.ts; then
+            echo "::error::Static Content-Security-Policy header detected in packages/auth/src/security-headers.ts"
+            echo "Plan 11-07 moved CSP to per-request nonce in packages/auth/src/middleware.ts."
+            echo "Two CSP headers cause browser intersection that defeats the nonce."
+            exit 1
+          fi
+          echo "OK: no static CSP in security-headers.ts"
+
+      - name: Block jsonwebtoken imports (CLAUDE.md rule 2 — jose only)
+        run: |
+          if grep -rnE "from\s+['\"]jsonwebtoken['\"]|require\(\s*['\"]jsonwebtoken['\"]" \
+              packages apps \
+              --include='*.ts' --include='*.tsx' --include='*.js' --include='*.mjs' \
+              --include='*.cjs' --include='package.json' \
+              --exclude-dir=node_modules; then
+            echo "::error::jsonwebtoken import detected — use jose only (CLAUDE.md rule 2)"
+            echo "jsonwebtoken does not work in Next.js Edge runtime."
+            exit 1
+          fi
+          echo "OK: no jsonwebtoken imports"
+
+      - name: Block 'unsafe-inline' regression in script-src (T-11-07-10)
+        run: |
+          if grep -nE "script-src[^;]*'unsafe-inline'" packages/auth/src/middleware.ts; then
+            echo "::error::script-src contains 'unsafe-inline' in middleware.ts — must use 'nonce-X' 'strict-dynamic'"
+            exit 1
+          fi
+          echo "OK: no script-src 'unsafe-inline' in middleware.ts"
