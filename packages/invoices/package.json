@@ -19,6 +19,7 @@
     "@mjagency/config": "workspace:*",
     "@mjagency/auth": "workspace:*",
     "@mjagency/crm": "workspace:*",
+    "@mjagency/meta-capi": "workspace:*",
     "@mjagency/proposals": "workspace:*",
     "stripe": "^17.3.1",
     "ioredis": "5.10.1",

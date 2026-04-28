@@ -1206,6 +1206,9 @@ importers:
       '@mjagency/ai':
         specifier: workspace:*
         version: link:../ai
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../auth
@@ -1218,6 +1221,9 @@ importers:
       '@mjagency/email':
         specifier: workspace:*
         version: link:../email
+      '@mjagency/meta-capi':
+        specifier: workspace:*
+        version: link:../meta-capi
       '@mjagency/queue':
         specifier: workspace:*
         version: link:../queue
@@ -1492,6 +1498,9 @@ importers:
       '@mjagency/db':
         specifier: workspace:*
         version: link:../db
+      '@mjagency/meta-capi':
+        specifier: workspace:*
+        version: link:../meta-capi
       '@mjagency/proposals':
         specifier: workspace:*
         version: link:../proposals

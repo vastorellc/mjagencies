@@ -8,6 +8,7 @@
  */
 import { createEncryptedWorker } from '@mjagency/queue'
 import { REDIS_KEY, createLogger } from '@mjagency/config'
+import { enqueueCapiEvent } from '@mjagency/meta-capi'
 import type Stripe from 'stripe'
 
 const redisHost = process.env['REDIS_HOST'] ?? 'localhost'
@@ -53,6 +54,40 @@ export function startInvoiceWorker(): void {
           }),
         })
         log.info({ invoiceId: invoice.id, newStatus, newAmountPaid }, 'Invoice payment processed')
+
+        // Plan 11-03 — REQ-142: Meta CAPI Purchase event when status flips to 'paid'.
+        // Server-fired path: no req context for client_ip/client_user_agent.
+        // Stripe checkout customer email/phone available on the session — use them as identifiers.
+        // Wrapped in try/catch — Meta delivery failure must NOT block invoice update.
+        if (newStatus === 'paid') {
+          try {
+            const customerEmail = session.customer_details?.email ?? undefined
+            const customerPhone = session.customer_details?.phone ?? undefined
+            const currency = (session.currency ?? 'usd').toUpperCase()
+            // Stripe amount_total is in cents — convert to dollars for Meta value field.
+            const valueDollars = (session.amount_total ?? 0) / 100
+
+            await enqueueCapiEvent(agencyId, {
+              event_name: 'Purchase',
+              user_data: {
+                em: customerEmail,
+                ph: customerPhone,
+                external_id: invoice.id,
+              },
+              custom_data: {
+                value: valueDollars,
+                currency,
+                order_id: invoice.id,
+              },
+            })
+            log.info({ invoiceId: invoice.id, valueDollars, currency }, 'Meta CAPI Purchase event enqueued')
+          } catch (err) {
+            log.warn(
+              { err, invoiceId: invoice.id },
+              'Meta CAPI Purchase enqueue failed — non-fatal, invoice already updated to paid',
+            )
+          }
+        }
       }
 
       if (event.type === 'charge.dispute.created') {

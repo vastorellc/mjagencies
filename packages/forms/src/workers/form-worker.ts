@@ -1,6 +1,7 @@
 import { createEncryptedWorker } from '@mjagency/queue'
 import { REDIS_KEY } from '@mjagency/config'
 import { createLogger } from '@mjagency/config'
+import { enqueueCapiEvent } from '@mjagency/meta-capi'
 
 const log = createLogger({ service: 'mjagency-forms-worker' })
 
@@ -14,6 +15,10 @@ export interface FormSubmissionJobData {
   utmSource?: string
   utmMedium?: string
   utmCampaign?: string
+  /** CF-Connecting-IP captured at request time — used for Meta CAPI ip+ua identifier fallback */
+  clientIp?: string
+  /** User-Agent captured at request time — used for Meta CAPI ip+ua identifier fallback */
+  clientUserAgent?: string
 }
 
 export function createFormWorker(agencyId: string) {
@@ -59,6 +64,29 @@ export function createFormWorker(agencyId: string) {
       const contactData = await contactRes.json() as { doc?: { id?: string } }
       const contactId = contactData.doc?.id ?? 'unknown'
       log.info({ contactId, agencyId: jobAgencyId }, 'Contact created in CRM')
+
+      // Plan 11-03 — REQ-142: Meta CAPI Lead event (server-side, no browser pixel per D-10).
+      // Wrapped in try/catch — CAPI failure must NOT break form submission (Phase 9 SLA priority).
+      try {
+        await enqueueCapiEvent(jobAgencyId, {
+          event_name: 'Lead',
+          user_data: {
+            em: email,
+            ph: phone,
+            client_ip_address: job.data.clientIp,
+            client_user_agent: job.data.clientUserAgent,
+            external_id: contactId !== 'unknown' ? contactId : undefined,
+          },
+          custom_data: {
+            content_name: job.data.formId ?? 'contact',
+          },
+        })
+      } catch (err) {
+        log.warn(
+          { err, agencyId: jobAgencyId, contactId },
+          'Meta CAPI Lead enqueue failed — non-fatal, form submission still succeeded',
+        )
+      }
 
       const { createEncryptedQueue } = await import('@mjagency/queue')
       const emailQueue = createEncryptedQueue<{

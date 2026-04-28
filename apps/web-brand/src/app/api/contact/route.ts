@@ -29,6 +29,11 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: 'Missing required fields' }, { status: 422 })
   }
 
+  // Plan 11-03 — capture client IP + UA at request time so the form worker can
+  // include them in the Meta CAPI Lead event (Pitfall 3.5: ip+ua fallback identifier).
+  const clientIp = req.headers.get('cf-connecting-ip') ?? req.headers.get('x-forwarded-for') ?? undefined
+  const clientUserAgent = req.headers.get('user-agent') ?? undefined
+
   const jobData: FormSubmissionJobData = {
     agencyId,
     name: name.trim(),
@@ -38,6 +43,8 @@ export async function POST(req: Request): Promise<Response> {
     utmSource: body['utm_source'] as string | undefined,
     utmMedium: body['utm_medium'] as string | undefined,
     utmCampaign: body['utm_campaign'] as string | undefined,
+    clientIp,
+    clientUserAgent,
   }
 
   const redisHost = process.env['REDIS_HOST'] ?? 'localhost'

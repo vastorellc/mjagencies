@@ -12,6 +12,7 @@
     "@mjagency/queue": "workspace:*",
     "@mjagency/config": "workspace:*",
     "@mjagency/crm": "workspace:*",
+    "@mjagency/meta-capi": "workspace:*",
     "payload": "3.82.1"
   },
   "peerDependencies": { "next": ">=15.0.0", "payload": "3.82.1" },
