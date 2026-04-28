@@ -185,6 +185,9 @@ importers:
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@mjagency/compliance':
+        specifier: workspace:*
+        version: link:../../packages/compliance
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -562,6 +565,9 @@ importers:
       '@mjagency/cms':
         specifier: workspace:*
         version: link:../../packages/cms
+      '@mjagency/compliance':
+        specifier: workspace:*
+        version: link:../../packages/compliance
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
