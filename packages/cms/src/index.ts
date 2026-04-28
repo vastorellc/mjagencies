@@ -78,6 +78,8 @@ export { PAYLOAD_BLOCKS } from './blocks/payload-blocks.js'
 export { dashboardView } from './admin-views/dashboard-view-config.js'
 // Plan 12-07: Brand Setup Wizard admin view registration at /admin/brand-setup.
 export { brandSetupView } from './admin-views/brand-setup-view-config.js'
+// Plan 12-01: QA Report matrix admin view registration at /admin/qa-report.
+export { qaReportView } from './admin-views/qa-report-view-config.js'
 
 // Plan 05-05 DAM additions
 export { DAM_VIEWS, getDamViewForRole } from './dam/views.js'

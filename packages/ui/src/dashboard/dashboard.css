@@ -36,6 +36,13 @@
   margin: 0;
 }
 
+.dashboard-page__subtitle {
+  font-size: var(--mj-text-size-base);
+  font-weight: var(--mj-weight-normal);
+  color: var(--mj-color-text-secondary);
+  margin: 0 0 var(--mj-space-6) 0;
+}
+
 .dashboard-grid {
   display: grid;
   gap: var(--mj-space-6);
@@ -146,6 +153,32 @@
   border: 1px solid var(--mj-color-error);
 }
 
+/* ---------- QA matrix badge variants (Plan 12-01) ---------- */
+
+.rum-pill--pass {
+  background: var(--mj-color-bg-secondary);
+  color: var(--mj-color-success);
+  border: 1px solid var(--mj-color-success);
+}
+
+.rum-pill--fail {
+  background: var(--mj-color-bg-secondary);
+  color: var(--mj-color-error);
+  border: 1px solid var(--mj-color-error);
+}
+
+.rum-pill--skip {
+  background: var(--mj-color-bg-secondary);
+  color: var(--mj-color-warning);
+  border: 1px solid var(--mj-color-warning);
+}
+
+.rum-pill--pending {
+  background: var(--mj-color-bg-secondary);
+  color: var(--mj-color-text-secondary);
+  border: 1px solid var(--mj-color-border-default);
+}
+
 /* ---------- Tabs (Surface 2 platform/agency switcher) ---------- */
 
 .dashboard-tabs {
@@ -173,6 +206,11 @@
 }
 
 /* ---------- Tables (Top Pages, Agency Rollup) ---------- */
+
+.dashboard-table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
 
 .dashboard-table {
   width: 100%;

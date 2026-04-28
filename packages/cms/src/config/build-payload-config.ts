@@ -25,6 +25,8 @@ import { PAYLOAD_BLOCKS } from '../blocks/payload-blocks.js'
 import { dashboardView } from '../admin-views/dashboard-view-config.js'
 // Plan 12-07: Brand Setup Wizard admin view registration at /admin/brand-setup.
 import { brandSetupView } from '../admin-views/brand-setup-view-config.js'
+// Plan 12-01: QA Report matrix admin view registration at /admin/qa-report.
+import { qaReportView } from '../admin-views/qa-report-view-config.js'
 
 export interface BuildPayloadConfigOptions {
   /** Absolute directory of the calling app (pass `path.dirname(fileURLToPath(import.meta.url))`) */
@@ -88,6 +90,8 @@ export function buildPayloadConfig({
           Dashboard: dashboardView,
           // Plan 12-07: Brand Setup Wizard at /admin/brand-setup (super_admin only).
           BrandSetup: brandSetupView,
+          // Plan 12-01: QA Report matrix at /admin/qa-report (super_admin only).
+          QaReport: qaReportView,
         },
       },
       ...overrides.admin,
