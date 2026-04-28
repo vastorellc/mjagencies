@@ -7,7 +7,8 @@ const AGENCY_ID = 'webdev'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Insights',
+  title: 'Web Dev Insights — MJ Web Dev Agency Blog',
+  description: 'Technical articles on Next.js, headless CMS architecture, web performance, accessibility, TypeScript, and the craft of building high-quality web products.',
 }
 
 export default async function BlogIndexPage(): Promise<React.ReactElement> {

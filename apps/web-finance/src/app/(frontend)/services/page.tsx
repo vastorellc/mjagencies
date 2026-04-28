@@ -7,7 +7,8 @@ const AGENCY_ID = 'finance'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Services',
+  title: 'Financial Advisory Services — MJ Finance Agency',
+  description: 'Fractional CFO services, financial modeling, fundraising preparation, cash flow management, and financial strategy for growth-stage companies.',
 }
 
 export default async function ServicesPage(): Promise<React.ReactElement> {
@@ -23,10 +24,11 @@ export default async function ServicesPage(): Promise<React.ReactElement> {
         Skip to main content
       </a>
       <main id="main-content" style={{ padding: 'var(--mj-space-16) var(--mj-space-6)' }}>
-        <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>Services</h1>
+        <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>Financial Advisory Services</h1>
         {services.length === 0 ? (
           <p style={{ color: 'var(--mj-color-text-secondary)', marginTop: 'var(--mj-space-8)' }}>
-            Our service pages are being updated. <a href="/contact" style={{ color: 'var(--mj-color-brand-500)' }}>Contact us</a> to discuss your project.
+            We provide fractional CFO services, financial modeling, investor readiness, and ongoing financial strategy for companies scaling from $1M to $50M in revenue.{' '}
+            <a href="/contact" style={{ color: 'var(--mj-color-brand-500)' }}>Contact us</a> to discuss your financial goals.
           </p>
         ) : (
           <ul style={{ marginTop: 'var(--mj-space-8)', listStyle: 'none', padding: 0, display: 'grid', gap: 'var(--mj-space-4)' }} aria-label="Our services">

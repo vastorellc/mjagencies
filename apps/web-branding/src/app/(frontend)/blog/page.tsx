@@ -7,7 +7,8 @@ const AGENCY_ID = 'branding'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Insights',
+  title: 'Brand Insights — MJ Branding Agency Blog',
+  description: 'Perspectives on brand strategy, identity design, visual storytelling, and building brand equity that drives business results.',
 }
 
 export default async function BlogIndexPage(): Promise<React.ReactElement> {

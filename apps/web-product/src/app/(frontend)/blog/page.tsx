@@ -7,7 +7,8 @@ const AGENCY_ID = 'product'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Insights',
+  title: 'Product Insights — MJ Product Agency Blog',
+  description: 'Practical product management thinking — on roadmap strategy, user research, prioritization frameworks, OKR design, and building product teams that ship with conviction.',
 }
 
 export default async function BlogIndexPage(): Promise<React.ReactElement> {

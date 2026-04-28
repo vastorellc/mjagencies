@@ -6,20 +6,29 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'FAQ — MJ Product Agency',
+  description: 'Common questions about working with MJ Product Agency — fractional CPO services, discovery, roadmap prioritization, and engagement structure.',
 }
 
 const FAQ_ITEMS = [
   {
-    question: 'What services does MJ Product Agency offer?',
-    answer: 'We offer a range of specialized services tailored for growing businesses. Contact us for a detailed overview of our current offerings.',
+    question: 'What does a fractional CPO engagement look like?',
+    answer: 'A fractional CPO leads your product function at 25–50% of full-time capacity. That includes owning the product roadmap, running discovery with customers, managing engineering-design-product alignment, and reporting to leadership on product strategy.',
   },
   {
-    question: 'How do I get started working with you?',
-    answer: 'Fill out our contact form and we will schedule a discovery call within one business day to discuss your project.',
+    question: 'At what stage does fractional product leadership make sense?',
+    answer: 'Most commonly between Seed and Series B — when a founding team has built an initial product but lacks the dedicated product leadership to scale it. Also common post-Series B when a company wants to upgrade product capability before a Series C.',
   },
   {
-    question: 'What is your typical engagement timeline?',
-    answer: 'Project timelines vary by scope. Most project engagements run 6–16 weeks. Ongoing retainer work operates on a monthly basis.',
+    question: 'Can you run user research and discovery for our team?',
+    answer: 'Yes. We conduct user interviews, usability studies, Jobs-to-be-Done analysis, and competitive audits — then synthesize findings into prioritized opportunity maps your team can act on.',
+  },
+  {
+    question: 'How do you approach roadmap prioritization?',
+    answer: 'We use an impact-effort-confidence scoring framework calibrated to your business model and constraints. We present tradeoffs explicitly — no magic quadrant theater. Priority calls are yours; our job is to surface the right information.',
+  },
+  {
+    question: 'Do you embed within our existing team or operate independently?',
+    answer: 'We embed. Your engineering, design, and data teams report to or collaborate directly with our product lead. We avoid shadow roadmaps — alignment is the product.',
   },
 ]
 
@@ -45,6 +54,9 @@ export default function FaqPage(): React.ReactElement {
         <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>
           Frequently Asked Questions
         </h1>
+        <p style={{ fontSize: 'var(--mj-text-size-lg)', color: 'var(--mj-color-text-secondary)', marginTop: 'var(--mj-space-4)' }}>
+          Everything you need to know about working with MJ Product Agency.
+        </p>
         <dl style={{ marginTop: 'var(--mj-space-12)' }}>
           {FAQ_ITEMS.map((item, i) => (
             <div key={i} style={{ padding: 'var(--mj-space-6) 0', borderBottom: '1px solid var(--mj-color-border)' }}>

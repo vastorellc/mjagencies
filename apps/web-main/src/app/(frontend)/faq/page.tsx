@@ -5,21 +5,30 @@ import { buildFaqJsonLd, serializeFaqJsonLd } from '@mjagency/seo'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'FAQ — MJAgency',
+  title: 'FAQ — MJ Agency',
+  description: 'Common questions about working with MJ Agency — how the multi-practice model works, engagement structure, industry focus, and pricing.',
 }
 
 const FAQ_ITEMS = [
   {
-    question: 'What services does MJAgency offer?',
-    answer: 'We offer a range of specialized services tailored for growing businesses. Contact us for a detailed overview of our current offerings.',
+    question: 'What does MJ Agency do differently from a traditional agency?',
+    answer: 'We run 11 specialist practices under one roof — AI, branding, ecommerce, engineering, finance, graphic design, growth, product management, strategy, video, and web development. Clients access any combination without managing multiple vendor relationships.',
   },
   {
-    question: 'How do I get started working with you?',
-    answer: 'Fill out our contact form and we will schedule a discovery call within one business day to discuss your project.',
+    question: 'Can I engage one practice without committing to the full agency?',
+    answer: 'Yes. You can work with a single vertical (e.g., just branding or just engineering) and add practices over time. There is no bundling requirement.',
   },
   {
-    question: 'What is your typical engagement timeline?',
-    answer: 'Project timelines vary by scope. Most project engagements run 6–16 weeks. Ongoing retainer work operates on a monthly basis.',
+    question: 'How do you keep work coordinated across multiple practices?',
+    answer: 'Each multi-practice engagement has a dedicated account lead who owns coordination and ensures deliverables across practices are aligned to a single strategy and timeline.',
+  },
+  {
+    question: 'What industries do you serve?',
+    answer: 'We work across B2B SaaS, consumer brands, fintech, professional services, and growth-stage startups. Our cross-practice model is most valuable for companies scaling through a major transition — rebrand, product launch, fundraise, or market expansion.',
+  },
+  {
+    question: 'What is the typical size of an MJ Agency engagement?',
+    answer: 'Single-practice retainers start at $5,000/month. Full multi-practice programs typically run $20,000–$60,000/month depending on scope and headcount allocation.',
   },
 ]
 
@@ -45,6 +54,9 @@ export default function FaqPage(): React.ReactElement {
         <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>
           Frequently Asked Questions
         </h1>
+        <p style={{ fontSize: 'var(--mj-text-size-lg)', color: 'var(--mj-color-text-secondary)', marginTop: 'var(--mj-space-4)' }}>
+          Everything you need to know about working with MJ Agency.
+        </p>
         <dl style={{ marginTop: 'var(--mj-space-12)' }}>
           {FAQ_ITEMS.map((item, i) => (
             <div key={i} style={{ padding: 'var(--mj-space-6) 0', borderBottom: '1px solid var(--mj-color-border)' }}>

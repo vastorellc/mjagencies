@@ -7,7 +7,8 @@ const AGENCY_ID = 'strategy'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Insights',
+  title: 'Strategy Insights — MJ Strategy Agency Blog',
+  description: 'Clear-eyed thinking on business strategy, competitive positioning, market entry, organizational design, and the decisions that define company trajectories.',
 }
 
 export default async function BlogIndexPage(): Promise<React.ReactElement> {

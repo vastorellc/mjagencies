@@ -7,7 +7,8 @@ const AGENCY_ID = 'engineering'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Insights',
+  title: 'Engineering Insights — MJ Engineering Agency Blog',
+  description: 'Technical deep-dives on software architecture, full-stack development, DevOps, cloud infrastructure, and engineering team practices.',
 }
 
 export default async function BlogIndexPage(): Promise<React.ReactElement> {

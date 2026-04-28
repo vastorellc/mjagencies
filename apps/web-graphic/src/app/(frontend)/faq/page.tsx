@@ -6,20 +6,29 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'FAQ — MJ Graphic Agency',
+  description: 'Common questions about working with MJ Graphic Agency — services, file formats, print production, timelines, and brand standards.',
 }
 
 const FAQ_ITEMS = [
   {
-    question: 'What services does MJ Graphic Agency offer?',
-    answer: 'We offer a range of specialized services tailored for growing businesses. Contact us for a detailed overview of our current offerings.',
+    question: 'What graphic design services do you offer?',
+    answer: 'Print design (brochures, direct mail, trade show materials), packaging design (product boxes, labels, retail packaging), digital graphics (display ads, social templates, infographics), and environmental design (wayfinding, signage, interior wall graphics).',
   },
   {
-    question: 'How do I get started working with you?',
-    answer: 'Fill out our contact form and we will schedule a discovery call within one business day to discuss your project.',
+    question: 'What files do we receive at project completion?',
+    answer: 'All print-ready PDFs at correct bleed, slug, and color profile (CMYK/PMS where specified), plus source files in AI or InDesign. For digital, we deliver SVG, PNG at all required resolutions, and where applicable, HTML5 banners.',
   },
   {
-    question: 'What is your typical engagement timeline?',
-    answer: 'Project timelines vary by scope. Most project engagements run 6–16 weeks. Ongoing retainer work operates on a monthly basis.',
+    question: 'Can you manage print production and vendor coordination?',
+    answer: 'Yes. We maintain relationships with specialty printers for offset, large-format, and specialty finishes (foil, emboss, spot UV). We manage proofing and press-check when high-value print runs warrant it.',
+  },
+  {
+    question: 'How do you handle existing brand standards and guidelines?',
+    answer: 'We work within your brand guidelines and flag any constraints before starting. If your guidelines are outdated or ambiguous, we can update them as part of the project scope.',
+  },
+  {
+    question: 'What is your turnaround time for design projects?',
+    answer: 'Rush digital assets (social graphics, display ads) turn in 3–5 business days. Packaging design runs 3–5 weeks. Trade show booths and environmental design run 6–10 weeks depending on fabrication requirements.',
   },
 ]
 
@@ -45,6 +54,9 @@ export default function FaqPage(): React.ReactElement {
         <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>
           Frequently Asked Questions
         </h1>
+        <p style={{ fontSize: 'var(--mj-text-size-lg)', color: 'var(--mj-color-text-secondary)', marginTop: 'var(--mj-space-4)' }}>
+          Everything you need to know about working with MJ Graphic Agency.
+        </p>
         <dl style={{ marginTop: 'var(--mj-space-12)' }}>
           {FAQ_ITEMS.map((item, i) => (
             <div key={i} style={{ padding: 'var(--mj-space-6) 0', borderBottom: '1px solid var(--mj-color-border)' }}>

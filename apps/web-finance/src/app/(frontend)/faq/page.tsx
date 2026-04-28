@@ -6,20 +6,29 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'FAQ — MJ Finance Agency',
+  description: 'Common questions about working with MJ Finance Agency — fractional CFO services, fundraising support, financial modeling, and engagement structure.',
 }
 
 const FAQ_ITEMS = [
   {
-    question: 'What services does MJ Finance Agency offer?',
-    answer: 'We offer a range of specialized services tailored for growing businesses. Contact us for a detailed overview of our current offerings.',
+    question: 'What does a fractional CFO actually do for our company?',
+    answer: 'A fractional CFO owns your financial function without the full-time cost. That includes monthly close oversight, board reporting, cash runway modeling, pricing analysis, and preparing you for fund raises or due diligence.',
   },
   {
-    question: 'How do I get started working with you?',
-    answer: 'Fill out our contact form and we will schedule a discovery call within one business day to discuss your project.',
+    question: 'At what stage does a company typically engage a fractional CFO?',
+    answer: 'Most clients engage us between Series A and Series C, or at $1M–$20M ARR when the complexity exceeds what a bookkeeper or controller can handle but a full-time CFO is not yet justified.',
   },
   {
-    question: 'What is your typical engagement timeline?',
-    answer: 'Project timelines vary by scope. Most project engagements run 6–16 weeks. Ongoing retainer work operates on a monthly basis.',
+    question: 'Can you help us prepare for a fundraise?',
+    answer: 'Yes. Fundraise preparation is a core service: investor materials (deck, data room), financial model build-out with 3-year projections, cap table cleanup, and management Q&A coaching.',
+  },
+  {
+    question: 'How long is a typical fractional CFO engagement?',
+    answer: 'Most clients retain us for 12–24 months. Initial engagements begin with a 6-week financial audit to establish a baseline before we take on ongoing responsibilities.',
+  },
+  {
+    question: 'Do you work alongside an existing bookkeeper or controller?',
+    answer: 'Yes. We layer onto your existing finance team. We set the strategy and own the board and investor relationship; your bookkeeper or controller handles day-to-day transaction processing.',
   },
 ]
 
@@ -45,6 +54,9 @@ export default function FaqPage(): React.ReactElement {
         <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>
           Frequently Asked Questions
         </h1>
+        <p style={{ fontSize: 'var(--mj-text-size-lg)', color: 'var(--mj-color-text-secondary)', marginTop: 'var(--mj-space-4)' }}>
+          Everything you need to know about working with MJ Finance Agency.
+        </p>
         <dl style={{ marginTop: 'var(--mj-space-12)' }}>
           {FAQ_ITEMS.map((item, i) => (
             <div key={i} style={{ padding: 'var(--mj-space-6) 0', borderBottom: '1px solid var(--mj-color-border)' }}>

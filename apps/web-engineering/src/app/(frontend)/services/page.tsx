@@ -7,7 +7,8 @@ const AGENCY_ID = 'engineering'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Services',
+  title: 'Software Engineering Services — MJ Engineering Agency',
+  description: 'Full-stack development, cloud infrastructure, DevOps, and software architecture for product teams that need to ship faster without accumulating technical debt.',
 }
 
 export default async function ServicesPage(): Promise<React.ReactElement> {
@@ -23,10 +24,11 @@ export default async function ServicesPage(): Promise<React.ReactElement> {
         Skip to main content
       </a>
       <main id="main-content" style={{ padding: 'var(--mj-space-16) var(--mj-space-6)' }}>
-        <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>Services</h1>
+        <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>Software Engineering Services</h1>
         {services.length === 0 ? (
           <p style={{ color: 'var(--mj-color-text-secondary)', marginTop: 'var(--mj-space-8)' }}>
-            Our service pages are being updated. <a href="/contact" style={{ color: 'var(--mj-color-brand-500)' }}>Contact us</a> to discuss your project.
+            We build production-grade software — full-stack applications, cloud infrastructure, DevOps pipelines, and system architecture — for teams that need to ship with confidence.{' '}
+            <a href="/contact" style={{ color: 'var(--mj-color-brand-500)' }}>Contact us</a> to scope your engineering project.
           </p>
         ) : (
           <ul style={{ marginTop: 'var(--mj-space-8)', listStyle: 'none', padding: 0, display: 'grid', gap: 'var(--mj-space-4)' }} aria-label="Our services">

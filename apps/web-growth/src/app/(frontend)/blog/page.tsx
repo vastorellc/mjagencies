@@ -7,7 +7,8 @@ const AGENCY_ID = 'growth'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Insights',
+  title: 'Growth Insights — MJ Growth Agency Blog',
+  description: 'Data-driven thinking on SEO, paid acquisition, demand generation, content strategy, conversion optimization, and building growth programs that compound over time.',
 }
 
 export default async function BlogIndexPage(): Promise<React.ReactElement> {

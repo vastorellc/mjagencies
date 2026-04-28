@@ -7,7 +7,8 @@ const AGENCY_ID = 'ai'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Insights',
+  title: 'AI Insights — MJ AI Agency Blog',
+  description: 'Practical guides, case studies, and emerging research on LLM integration, agentic AI, ML ops, and responsible AI deployment.',
 }
 
 export default async function BlogIndexPage(): Promise<React.ReactElement> {

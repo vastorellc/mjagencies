@@ -7,7 +7,8 @@ const AGENCY_ID = 'video'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Insights',
+  title: 'Video Insights — MJ Video Agency Blog',
+  description: 'Behind-the-scenes production thinking, visual storytelling technique, video strategy for B2B and B2C brands, and guides to getting great video content at scale.',
 }
 
 export default async function BlogIndexPage(): Promise<React.ReactElement> {

@@ -6,20 +6,29 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'FAQ — MJ Branding Agency',
+  description: 'Common questions about working with MJ Branding Agency — brand identity, timelines, deliverables, and the rebrand process.',
 }
 
 const FAQ_ITEMS = [
   {
-    question: 'What services does MJ Branding Agency offer?',
-    answer: 'We offer a range of specialized services tailored for growing businesses. Contact us for a detailed overview of our current offerings.',
+    question: 'What is included in a full brand identity engagement?',
+    answer: 'A full brand system includes brand strategy (positioning, values, voice), visual identity (logo, color palette, typography), brand guidelines document, and key asset production (business cards, letterhead, social templates).',
   },
   {
-    question: 'How do I get started working with you?',
-    answer: 'Fill out our contact form and we will schedule a discovery call within one business day to discuss your project.',
+    question: 'How long does a brand project take?',
+    answer: 'Brand strategy and identity for an early-stage company typically takes 6–10 weeks. A full enterprise rebrand including internal rollout runs 12–20 weeks.',
   },
   {
-    question: 'What is your typical engagement timeline?',
-    answer: 'Project timelines vary by scope. Most project engagements run 6–16 weeks. Ongoing retainer work operates on a monthly basis.',
+    question: 'Do you handle just logo design?',
+    answer: 'We do, but we recommend pairing logo work with at minimum a color system and typography choice. A logo without a coherent system creates inconsistency at scale. Standalone logo projects take 2–4 weeks.',
+  },
+  {
+    question: 'What deliverable formats do we receive?',
+    answer: 'All vector files (SVG, AI, EPS), rasterized exports in all standard sizes (PNG at 1×/2×/3×), and where applicable, web fonts or licensed font recommendations. You own all assets outright.',
+  },
+  {
+    question: 'Can you rebrand an established company with existing brand equity?',
+    answer: 'Yes — and we approach rebrands differently from ground-up work. We audit what equity is worth preserving before redesigning, and we manage internal alignment to reduce rebrand risk.',
   },
 ]
 
@@ -45,6 +54,9 @@ export default function FaqPage(): React.ReactElement {
         <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>
           Frequently Asked Questions
         </h1>
+        <p style={{ fontSize: 'var(--mj-text-size-lg)', color: 'var(--mj-color-text-secondary)', marginTop: 'var(--mj-space-4)' }}>
+          Everything you need to know about working with MJ Branding Agency.
+        </p>
         <dl style={{ marginTop: 'var(--mj-space-12)' }}>
           {FAQ_ITEMS.map((item, i) => (
             <div key={i} style={{ padding: 'var(--mj-space-6) 0', borderBottom: '1px solid var(--mj-color-border)' }}>

@@ -7,7 +7,8 @@ const AGENCY_ID = 'finance'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Insights',
+  title: 'Finance Insights — MJ Finance Agency Blog',
+  description: 'Practical guidance on financial modeling, fundraising, cash flow management, SaaS metrics, unit economics, and building finance functions at growth-stage companies.',
 }
 
 export default async function BlogIndexPage(): Promise<React.ReactElement> {

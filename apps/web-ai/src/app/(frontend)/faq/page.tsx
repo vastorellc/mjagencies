@@ -6,20 +6,29 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'FAQ — MJ AI Agency',
+  description: 'Common questions about working with MJ AI Agency — services, process, timelines, data privacy, and AI project scoping.',
 }
 
 const FAQ_ITEMS = [
   {
-    question: 'What services does MJ AI Agency offer?',
-    answer: 'We offer a range of specialized services tailored for growing businesses. Contact us for a detailed overview of our current offerings.',
+    question: 'What types of AI projects do you build?',
+    answer: 'We design and deliver LLM-powered products (chatbots, document processing, knowledge retrieval), agentic automation workflows, and custom ML models. Most clients are B2B companies embedding AI into their core product or internal operations.',
   },
   {
-    question: 'How do I get started working with you?',
-    answer: 'Fill out our contact form and we will schedule a discovery call within one business day to discuss your project.',
+    question: 'Do you work with OpenAI, Anthropic, or open-source models?',
+    answer: 'All three. Model selection depends on cost, latency, privacy requirements, and capability. We benchmark alternatives and recommend the best-fit model — not the most popular one.',
   },
   {
-    question: 'What is your typical engagement timeline?',
-    answer: 'Project timelines vary by scope. Most project engagements run 6–16 weeks. Ongoing retainer work operates on a monthly basis.',
+    question: 'What is your typical AI project timeline?',
+    answer: 'A proof-of-concept agent or LLM integration runs 3–6 weeks. A production-grade AI feature with evals, guardrails, and monitoring typically takes 8–16 weeks.',
+  },
+  {
+    question: 'How do you handle data privacy for AI systems?',
+    answer: 'We implement PII redaction before model calls, use enterprise-tier API access with DPA agreements, and can run models locally or on-premises when client data policies require it.',
+  },
+  {
+    question: 'Do you offer AI strategy advisory without a build engagement?',
+    answer: 'Yes. Our 2-week AI readiness audit covers your data assets, viable use-cases, build-vs-buy options, and cost projections — delivered as a decision-ready strategy brief.',
   },
 ]
 
@@ -45,6 +54,9 @@ export default function FaqPage(): React.ReactElement {
         <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>
           Frequently Asked Questions
         </h1>
+        <p style={{ fontSize: 'var(--mj-text-size-lg)', color: 'var(--mj-color-text-secondary)', marginTop: 'var(--mj-space-4)' }}>
+          Everything you need to know about working with MJ AI Agency.
+        </p>
         <dl style={{ marginTop: 'var(--mj-space-12)' }}>
           {FAQ_ITEMS.map((item, i) => (
             <div key={i} style={{ padding: 'var(--mj-space-6) 0', borderBottom: '1px solid var(--mj-color-border)' }}>

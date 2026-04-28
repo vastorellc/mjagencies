@@ -7,7 +7,8 @@ const AGENCY_ID = 'video'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Services',
+  title: 'Video Production Services — MJ Video Agency',
+  description: 'Brand films, product videos, social content, documentary series, event coverage, and motion graphics for companies that need professional video produced at scale.',
 }
 
 export default async function ServicesPage(): Promise<React.ReactElement> {
@@ -23,10 +24,11 @@ export default async function ServicesPage(): Promise<React.ReactElement> {
         Skip to main content
       </a>
       <main id="main-content" style={{ padding: 'var(--mj-space-16) var(--mj-space-6)' }}>
-        <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>Services</h1>
+        <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>Video Production Services</h1>
         {services.length === 0 ? (
           <p style={{ color: 'var(--mj-color-text-secondary)', marginTop: 'var(--mj-space-8)' }}>
-            Our service pages are being updated. <a href="/contact" style={{ color: 'var(--mj-color-brand-500)' }}>Contact us</a> to discuss your project.
+            We produce brand films, product demos, social video, and motion graphics for companies that need polished video content without the overhead of a full production house.{' '}
+            <a href="/contact" style={{ color: 'var(--mj-color-brand-500)' }}>Contact us</a> to discuss your video project.
           </p>
         ) : (
           <ul style={{ marginTop: 'var(--mj-space-8)', listStyle: 'none', padding: 0, display: 'grid', gap: 'var(--mj-space-4)' }} aria-label="Our services">

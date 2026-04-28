@@ -5,21 +5,30 @@ import { buildFaqJsonLd, serializeFaqJsonLd } from '@mjagency/seo'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'FAQ — MJ Webdev Agency',
+  title: 'FAQ — MJ Web Dev Agency',
+  description: 'Common questions about working with MJ Web Dev Agency — services, tech stack, web performance, project scope, and pricing.',
 }
 
 const FAQ_ITEMS = [
   {
-    question: 'What services does MJ Webdev Agency offer?',
-    answer: 'We offer a range of specialized services tailored for growing businesses. Contact us for a detailed overview of our current offerings.',
+    question: 'What web development services do you offer?',
+    answer: 'Custom marketing sites and landing pages, headless CMS implementations (Payload, Contentful, Sanity), Next.js web applications, e-commerce builds (Shopify, WooCommerce, headless), web performance optimization, and WCAG 2.2 AA accessibility remediation.',
   },
   {
-    question: 'How do I get started working with you?',
-    answer: 'Fill out our contact form and we will schedule a discovery call within one business day to discuss your project.',
+    question: 'What technology stack do you build on?',
+    answer: 'Next.js 15 with TypeScript, Payload CMS or other headless CMS, PostgreSQL, Tailwind CSS or custom design tokens, and Cloudflare for CDN and edge functions. We do not use page builders — everything is built to production-code standards.',
   },
   {
-    question: 'What is your typical engagement timeline?',
-    answer: 'Project timelines vary by scope. Most project engagements run 6–16 weeks. Ongoing retainer work operates on a monthly basis.',
+    question: 'How do you approach web performance?',
+    answer: 'Performance is designed in, not added at the end. We target LCP under 1.8s and CLS of 0, enforced in CI via Lighthouse. Images use AVIF delivery with blur-up placeholders. We instrument Core Web Vitals from day one.',
+  },
+  {
+    question: 'Do you build websites or web applications?',
+    answer: 'Both. Marketing sites, documentation portals, and content-heavy headless CMS builds are our bread-and-butter. We also build SaaS front-ends, dashboards, and product web apps requiring authentication, real-time data, and complex state.',
+  },
+  {
+    question: 'What does a typical web project cost?',
+    answer: 'A marketing site with CMS integration runs $15K–$40K depending on page count and custom functionality. A full web application starts at $50K. Web performance optimization engagements start at $8K.',
   },
 ]
 
@@ -45,6 +54,9 @@ export default function FaqPage(): React.ReactElement {
         <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>
           Frequently Asked Questions
         </h1>
+        <p style={{ fontSize: 'var(--mj-text-size-lg)', color: 'var(--mj-color-text-secondary)', marginTop: 'var(--mj-space-4)' }}>
+          Everything you need to know about working with MJ Web Dev Agency.
+        </p>
         <dl style={{ marginTop: 'var(--mj-space-12)' }}>
           {FAQ_ITEMS.map((item, i) => (
             <div key={i} style={{ padding: 'var(--mj-space-6) 0', borderBottom: '1px solid var(--mj-color-border)' }}>

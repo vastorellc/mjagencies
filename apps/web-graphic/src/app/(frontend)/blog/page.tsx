@@ -7,7 +7,8 @@ const AGENCY_ID = 'graphic'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Insights',
+  title: 'Design Insights — MJ Graphic Agency Blog',
+  description: 'Design process, production best practices, print and digital trends, and visual storytelling insights from the MJ Graphic Agency team.',
 }
 
 export default async function BlogIndexPage(): Promise<React.ReactElement> {

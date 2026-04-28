@@ -6,20 +6,29 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'FAQ — MJ Video Agency',
+  description: 'Common questions about working with MJ Video Agency — production types, what is included, timelines, music licensing, and retainer programs.',
 }
 
 const FAQ_ITEMS = [
   {
-    question: 'What services does MJ Video Agency offer?',
-    answer: 'We offer a range of specialized services tailored for growing businesses. Contact us for a detailed overview of our current offerings.',
+    question: 'What types of video do you produce?',
+    answer: 'Brand films and company stories, product demonstrations and feature walkthroughs, social-first short-form video (Reels, TikTok, YouTube Shorts), event and conference coverage, documentary series, and motion graphics and animated explainers.',
   },
   {
-    question: 'How do I get started working with you?',
-    answer: 'Fill out our contact form and we will schedule a discovery call within one business day to discuss your project.',
+    question: 'What does a brand film engagement include?',
+    answer: 'Pre-production (creative brief, scripting, storyboard, location scouting, talent casting), production (full crew, direction, cinematography), and post-production (editing, color grading, sound design, music licensing). Deliverables include platform-optimized cut-downs.',
   },
   {
-    question: 'What is your typical engagement timeline?',
-    answer: 'Project timelines vary by scope. Most project engagements run 6–16 weeks. Ongoing retainer work operates on a monthly basis.',
+    question: 'How long does a typical project take?',
+    answer: 'A product demo or social video batch (5–10 assets) takes 2–4 weeks. A brand film takes 6–10 weeks. A documentary series or multi-episode campaign takes 12–20 weeks from pre-production to delivery.',
+  },
+  {
+    question: 'Do you own the music or do we need separate licensing?',
+    answer: 'We license music through industry-standard libraries with full commercial rights, included in the project quote. Custom music composition is available for brand films requiring a unique sonic identity.',
+  },
+  {
+    question: 'Can you produce content on an ongoing retainer basis?',
+    answer: 'Yes. Monthly retainer video programs are designed for brands that need consistent social content or regular product update videos. Retainers start at $5,000/month for a fixed monthly deliverable volume.',
   },
 ]
 
@@ -45,6 +54,9 @@ export default function FaqPage(): React.ReactElement {
         <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>
           Frequently Asked Questions
         </h1>
+        <p style={{ fontSize: 'var(--mj-text-size-lg)', color: 'var(--mj-color-text-secondary)', marginTop: 'var(--mj-space-4)' }}>
+          Everything you need to know about working with MJ Video Agency.
+        </p>
         <dl style={{ marginTop: 'var(--mj-space-12)' }}>
           {FAQ_ITEMS.map((item, i) => (
             <div key={i} style={{ padding: 'var(--mj-space-6) 0', borderBottom: '1px solid var(--mj-color-border)' }}>
