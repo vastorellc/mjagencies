@@ -278,13 +278,13 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 12-01: Full QA matrix — automated, all 12 agencies
-- [ ] 12-02: Complete seed run — all 12 agencies, all content
-- [ ] 12-03: Pre-launch CI gate — `gsd headless` exit 0 = pass
-- [ ] 12-04: Canary deploy pipeline — 5% → health check → 100%, auto-rollback < 60s
-- [ ] 12-05: All runbooks written (13 runbooks)
-- [ ] 12-06: SLA documentation — public uptime 99.9%, admin 99.5%, RPO 1h, RTO 4h
-- [ ] 12-07: Brand Setup Wizard — only user task post-generate
+- [ ] 12-01-PLAN.md (Wave 2) — Full QA matrix: per-agency Playwright E2E (12×5 tests), QaReportView admin page, Phase 11 deferred E2E items
+- [ ] 12-02-PLAN.md (Wave 2) — Complete seed run: all 12 agencies × 8 Payload collections + CRM pre-seeds, MIN_WORD_COUNT=2200, idempotent
+- [ ] 12-03-PLAN.md (Wave 3) — Pre-launch CI gate: gsd-headless.mjs (7 checks) + pre-launch-gate.yml GitHub Actions workflow
+- [ ] 12-04-PLAN.md (Wave 4) — Canary deploy pipeline: 5-job GitHub Actions (build→5%→health check→promote/rollback <60s), Terraform Cloudflare routing
+- [ ] 12-05-PLAN.md (Wave 1) — All 13 runbooks in docs/runbooks/ (incident, DB, Redis, WAF, CCPA, GA4, Payload, DNS, secrets, Stripe, BullMQ, SSL, brand-setup-wizard)
+- [ ] 12-06-PLAN.md (Wave 1) — SLA page at /sla on web-main: 99.9%/99.5% uptime, P1-P4 severity matrix, RPO 1h RTO 4h, maintenance window, credits
+- [ ] 12-07-PLAN.md (Wave 1) — Brand Setup Wizard: 5-step Payload admin view, ΔE CIEDE2000 check, DOMPurify+SVGO SVG sanitize, Doppler API key storage
 
 ## Progress
 
