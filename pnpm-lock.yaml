@@ -194,6 +194,12 @@ importers:
       '@mjagency/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@mjagency/email':
+        specifier: workspace:*
+        version: link:../../packages/email
+      '@mjagency/queue':
+        specifier: workspace:*
+        version: link:../../packages/queue
       '@mjagency/tools':
         specifier: workspace:*
         version: link:../../packages/tools
@@ -209,6 +215,9 @@ importers:
       '@payloadcms/richtext-lexical':
         specifier: 3.82.1
         version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(next@15.5.15(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(next@15.5.15(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+      ioredis:
+        specifier: 5.10.1
+        version: 5.10.1
       next:
         specifier: 15.5.15
         version: 15.5.15(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-macros@3.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
@@ -598,6 +607,9 @@ importers:
       '@payloadcms/ui':
         specifier: 3.82.1
         version: 3.82.1(@types/react@19.0.0)(monaco-editor@0.55.1)(next@15.5.15(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
+      ioredis:
+        specifier: 5.10.1
+        version: 5.10.1
       next:
         specifier: 15.5.15
         version: 15.5.15(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-macros@3.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
@@ -638,9 +650,6 @@ importers:
       eslint-config-next:
         specifier: 15.5.15
         version: 15.5.15(eslint@9.13.0(jiti@2.6.1))(typescript@5.6.3)
-      ioredis:
-        specifier: 5.10.1
-        version: 5.10.1
       size-limit:
         specifier: 11.1.6
         version: 11.1.6
@@ -985,6 +994,12 @@ importers:
       '@mjagency/config':
         specifier: workspace:*
         version: link:../config
+      '@mjagency/db':
+        specifier: workspace:*
+        version: link:../db
+      drizzle-orm:
+        specifier: 0.45.2
+        version: 0.45.2(@opentelemetry/api@1.9.0)(@types/pg@8.15.6)(pg@8.16.3)(postgres@3.4.9)
       ioredis:
         specifier: 5.10.1
         version: 5.10.1
@@ -997,6 +1012,9 @@ importers:
       react:
         specifier: '>=19.0.0'
         version: 19.0.0
+      server-only:
+        specifier: 0.0.1
+        version: 0.0.1
     devDependencies:
       '@mjagency/testing':
         specifier: workspace:*

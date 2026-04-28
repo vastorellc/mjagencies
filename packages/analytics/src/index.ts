@@ -11,3 +11,6 @@ export { ClarityInjectScript } from './clarity-script.js'
 export type { ClarityInjectScriptProps } from './clarity-script.js'
 export { clarityDeleteUser } from './clarity-delete.js'
 export type { ClarityDeleteResult } from './clarity-delete.js'
+
+// Plan 11-04: Dashboard data layer (REQ-143) — GA4 + Postgres + RUM hybrid
+export * from './dashboard/index.js'

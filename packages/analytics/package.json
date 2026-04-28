@@ -12,7 +12,8 @@
     "./ga4-script": { "types": "./src/ga4-script.tsx", "default": "./src/ga4-script.tsx" },
     "./clarity-init": { "types": "./src/clarity-init.tsx", "default": "./src/clarity-init.tsx" },
     "./clarity-script": { "types": "./src/clarity-script.tsx", "default": "./src/clarity-script.tsx" },
-    "./clarity-delete": { "types": "./src/clarity-delete.ts", "default": "./src/clarity-delete.ts" }
+    "./clarity-delete": { "types": "./src/clarity-delete.ts", "default": "./src/clarity-delete.ts" },
+    "./dashboard": { "types": "./src/dashboard/index.ts", "default": "./src/dashboard/index.ts" }
   },
   "scripts": {
     "lint": "eslint . --max-warnings=0",
@@ -24,8 +25,11 @@
     "@microsoft/clarity": "1.0.2",
     "@mjagency/ai": "workspace:*",
     "@mjagency/config": "workspace:*",
+    "@mjagency/db": "workspace:*",
+    "drizzle-orm": "0.45.2",
     "ioredis": "5.10.1",
-    "payload": "3.82.1"
+    "payload": "3.82.1",
+    "server-only": "0.0.1"
   },
   "peerDependencies": {
     "next": ">=15.0.0",
