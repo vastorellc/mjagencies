@@ -1,0 +1,32 @@
+{
+  "name": "@mjagency/meta-capi",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@mjagency/ai": "workspace:*",
+    "@mjagency/config": "workspace:*",
+    "@mjagency/queue": "workspace:*",
+    "bullmq": "5.76.2",
+    "ioredis": "5.10.1"
+  },
+  "devDependencies": {
+    "@mjagency/testing": "workspace:*",
+    "@types/node": "22.9.0",
+    "typescript": "5.6.3",
+    "vitest": "2.1.8"
+  }
+}

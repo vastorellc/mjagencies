@@ -9,7 +9,9 @@
     ".": { "types": "./src/index.ts", "default": "./src/index.ts" },
     "./ga4-server": { "types": "./src/ga4-server.ts", "default": "./src/ga4-server.ts" },
     "./ga4-data-api": { "types": "./src/ga4-data-api.ts", "default": "./src/ga4-data-api.ts" },
-    "./ga4-script": { "types": "./src/ga4-script.tsx", "default": "./src/ga4-script.tsx" }
+    "./ga4-script": { "types": "./src/ga4-script.tsx", "default": "./src/ga4-script.tsx" },
+    "./clarity-init": { "types": "./src/clarity-init.tsx", "default": "./src/clarity-init.tsx" },
+    "./clarity-delete": { "types": "./src/clarity-delete.ts", "default": "./src/clarity-delete.ts" }
   },
   "scripts": {
     "lint": "eslint . --max-warnings=0",
@@ -18,6 +20,8 @@
   },
   "dependencies": {
     "@google-analytics/data": "5.2.1",
+    "@microsoft/clarity": "1.0.2",
+    "@mjagency/ai": "workspace:*",
     "@mjagency/config": "workspace:*",
     "ioredis": "5.10.1",
     "payload": "3.82.1"
