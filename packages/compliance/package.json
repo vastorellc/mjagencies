@@ -23,6 +23,7 @@
     "@mjagency/email": "workspace:*",
     "@mjagency/meta-capi": "workspace:*",
     "@mjagency/queue": "workspace:*",
+    "drizzle-orm": "0.45.2",
     "ioredis": "5.4.1",
     "jose": "6.2.3",
     "payload": "3.82.1",

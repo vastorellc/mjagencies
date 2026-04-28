@@ -27,7 +27,10 @@
     "@mjagency/analytics": "workspace:*",
     "@mjagency/compliance": "workspace:*",
     "@mjagency/db": "workspace:*",
-    "@mjagency/tools": "workspace:*"
+    "@mjagency/email": "workspace:*",
+    "@mjagency/queue": "workspace:*",
+    "@mjagency/tools": "workspace:*",
+    "ioredis": "5.10.1"
   },
   "devDependencies": {
     "@mjagency/testing": "workspace:*",

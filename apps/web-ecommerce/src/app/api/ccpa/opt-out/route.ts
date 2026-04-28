@@ -13,7 +13,6 @@ export const runtime = 'nodejs'
 import 'server-only'
 import { cookies, headers } from 'next/headers'
 import { createHash, randomUUID } from 'node:crypto'
-import { sql } from 'drizzle-orm'
 import { createAgencyDb, consentLog, withAgencyContext } from '@mjagency/db'
 import { createEncryptedQueue } from '@mjagency/queue'
 import { REDIS_KEY, createLogger } from '@mjagency/config'
@@ -113,7 +112,6 @@ export async function POST(req: Request): Promise<Response> {
 
   // Touch the slug constant so tree-shake doesn't drop it.
   void AGENCY_SLUG
-  void sql
 
   return Response.json({ ok: true, requestId, action })
 }
