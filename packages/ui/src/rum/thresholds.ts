@@ -1,0 +1,12 @@
+export const RUM_THRESHOLDS = {
+  LCP_DESKTOP_MS: 1800,
+  LCP_MOBILE_MS: 2200,
+  INP_DESKTOP_MS: 200,
+  INP_MOBILE_MS: 500,
+  CLS_MAX: 0.1,
+  FCP_DESKTOP_MS: 1800,
+  FCP_MOBILE_MS: 3000,
+  TTFB_MS: 800,
+} as const
+
+export type RumThresholds = typeof RUM_THRESHOLDS

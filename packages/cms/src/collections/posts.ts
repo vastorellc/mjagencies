@@ -21,6 +21,7 @@ import {
 import { validateStatSources, validateQuoteSources, validateNoPlaceholders } from '../hooks/anti-fab-validators.js'
 import { computeAiContentRatio } from '../hooks/ai-disclosure.js'
 import { schedulePublishHook } from '../hooks/scheduled-publish.js'
+import { isrPurgePostHook } from '../hooks/isr-purge.js'
 
 const AGENCY_ID_FIELD: Field = {
   name: 'agency_id',
@@ -73,7 +74,7 @@ export const postsCollection: CollectionConfig = {
       validateNoPlaceholders,   // Phase 7 — REQ-082
       computeAiContentRatio,    // Phase 7 — REQ-086, REQ-409
     ],
-    afterChange: [schedulePublishHook],
+    afterChange: [schedulePublishHook, isrPurgePostHook],
   },
   fields: [
     AGENCY_ID_FIELD,

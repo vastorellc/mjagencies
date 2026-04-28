@@ -91,3 +91,12 @@ export type { BrandPortalTokenClaims } from './dam/brand-portal.js'
 export { getLivingBrandBook } from './dam/living-brand-book.js'
 export type { LivingBrandBook, LivingBrandBookColor, LivingBrandBookFont } from './dam/living-brand-book.js'
 export { svgSanitizeHook } from './hooks/svg-sanitize.js'
+
+// Plan 08-03 additions — ISR cache purge hooks (REQ-091)
+export { isrPurgeHook, isrPurgePostHook } from './hooks/isr-purge.js'
+
+// Plan 08-07 additions — typed Payload REST fetch utilities for SSR pages
+export { fetchPageBySlug, fetchPagesIndex, fetchAllPageSlugs } from './lib/fetch-pages.js'
+export type { CmsPage } from './lib/fetch-pages.js'
+export { fetchPostBySlug, fetchPostsIndex, fetchAllPostSlugs } from './lib/fetch-posts.js'
+export type { CmsPost } from './lib/fetch-posts.js'

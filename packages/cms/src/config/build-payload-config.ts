@@ -82,6 +82,7 @@ export function buildPayloadConfig({
       components: {
         afterDocControls: [
           './src/app/(payload)/admin/components/SeoPanel',
+          './src/app/(payload)/admin/components/AiPanel',
         ],
         // Plan 11-04 D-13: register Surface 1 + Surface 2 dashboard at
         // /admin/dashboard. The view component path resolves via importMap;
