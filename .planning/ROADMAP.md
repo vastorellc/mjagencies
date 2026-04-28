@@ -17,18 +17,18 @@ Parallel-safe: M006+M007 (both depend on M005 only); M009 starts after M003 (par
 
 ## Phases
 
-- [ ] **Phase 1: Foundation + Infra** — Working monorepo, Docker Compose, Cloudflare pipeline, OTel, CI/CD, Doppler secrets
-- [ ] **Phase 2: Multi-tenant DB + Migration** — Per-agency Postgres, PgBouncer, Drizzle schema, RLS, migration runner, backups, audit log
-- [ ] **Phase 3: Auth + SSO + Edge Routing** — JWT (jose), MFA, SSO, Cloudflare middleware, audit log, server-action auth pattern
+- [x] **Phase 1: Foundation + Infra** — Working monorepo, Docker Compose, Cloudflare pipeline, OTel, CI/CD, Doppler secrets (01-06 Doppler bootstrap deferred — operational task)
+- [x] **Phase 2: Multi-tenant DB + Migration** — Per-agency Postgres, PgBouncer, Drizzle schema, RLS, migration runner, backups, audit log
+- [x] **Phase 3: Auth + SSO + Edge Routing** — JWT (jose), MFA, SSO, Cloudflare middleware, audit log, server-action auth pattern
 - [x] **Phase 4: Design System + Theme Engine** — CSS variable tokens, theme.json validator, 12 niche themes, A/B framework
 - [x] **Phase 5: Central CMS + Block Library + Editor UX** — Payload 3.82.1, 45 blocks, Lexical editor, DAM, content sprint kickoff
 - [x] **Phase 6: SEO/AIO/GEO Plugin Engine** — 3 plugins, real-time scoring, self-learning loop, algorithm watcher
 - [x] **Phase 7: AI Assistant + Anti-Fabrication** — LiteLLM gateway, 20 editor AI features, anti-fab guards, brand voice, PII redaction
 - [x] **Phase 8: Public Frontend + Page Tree** — 12 agency apps, ISR + tag purge, image pipeline, RUM, WCAG 2.2 AA, P0 pages
 - [x] **Phase 9: CRM + Forms + Booking** — CRM core, lead scoring, forms, email engine, Cal.com, Twilio SMS, niche pre-seeds
-- [ ] **Phase 10: Tools + Pitch + PDF + Builder** — 36 tools, proposal builder, e-sign, Stripe/PayPal invoicing, Puck builder
-- [ ] **Phase 11: Analytics + Compliance + Security** — GA4, Clarity, Meta CAPI, dashboards, CCPA, WAF, CSP, OWASP scan
-- [ ] **Phase 12: Launch + QA + Seeds + Runbooks** — Full QA matrix, complete seeds, canary deploy, 13 runbooks, Brand Setup Wizard
+- [x] **Phase 10: Tools + Pitch + PDF + Builder** — 36 tools, proposal builder, e-sign, Stripe/PayPal invoicing, Puck builder
+- [x] **Phase 11: Analytics + Compliance + Security** — GA4, Clarity, Meta CAPI, dashboards, CCPA, WAF, CSP, OWASP scan
+- [x] **Phase 12: Launch + QA + Seeds + Runbooks** — Full QA matrix, complete seeds, canary deploy, 13 runbooks, Brand Setup Wizard
 
 ## Phase Details
 
@@ -292,15 +292,15 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Infra | 0/6 | Not started | - |
-| 2. Multi-tenant DB + Migration | 0/6 | Not started | - |
-| 3. Auth + SSO + Edge Routing | 0/6 | Not started | - |
-| 4. Design System + Theme Engine | 0/5 | Not started | - |
-| 5. Central CMS + Block Library + Editor UX | 0/6 | Not started | - |
-| 6. SEO/AIO/GEO Plugin Engine | 0/6 | Not started | - |
-| 7. AI Assistant + Anti-Fabrication | 0/6 | Not started | - |
-| 8. Public Frontend + Page Tree | 0/7 | Not started | - |
-| 9. CRM + Forms + Booking | 0/7 | Not started | - |
-| 10. Tools + Pitch + PDF + Builder | 0/7 | Not started | - |
-| 11. Analytics + Compliance + Security | 0/7 | Not started | - |
+| 1. Foundation + Infra | 5/6 | Complete (01-06 deferred) | 2026-04-28 |
+| 2. Multi-tenant DB + Migration | 6/6 | Complete | 2026-04-28 |
+| 3. Auth + SSO + Edge Routing | 6/6 | Complete | 2026-04-28 |
+| 4. Design System + Theme Engine | 5/5 | Complete | 2026-04-28 |
+| 5. Central CMS + Block Library + Editor UX | 8/8 | Complete | 2026-04-28 |
+| 6. SEO/AIO/GEO Plugin Engine | 6/6 | Complete | 2026-04-28 |
+| 7. AI Assistant + Anti-Fabrication | 6/6 | Complete | 2026-04-28 |
+| 8. Public Frontend + Page Tree | 7/7 | Complete | 2026-04-28 |
+| 9. CRM + Forms + Booking | 7/7 | Complete | 2026-04-28 |
+| 10. Tools + Pitch + PDF + Builder | 7/7 | Complete | 2026-04-28 |
+| 11. Analytics + Compliance + Security | 7/7 | Complete (11-05 substantially complete) | 2026-04-28 |
 | 12. Launch + QA + Seeds + Runbooks | 7/7 | Complete | 2026-04-28 |
