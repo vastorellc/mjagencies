@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
 status: completed
-stopped_at: Completed 11-03-PLAN.md (Meta CAPI server-side, BullMQ encrypted queue, Lead+Purchase wired)
-last_updated: "2026-04-28T04:52:46.223Z"
+stopped_at: Completed 11-02-PLAN.md (Microsoft Clarity heatmaps + Delete API client wired into 12 layouts)
+last_updated: "2026-04-28T04:56:33.795Z"
 last_activity: 2026-04-28 -- Phase 11 plan 11-01 complete — @mjagency/analytics, getAgencySecret() helper, sGTM CF Worker, GA4InjectScript wired into 12 layouts.
 progress:
   total_phases: 12
   completed_phases: 9
   total_plans: 71
-  completed_plans: 65
-  percent: 92
+  completed_plans: 66
+  percent: 93
 ---
 
 # Project State
@@ -29,7 +29,7 @@ Phase: 11 (analytics-security) — IN PROGRESS (plans 11-07 + 11-06 + 11-01 comp
 Status: Phase 11 wave-2 progressing — GA4 ingestion + sGTM proxy complete
 Last activity: 2026-04-28 -- Phase 11 plan 11-01 complete — @mjagency/analytics, getAgencySecret() helper, sGTM CF Worker, GA4InjectScript wired into 12 layouts.
 
-Progress: [█████████░] 92%
+Progress: [█████████░] 93%
 
 ## Completed Phases
 
@@ -71,6 +71,7 @@ Progress: [█████████░] 92%
 | Phase 06-seo-plugin-engine P06 | 6 | 2 tasks | 7 files |
 | Phase 11 P06 | 5 | 3 tasks | 11 files |
 | Phase 11 P03 | 30min | 2 tasks | 25 files |
+| Phase 11 P11-02 | 12 min | 3 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -140,6 +141,9 @@ Progress: [█████████░] 92%
 - Plan 11-03: jobId = event_id pairs BullMQ once-only processing with Meta event_id dedup — retries cannot produce duplicate Lead/Purchase events
 - Plan 11-03: Lead emission moved to form-worker.ts (after createContact succeeds) — uses Payload contact id as external_id; Purchase emits only on newStatus=paid (not partial)
 - Plan 11-03: D-10 enforced — Meta CAPI is server-side ONLY; CSP allowlist (security-headers + middleware) intentionally OMITS facebook.com
+- Microsoft Clarity uses ClarityInjectScript server-component wrapper around 'use client' ClarityInit — symmetric with Plan 11-01 GA4InjectScript pattern (1 import + 1 render line per layout, no async layouts needed)
+- @microsoft/clarity@1.0.2 actual API: Clarity.event(eventName) takes only event name; metadata uses Clarity.setTag(key, value). emitClarityEvent helper redacts each value via Phase 7 redactPii() then calls setTag + event
+- Mask Mode = Strict + network capture OFF live in Clarity DASHBOARD, not in code (no init() option in @microsoft/clarity@1.0.2 API). docs/runbooks/clarity-project-setup.md is the per-agency operator contract
 
 ### Pending Todos
 
@@ -162,8 +166,8 @@ None — 10-03 files complete, commit pending Bash access.
 
 ## Session Continuity
 
-Last session: 2026-04-28T04:52:46.190Z
-Stopped at: Completed 11-03-PLAN.md (Meta CAPI server-side, BullMQ encrypted queue, Lead+Purchase wired)
+Last session: 2026-04-28T04:56:33.779Z
+Stopped at: Completed 11-02-PLAN.md (Microsoft Clarity heatmaps + Delete API client wired into 12 layouts)
 Resume file: None
 
 Next step: Plan 11-02 (Microsoft Clarity, partially in flight — already merged clarity-init.tsx + clarity-delete.ts into @mjagency/analytics in commit e8e244c) → 11-03 (Meta CAPI) → 11-04 (dashboard) → 11-05 (CCPA opt-out)

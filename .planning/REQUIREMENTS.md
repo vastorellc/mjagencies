@@ -194,7 +194,8 @@
 ### Analytics + Compliance + Security (Phase 11)
 
 - [x] **REQ-140**: GA4 + GTM server-side container — P0
-- [ ] **REQ-141**: Microsoft Clarity (session replay, heatmaps) — P0
+- [x] **REQ-141
+**: Microsoft Clarity (session replay, heatmaps) — P0
 - [x] **REQ-142
 **: Meta CAPI server-side — P0
 - [ ] **REQ-143**: Per-agency analytics dashboards + platform overview — P0
