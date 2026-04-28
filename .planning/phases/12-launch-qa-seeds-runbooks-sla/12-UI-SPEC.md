@@ -1,7 +1,7 @@
 ---
 phase: 12
 slug: launch-qa-seeds-runbooks-sla
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-04-28
@@ -202,7 +202,7 @@ Security banner (shown above fields):
 - Padding: `var(--mj-space-4)`
 - Text (14px / secondary): "API keys are stored in Doppler and are never exposed in page source or NEXT_PUBLIC_ variables."
 
-Field inputs: `type="password"` with show/hide toggle button (inline SVG eye icon, 16×16px, `var(--mj-icon-secondary)`).
+Field inputs: `type="password"` with show/hide toggle button (inline SVG eye icon, 16×16px, `var(--mj-icon-secondary)`, `aria-label="Show [field name]"` when hidden / `aria-label="Hide [field name]"` when visible).
 
 ### Step 5: DNS + Warmup Checklist
 
@@ -228,7 +228,7 @@ Link items open in the same tab (admin context). Auto-verify items show a "Verif
 
 Footer bar within the wizard card:
 - "Back" button: text-only, 16px / weight 400, `var(--mj-color-text-secondary)`, no border. Hidden on step 1.
-- "Next" / "Save Brand Setup" button: primary button style — `var(--mj-color-brand-500)` background, `var(--mj-color-text-inverse)` text, `var(--mj-radius-md)` radius, `var(--mj-btn-padding-x)` `var(--mj-btn-padding-y)` padding, 14px / weight 600 (uses `--mj-btn-font-weight` = semibold). Min-height 44px.
+- "Next" / "Save Brand Setup" button: primary button style — `var(--mj-color-brand-500)` background, `var(--mj-color-text-inverse)` text, `var(--mj-radius-md)` radius, `var(--mj-btn-padding-x)` `var(--mj-btn-padding-y)` padding, 14px / weight 700 (`--mj-weight-bold`). Min-height 44px.
 - Step 5 replaces "Next" with "Save Brand Setup" (primary button, same style).
 - "Skip for now" text link: 14px / secondary, only shown on optional steps (4 and 5). Navigates to next step.
 
@@ -320,6 +320,8 @@ Definition list: credit tiers keyed to downtime duration. Same `<dl>` style as R
 ### Layout
 
 Full-width within Payload admin shell. Same `dashboard-page` class pattern as DashboardView.
+
+**Primary focal point:** The summary header row ("N passed · N failed · N pending") with 24px/700 count numbers serves as the visual anchor — displayed above the matrix table, spanning full width.
 
 ### QA Matrix Table
 
@@ -414,11 +416,11 @@ No third-party component registries. All components built using `var(--mj-*)` to
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: FLAG (non-blocking — focal point declaration inconsistent across surfaces)
+- [x] Dimension 3 Color: FLAG (non-blocking — var(--mj-color-info) used but not in color table)
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: FLAG (non-blocking — 44px touch-target justified exception)
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-04-28
