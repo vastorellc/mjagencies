@@ -236,12 +236,12 @@ Plans:
 
 Plans:
 - [x] 10-01: Tool engine — calculator, benchmark datasets, result renderer
-- [ ] 10-02: 36 tools built (3 per agency × 12) with real-source benchmarks (12-month expiry)
+- [x] 10-02: 36 tools built (3 per agency × 12) with real-source benchmarks (12-month expiry)
 - [ ] 10-03: Tool content — full page per tool, 2200+ words, full SEO/AIO content
-- [ ] 10-04: Proposal builder — hosted page, view tracking, 14-day expiry → grace → nurture
+- [x] 10-04: Proposal builder — hosted page, view tracking, 14-day expiry → grace → nurture
 - [ ] 10-05: E-sign — ESIGN Act compliant, PDF generation, R2 vault storage, audit trail
-- [ ] 10-06: Stripe + PayPal invoicing — dunning, partial payments, refunds, chargeback evidence
-- [ ] 10-07: Puck visual builder — admin bar, meta panel, SEO score widget, server-side auth
+- [x] 10-06: Stripe + PayPal invoicing — dunning, partial payments, refunds, chargeback evidence
+- [x] 10-07: Puck visual builder — admin bar, meta panel, SEO score widget, server-side auth
 
 ### Phase 11: Analytics + Compliance + Security
 **Goal**: GA4 + Clarity + Meta CAPI, per-agency dashboards, CCPA tooling, WAF, CSP nonce, OWASP scan clean.
