@@ -57,3 +57,6 @@ export { NonceProvider, useNonce, type NonceProviderProps } from './nonce/index.
 // Plan 09-03: ContactFormClient — WCAG 2.2 AA contact form with honeypot, inline validation
 export { ContactFormClient } from './components/contact-form-client.js';
 export type { ContactFormClientProps } from './components/contact-form-client.js';
+
+// Plan 11-04: Analytics dashboards — KPI cards + tables + 60s polling hook (REQ-143)
+export * from './dashboard/index.js';

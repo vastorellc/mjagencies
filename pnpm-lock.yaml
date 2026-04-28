@@ -1816,6 +1816,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../analytics
       ajv:
         specifier: 8.20.0
         version: 8.20.0

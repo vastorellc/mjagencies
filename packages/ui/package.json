@@ -12,6 +12,11 @@
     },
     "./styles/theme.css": "./styles/theme.css",
     "./tokens/*.css": "./tokens/*.css",
+    "./dashboard": {
+      "types": "./src/dashboard/index.ts",
+      "default": "./src/dashboard/index.ts"
+    },
+    "./dashboard/dashboard.css": "./src/dashboard/dashboard.css",
     "./theme/types": {
       "types": "./src/theme/types.ts",
       "default": "./src/theme/types.ts"
@@ -31,6 +36,7 @@
     "test-storybook": "test-storybook"
   },
   "dependencies": {
+    "@mjagency/analytics": "workspace:*",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
     "server-only": "0.0.1",
