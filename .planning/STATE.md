@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
 status: completed
-stopped_at: Completed 12-06-PLAN.md — public SLA page at /sla
-last_updated: "2026-04-28T09:33:25.772Z"
+stopped_at: Completed 12-07-PLAN.md — Brand Setup Wizard at /admin/brand-setup
+last_updated: "2026-04-28T09:39:29.804Z"
 last_activity: 2026-04-28 -- Phase 11 complete — GA4 + Clarity + Meta CAPI + analytics dashboards + CCPA opt-out/erasure + WAF + CSP nonce + OWASP ZAP CI gates. Verified 44/45.
 progress:
   total_phases: 13
   completed_phases: 10
   total_plans: 78
-  completed_plans: 69
-  percent: 88
+  completed_plans: 70
+  percent: 90
 ---
 
 # Project State
@@ -75,6 +75,7 @@ Progress: [███████████░░] 85% (11/13 phases complete)
 | Phase 11 P11-02 | 12 min | 3 tasks | 20 files |
 | Phase 11 P11-04 | 45min | 3 tasks | 29 files |
 | Phase 12 P06 | 5m | 1 tasks | 2 files |
+| Phase 12 P07 | 252 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,9 @@ Progress: [███████████░░] 85% (11/13 phases complete)
 - Plan 11-04: dashboard.css uses 100% var(--mj-*) tokens (108 references), zero hex literals; sparkline uses external .dashboard-sparkline class (Pitfall 4.5 — per-request CSP nonce blocks inline styles); UI-SPEC strict typography honored — only 4 sizes (14/16/24/36) and 2 weights (400/700)
 - Badge colors as CSS classes (not inline styles) to satisfy CLAUDE.md §7 CSP nonce requirement for SLA page
 - --mj-color-info token confirmed present in layer-2-semantic-color.css; no fallback needed in .sla-badge--p3
+- Payload custom admin view BrandSetupView uses requireSession() + super_admin guard + redirect to /admin on fail — same Pitfall 4.4 pattern as DashboardView (Plan 11-04)
+- CIEDE2000 implemented inline in BrandSetupWizardClient server action — no npm deltaE package; safe default { value: 100, pass: true } before Plan 12-02 seed imagery is available
+- Brand Setup Wizard API keys stored via Doppler REST API in server action; non-fatal if token absent; GA4/Clarity/Meta keys named agency:<id>-scoped pattern
 
 ### Pending Todos
 
@@ -175,8 +179,8 @@ None — 10-03 files complete, commit pending Bash access.
 
 ## Session Continuity
 
-Last session: 2026-04-28T09:33:25.743Z
-Stopped at: Completed 12-06-PLAN.md — public SLA page at /sla
+Last session: 2026-04-28T09:39:29.780Z
+Stopped at: Completed 12-07-PLAN.md — Brand Setup Wizard at /admin/brand-setup
 Resume file: None
 
 Next step: Plan 11-02 (Microsoft Clarity, partially in flight — already merged clarity-init.tsx + clarity-delete.ts into @mjagency/analytics in commit e8e244c) → 11-03 (Meta CAPI) → 11-04 (dashboard) → 11-05 (CCPA opt-out)
