@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { Inter } from 'next/font/google'
 import { WebVitalsReporter } from '@mjagency/ui'
+import { GA4InjectScript } from '@mjagency/analytics/ga4-script'
+import { ClarityInjectScript } from '@mjagency/analytics/clarity-script'
 
 /**
  * Frontend layout for apps/web-main public-facing routes.
@@ -10,9 +12,12 @@ import { WebVitalsReporter } from '@mjagency/ui'
  *   1. Load Inter font via next/font/google and inject --font-brand CSS variable (REQ-094/CLS=0)
  *   2. Set canonical metadata for the brand hub (overridden by individual pages)
  *   3. Mount WebVitalsReporter for GA4 RUM reporting on all pages (REQ-097)
+ *   4. Plan 11-01: Inject consent-gated GA4 client tag (REQ-140) inside CSP-nonce envelope
+ *   5. Plan 11-02: Inject consent-gated Microsoft Clarity heatmaps (REQ-141)
  *
  * Font strategy: display:swap prevents invisible text (CLS protection — REQ-095).
- * GA4 measurement ID injected at runtime from NEXT_PUBLIC_GA4_ID env var.
+ * GA4 measurement ID injected at runtime from NEXT_PUBLIC_GA4_MEASUREMENT_ID env var.
+ * NEXT_PUBLIC_GA4_ID is the legacy variable used by WebVitalsReporter; both can co-exist.
  */
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-brand', display: 'swap' })
@@ -24,11 +29,19 @@ export const metadata: Metadata = {
 }
 
 export default function FrontendLayout({ children }: { children: ReactNode }): ReactNode {
-  const ga4Id = process.env['NEXT_PUBLIC_GA4_ID'] ?? ''
+  const ga4LegacyId = process.env['NEXT_PUBLIC_GA4_ID'] ?? ''
+  // Plan 11-01: server-component GA4 client tag (consent-gated SSR injection per D-01/D-02).
+  // Plan 11-02: server-component Microsoft Clarity tag (same consent gate, same SSR pattern).
+  // Plan 11-05 will wrap this with <ConsentProvider>; both injectors read mj_consent
+  // cookie directly so they work without provider context.
+  const ga4Id = process.env['NEXT_PUBLIC_GA4_MEASUREMENT_ID']
+  const clarityProjectId = process.env['NEXT_PUBLIC_CLARITY_PROJECT_ID']
   return (
     <>
+      {ga4Id ? <GA4InjectScript measurementId={ga4Id} /> : null}
+      {clarityProjectId ? <ClarityInjectScript projectId={clarityProjectId} /> : null}
       <div className={inter.variable}>{children}</div>
-      <WebVitalsReporter ga4MeasurementId={ga4Id} />
+      <WebVitalsReporter ga4MeasurementId={ga4LegacyId} />
     </>
   )
 }

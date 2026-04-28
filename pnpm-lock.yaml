@@ -33,6 +33,9 @@ importers:
 
   apps/web-ai:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -103,6 +106,9 @@ importers:
 
   apps/web-branding:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -173,6 +179,9 @@ importers:
 
   apps/web-ecommerce:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -249,6 +258,9 @@ importers:
 
   apps/web-engineering:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -319,6 +331,9 @@ importers:
 
   apps/web-finance:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -389,6 +404,9 @@ importers:
 
   apps/web-graphic:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -459,6 +477,9 @@ importers:
 
   apps/web-growth:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -532,6 +553,9 @@ importers:
       '@mjagency/ai':
         specifier: workspace:*
         version: link:../../packages/ai
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -626,6 +650,9 @@ importers:
 
   apps/web-product:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -696,6 +723,9 @@ importers:
 
   apps/web-strategy:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -766,6 +796,9 @@ importers:
 
   apps/web-video:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -836,6 +869,9 @@ importers:
 
   apps/web-webdev:
     dependencies:
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -1419,6 +1455,9 @@ importers:
       '@mjagency/db':
         specifier: workspace:*
         version: link:../db
+      '@mjagency/meta-capi':
+        specifier: workspace:*
+        version: link:../meta-capi
       '@mjagency/queue':
         specifier: workspace:*
         version: link:../queue

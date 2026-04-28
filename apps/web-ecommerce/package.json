@@ -24,6 +24,8 @@
     "@mjagency/config": "workspace:*",
     "@mjagency/ui": "workspace:*",
     "@mjagency/auth": "workspace:*",
+    "@mjagency/analytics": "workspace:*",
+    "@mjagency/compliance": "workspace:*",
     "@mjagency/db": "workspace:*",
     "@mjagency/tools": "workspace:*"
   },

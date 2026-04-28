@@ -30,6 +30,8 @@
     "@mjagency/seo": "workspace:*",
     "@mjagency/ui": "workspace:*",
     "@mjagency/auth": "workspace:*",
+    "@mjagency/analytics": "workspace:*",
+    "@mjagency/compliance": "workspace:*",
     "@mjagency/db": "workspace:*",
     "zod": "3.25.28"
   },

@@ -1,0 +1,45 @@
+# infra/sgtm-worker/wrangler.toml
+# Cloudflare Worker reverse proxy: analytics.{agency_subdomain} → sGTM Cloud Run target.
+# REQ-140: server-side GTM container hosted on Cloudflare Workers (D-discretion: free tier, zero new infra).
+#
+# Per-agency Cloud Run sGTM target URLs are injected via wrangler secret put
+# at deploy time, NOT committed in this file:
+#   wrangler secret put SGTM_TARGET_WEB_ECOMMERCE
+#   wrangler secret put SGTM_TARGET_WEB_HEALTHCARE
+#   ... etc for all 13 agencies
+#
+# T-11-01-06 mitigation: Worker overwrites X-Forwarded-For from CF-Connecting-IP
+# (trusted Cloudflare header) and rejects unknown subdomains with 400.
+
+name = "sgtm-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-04-28"
+compatibility_flags = ["nodejs_compat"]
+
+# Per-agency routes — one route per agency zone.
+# Uncomment / configure after Cloudflare zones are provisioned.
+# routes = [
+#   { pattern = "analytics.web-ecommerce.mjagency.com/*",   zone_name = "mjagency.com" },
+#   { pattern = "analytics.web-realestate.mjagency.com/*",  zone_name = "mjagency.com" },
+#   { pattern = "analytics.web-healthcare.mjagency.com/*",  zone_name = "mjagency.com" },
+#   { pattern = "analytics.web-legal.mjagency.com/*",       zone_name = "mjagency.com" },
+#   { pattern = "analytics.web-homeservices.mjagency.com/*",zone_name = "mjagency.com" },
+#   { pattern = "analytics.web-fitness.mjagency.com/*",     zone_name = "mjagency.com" },
+#   { pattern = "analytics.web-dental.mjagency.com/*",      zone_name = "mjagency.com" },
+#   { pattern = "analytics.web-automotive.mjagency.com/*",  zone_name = "mjagency.com" },
+#   { pattern = "analytics.web-restaurant.mjagency.com/*",  zone_name = "mjagency.com" },
+#   { pattern = "analytics.web-education.mjagency.com/*",   zone_name = "mjagency.com" },
+#   { pattern = "analytics.web-financial.mjagency.com/*",   zone_name = "mjagency.com" },
+#   { pattern = "analytics.web-petcare.mjagency.com/*",     zone_name = "mjagency.com" },
+# ]
+
+[vars]
+# Public, non-secret config (per-agency target URLs are SECRETS — see above)
+ENVIRONMENT = "production"
+
+# Per-environment overrides
+[env.staging]
+name = "sgtm-proxy-staging"
+
+[env.production]
+name = "sgtm-proxy"
