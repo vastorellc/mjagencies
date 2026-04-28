@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
-status: Phase 11 COMPLETE — verified 44/45 (1 PARTIAL architectural). Phase 12 next.
-stopped_at: "Phase 11 COMPLETE — all 7 plans verified 44/45 PASS. 7 human-verification items deferred to Phase 12 launch QA (live API smoke tests, terraform apply, payload migrate)."
-last_updated: "2026-04-28T08:30:00Z"
-last_activity: 2026-04-28 -- Phase 11 complete — GA4 + Clarity + Meta CAPI + dashboards + CCPA + WAF + CSP nonce + OWASP ZAP. Verified 44/45.
+status: completed
+stopped_at: Completed 12-06-PLAN.md — public SLA page at /sla
+last_updated: "2026-04-28T09:33:25.772Z"
+last_activity: 2026-04-28 -- Phase 11 complete — GA4 + Clarity + Meta CAPI + analytics dashboards + CCPA opt-out/erasure + WAF + CSP nonce + OWASP ZAP CI gates. Verified 44/45.
 progress:
   total_phases: 13
-  completed_phases: 11
-  total_plans: 71
-  completed_plans: 71
-  percent: 85
+  completed_phases: 10
+  total_plans: 78
+  completed_plans: 69
+  percent: 88
 ---
 
 # Project State
@@ -74,6 +74,7 @@ Progress: [███████████░░] 85% (11/13 phases complete)
 | Phase 11 P03 | 30min | 2 tasks | 25 files |
 | Phase 11 P11-02 | 12 min | 3 tasks | 20 files |
 | Phase 11 P11-04 | 45min | 3 tasks | 29 files |
+| Phase 12 P06 | 5m | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -150,6 +151,8 @@ Progress: [███████████░░] 85% (11/13 phases complete)
 - Plan 11-04: Payload custom admin view at /admin/dashboard registered via admin.components.views.Dashboard in build-payload-config.ts; Component path '@mjagency/cms/admin-views/DashboardView#default' resolved by importMap.baseDir; await requireSession() FIRST runtime call in DashboardView (CLAUDE.md §3 + Pitfall 4.4 — Payload custom views do NOT auto-authenticate)
 - Plan 11-04: 60s polling via useDashboardPolling hook with document.visibilityState === 'visible' gate (D-14), inFlight ref guard preventing manual-refresh + interval-tick race (Pitfall 4.8); polling endpoint /api/admin/dashboard/metrics calls requireSession() first + 403 super_admin gate + Cache-Control: no-store (T-11-04-07)
 - Plan 11-04: dashboard.css uses 100% var(--mj-*) tokens (108 references), zero hex literals; sparkline uses external .dashboard-sparkline class (Pitfall 4.5 — per-request CSP nonce blocks inline styles); UI-SPEC strict typography honored — only 4 sizes (14/16/24/36) and 2 weights (400/700)
+- Badge colors as CSS classes (not inline styles) to satisfy CLAUDE.md §7 CSP nonce requirement for SLA page
+- --mj-color-info token confirmed present in layer-2-semantic-color.css; no fallback needed in .sla-badge--p3
 
 ### Pending Todos
 
@@ -172,8 +175,8 @@ None — 10-03 files complete, commit pending Bash access.
 
 ## Session Continuity
 
-Last session: 2026-04-28T07:48:25.085Z
-Stopped at: Completed 11-04-PLAN.md (Analytics dashboards — Surface 1 per-agency + Surface 2 platform overview, GA4+Postgres+RUM hybrid, 60s polling)
+Last session: 2026-04-28T09:33:25.743Z
+Stopped at: Completed 12-06-PLAN.md — public SLA page at /sla
 Resume file: None
 
 Next step: Plan 11-02 (Microsoft Clarity, partially in flight — already merged clarity-init.tsx + clarity-delete.ts into @mjagency/analytics in commit e8e244c) → 11-03 (Meta CAPI) → 11-04 (dashboard) → 11-05 (CCPA opt-out)
