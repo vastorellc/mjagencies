@@ -198,7 +198,8 @@
 **: Microsoft Clarity (session replay, heatmaps) — P0
 - [x] **REQ-142
 **: Meta CAPI server-side — P0
-- [ ] **REQ-143**: Per-agency analytics dashboards + platform overview — P0
+- [x] **REQ-143
+**: Per-agency analytics dashboards + platform overview — P0
 - [ ] **REQ-144**: CCPA — opt-out, data deletion, export tooling — P0
 - [ ] **REQ-145**: CSP nonce — per-request, injected into inline styles — P0
 - [x] **REQ-146

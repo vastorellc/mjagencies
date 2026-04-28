@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
 status: completed
-stopped_at: Completed 11-02-PLAN.md (Microsoft Clarity heatmaps + Delete API client wired into 12 layouts)
-last_updated: "2026-04-28T04:56:33.795Z"
-last_activity: 2026-04-28 -- Phase 11 plan 11-01 complete — @mjagency/analytics, getAgencySecret() helper, sGTM CF Worker, GA4InjectScript wired into 12 layouts.
+stopped_at: Completed 11-04-PLAN.md (Analytics dashboards — Surface 1 per-agency + Surface 2 platform overview, GA4+Postgres+RUM hybrid, 60s polling)
+last_updated: "2026-04-28T07:48:25.102Z"
+last_activity: 2026-04-28 -- Phase 11 plan 11-04 complete — Surface 1 per-agency + Surface 2 platform overview dashboards delivered as Payload custom admin view at /admin/dashboard; GA4+Postgres+RUM hybrid via Promise.allSettled; 60s polling with visibilityState gate; 4 atomic commits, 21/21 tests passing.
 progress:
   total_phases: 12
-  completed_phases: 9
+  completed_phases: 10
   total_plans: 71
-  completed_plans: 66
-  percent: 93
+  completed_plans: 68
+  percent: 96
 ---
 
 # Project State
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 11 (analytics-security) — IN PROGRESS (plans 11-07 + 11-06 + 11-01 complete; wave-2 11-02/03/04/05 next)
-Status: Phase 11 wave-2 progressing — GA4 ingestion + sGTM proxy complete
-Last activity: 2026-04-28 -- Phase 11 plan 11-01 complete — @mjagency/analytics, getAgencySecret() helper, sGTM CF Worker, GA4InjectScript wired into 12 layouts.
+Phase: 11 (analytics-security) — IN PROGRESS (plans 11-01/02/03/04/06/07 complete; 11-05 CCPA/ADA remaining)
+Status: Phase 11 wave-3 dashboards live — Surface 1 + Surface 2 wired through Payload custom admin view
+Last activity: 2026-04-28 -- Phase 11 plan 11-04 complete — Analytics dashboards via Payload custom admin view, GA4+Postgres+RUM hybrid, 60s polling with visibilityState gate.
 
-Progress: [█████████░] 93%
+Progress: [██████████] 96%
 
 ## Completed Phases
 
@@ -72,6 +72,7 @@ Progress: [█████████░] 93%
 | Phase 11 P06 | 5 | 3 tasks | 11 files |
 | Phase 11 P03 | 30min | 2 tasks | 25 files |
 | Phase 11 P11-02 | 12 min | 3 tasks | 20 files |
+| Phase 11 P11-04 | 45min | 3 tasks | 29 files |
 
 ## Accumulated Context
 
@@ -144,6 +145,10 @@ Progress: [█████████░] 93%
 - Microsoft Clarity uses ClarityInjectScript server-component wrapper around 'use client' ClarityInit — symmetric with Plan 11-01 GA4InjectScript pattern (1 import + 1 render line per layout, no async layouts needed)
 - @microsoft/clarity@1.0.2 actual API: Clarity.event(eventName) takes only event name; metadata uses Clarity.setTag(key, value). emitClarityEvent helper redacts each value via Phase 7 redactPii() then calls setTag + event
 - Mask Mode = Strict + network capture OFF live in Clarity DASHBOARD, not in code (no init() option in @microsoft/clarity@1.0.2 API). docs/runbooks/clarity-project-setup.md is the per-agency operator contract
+- Plan 11-04 dashboards: hybrid data sources per D-12 — GA4 Data API for traffic + top pages, per-agency Postgres aggregates for CRM (crm_contacts, crm_deals)/invoicing (invoices.total_amount), web_vitals percentile_cont(0.75) for RUM p75; orchestrator uses Promise.all + per-source Promise.allSettled (Pitfall 4.3 partial-failure isolation)
+- Plan 11-04: Payload custom admin view at /admin/dashboard registered via admin.components.views.Dashboard in build-payload-config.ts; Component path '@mjagency/cms/admin-views/DashboardView#default' resolved by importMap.baseDir; await requireSession() FIRST runtime call in DashboardView (CLAUDE.md §3 + Pitfall 4.4 — Payload custom views do NOT auto-authenticate)
+- Plan 11-04: 60s polling via useDashboardPolling hook with document.visibilityState === 'visible' gate (D-14), inFlight ref guard preventing manual-refresh + interval-tick race (Pitfall 4.8); polling endpoint /api/admin/dashboard/metrics calls requireSession() first + 403 super_admin gate + Cache-Control: no-store (T-11-04-07)
+- Plan 11-04: dashboard.css uses 100% var(--mj-*) tokens (108 references), zero hex literals; sparkline uses external .dashboard-sparkline class (Pitfall 4.5 — per-request CSP nonce blocks inline styles); UI-SPEC strict typography honored — only 4 sizes (14/16/24/36) and 2 weights (400/700)
 
 ### Pending Todos
 
@@ -166,8 +171,8 @@ None — 10-03 files complete, commit pending Bash access.
 
 ## Session Continuity
 
-Last session: 2026-04-28T04:56:33.779Z
-Stopped at: Completed 11-02-PLAN.md (Microsoft Clarity heatmaps + Delete API client wired into 12 layouts)
+Last session: 2026-04-28T07:48:25.085Z
+Stopped at: Completed 11-04-PLAN.md (Analytics dashboards — Surface 1 per-agency + Surface 2 platform overview, GA4+Postgres+RUM hybrid, 60s polling)
 Resume file: None
 
 Next step: Plan 11-02 (Microsoft Clarity, partially in flight — already merged clarity-init.tsx + clarity-delete.ts into @mjagency/analytics in commit e8e244c) → 11-03 (Meta CAPI) → 11-04 (dashboard) → 11-05 (CCPA opt-out)
