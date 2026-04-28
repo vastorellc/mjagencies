@@ -1,0 +1,150 @@
+name: Canary Deploy
+# Triggered manually via GitHub UI or Actions API
+# 5-job pipeline: build → deploy-canary (5%) → health-check (30s) → promote (100%) or rollback (0%)
+# Rollback design: single terraform apply → completes in < 60s (REQ-154)
+
+on:
+  workflow_dispatch:
+    inputs:
+      canary_script_name:
+        description: 'Cloudflare Worker script name for new canary build'
+        required: true
+      stable_script_name:
+        description: 'Cloudflare Worker script name for stable build (rollback target)'
+        required: true
+      base_domain:
+        description: 'Base domain for health checks (e.g., mjagency.com)'
+        required: true
+        default: 'mjagency.com'
+      health_check_timeout:
+        description: 'Health check poll window in seconds'
+        required: false
+        default: '30'
+
+concurrency:
+  group: canary-${{ github.ref }}
+  cancel-in-progress: false  # Never cancel an in-flight canary — rollback must complete
+
+env:
+  TF_WORKING_DIR: infra/cloudflare/canary
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    outputs:
+      build_tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - uses: dopplerhq/cli-action@v3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+      - id: tag
+        run: echo "tag=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+  deploy-canary:
+    name: Deploy 5% Canary
+    needs: build
+    runs-on: ubuntu-latest
+    # NOTE: Do NOT toggle Cloudflare WAF to enforcing mode during canary window
+    # (docs/runbooks/cloudflare-waf-toggle.md, 12-CONTEXT.md D-04)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.0"
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Deploy canary at 5% weight (REQ-153)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform apply -auto-approve \
+            -var="canary_weight=5" \
+            -var="canary_script_name=${{ inputs.canary_script_name }}" \
+            -var="stable_script_name=${{ inputs.stable_script_name }}"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Confirm canary active
+        run: echo "Canary deployed at 5% for ${{ inputs.canary_script_name }} (build ${{ needs.build.outputs.build_tag }})"
+
+  health-check:
+    name: Health Check (30s)
+    needs: deploy-canary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Poll /api/health for all 12 agencies
+        run: |
+          node scripts/canary-health-check.mjs \
+            --base-domain=${{ inputs.base_domain }} \
+            --timeout=${{ inputs.health_check_timeout }}
+
+  promote:
+    name: Promote to 100%
+    needs: health-check
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.0"
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Promote canary to 100% (REQ-153)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform apply -auto-approve \
+            -var="canary_weight=100" \
+            -var="canary_script_name=${{ inputs.canary_script_name }}" \
+            -var="stable_script_name=${{ inputs.stable_script_name }}"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - run: echo "Deployment complete. ${{ inputs.canary_script_name }} now serving 100% traffic."
+
+  rollback:
+    name: Auto-Rollback (< 60s, REQ-154)
+    needs: health-check
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.0"
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Rollback — set canary weight to 0 (REQ-154 rollback SLA < 60s)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform apply -auto-approve \
+            -var="canary_weight=0" \
+            -var="canary_script_name=${{ inputs.canary_script_name }}" \
+            -var="stable_script_name=${{ inputs.stable_script_name }}"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Rollback complete — alert
+        run: |
+          echo "::error::Canary rollback executed. Health check failed for ${{ inputs.canary_script_name }}. Stable build ${{ inputs.stable_script_name }} restored at 100%."
+          exit 1
