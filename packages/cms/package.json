@@ -13,6 +13,10 @@
     "./admin-views/DashboardView": {
       "types": "./src/admin-views/DashboardView.tsx",
       "default": "./src/admin-views/DashboardView.tsx"
+    },
+    "./admin-views/BrandSetupView": {
+      "types": "./src/admin-views/BrandSetupView.tsx",
+      "default": "./src/admin-views/BrandSetupView.tsx"
     }
   },
   "scripts": {

@@ -23,6 +23,8 @@ import { getLexicalFeatures } from '../editor/lexical-features.js'
 import { PAYLOAD_BLOCKS } from '../blocks/payload-blocks.js'
 // Plan 11-04: Analytics dashboard custom admin view registration (REQ-143, D-13).
 import { dashboardView } from '../admin-views/dashboard-view-config.js'
+// Plan 12-07: Brand Setup Wizard admin view registration at /admin/brand-setup.
+import { brandSetupView } from '../admin-views/brand-setup-view-config.js'
 
 export interface BuildPayloadConfigOptions {
   /** Absolute directory of the calling app (pass `path.dirname(fileURLToPath(import.meta.url))`) */
@@ -84,6 +86,8 @@ export function buildPayloadConfig({
         // see admin-views/DashboardView.tsx (CLAUDE.md §3 requireSession() first).
         views: {
           Dashboard: dashboardView,
+          // Plan 12-07: Brand Setup Wizard at /admin/brand-setup (super_admin only).
+          BrandSetup: brandSetupView,
         },
       },
       ...overrides.admin,
