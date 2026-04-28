@@ -24,6 +24,7 @@
     "@mjagency/config": "workspace:*",
     "@mjagency/ui": "workspace:*",
     "@mjagency/auth": "workspace:*",
+    "@mjagency/db": "workspace:*",
     "@mjagency/tools": "workspace:*"
   },
   "devDependencies": {
