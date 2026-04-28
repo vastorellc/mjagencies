@@ -256,13 +256,13 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 11-01: GA4 + GTM server-side container setup
+- [x] 11-01: GA4 + GTM server-side container setup
 - [ ] 11-02: Microsoft Clarity + heatmaps
 - [ ] 11-03: Meta CAPI server-side
 - [ ] 11-04: Analytics dashboards — per-agency + platform overview
 - [ ] 11-05: CCPA / ADA compliance tooling — opt-out, deletion, export
 - [x] 11-06: WAF + Cloudflare security rules
-- [ ] 11-07: Security hardening — CSP nonce, OWASP ZAP scan, pen test
+- [x] 11-07: Security hardening — CSP nonce, OWASP ZAP scan, pen test
 
 ### Phase 12: Launch + QA + Seeds + Runbooks + SLA
 **Goal**: Full QA pass for all 12 agencies, complete seed run, canary deploy, all runbooks, SLA documented, Brand Setup Wizard ready.

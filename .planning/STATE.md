@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
-status: Phase 11 wave-1 (security foundation) shipped; wave-2 unblocked
-stopped_at: Completed 11-06-PLAN.md (Cloudflare WAF Terraform)
-last_updated: "2026-04-28T04:45:16.457Z"
-last_activity: 2026-04-28 -- Phase 11 plan 11-07 complete — per-request CSP nonce, csp_reports + web_vitals tables, 26 ingestion endpoints, ZAP CI gates.
+status: completed
+stopped_at: Completed 11-01-PLAN.md (GA4 + sGTM container + getAgencySecret helper)
+last_updated: "2026-04-28T04:52:30.310Z"
+last_activity: 2026-04-28 -- Phase 11 plan 11-01 complete — @mjagency/analytics, getAgencySecret() helper, sGTM CF Worker, GA4InjectScript wired into 12 layouts.
 progress:
   total_phases: 12
   completed_phases: 9
   total_plans: 71
-  completed_plans: 63
-  percent: 89
+  completed_plans: 65
+  percent: 92
 ---
 
 # Project State
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 11 (analytics-security) — IN PROGRESS (plan 11-07 complete; wave-2 plans 11-01 through 11-06 next)
-Status: Phase 11 wave-1 (security foundation) shipped; wave-2 unblocked
-Last activity: 2026-04-28 -- Phase 11 plan 11-07 complete — per-request CSP nonce, csp_reports + web_vitals tables, 26 ingestion endpoints, ZAP CI gates.
+Phase: 11 (analytics-security) — IN PROGRESS (plans 11-07 + 11-06 + 11-01 complete; wave-2 11-02/03/04/05 next)
+Status: Phase 11 wave-2 progressing — GA4 ingestion + sGTM proxy complete
+Last activity: 2026-04-28 -- Phase 11 plan 11-01 complete — @mjagency/analytics, getAgencySecret() helper, sGTM CF Worker, GA4InjectScript wired into 12 layouts.
 
-Progress: [█████████░] 89%
+Progress: [█████████░] 92%
 
 ## Completed Phases
 
@@ -70,6 +70,7 @@ Progress: [█████████░] 89%
 | Phase 06-seo-plugin-engine P05 | 15 | 2 tasks | 7 files |
 | Phase 06-seo-plugin-engine P06 | 6 | 2 tasks | 7 files |
 | Phase 11 P06 | 5 | 3 tasks | 11 files |
+| Phase 11 P03 | 30min | 2 tasks | 25 files |
 
 ## Accumulated Context
 
@@ -128,6 +129,12 @@ Progress: [█████████░] 89%
 - forms + form_submissions collections use collectionAccess/deleteAccess/fieldImmutable pattern from @mjagency/crm
 - /api/contact honeypot protection only in Phase 09; rate limiting deferred to Phase 11
 - Cloudflare WAF: pinned cloudflare/cloudflare ~> 4.40 provider; for_each over 13-zone map; OWASP CRS managed ruleset; 4 custom firewall rules (4/5 free-tier cap); 5 rate limit rules (5/5 at cap); enable_enforcing toggle for log-only→enforcing rollout (Plan 11-06)
+- Plan 11-01 GA4 + sGTM: @mjagency/analytics package created with payload pinned 3.82.1; getAgencySecret(prefix, agencyId) helper added to @mjagency/config (slug normalization replaceAll('-','_').toUpperCase) — generalizes Phase 7 LITELLM_API_KEY_<SLUG> convention for Phase 11 reuse (Plan 11-02 Clarity, 11-03 Meta CAPI, 11-04 dashboard)
+- GA4InjectScript: server-component reads cookies().get('mj_consent') === 'tracking_blocked' → renders null; reads x-nonce header (Plan 11-07) → passes to <Script nonce={nonce}>; Pitfall 1.4 mitigated via EVENT_NAME_RE = /^[a-z][a-z0-9_]{0,39}$/ + clientId.length >= 8 BEFORE fetch
+- GA4 Data API: 5-min Redis cache (Pitfall 1.3 — 25K tokens/day quota); cache key agency:<id>:dashboard:ga4:<sha256-prefix-16>; agencyId stripped from hashed payload to dedupe identical query shapes
+- Cloudflare Worker sGTM proxy: matches /^analytics\.(web-[a-z]+)\./ → SGTM_TARGET_<SLUG_UPPER>; preserves CF-Connecting-IP via X-Forwarded-For; rejects unknown subdomains 400, missing target 503
+- Plan 11-01 deviation: project codebase has 12 vertical apps (web-ai, web-branding, etc.) not 13 niche apps as plan listed (web-realestate, web-petcare, etc. exist as partial route-group shells without (frontend)/layout.tsx) — wired GA4 into all 12 existing layouts
+- Test-only injection helpers __setRedisForTest, __setClientForTest exported from ga4-data-api.ts so unit tests can mock Redis + BetaAnalyticsDataClient without spinning real services
 
 ### Pending Todos
 
@@ -150,8 +157,8 @@ None — 10-03 files complete, commit pending Bash access.
 
 ## Session Continuity
 
-Last session: 2026-04-28T04:45:10.595Z
-Stopped at: Completed 11-06-PLAN.md (Cloudflare WAF Terraform)
+Last session: 2026-04-28T04:50:00Z
+Stopped at: Completed 11-01-PLAN.md (GA4 + sGTM container + getAgencySecret helper)
 Resume file: None
 
-Next step: Commit 10-03 files then continue Phase 10 (10-04, 10-05, etc.)
+Next step: Plan 11-02 (Microsoft Clarity, partially in flight — already merged clarity-init.tsx + clarity-delete.ts into @mjagency/analytics in commit e8e244c) → 11-03 (Meta CAPI) → 11-04 (dashboard) → 11-05 (CCPA opt-out)
