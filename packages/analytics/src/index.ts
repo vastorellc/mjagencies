@@ -7,5 +7,7 @@ export { GA4InjectScript } from './ga4-script.js'
 // Plan 11-02: Microsoft Clarity heatmaps + session recordings (REQ-141)
 export { ClarityInit, emitClarityEvent } from './clarity-init.js'
 export type { ClarityInitProps } from './clarity-init.js'
+export { ClarityInjectScript } from './clarity-script.js'
+export type { ClarityInjectScriptProps } from './clarity-script.js'
 export { clarityDeleteUser } from './clarity-delete.js'
 export type { ClarityDeleteResult } from './clarity-delete.js'
