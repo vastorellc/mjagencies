@@ -1,23 +1,13 @@
 ---
 phase: 08-public-frontend
-verified: 2026-04-27T12:00:00Z
-status: gaps_found
-score: 9/10
+verified: 2026-04-28T16:00:00Z
+status: passed
+score: 10/10
+gap_closure: 2026-04-28T16:00:00Z
+gaps_closed:
+  - "services/page.tsx 'coming soon' text replaced with real agency-specific copy (commit f3063b1 cherry-pick e67d2b4)"
 overrides_applied: 0
-gaps:
-  - truth: "services/page.tsx across all 12 apps contains literal 'coming soon' text"
-    status: partial
-    reason: "All 12 agency services/page.tsx files contain the string 'Service pages coming soon.' in the empty-state conditional branch. CLAUDE.md Rule 5 explicitly prohibits writing 'Coming soon'. The text appears only when fetchPagesIndex returns an empty array (no CMS content seeded), but it is rendered to users and violates the content-complete rule."
-    artifacts:
-      - path: "apps/web-ecommerce/src/app/(frontend)/services/page.tsx"
-        issue: "Line 58: 'Service pages coming soon.' in else branch"
-      - path: "apps/web-ai/src/app/(frontend)/services/page.tsx"
-        issue: "Line 29: 'Service pages coming soon.' in else branch"
-      - path: "apps/web-branding/src/app/(frontend)/services/page.tsx"
-        issue: "Line 29: 'Service pages coming soon.' in else branch"
-    missing:
-      - "Replace 'Service pages coming soon.' with 'We offer tailored [niche] services — contact us to discuss your project.' or similar real text that is not a coming-soon announcement across all 12 apps"
-      - "The blog empty state 'No posts published yet. Check back soon.' is explicitly spec'd in the plan and matches the blog SC so is ACCEPTED — the services equivalent was not spec'd this way and should be updated"
+gaps: []
 human_verification:
   - test: "Load each agency app home page at its subdomain and confirm page renders"
     expected: "All 12 agency home pages load with real layout, fonts, and WebVitalsReporter mounted"
@@ -144,7 +134,7 @@ Step 7b: SKIPPED — No running HTTP server available for Lighthouse/browser beh
 
 | File | Pattern | Severity | Impact |
 |------|---------|----------|--------|
-| `apps/web-*/src/app/(frontend)/services/page.tsx` (all 12) | `"Service pages coming soon."` in else branch | WARNING | Violates CLAUDE.md Rule 5 ("NEVER write 'Coming soon'"). The text is in a runtime-conditional empty-state branch (rendered when `services.length === 0` before CMS content is seeded), but it literally says "coming soon" and will be visible to users on empty deployments. The blog equivalent ("No posts published yet. Check back soon.") was explicitly specified in the 08-07 plan; the services equivalent was not. |
+| (none) | — | — | All anti-patterns resolved in commit e67d2b4 |
 
 Note: The blog "No posts published yet. Check back soon." text is NOT flagged — it was explicitly specified in the 08-07 plan's acceptance criteria (line 48 and AC5) and is the spec-approved empty state.
 
@@ -182,15 +172,9 @@ Note: `dangerouslySetInnerHTML` appears in FAQ and service pages for JSON-LD scr
 
 ## Gaps Summary
 
-**1 gap blocking full compliance:**
+**All gaps closed — Phase 8 passed (2026-04-28).**
 
-The `services/page.tsx` empty-state fallback across all 12 agency apps contains the literal string "Service pages coming soon." This violates CLAUDE.md Rule 5 which states "NEVER write 'Coming soon'". Unlike the blog empty state ("No posts published yet. Check back soon.") which was explicitly specified and approved in the 08-07 plan acceptance criteria, the services equivalent was not spec-approved and should be replaced with real fallback copy such as:
-
-> "We offer tailored ecommerce services. Contact us to discuss your project."
-
-This is a single find-and-update across 12 files (each with its own agency-specific phrasing). The pattern is in the else branch of a `services.length > 0` conditional, so no structural changes are needed — only the copy.
-
-**ROADMAP note:** Plans 08-05, 08-06, and 08-07 are still marked `[ ]` (unchecked) in ROADMAP.md despite all artifacts being present in the codebase. The ROADMAP should be updated to `[x]` for these three plans.
+Previous gap (services "coming soon" text) resolved in commit e67d2b4: all 12 `services/page.tsx` files replaced with agency-specific real copy using the cherry-picked files from worktree-agent-accfc500ad0137dde.
 
 ---
 
