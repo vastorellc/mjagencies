@@ -1,0 +1,36 @@
+{
+  "name": "@mjagency/analytics",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": { "types": "./src/index.ts", "default": "./src/index.ts" },
+    "./ga4-server": { "types": "./src/ga4-server.ts", "default": "./src/ga4-server.ts" },
+    "./ga4-data-api": { "types": "./src/ga4-data-api.ts", "default": "./src/ga4-data-api.ts" },
+    "./ga4-script": { "types": "./src/ga4-script.tsx", "default": "./src/ga4-script.tsx" }
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@google-analytics/data": "5.2.1",
+    "@mjagency/config": "workspace:*",
+    "ioredis": "5.10.1",
+    "payload": "3.82.1"
+  },
+  "peerDependencies": {
+    "next": ">=15.0.0",
+    "react": ">=19.0.0"
+  },
+  "devDependencies": {
+    "@mjagency/testing": "workspace:*",
+    "@types/node": "22.9.0",
+    "@types/react": "19.0.0",
+    "typescript": "5.6.3",
+    "vitest": "2.1.8"
+  }
+}
