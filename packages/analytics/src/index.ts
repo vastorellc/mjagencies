@@ -14,3 +14,7 @@ export type { ClarityDeleteResult } from './clarity-delete.js'
 
 // Plan 11-04: Dashboard data layer (REQ-143) — GA4 + Postgres + RUM hybrid
 export * from './dashboard/index.js'
+
+// Plan 11-03 browser-side companion: Meta Pixel client script (REQ-142)
+export { MetaPixelScript } from './meta-pixel.js'
+export type { } from './meta-pixel.js'

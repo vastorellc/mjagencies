@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { cookies } from 'next/headers'
 import { GA4InjectScript } from '@mjagency/analytics/ga4-script'
 import { ClarityInjectScript } from '@mjagency/analytics/clarity-script'
+import { MetaPixelScript } from '@mjagency/analytics/meta-pixel'
 import {
   ConsentProvider,
   CookieHintBanner,
@@ -43,6 +44,7 @@ export default async function FrontendLayout({
 
   const ga4Id = process.env['NEXT_PUBLIC_GA4_MEASUREMENT_ID']
   const clarityProjectId = process.env['NEXT_PUBLIC_CLARITY_PROJECT_ID']
+  const metaPixelId = process.env['NEXT_PUBLIC_META_PIXEL_ID']
 
   return (
     <html lang="en">
@@ -50,6 +52,7 @@ export default async function FrontendLayout({
         <ConsentProvider initial={consent}>
           {ga4Id ? <GA4InjectScript measurementId={ga4Id} /> : null}
           {clarityProjectId ? <ClarityInjectScript projectId={clarityProjectId} /> : null}
+          {metaPixelId ? <MetaPixelScript pixelId={metaPixelId} /> : null}
           {children}
           <OptOutModal />
           {!hintDismissed && <CookieHintBanner />}

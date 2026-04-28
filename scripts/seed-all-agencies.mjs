@@ -15,9 +15,9 @@ const REPO_ROOT = join(__dirname, '..')
 const STATUS_DIR = join(REPO_ROOT, '.planning', 'seed-status')
 
 const AGENCY_SLUGS = [
-  'web-ai', 'web-branding', 'web-construction', 'web-dental',
-  'web-ecommerce', 'web-financial', 'web-fitness', 'web-homeservices',
-  'web-legal', 'web-realestate', 'web-restaurant', 'web-spa',
+  'web-ai', 'web-branding', 'web-ecommerce', 'web-engineering',
+  'web-finance', 'web-graphic', 'web-growth', 'web-main',
+  'web-product', 'web-strategy', 'web-video', 'web-webdev',
 ]
 
 const HELP = `

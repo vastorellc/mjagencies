@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { GA4InjectScript } from '@mjagency/analytics/ga4-script'
 import { ClarityInjectScript } from '@mjagency/analytics/clarity-script'
+import { MetaPixelScript } from '@mjagency/analytics/meta-pixel'
 
 export const metadata: Metadata = {
   title: 'MJAgency Platform — Video',
@@ -16,11 +17,13 @@ export default function FrontendLayout({ children }: { children: ReactNode }): R
   // The per-request CSP nonce (Plan 11-07) is read from x-nonce inside GA4InjectScript.
   const ga4Id = process.env['NEXT_PUBLIC_GA4_MEASUREMENT_ID']
   const clarityProjectId = process.env['NEXT_PUBLIC_CLARITY_PROJECT_ID']
+  const metaPixelId = process.env['NEXT_PUBLIC_META_PIXEL_ID']
   return (
     <html lang="en">
       <body>
         {ga4Id ? <GA4InjectScript measurementId={ga4Id} /> : null}
         {clarityProjectId ? <ClarityInjectScript projectId={clarityProjectId} /> : null}
+          {metaPixelId ? <MetaPixelScript pixelId={metaPixelId} /> : null}
         {children}
       </body>
     </html>
