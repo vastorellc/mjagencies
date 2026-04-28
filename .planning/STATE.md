@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
 status: completed
-stopped_at: Completed 11-01-PLAN.md (GA4 + sGTM container + getAgencySecret helper)
-last_updated: "2026-04-28T04:52:30.310Z"
+stopped_at: Completed 11-03-PLAN.md (Meta CAPI server-side, BullMQ encrypted queue, Lead+Purchase wired)
+last_updated: "2026-04-28T04:52:46.223Z"
 last_activity: 2026-04-28 -- Phase 11 plan 11-01 complete — @mjagency/analytics, getAgencySecret() helper, sGTM CF Worker, GA4InjectScript wired into 12 layouts.
 progress:
   total_phases: 12
@@ -135,6 +135,11 @@ Progress: [█████████░] 92%
 - Cloudflare Worker sGTM proxy: matches /^analytics\.(web-[a-z]+)\./ → SGTM_TARGET_<SLUG_UPPER>; preserves CF-Connecting-IP via X-Forwarded-For; rejects unknown subdomains 400, missing target 503
 - Plan 11-01 deviation: project codebase has 12 vertical apps (web-ai, web-branding, etc.) not 13 niche apps as plan listed (web-realestate, web-petcare, etc. exist as partial route-group shells without (frontend)/layout.tsx) — wired GA4 into all 12 existing layouts
 - Test-only injection helpers __setRedisForTest, __setClientForTest exported from ga4-data-api.ts so unit tests can mock Redis + BetaAnalyticsDataClient without spinning real services
+- Plan 11-03: Created standalone @mjagency/meta-capi package (not inside @mjagency/analytics) to decouple from in-flight Plan 11-01 GA4 work
+- Plan 11-03: Direct fetch to graph.facebook.com/v22.0 (NOT facebook-nodejs-business-sdk) — SDK is 3MB and Edge-incompatible; single REST endpoint does not justify it
+- Plan 11-03: jobId = event_id pairs BullMQ once-only processing with Meta event_id dedup — retries cannot produce duplicate Lead/Purchase events
+- Plan 11-03: Lead emission moved to form-worker.ts (after createContact succeeds) — uses Payload contact id as external_id; Purchase emits only on newStatus=paid (not partial)
+- Plan 11-03: D-10 enforced — Meta CAPI is server-side ONLY; CSP allowlist (security-headers + middleware) intentionally OMITS facebook.com
 
 ### Pending Todos
 
@@ -157,8 +162,8 @@ None — 10-03 files complete, commit pending Bash access.
 
 ## Session Continuity
 
-Last session: 2026-04-28T04:50:00Z
-Stopped at: Completed 11-01-PLAN.md (GA4 + sGTM container + getAgencySecret helper)
+Last session: 2026-04-28T04:52:46.190Z
+Stopped at: Completed 11-03-PLAN.md (Meta CAPI server-side, BullMQ encrypted queue, Lead+Purchase wired)
 Resume file: None
 
 Next step: Plan 11-02 (Microsoft Clarity, partially in flight — already merged clarity-init.tsx + clarity-delete.ts into @mjagency/analytics in commit e8e244c) → 11-03 (Meta CAPI) → 11-04 (dashboard) → 11-05 (CCPA opt-out)
