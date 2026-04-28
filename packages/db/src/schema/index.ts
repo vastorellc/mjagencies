@@ -21,3 +21,5 @@ export { crmContacts, crmAccounts, crmDeals, crmActivities, crmTasks, crmRlsSql 
 export { proposals, proposalViews, proposalsRlsSql } from './proposals.js'
 export { invoices, invoicesRlsSql } from './invoices.js'
 export { esignRecords, esignRlsSql } from './esign.js'
+export { cspReports } from './csp-reports.js'
+export { webVitals, webVitalsRlsSql } from './web-vitals.js'

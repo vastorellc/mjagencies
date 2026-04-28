@@ -22,6 +22,10 @@ export { agencyConnection, buildDatabaseUrl, allAgencyConnections } from './conn
 export * as schema from './schema/index.js'
 export { createAgencyDb, withAgencyContext } from './client.js'
 export type { AgencyDb } from './client.js'
+// Plan 11-07: top-level re-exports for API route handlers (csp-report + rum endpoints
+// in apps/web-*/src/app/api/) — keeps import path simple: `import { cspReports, webVitals } from '@mjagency/db'`.
+export { cspReports } from './schema/csp-reports.js'
+export { webVitals, webVitalsRlsSql } from './schema/web-vitals.js'
 export * as migrate from './migrate/index.js'
 // Vault namespace (Plan 02-06)
 export * as vault from './vault/index.js'
