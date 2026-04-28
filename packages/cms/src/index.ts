@@ -72,6 +72,11 @@ export {
 export type { AiActionResult } from './editor/ai-hooks-stub.js'
 export { PAYLOAD_BLOCKS } from './blocks/payload-blocks.js'
 
+// Plan 11-04: Analytics dashboard custom admin view registration (REQ-143).
+// The view component itself lives at ./admin-views/DashboardView.tsx and is
+// resolved by Payload via importMap (string Component path).
+export { dashboardView } from './admin-views/dashboard-view-config.js'
+
 // Plan 05-05 DAM additions
 export { DAM_VIEWS, getDamViewForRole } from './dam/views.js'
 export type { DamViewId, DamViewConfig, DamTab } from './dam/views.js'

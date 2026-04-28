@@ -1166,12 +1166,18 @@ importers:
       '@mjagency/ai':
         specifier: workspace:*
         version: link:../ai
+      '@mjagency/analytics':
+        specifier: workspace:*
+        version: link:../analytics
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../auth
       '@mjagency/config':
         specifier: workspace:*
         version: link:../config
+      '@mjagency/db':
+        specifier: workspace:*
+        version: link:../db
       '@mjagency/media':
         specifier: workspace:*
         version: link:../media
@@ -1193,6 +1199,12 @@ importers:
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1(canvas@2.11.2)
+      next:
+        specifier: '>=15.0.0'
+        version: 15.5.15(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-macros@3.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4)
+      server-only:
+        specifier: 0.0.1
+        version: 0.0.1
       svgo:
         specifier: ^3.3.2
         version: 3.3.3
@@ -1202,7 +1214,7 @@ importers:
         version: 3.82.1(@opentelemetry/api@1.9.0)(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(postgres@3.4.9)
       '@payloadcms/richtext-lexical':
         specifier: 3.82.1
-        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(graphql@16.13.2)(next@15.5.15(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(next@15.5.15(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
+        version: 3.82.1(@faceless-ui/modal@3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@faceless-ui/scroll-info@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@payloadcms/next@3.82.1(@types/react@19.0.0)(graphql@16.13.2)(next@15.5.15(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(@types/react@19.0.0)(next@15.5.15(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.82.1(graphql@16.13.2)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)(yjs@13.6.30)
       '@types/dompurify':
         specifier: ^3.0.5
         version: 3.2.0
@@ -1212,9 +1224,15 @@ importers:
       '@types/node':
         specifier: 22.9.0
         version: 22.9.0
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
       payload:
         specifier: 3.82.1
         version: 3.82.1(graphql@16.13.2)(typescript@5.6.3)
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
       typescript:
         specifier: 5.6.3
         version: 5.6.3

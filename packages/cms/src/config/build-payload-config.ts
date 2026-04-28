@@ -21,6 +21,8 @@ import { lexicalEditor, BlocksFeature } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { getLexicalFeatures } from '../editor/lexical-features.js'
 import { PAYLOAD_BLOCKS } from '../blocks/payload-blocks.js'
+// Plan 11-04: Analytics dashboard custom admin view registration (REQ-143, D-13).
+import { dashboardView } from '../admin-views/dashboard-view-config.js'
 
 export interface BuildPayloadConfigOptions {
   /** Absolute directory of the calling app (pass `path.dirname(fileURLToPath(import.meta.url))`) */
@@ -77,6 +79,12 @@ export function buildPayloadConfig({
         afterDocControls: [
           './src/app/(payload)/admin/components/SeoPanel',
         ],
+        // Plan 11-04 D-13: register Surface 1 + Surface 2 dashboard at
+        // /admin/dashboard. The view component path resolves via importMap;
+        // see admin-views/DashboardView.tsx (CLAUDE.md §3 requireSession() first).
+        views: {
+          Dashboard: dashboardView,
+        },
       },
       ...overrides.admin,
     },
