@@ -211,8 +211,8 @@
 - [ ] **REQ-150**: Full QA matrix passes for all 12 agencies — P0
 - [ ] **REQ-151**: All P0 pages — real content, real assets, validators pass — P0
 - [ ] **REQ-152**: `gsd headless` pre-launch gate (exit 0 = pass) — P0
-- [ ] **REQ-153**: Canary deploy — 5% → health check → 100% — P0
-- [ ] **REQ-154**: Auto-rollback on regression detection (<60s) — P0
+- [x] **REQ-153**: Canary deploy — 5% → health check → 100% — P0
+- [x] **REQ-154**: Auto-rollback on regression detection (<60s) — P0
 - [x] **REQ-155
 **: 13 runbooks pre-written — P0
 - [ ] **REQ-156**: Brand Setup Wizard — only user task post-generate — P0

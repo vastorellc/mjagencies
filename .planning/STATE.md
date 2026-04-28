@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
 status: completed
-stopped_at: Completed 12-01-PLAN.md — qa-matrix types + 12 E2E suites + QaReportView
-last_updated: "2026-04-28T10:55:00.000Z"
+stopped_at: Completed 12-04-PLAN.md — canary deploy pipeline (health-check + weights.tf + canary-deploy.yml)
+last_updated: "2026-04-28T11:30:00.000Z"
 last_activity: 2026-04-28 -- Phase 11 complete — GA4 + Clarity + Meta CAPI + analytics dashboards + CCPA opt-out/erasure + WAF + CSP nonce + OWASP ZAP CI gates. Verified 44/45.
 progress:
   total_phases: 13
   completed_phases: 10
   total_plans: 78
-  completed_plans: 71
-  percent: 91
+  completed_plans: 72
+  percent: 92
 ---
 
 # Project State
@@ -78,6 +78,7 @@ Progress: [█████████░] 91%
 | Phase 12 P07 | 252 | 2 tasks | 7 files |
 | Phase 12-launch-qa-seeds-runbooks-sla P05 | 45m | 2 tasks | 13 files |
 | Phase 12-launch-qa-seeds-runbooks-sla P01 | 22m | 2 tasks | 33 files |
+| Phase 12-launch-qa-seeds-runbooks-sla P04 | 15m | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -162,6 +163,9 @@ Progress: [█████████░] 91%
 - CCPA erasure manual runbook gates on confirmed identity verification before BullMQ enqueue (STRIDE T-12-05-01 mitigation)
 - JWT_SECRET rotation requires adding old secret to Redis revocation set to prevent old-key tokens remaining valid
 - brand-setup-wizard.md references Phase 12-02 seed as prerequisite for deltaE check to prevent always-fail ΔE during setup
+- Canary pipeline: concurrency cancel-in-progress=false prevents race where new dispatch cancels in-flight canary before rollback fires (T-12-04-01)
+- Canary rollback: single terraform apply with canary_weight=0 destroys cloudflare_workers_deployment.canary in < 60s (REQ-154)
+- WAF must remain in log-only mode during canary window per 12-CONTEXT.md D-04
 
 ### Pending Todos
 
@@ -184,8 +188,8 @@ None — 10-03 files complete, commit pending Bash access.
 
 ## Session Continuity
 
-Last session: 2026-04-28T09:42:17.260Z
-Stopped at: Completed 12-05-PLAN.md — 13 operational runbooks
+Last session: 2026-04-28T11:30:00Z
+Stopped at: Completed 12-04-PLAN.md — canary deploy pipeline (canary-health-check.mjs + canary-weights.tf + canary-deploy.yml)
 Resume file: None
 
-Next step: Continue Phase 12 remaining plans (12-02 seeds, 12-03 canary deploy, 12-04 SLA page, 12-06 pre-launch gate)
+Next step: Continue Phase 12 remaining plans (12-02 seeds, 12-06 pre-launch gate)
