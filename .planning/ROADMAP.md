@@ -261,7 +261,7 @@ Plans:
 - [ ] 11-03: Meta CAPI server-side
 - [ ] 11-04: Analytics dashboards — per-agency + platform overview
 - [ ] 11-05: CCPA / ADA compliance tooling — opt-out, deletion, export
-- [ ] 11-06: WAF + Cloudflare security rules
+- [x] 11-06: WAF + Cloudflare security rules
 - [ ] 11-07: Security hardening — CSP nonce, OWASP ZAP scan, pen test
 
 ### Phase 12: Launch + QA + Seeds + Runbooks + SLA

@@ -199,7 +199,8 @@
 - [ ] **REQ-143**: Per-agency analytics dashboards + platform overview — P0
 - [ ] **REQ-144**: CCPA — opt-out, data deletion, export tooling — P0
 - [ ] **REQ-145**: CSP nonce — per-request, injected into inline styles — P0
-- [ ] **REQ-146**: WAF + Cloudflare security rules — P0
+- [x] **REQ-146
+**: WAF + Cloudflare security rules — P0
 - [ ] **REQ-147**: OWASP ZAP scan — zero high-severity in Phase 12 — P0
 
 ### Launch + QA (Phase 12)

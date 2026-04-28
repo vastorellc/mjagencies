@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v9.1.20
 milestone_name: milestone
-status: Phase 10 COMPLETE — verified 27/27. Ready for Phase 11.
-stopped_at: "Phase 10 COMPLETE — 7/7 plans verified. Next: Phase 11 (analytics-compliance-security)"
-last_updated: "2026-04-28T02:00:00Z"
-last_activity: 2026-04-28 -- Phase 10 complete — 36 tools, proposal builder, e-sign, invoicing, Puck builder. Verified 27/27. 10 of 13 phases done.
+status: Phase 11 wave-1 (security foundation) shipped; wave-2 unblocked
+stopped_at: Completed 11-06-PLAN.md (Cloudflare WAF Terraform)
+last_updated: "2026-04-28T04:45:16.457Z"
+last_activity: 2026-04-28 -- Phase 11 plan 11-07 complete — per-request CSP nonce, csp_reports + web_vitals tables, 26 ingestion endpoints, ZAP CI gates.
 progress:
-  total_phases: 13
-  completed_phases: 10
-  total_plans: 57
-  completed_plans: 57
-  percent: 77
+  total_phases: 12
+  completed_phases: 9
+  total_plans: 71
+  completed_plans: 63
+  percent: 89
 ---
 
 # Project State
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 10 (tools-pitch-builder) — COMPLETE (plans 01–07 all complete, verified 27/27)
-Status: Phase 10 complete — ready for Phase 11
-Last activity: 2026-04-28 -- Phase 10 complete — 36 tools, proposal builder, e-sign (ESIGN Act), invoicing 7-state, Puck builder. Verified 27/27.
+Phase: 11 (analytics-security) — IN PROGRESS (plan 11-07 complete; wave-2 plans 11-01 through 11-06 next)
+Status: Phase 11 wave-1 (security foundation) shipped; wave-2 unblocked
+Last activity: 2026-04-28 -- Phase 11 plan 11-07 complete — per-request CSP nonce, csp_reports + web_vitals tables, 26 ingestion endpoints, ZAP CI gates.
 
-Progress: [██████████░░░] 77% (10/13 phases complete)
+Progress: [█████████░] 89%
 
 ## Completed Phases
 
@@ -69,6 +69,7 @@ Progress: [██████████░░░] 77% (10/13 phases complete)
 | Phase 06-seo-plugin-engine P04 | 3 | 3 commits (TDD) | 3 files |
 | Phase 06-seo-plugin-engine P05 | 15 | 2 tasks | 7 files |
 | Phase 06-seo-plugin-engine P06 | 6 | 2 tasks | 7 files |
+| Phase 11 P06 | 5 | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -126,6 +127,7 @@ Progress: [██████████░░░] 77% (10/13 phases complete)
 - Agency slug sourced from NEXT_PUBLIC_AGENCY_SLUG env var per Phase 8 pattern (not hardcoded AGENCY_ID)
 - forms + form_submissions collections use collectionAccess/deleteAccess/fieldImmutable pattern from @mjagency/crm
 - /api/contact honeypot protection only in Phase 09; rate limiting deferred to Phase 11
+- Cloudflare WAF: pinned cloudflare/cloudflare ~> 4.40 provider; for_each over 13-zone map; OWASP CRS managed ruleset; 4 custom firewall rules (4/5 free-tier cap); 5 rate limit rules (5/5 at cap); enable_enforcing toggle for log-only→enforcing rollout (Plan 11-06)
 
 ### Pending Todos
 
@@ -148,8 +150,8 @@ None — 10-03 files complete, commit pending Bash access.
 
 ## Session Continuity
 
-Last session: 2026-04-28T00:00:00Z
-Stopped at: Phase 10 plan 10-03 — all files written, git commit pending Bash access
+Last session: 2026-04-28T04:45:10.595Z
+Stopped at: Completed 11-06-PLAN.md (Cloudflare WAF Terraform)
 Resume file: None
 
 Next step: Commit 10-03 files then continue Phase 10 (10-04, 10-05, etc.)
