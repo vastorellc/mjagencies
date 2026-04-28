@@ -26,6 +26,12 @@ export type { AgencyDb } from './client.js'
 // in apps/web-*/src/app/api/) — keeps import path simple: `import { cspReports, webVitals } from '@mjagency/db'`.
 export { cspReports } from './schema/csp-reports.js'
 export { webVitals, webVitalsRlsSql } from './schema/web-vitals.js'
+// Plan 11-05: top-level re-exports for /api/ccpa/opt-out + /api/privacy/erasure-* route handlers.
+export {
+  ccpaErasureRecords,
+  ccpaErasureRecordsRlsSql,
+} from './schema/ccpa-erasure-records.js'
+export { consentLog, consentLogRlsSql } from './schema/consent-log.js'
 export * as migrate from './migrate/index.js'
 // Vault namespace (Plan 02-06)
 export * as vault from './vault/index.js'
