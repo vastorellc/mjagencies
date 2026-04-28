@@ -51,6 +51,9 @@ export type { MjBlockConfig, PuckComponentEntry } from './blocks/get-block-confi
 // Plan 08-01: WebVitalsReporter — RUM component for all 12 agency apps (REQ-097)
 export { WebVitalsReporter } from './rum/web-vitals.js';
 
+// Plan 11-07: per-request CSP nonce React Context (REQ-145)
+export { NonceProvider, useNonce, type NonceProviderProps } from './nonce/index.js';
+
 // Plan 09-03: ContactFormClient — WCAG 2.2 AA contact form with honeypot, inline validation
 export { ContactFormClient } from './components/contact-form-client.js';
 export type { ContactFormClientProps } from './components/contact-form-client.js';

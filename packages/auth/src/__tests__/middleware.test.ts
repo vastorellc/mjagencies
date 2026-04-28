@@ -108,7 +108,13 @@ describe('createAuthMiddleware', () => {
       'max-age=63072000; includeSubDomains; preload',
     )
     expect(res.headers.get('X-Frame-Options')).toBe('DENY')
-    expect(res.headers.get('Content-Security-Policy')).toContain("default-src 'self'")
+    // Plan 11-07: CSP is per-request nonce in middleware; D-08 Stage 1 emits Report-Only by default
+    const csp =
+      res.headers.get('Content-Security-Policy-Report-Only') ??
+      res.headers.get('Content-Security-Policy') ??
+      ''
+    expect(csp).toContain("default-src 'self'")
+    expect(csp).toMatch(/'nonce-[^']+'/)
   })
 
   // -------------------------------------------------------------------------

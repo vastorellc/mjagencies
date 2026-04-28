@@ -1,7 +1,13 @@
 /**
  * packages/auth/src/__tests__/security-headers.test.ts
  *
- * Unit tests for applySecurityHeaders — validates all 7 security headers are set correctly.
+ * Unit tests for applySecurityHeaders — validates the 6 security headers set here.
+ *
+ * Plan 11-07 update: Content-Security-Policy is NO LONGER set by this function. CSP is
+ * generated per-request as a nonce-CSP in middleware.ts. See csp-nonce.test.ts for the
+ * CSP coverage. The CI grep gate (.github/workflows/csp-static-grep-gate.yml) prevents
+ * a static CSP from regressing into security-headers.ts.
+ *
  * Uses a NextResponse-shaped object with a real Headers instance (no mocks needed).
  */
 
@@ -15,7 +21,7 @@ function makeFakeResponse(): NextResponse {
 }
 
 describe('applySecurityHeaders', () => {
-  it('Test 1: sets all 7 expected security headers', () => {
+  it('Test 1: sets all 6 expected security headers (CSP moved to middleware)', () => {
     const res = makeFakeResponse()
     applySecurityHeaders(res)
 
@@ -25,7 +31,6 @@ describe('applySecurityHeaders', () => {
     expect(res.headers.get('X-Content-Type-Options')).not.toBeNull()
     expect(res.headers.get('Referrer-Policy')).not.toBeNull()
     expect(res.headers.get('Permissions-Policy')).not.toBeNull()
-    expect(res.headers.get('Content-Security-Policy')).not.toBeNull()
   })
 
   it('Test 2: HSTS value is max-age=63072000; includeSubDomains; preload', () => {
@@ -42,11 +47,10 @@ describe('applySecurityHeaders', () => {
     expect(res.headers.get('X-Frame-Options')).toBe('DENY')
   })
 
-  it("Test 4: CSP contains default-src 'self' AND frame-ancestors 'none'", () => {
+  it('Test 4: does NOT set Content-Security-Policy (Plan 11-07 — CSP set in middleware)', () => {
     const res = makeFakeResponse()
     applySecurityHeaders(res)
-    const csp = res.headers.get('Content-Security-Policy') ?? ''
-    expect(csp).toContain("default-src 'self'")
-    expect(csp).toContain("frame-ancestors 'none'")
+    expect(res.headers.get('Content-Security-Policy')).toBeNull()
+    expect(res.headers.get('Content-Security-Policy-Report-Only')).toBeNull()
   })
 })
