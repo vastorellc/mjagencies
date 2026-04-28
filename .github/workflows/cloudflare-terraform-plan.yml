@@ -1,0 +1,88 @@
+name: Cloudflare Terraform Plan
+
+# REQ-145 / REQ-146 — Plan 11-06 CI gate.
+#
+# On every PR that modifies infra/cloudflare/**, run terraform fmt check,
+# validate, and plan -detailed-exitcode. Manual `terraform apply` is required
+# on merge — automated apply is deferred to Phase 12 launch QA so a human
+# always reviews the plan output before WAF rules change in production.
+#
+# detailed-exitcode semantics:
+#   0 = no changes (plan succeeded, nothing to apply)
+#   1 = error (plan failed)
+#   2 = changes pending (plan succeeded, apply will modify resources)
+# This workflow passes on 0 and 2, fails on 1.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'infra/cloudflare/**'
+      - '.github/workflows/cloudflare-terraform-plan.yml'
+
+concurrency:
+  group: cloudflare-tf-plan-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  terraform-plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.6.6'
+          terraform_wrapper: false
+
+      - name: Terraform fmt check
+        working-directory: infra/cloudflare
+        run: terraform fmt -check -recursive -diff
+
+      - name: Terraform init (no backend)
+        working-directory: infra/cloudflare
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        working-directory: infra/cloudflare
+        run: terraform validate
+
+      - name: Terraform plan (detailed exit code)
+        working-directory: infra/cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_zone_ids: ${{ secrets.CLOUDFLARE_ZONE_IDS_JSON }}
+        # detailed-exitcode: 0 = no changes, 1 = error, 2 = changes pending.
+        # Pass on 0 (no-op PRs) and 2 (PRs proposing changes); fail on 1 (error).
+        run: |
+          set +e
+          terraform plan -detailed-exitcode -out=tfplan -no-color
+          EXIT=$?
+          set -e
+          if [ "$EXIT" = "1" ]; then
+            echo "::error::Terraform plan failed (exit 1)."
+            exit 1
+          fi
+          if [ "$EXIT" = "2" ]; then
+            echo "::notice::Terraform plan has pending changes (exit 2). Review the plan output before merging."
+          fi
+          if [ "$EXIT" = "0" ]; then
+            echo "::notice::Terraform plan reports no changes (exit 0)."
+          fi
+
+      - name: Upload plan artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: infra/cloudflare/tfplan
+          if-no-files-found: ignore
+          retention-days: 7
