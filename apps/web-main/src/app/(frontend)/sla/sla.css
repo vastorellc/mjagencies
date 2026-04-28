@@ -1,0 +1,35 @@
+/* sla.css — severity badge classes for SLA page
+   Uses var(--mj-*) tokens. Phase 11 CSP enforcement blocks uninonce'd inline styles;
+   stylesheet classes are nonce-exempt. */
+
+.sla-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--mj-space-1) var(--mj-space-2);
+  border-radius: var(--mj-radius-full);
+  font-size: 14px;
+  font-weight: 400;
+  background: var(--mj-color-bg-secondary);
+  border: 1px solid;
+}
+
+.sla-badge--p1 {
+  color: var(--mj-color-error);
+  border-color: var(--mj-color-error);
+}
+
+.sla-badge--p2 {
+  color: var(--mj-color-warning);
+  border-color: var(--mj-color-warning);
+}
+
+.sla-badge--p3 {
+  /* --mj-color-info is defined in layer-2-semantic-color.css; no fallback needed */
+  color: var(--mj-color-info);
+  border-color: var(--mj-color-info);
+}
+
+.sla-badge--p4 {
+  color: var(--mj-color-text-secondary);
+  border-color: var(--mj-color-border-default);
+}
