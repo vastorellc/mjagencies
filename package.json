@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "setup-hosts": "scripts/setup-hosts.sh",
     "theme:validate": "tsx scripts/validate-themes.ts",
-    "theme:generate": "tsx scripts/generate-agency-css.ts"
+    "theme:generate": "tsx scripts/generate-agency-css.ts",
+    "gsd-headless": "node scripts/gsd-headless.mjs"
   },
   "dependencies": {
     "@mjagency/config": "workspace:*",

@@ -1,0 +1,61 @@
+name: Pre-Launch Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Base URL of deployed app for live checks (E2E/axe/ZAP/Lighthouse)'
+        required: false
+        default: ''
+  push:
+    branches: [main]
+
+concurrency:
+  group: pre-launch-gate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pre-launch-gate:
+    name: gsd headless — all checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - uses: dopplerhq/cli-action@v3
+      - run: pnpm install --frozen-lockfile
+
+      - name: REQ-501 Payload version pin check
+        run: |
+          PAYLOAD_VERSION=$(node -e "console.log(require('./node_modules/payload/package.json').version)" 2>/dev/null || echo "not-found")
+          if [ "$PAYLOAD_VERSION" != "3.82.1" ]; then
+            echo "::error::REQ-501: payload must be exactly 3.82.1 (found: $PAYLOAD_VERSION)"
+            exit 1
+          fi
+
+      - name: REQ-502 No jsonwebtoken usage
+        run: |
+          COUNT=$(grep -rn "from 'jsonwebtoken'\|require('jsonwebtoken')" apps/ packages/ --include="*.ts" --include="*.tsx" --include="*.js" 2>/dev/null | grep -v node_modules | wc -l)
+          if [ "$COUNT" -gt "0" ]; then
+            echo "::error::REQ-502: jsonwebtoken found in codebase (use jose only per CLAUDE.md rule 2)"
+            exit 1
+          fi
+
+      - name: Run gsd-headless (static checks)
+        run: node scripts/gsd-headless.mjs --skip=e2e-smoke,axe-wcag,zap-passive,lighthouse
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+
+      - name: Run gsd-headless (live checks — requires target_url)
+        if: ${{ inputs.target_url != '' }}
+        run: node scripts/gsd-headless.mjs --skip=typecheck,unit-tests,csp-grep
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+          E2E_BASE_URL: ${{ inputs.target_url }}
+          ZAP_TARGET_URL: ${{ inputs.target_url }}
+          LHCI_SERVER_URL: ${{ secrets.LHCI_SERVER_URL }}
