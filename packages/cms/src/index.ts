@@ -39,6 +39,7 @@ export {
   settingsCollection,
   templatesCollection,
   globalBlocksCollection,
+  caseStudiesCollection,
 } from './collections/index.js'
 
 export {
@@ -100,3 +101,7 @@ export { fetchPageBySlug, fetchPagesIndex, fetchAllPageSlugs } from './lib/fetch
 export type { CmsPage } from './lib/fetch-pages.js'
 export { fetchPostBySlug, fetchPostsIndex, fetchAllPostSlugs } from './lib/fetch-posts.js'
 export type { CmsPost } from './lib/fetch-posts.js'
+
+// Backlog 999.1 Pre-D — case-studies fetchers
+export { fetchCaseStudyBySlug, fetchCaseStudiesIndex, fetchAllCaseStudySlugs } from './lib/fetch-case-studies.js'
+export type { CmsCaseStudy } from './lib/fetch-case-studies.js'

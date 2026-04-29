@@ -26,6 +26,7 @@ import { seoSuggestionsCollection } from './seo-suggestions.js'
 import { algoAlertsCollection } from './algo-alerts.js'
 import { brandVoiceCollection } from './brand-voice.js'
 import { brandGlossaryCollection } from './brand-glossary.js'
+import { caseStudiesCollection } from './case-studies.js'
 import { usersCollection } from './users.js'
 
 export const CORE_COLLECTIONS: CollectionConfig[] = [
@@ -46,6 +47,7 @@ export const CORE_COLLECTIONS: CollectionConfig[] = [
   algoAlertsCollection,
   brandVoiceCollection,
   brandGlossaryCollection,
+  caseStudiesCollection,
 ]
 
 export {
@@ -66,4 +68,5 @@ export {
   algoAlertsCollection,
   brandVoiceCollection,
   brandGlossaryCollection,
+  caseStudiesCollection,
 }
