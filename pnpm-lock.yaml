@@ -39,9 +39,27 @@ importers:
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@mjagency/cms':
+        specifier: workspace:*
+        version: link:../../packages/cms
+      '@mjagency/compliance':
+        specifier: workspace:*
+        version: link:../../packages/compliance
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@mjagency/forms':
+        specifier: workspace:*
+        version: link:../../packages/forms
+      '@mjagency/media':
+        specifier: workspace:*
+        version: link:../../packages/media
+      '@mjagency/queue':
+        specifier: workspace:*
+        version: link:../../packages/queue
+      '@mjagency/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       '@mjagency/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -115,9 +133,27 @@ importers:
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@mjagency/cms':
+        specifier: workspace:*
+        version: link:../../packages/cms
+      '@mjagency/compliance':
+        specifier: workspace:*
+        version: link:../../packages/compliance
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@mjagency/forms':
+        specifier: workspace:*
+        version: link:../../packages/forms
+      '@mjagency/media':
+        specifier: workspace:*
+        version: link:../../packages/media
+      '@mjagency/queue':
+        specifier: workspace:*
+        version: link:../../packages/queue
+      '@mjagency/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       '@mjagency/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -191,6 +227,9 @@ importers:
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@mjagency/cms':
+        specifier: workspace:*
+        version: link:../../packages/cms
       '@mjagency/compliance':
         specifier: workspace:*
         version: link:../../packages/compliance
@@ -203,9 +242,18 @@ importers:
       '@mjagency/email':
         specifier: workspace:*
         version: link:../../packages/email
+      '@mjagency/forms':
+        specifier: workspace:*
+        version: link:../../packages/forms
+      '@mjagency/media':
+        specifier: workspace:*
+        version: link:../../packages/media
       '@mjagency/queue':
         specifier: workspace:*
         version: link:../../packages/queue
+      '@mjagency/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       '@mjagency/tools':
         specifier: workspace:*
         version: link:../../packages/tools

@@ -25,7 +25,13 @@
     "@mjagency/config": "workspace:*",
     "@mjagency/ui": "workspace:*",
     "@mjagency/auth": "workspace:*",
-    "@mjagency/analytics": "workspace:*"
+    "@mjagency/analytics": "workspace:*",
+    "@mjagency/cms": "workspace:*",
+    "@mjagency/compliance": "workspace:*",
+    "@mjagency/forms": "workspace:*",
+    "@mjagency/media": "workspace:*",
+    "@mjagency/queue": "workspace:*",
+    "@mjagency/seo": "workspace:*"
   },
   "devDependencies": {
     "@mjagency/testing": "workspace:*",

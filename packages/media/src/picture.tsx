@@ -2,7 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import type { ImageProps } from 'next/image'
 import { decodeBlurHash } from './blurhash.js'
-import type { BlurHashResult } from './blurhash.js'
+import type { BlurHashResult } from './types.js'
 
 export interface MjImageProps {
   /** Cloudflare Images image ID (not a full URL) */
@@ -27,6 +27,8 @@ export interface MjImageProps {
   sizes?: string
   /** Additional className for the wrapping element (use var(--mj-*) tokens only in CSS) */
   className?: string
+  /** Inline style — kept narrow to React.CSSProperties so consumers can pass var(--mj-*) tokens. */
+  style?: React.CSSProperties
 }
 
 const CF_ACCOUNT_ID =
@@ -52,6 +54,7 @@ export function MjImage({
   priority = false,
   sizes = '100vw',
   className,
+  style,
 }: MjImageProps): React.ReactElement {
   const src = `https://imagedelivery.net/${CF_ACCOUNT_ID}/${cloudflareImageId}/public`
 
@@ -71,6 +74,7 @@ export function MjImage({
       priority={priority}
       sizes={sizes}
       className={className}
+      style={style}
       // REQ-098: SVG bypass is intentionally omitted and must never be added.
       // SVG files are sanitized at upload (DOMPurify+SVGO) before reaching Cloudflare Images.
       {...blurProps}
