@@ -88,3 +88,15 @@ registerAllWorkers()
 // matching the producer's per-agency Redis prefix.
 import { registerToolPdfEmailBridges } from './src/jobs/tool-pdf-email-bridge.js'
 registerToolPdfEmailBridges()
+
+// CCPA §1798.105 right-to-erasure worker. Drains the `ccpa-erasure` queue
+// produced by /api/privacy/erasure-confirm and runs the 7-system fan-out
+// (Postgres, Redis, R2, GA4, Meta CAPI, Clarity, LiteLLM) with hash-chained
+// audit + receipt-PDF email. Without this, an erasure request enqueues but
+// nothing actually deletes — a regulatory exposure.
+//
+// loadLegalHoldRules defaults to returning null (use safe ESIGN-Act 7yr
+// defaults). Per-agency overrides via LEGAL_HOLD_<AGENCY>_* env vars; see
+// apps/web-main/src/jobs/erasure-worker.ts for the contract.
+import { registerErasureWorkers } from './src/jobs/erasure-worker.js'
+registerErasureWorkers()
