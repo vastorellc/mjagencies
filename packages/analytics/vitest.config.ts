@@ -5,11 +5,16 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
+  esbuild: {
+    // React 17+ automatic JSX so .tsx server components can be imported under
+    // vitest without `import React` (matches Next.js's swc transform).
+    jsx: 'automatic',
+  },
   test: {
     environment: 'node',
     globals: true,
     coverage: { provider: 'v8', reporter: ['text', 'lcov'] },
-    include: ['src/**/*.test.ts', 'src/__tests__/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}', 'src/**/__tests__/**/*.test.{ts,tsx}'],
   },
   resolve: {
     alias: {
