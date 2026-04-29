@@ -592,6 +592,9 @@ importers:
       '@mjagency/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@mjagency/booking':
+        specifier: workspace:*
+        version: link:../../packages/booking
       '@mjagency/cms':
         specifier: workspace:*
         version: link:../../packages/cms
@@ -601,21 +604,39 @@ importers:
       '@mjagency/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@mjagency/crm':
+        specifier: workspace:*
+        version: link:../../packages/crm
       '@mjagency/db':
         specifier: workspace:*
         version: link:../../packages/db
       '@mjagency/email':
         specifier: workspace:*
         version: link:../../packages/email
+      '@mjagency/esign':
+        specifier: workspace:*
+        version: link:../../packages/esign
+      '@mjagency/forms':
+        specifier: workspace:*
+        version: link:../../packages/forms
       '@mjagency/invoices':
         specifier: workspace:*
         version: link:../../packages/invoices
+      '@mjagency/meta-capi':
+        specifier: workspace:*
+        version: link:../../packages/meta-capi
+      '@mjagency/proposals':
+        specifier: workspace:*
+        version: link:../../packages/proposals
       '@mjagency/queue':
         specifier: workspace:*
         version: link:../../packages/queue
       '@mjagency/seo':
         specifier: workspace:*
         version: link:../../packages/seo
+      '@mjagency/sms':
+        specifier: workspace:*
+        version: link:../../packages/sms
       '@mjagency/ui':
         specifier: workspace:*
         version: link:../../packages/ui

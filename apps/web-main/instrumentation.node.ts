@@ -72,3 +72,12 @@ startInvoiceWorker()
 // that emails reminders on day 3 / 7 / 14 and closes invoices at day 30.
 import { startDunningWorker } from '@mjagency/invoices'
 startDunningWorker()
+
+// Launch fix: bootstrap every remaining BullMQ worker that was authored but
+// never registered (email, forms, booking, crm, sms, meta-capi, opt-out
+// fanout, esign, proposal expiry). Without this call, jobs enqueued by
+// public forms, contact submissions, esign flows, etc. would pile up in
+// Redis without ever being drained. Registration is best-effort —
+// individual failures are logged, not fatal.
+import { registerAllWorkers } from './src/jobs/register-all-workers.js'
+registerAllWorkers()
