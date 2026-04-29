@@ -1330,18 +1330,24 @@ importers:
       '@mjagency/testing':
         specifier: workspace:*
         version: link:../testing
+      '@testing-library/react':
+        specifier: ^16.0.0
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@types/node':
         specifier: 22.9.0
         version: 22.9.0
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
+      jsdom:
+        specifier: ^25.0.0
+        version: 25.0.1(canvas@2.11.2)
       typescript:
         specifier: 5.6.3
         version: 5.6.3
       vitest:
         specifier: 2.1.8
-        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(jsdom@28.1.0(@noble/hashes@2.2.0))(lightningcss@1.32.0)(msw@2.7.0(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
+        version: 2.1.8(@types/node@22.9.0)(happy-dom@20.9.0)(jsdom@25.0.1(canvas@2.11.2))(lightningcss@1.32.0)(msw@2.7.0(@types/node@22.9.0)(typescript@5.6.3))(sass@1.77.4)
 
   packages/config:
     dependencies:
