@@ -10,6 +10,7 @@ import {
   OptOutModal,
   type ConsentState,
 } from '@mjagency/compliance'
+import { SiteNav, SiteFooter } from '@mjagency/ui'
 
 export const metadata: Metadata = {
   title: 'MJAgency Platform — E-Commerce',
@@ -49,6 +50,7 @@ export default async function FrontendLayout({
   return (
     <html lang="en">
       <body>
+        <SiteNav agencyName="MJ Ecommerce Agency" />
         <ConsentProvider initial={consent}>
           {ga4Id ? <GA4InjectScript measurementId={ga4Id} /> : null}
           {clarityProjectId ? <ClarityInjectScript projectId={clarityProjectId} /> : null}
@@ -56,6 +58,7 @@ export default async function FrontendLayout({
           {children}
           <OptOutModal />
           {!hintDismissed && <CookieHintBanner />}
+          <SiteFooter agencyName="MJ Ecommerce Agency" tagline="Shopify development, CRO, and paid acquisition for high-growth brands." />
         </ConsentProvider>
       </body>
     </html>

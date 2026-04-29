@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { cookies } from 'next/headers'
 import { Inter } from 'next/font/google'
-import { WebVitalsReporter } from '@mjagency/ui'
+import { WebVitalsReporter, SiteNav, SiteFooter } from '@mjagency/ui'
 import { GA4InjectScript } from '@mjagency/analytics/ga4-script'
 import { ClarityInjectScript } from '@mjagency/analytics/clarity-script'
 import { MetaPixelScript } from '@mjagency/analytics/meta-pixel'
@@ -58,14 +58,20 @@ export default async function FrontendLayout({
   const metaPixelId = process.env['NEXT_PUBLIC_META_PIXEL_ID']
 
   return (
-    <ConsentProvider initial={consent}>
-      {ga4Id ? <GA4InjectScript measurementId={ga4Id} /> : null}
-      {clarityProjectId ? <ClarityInjectScript projectId={clarityProjectId} /> : null}
-      {metaPixelId ? <MetaPixelScript pixelId={metaPixelId} /> : null}
-      <div className={inter.variable}>{children}</div>
-      <WebVitalsReporter ga4MeasurementId={ga4LegacyId} />
-      <OptOutModal />
-      {!hintDismissed && <CookieHintBanner />}
-    </ConsentProvider>
+    <html lang="en">
+      <body>
+        <SiteNav agencyName="MJ Agency" />
+        <ConsentProvider initial={consent}>
+          {ga4Id ? <GA4InjectScript measurementId={ga4Id} /> : null}
+          {clarityProjectId ? <ClarityInjectScript projectId={clarityProjectId} /> : null}
+          {metaPixelId ? <MetaPixelScript pixelId={metaPixelId} /> : null}
+          <div className={inter.variable}>{children}</div>
+          <WebVitalsReporter ga4MeasurementId={ga4LegacyId} />
+          <OptOutModal />
+          {!hintDismissed && <CookieHintBanner />}
+          <SiteFooter agencyName="MJ Agency" tagline="Eleven specialist practices. One integrated agency." />
+        </ConsentProvider>
+      </body>
+    </html>
   )
 }

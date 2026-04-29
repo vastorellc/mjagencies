@@ -58,5 +58,11 @@ export { NonceProvider, useNonce, type NonceProviderProps } from './nonce/index.
 export { ContactFormClient } from './components/contact-form-client.js';
 export type { ContactFormClientProps } from './components/contact-form-client.js';
 
+// Phase 08 UI shell: sticky nav + branded footer for all 12 agency (frontend) layouts
+export { SiteNav } from './components/site-nav.js';
+export type { } from './components/site-nav.js';
+export { SiteFooter } from './components/site-footer.js';
+export type { } from './components/site-footer.js';
+
 // Plan 11-04: Analytics dashboards — KPI cards + tables + 60s polling hook (REQ-143)
 export * from './dashboard/index.js';
