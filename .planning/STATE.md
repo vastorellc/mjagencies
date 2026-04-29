@@ -4,8 +4,8 @@ milestone: v9.1.20
 milestone_name: milestone
 status: completed
 stopped_at: Gap closure complete — all 6 closeable audit gaps resolved (commit e67d2b4 + f3063b1). Deferred: Gap 7 (Payload migrations) needs live Postgres.
-last_updated: "2026-04-29T15:45:00.000Z"
-last_activity: 2026-04-29 -- Seed image gate moved to orchestration layer (commit eb1f4e5); backlog 999.1 filed for MjImage slots (commit 3523f8a); STATE.md reconciled with audit — 04-02 + 10-03 todos already resolved, 11 phantom-shell apps identified as blocker for any cross-agency frontend work.
+last_updated: "2026-04-29T20:00:00.000Z"
+last_activity: 2026-04-29 -- Phase 999.1 partial execution against user override "do the 12×6=72 slot task". Phase A (foundation) committed eb1f4e5+bc2c42f — MjImage now exported from @mjagency/media barrel, BlurHashResult fixed, missing workspace deps added across 3 real apps. Phase B (slot installs) committed adc92e7 — 13 of 72 slots installed across web-ai/web-branding/web-ecommerce. Remaining 59 slots blocked on Pre-C (scaffold 9 phantom apps, ~126 files) and Pre-D (case-studies CMS collection + 12 route files).
 progress:
   total_phases: 12
   completed_phases: 12
@@ -171,7 +171,7 @@ Progress: [██████████] 100%
 ### Pending Todos
 
 - Run `doppler login` then resume Plan 01-06 (Doppler workspace bootstrap) — still blocked on interactive OAuth (human action required)
-- **Backlog 999.1** — MjImage slots × 6 templates × 12 apps (filed 2026-04-29, commit `3523f8a`); blocked on phantom-app scaffolding + image pipeline
+- **Backlog 999.1** — MjImage slots × 6 templates × 12 apps (filed 2026-04-29, commit `3523f8a`); 13/72 slots installed (Phase A `bc2c42f` + Phase B `adc92e7`); remaining 59 slots blocked on Pre-C (phantom-app scaffolding) + Pre-D (case-studies CMS schema). Image pipeline (Pre-B) still gates real seed runs.
 
 ### Resolved (audited 2026-04-29)
 
