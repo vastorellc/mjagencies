@@ -304,3 +304,34 @@ Plans:
 | 10. Tools + Pitch + PDF + Builder | 7/7 | Complete | 2026-04-28 |
 | 11. Analytics + Compliance + Security | 7/7 | Complete (11-05 substantially complete) | 2026-04-28 |
 | 12. Launch + QA + Seeds + Runbooks | 7/7 | Complete | 2026-04-28 |
+
+## Backlog
+
+### Phase 999.1: MjImage slots across 12 agency apps (BACKLOG)
+
+**Goal:** [Captured for future planning]
+
+Add `MjImage` (from `packages/media`) to 6 templates across all 12 agency apps:
+1. `(frontend)/page.tsx` — hero + secondary from CMS globals
+2. `(frontend)/about/page.tsx` — hero + team photo grid
+3. `(frontend)/services/page.tsx` (index) — featured_image per service card
+4. `(frontend)/blog/page.tsx` (index) — featured_image per post card
+5. `(frontend)/tools/[slug]/page.tsx` — featured_image
+6. `(frontend)/case-studies/[slug]/page.tsx` — featured_image
+
+Hard requirements: alt text non-optional, explicit width + height, no raw `<img>` tags.
+
+**Prerequisites (must resolve before planning):**
+- **Scaffold missing routes:** 9 of 12 apps (web-construction, web-dental, web-financial, web-fitness, web-homeservices, web-legal, web-realestate, web-restaurant, web-spa) lack `(frontend)/page.tsx`, `about/`, `services/`, `blog/` index routes. Only web-ai, web-branding, web-ecommerce have them.
+- **Scaffold `case-studies/[slug]/page.tsx`** — route does not exist in any of the 12 apps.
+- **Image pipeline must populate `cloudflare_image_id`** in `packages/db/src/seeds/agency-seed-manifest.ts` — seed-side image gate landed in commit `eb1f4e5` and currently rejects with `IMAGE SEED GATE FAILED — run image pipeline first` until real Cloudflare IDs replace the 300 placeholder slots.
+
+**Current state (audited 2026-04-29):**
+- Existing `MjImage` usage in the 12 apps lives only in `blog/[slug]/page.tsx` and `services/[slug]/page.tsx` for web-ai/web-branding/web-ecommerce — not in any of the 6 requested template targets.
+- 0 raw `<img>` tags in any `(frontend)/` page across all 12 apps.
+
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)
