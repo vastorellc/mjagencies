@@ -607,6 +607,9 @@ importers:
       '@mjagency/email':
         specifier: workspace:*
         version: link:../../packages/email
+      '@mjagency/invoices':
+        specifier: workspace:*
+        version: link:../../packages/invoices
       '@mjagency/queue':
         specifier: workspace:*
         version: link:../../packages/queue
@@ -649,6 +652,9 @@ importers:
       react-dom:
         specifier: 19.0.0
         version: 19.0.0(react@19.0.0)
+      stripe:
+        specifier: 17.3.1
+        version: 17.3.1
       zod:
         specifier: 3.25.28
         version: 3.25.28
@@ -10129,6 +10135,10 @@ packages:
   strip-json-comments@5.0.3:
     resolution: {integrity: sha512-1tB5mhVo7U+ETBKNf92xT4hrQa3pm0MZ0PQvuDnWgAAGHDsfp4lPSpiS6psrSiet87wyGPh9ft6wmhOMQ0hDiw==}
     engines: {node: '>=14.16'}
+
+  stripe@17.3.1:
+    resolution: {integrity: sha512-E9/u+GFBPkYnTmfFCoKX3+gP4R3SkZoGunHe4cw9J+sqkj5uxpLFf1LscuI9BuEyIQ0PFAgPTHavgQwRtOvnag==}
+    engines: {node: '>=12.*'}
 
   stripe@17.7.0:
     resolution: {integrity: sha512-aT2BU9KkizY9SATf14WhhYVv2uOapBWX0OFWF4xvcj1mPaNotlSc2CsxpS4DS46ZueSppmCF5BX1sNYBtwBvfw==}
@@ -21127,6 +21137,11 @@ snapshots:
   strip-json-comments@3.1.1: {}
 
   strip-json-comments@5.0.3: {}
+
+  stripe@17.3.1:
+    dependencies:
+      '@types/node': 22.9.0
+      qs: 6.15.1
 
   stripe@17.7.0:
     dependencies:

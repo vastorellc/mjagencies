@@ -52,3 +52,23 @@ await registerAlgoWatcher()
 // Phase 7: AI cost-cap monthly reset (REQ-080)
 import { registerCostReset } from './src/jobs/cost-reset.js'
 await registerCostReset()
+
+// Phase 9 / launch fix: Stripe webhook event router. Drains the `stripe-events`
+// queue produced by /api/stripe/webhook and dispatches to downstream handlers
+// (invoice-worker for payment / dispute events, log-only stubs for the rest).
+// One Worker per agency to mirror the per-agency Redis prefix the webhook uses.
+import { registerStripeWebhookWorkers } from './src/jobs/stripe-webhook-worker.js'
+registerStripeWebhookWorkers()
+
+// Phase 9 / launch fix: invoice-event consumer. Subscribes to the
+// `stripe-invoice-event` queue that the Stripe webhook router re-enqueues
+// onto. Handles checkout.session.completed (invoice paid + Meta CAPI Purchase)
+// and charge.dispute.created (chargeback evidence compilation).
+// Without this, the invoice worker code in packages/invoices is dead.
+import { startInvoiceWorker } from '@mjagency/invoices'
+startInvoiceWorker()
+
+// Phase 9 / launch fix: dunning worker. Daily-cron BullMQ repeatable job
+// that emails reminders on day 3 / 7 / 14 and closes invoices at day 30.
+import { startDunningWorker } from '@mjagency/invoices'
+startDunningWorker()
