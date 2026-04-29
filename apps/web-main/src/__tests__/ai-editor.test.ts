@@ -39,6 +39,7 @@ vi.mock('@mjagency/ai', () => ({
   aiCounterArgument: vi.fn(),
   aiSuggestStat: vi.fn(),
   aiBrandVoiceRewrite: vi.fn(),
+  getBrandVoiceContext: vi.fn(async () => 'TONE: Professional'),
 }))
 
 import {

@@ -19,5 +19,9 @@ export default defineConfig({
     globals: true,
     coverage: { provider: 'v8', reporter: ['text', 'lcov'] },
     include: ['src/**/*.test.ts', '**/__tests__/**/*.test.ts'],
+    // First test in some files dynamically imports modules that pull in
+    // bullmq / next/server / OpenTelemetry — the cold-cache import chain
+    // can take 5-10 seconds on Windows. Bump from default 5000ms.
+    testTimeout: 15000,
   },
 })

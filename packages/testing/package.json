@@ -13,6 +13,10 @@
     "./msw": {
       "types": "./src/msw/handlers.ts",
       "default": "./src/msw/handlers.ts"
+    },
+    "./tempo-client": {
+      "types": "./src/tempo-client.ts",
+      "default": "./src/tempo-client.ts"
     }
   },
   "scripts": {
