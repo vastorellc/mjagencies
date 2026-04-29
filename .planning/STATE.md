@@ -4,8 +4,8 @@ milestone: v9.1.20
 milestone_name: milestone
 status: completed
 stopped_at: Gap closure complete — all 6 closeable audit gaps resolved (commit e67d2b4 + f3063b1). Deferred: Gap 7 (Payload migrations) needs live Postgres.
-last_updated: "2026-04-28T16:00:00.000Z"
-last_activity: 2026-04-28 -- Gap closure: ISR hooks, fetch utilities, 132 P0 pages (cherry-pick from worktree-agent-accfc500ad0137dde), AiPanel registration, MetaPixelScript (all 12 layouts), seed slug correction. Audit status updated to gaps_closed. Phase 8 VERIFICATION updated to passed 10/10.
+last_updated: "2026-04-29T15:45:00.000Z"
+last_activity: 2026-04-29 -- Seed image gate moved to orchestration layer (commit eb1f4e5); backlog 999.1 filed for MjImage slots (commit 3523f8a); STATE.md reconciled with audit — 04-02 + 10-03 todos already resolved, 11 phantom-shell apps identified as blocker for any cross-agency frontend work.
 progress:
   total_phases: 12
   completed_phases: 12
@@ -170,27 +170,35 @@ Progress: [██████████] 100%
 
 ### Pending Todos
 
-- Run `doppler login` then resume Plan 01-06 (Doppler workspace bootstrap)
-- Write missing 04-02 SUMMARY.md (code is done, commits b48476c–711f0b8)
-- Commit 10-03 work (Bash access denied during execution — all files written, need git add + commit)
-- Add `@mjagency/tools: workspace:*` to apps/web-realestate, healthcare, legal, homeservices, fitness, dental, automotive, restaurant, education, financial, petcare package.json files
+- Run `doppler login` then resume Plan 01-06 (Doppler workspace bootstrap) — still blocked on interactive OAuth (human action required)
+- **Backlog 999.1** — MjImage slots × 6 templates × 12 apps (filed 2026-04-29, commit `3523f8a`); blocked on phantom-app scaffolding + image pipeline
+
+### Resolved (audited 2026-04-29)
+
+- ✓ Plan 04-02 SUMMARY.md — already exists in `.planning/phases/04-design-system/`
+- ✓ Plan 10-03 commit — already committed (SUMMARY exists, no uncommitted artifacts)
+- ✓ Seed image gate — landed in commit `eb1f4e5` at the orchestration layer (CLAUDE.md §5)
+
+### Phantom-app finding (2026-04-29)
+
+11 apps under `apps/` (web-automotive, web-dental, web-education, web-financial, web-fitness, web-healthcare, web-homeservices, web-legal, web-petcare, web-realestate, web-restaurant) have `(frontend)/tools/[slug]/page.tsx` files importing `@mjagency/tools` but **no `package.json`** — they aren't buildable Next.js apps, just orphan route files. The carried-over todo "add `@mjagency/tools` dep to 11 agency apps" is therefore N/A as written: the package.json files don't exist; scaffolding the apps themselves is the prerequisite work.
 
 ### Blockers/Concerns
 
-None — 10-03 files complete, commit pending Bash access.
+- 11 phantom-shell apps without `package.json` block both 999.1 (MjImage slots) and any future seed-driven launch of those agencies. Resolution requires a dedicated app-scaffolding phase in the next milestone.
 
 ## Deferred Items
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | Infra | Plan 01-06: Doppler workspace bootstrap | Blocked on `doppler login` (interactive OAuth) | 2026-04-26 |
-| Docs | Plan 04-02 SUMMARY.md missing | Code committed (b48476c, 938cdea, 9b7a889); summary never written | 2026-04-26 |
-| Build | 11 agency apps need @mjagency/tools dep in package.json | Blocked on Bash/write access to parallel worktree files | 2026-04-28 |
+| Build | 11 phantom-shell apps lack `package.json` (orphan `tools/[slug]/page.tsx` files) | Needs dedicated scaffolding phase in next milestone | 2026-04-29 |
+| UI | Backlog 999.1 — MjImage slot installation across 12 apps × 6 templates | Filed; blocked on app scaffolding + image pipeline | 2026-04-29 |
 
 ## Session Continuity
 
-Last session: 2026-04-28T11:30:00Z
-Stopped at: Completed 12-04-PLAN.md — canary deploy pipeline (canary-health-check.mjs + canary-weights.tf + canary-deploy.yml)
+Last session: 2026-04-29T15:45:00Z
+Stopped at: Backlog review complete — 999.1 kept; carried todos audited and reconciled with reality.
 Resume file: None
 
-Next step: Continue Phase 12 remaining plans (12-02 seeds, 12-06 pre-launch gate)
+Next step: Open milestone v9.2.0 scoped around image pipeline + phantom-app scaffolding so 999.1 can be promoted with real prerequisites.
