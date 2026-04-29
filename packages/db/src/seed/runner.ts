@@ -30,9 +30,29 @@
 
 import { eq, sql } from 'drizzle-orm'
 import { seedState } from '../schema/seed-state.js'
+import { validateAgencySeedImages } from '../seeds/agency-seed-manifest.js'
 import type { AgencyDb } from '../client.js'
 import type { SeedStep } from './types.js'
 import type { AGENCIES } from '@mjagency/config'
+
+/**
+ * Image gate (CLAUDE.md §5 content-complete rule).
+ *
+ * Wraps validateAgencySeedImages() in a uniform error envelope so callers can
+ * distinguish a missing-asset failure from any other seed error.
+ *
+ * Lives at the orchestration layer — runSeedAllAgencies and the seed-payload-
+ * collections CLI call it once before any DB write. Per-step runSeed deliberately
+ * does NOT call it, so unit tests can exercise the state machine without needing
+ * a fully populated manifest.
+ */
+function assertManifestImagesPopulated(): void {
+  try {
+    validateAgencySeedImages()
+  } catch (err) {
+    throw new Error('IMAGE SEED GATE FAILED — run image pipeline first', { cause: err })
+  }
+}
 
 /** Simple UUID regex for runtime validation of the agencyId argument. */
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
@@ -144,6 +164,8 @@ export async function runSeedAllAgencies(
   }>,
   steps: SeedStep[]
 ): Promise<SeedAgencyResult[]> {
+  assertManifestImagesPopulated()
+
   const results = await Promise.allSettled(
     agencyTargets.map(({ slug, db, agencyId }) =>
       runSeed(db, slug, agencyId, steps)

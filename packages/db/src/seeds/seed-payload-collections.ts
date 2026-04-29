@@ -61,7 +61,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     process.exit(1)
   }
   import('./agency-seed-manifest.js')
-    .then(({ AGENCY_SEED_MANIFEST }) => {
+    .then(({ AGENCY_SEED_MANIFEST, validateAgencySeedImages }) => {
+      try {
+        validateAgencySeedImages()
+      } catch (err) {
+        console.error('seed-payload-collections: IMAGE SEED GATE FAILED — run image pipeline first')
+        console.error(String((err as { cause?: unknown }).cause ?? err))
+        process.exit(1)
+      }
       const manifest = AGENCY_SEED_MANIFEST[agencySlug]
       if (!manifest) {
         console.error(`seed-payload-collections: unknown agency slug "${agencySlug}"`)

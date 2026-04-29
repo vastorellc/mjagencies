@@ -16,7 +16,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { agencyUuid } from '../seed/uuid.js'
-import { runSeed } from '../seed/runner.js'
+import { runSeed, runSeedAllAgencies } from '../seed/runner.js'
 import type { SeedStep } from '../seed/types.js'
 
 // ---------------------------------------------------------------------------
@@ -304,6 +304,27 @@ describe('runSeed — empty steps', () => {
     await expect(
       runSeed(db as any, 'ecommerce', agencyUuid('ecommerce'), [])
     ).resolves.toBeUndefined()
+    expect(db.select).not.toHaveBeenCalled()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Test 8: Orchestration image gate — runSeedAllAgencies fails loudly when
+// the manifest has unpopulated cloudflare_image_id slots (CLAUDE.md §5).
+// runSeed itself does NOT call the gate — that is by design so unit tests
+// can exercise the state machine without a fully populated manifest.
+// ---------------------------------------------------------------------------
+
+describe('runSeedAllAgencies — image gate', () => {
+  it('rejects with IMAGE SEED GATE FAILED when manifest images are empty', async () => {
+    const db = buildMockDbWithStepState({})
+    const slug = 'ecommerce' as const
+    await expect(
+      runSeedAllAgencies(
+        [{ slug, db: db as any, agencyId: agencyUuid(slug) }],
+        []
+      )
+    ).rejects.toThrow(/IMAGE SEED GATE FAILED/)
     expect(db.select).not.toHaveBeenCalled()
   })
 })
