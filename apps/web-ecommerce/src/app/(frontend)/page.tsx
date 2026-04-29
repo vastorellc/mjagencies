@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import type React from 'react'
 import { fetchPageBySlug } from '@mjagency/cms'
+import { MjImage } from '@mjagency/media'
 import { ShoppingBag, TrendingUp, Target } from 'lucide-react'
 
 const AGENCY_ID = 'ecommerce'
@@ -83,6 +84,17 @@ export default async function HomePage(): Promise<React.ReactElement> {
             margin: '0 auto',
           }}
         >
+          {page?.featured_image && (
+            <MjImage
+              cloudflareImageId={page.featured_image.cloudflare_image_id}
+              alt={page.featured_image.alt_text}
+              width={page.featured_image.width}
+              height={page.featured_image.height}
+              priority
+              sizes="(min-width: 1280px) 1200px, 100vw"
+              style={{ borderRadius: 'var(--mj-radius-lg)', marginBottom: 'var(--mj-space-12)' }}
+            />
+          )}
           <h1
             id="hero-heading"
             style={{

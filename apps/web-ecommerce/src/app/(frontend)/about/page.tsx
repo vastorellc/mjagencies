@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import type React from 'react'
 import { fetchPageBySlug } from '@mjagency/cms'
+import { MjImage } from '@mjagency/media'
 import { notFound } from 'next/navigation'
 
 const AGENCY_ID = 'ecommerce'
@@ -26,6 +27,17 @@ export default async function AboutPage(): Promise<React.ReactElement> {
         Skip to main content
       </a>
       <main id="main-content" style={{ padding: 'var(--mj-space-16) var(--mj-space-6)' }}>
+        {page.featured_image && (
+          <MjImage
+            cloudflareImageId={page.featured_image.cloudflare_image_id}
+            alt={page.featured_image.alt_text}
+            width={page.featured_image.width}
+            height={page.featured_image.height}
+            priority
+            sizes="(min-width: 1280px) 1200px, 100vw"
+            style={{ borderRadius: 'var(--mj-radius-lg)', marginBottom: 'var(--mj-space-12)' }}
+          />
+        )}
         <h1 style={{ fontSize: 'var(--mj-text-size-4xl)', fontWeight: 'var(--mj-weight-bold)', color: 'var(--mj-color-text-primary)', fontFamily: 'var(--mj-font-heading)' }}>
           {page.title}
         </h1>

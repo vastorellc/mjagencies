@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import type React from 'react'
 import { fetchPostsIndex } from '@mjagency/cms'
+import { MjImage } from '@mjagency/media'
 
 const AGENCY_ID = 'branding'
 
@@ -32,6 +33,18 @@ export default async function BlogIndexPage(): Promise<React.ReactElement> {
             {posts.map(post => (
               <li key={post.id}>
                 <article>
+                  {post.featured_image && (
+                    <a href={`/blog/${post.slug}`} aria-hidden="true" tabIndex={-1} style={{ display: 'block' }}>
+                      <MjImage
+                        cloudflareImageId={post.featured_image.cloudflare_image_id}
+                        alt={post.featured_image.alt_text}
+                        width={post.featured_image.width}
+                        height={post.featured_image.height}
+                        sizes="(min-width: 768px) 50vw, 100vw"
+                        style={{ borderRadius: 'var(--mj-radius-md)', marginBottom: 'var(--mj-space-4)' }}
+                      />
+                    </a>
+                  )}
                   <h2 style={{ fontSize: 'var(--mj-text-size-2xl)', fontWeight: 'var(--mj-weight-semibold)', color: 'var(--mj-color-text-primary)' }}>
                     <a href={`/blog/${post.slug}`} style={{ color: 'inherit', textDecoration: 'none' }}>{post.title}</a>
                   </h2>

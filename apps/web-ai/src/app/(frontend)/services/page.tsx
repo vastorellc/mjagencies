@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import type React from 'react'
 import { fetchPagesIndex } from '@mjagency/cms'
+import { MjImage } from '@mjagency/media'
 
 const AGENCY_ID = 'ai'
 
@@ -35,6 +36,16 @@ export default async function ServicesPage(): Promise<React.ReactElement> {
             {services.map(s => (
               <li key={s.id}>
                 <article style={{ padding: 'var(--mj-space-6)', backgroundColor: 'var(--mj-color-bg-secondary)', borderRadius: 'var(--mj-radius-lg)' }}>
+                  {s.featured_image && (
+                    <MjImage
+                      cloudflareImageId={s.featured_image.cloudflare_image_id}
+                      alt={s.featured_image.alt_text}
+                      width={s.featured_image.width}
+                      height={s.featured_image.height}
+                      sizes="(min-width: 768px) 50vw, 100vw"
+                      style={{ borderRadius: 'var(--mj-radius-md)', marginBottom: 'var(--mj-space-4)' }}
+                    />
+                  )}
                   <h2 style={{ fontSize: 'var(--mj-text-size-2xl)', fontWeight: 'var(--mj-weight-semibold)', color: 'var(--mj-color-text-primary)' }}>{s.title}</h2>
                   <a href={`/services/${s.slug}`} style={{ color: 'var(--mj-color-brand-500)', marginTop: 'var(--mj-space-3)', display: 'inline-block' }}>View service details</a>
                 </article>

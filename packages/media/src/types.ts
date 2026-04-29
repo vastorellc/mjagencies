@@ -31,6 +31,8 @@ export interface BlurHashResult {
   hash: string
   width: number
   height: number
-  componentX: number
-  componentY: number
+  /** Encode-side X-axis component count. Optional because consumers that only decode (decodeBlurHash) don't need it. */
+  componentX?: number
+  /** Encode-side Y-axis component count. Optional because consumers that only decode (decodeBlurHash) don't need it. */
+  componentY?: number
 }
