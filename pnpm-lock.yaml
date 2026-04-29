@@ -637,6 +637,9 @@ importers:
       '@mjagency/sms':
         specifier: workspace:*
         version: link:../../packages/sms
+      '@mjagency/tools':
+        specifier: workspace:*
+        version: link:../../packages/tools
       '@mjagency/ui':
         specifier: workspace:*
         version: link:../../packages/ui

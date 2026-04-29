@@ -42,6 +42,7 @@
     "@mjagency/meta-capi": "workspace:*",
     "@mjagency/proposals": "workspace:*",
     "@mjagency/sms": "workspace:*",
+    "@mjagency/tools": "workspace:*",
     "ioredis": "5.10.1",
     "stripe": "17.3.1",
     "zod": "3.25.28"
