@@ -17,6 +17,7 @@ export {
   rejectSendIfWarmupIncomplete,
   incrementWarmupDay,
   getWarmupDay,
+  isEmailWarmupComplete,
   EmailWarmupIncompleteError,
 } from './warmup.js'
 export { emailTemplatesCollection } from './collections/email-templates.js'

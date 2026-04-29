@@ -81,3 +81,24 @@ export async function getWarmupDay(agencyId: string): Promise<number> {
     await redis.quit()
   }
 }
+
+/**
+ * Returns true when the agency has completed the 35-day warm-up gate (REQ-113).
+ *
+ * The warm-up state lives in Redis (`agency:<id>:email:warmup-day`), NOT in a
+ * Payload collection. Earlier code paths queried `/api/email_warmup_status`
+ * which never existed — that 404'd silently and defaulted to "incomplete",
+ * meaning legitimate post-warm-up emails (proposal sign/decline notifications,
+ * sequence sends) never fired. This helper is the canonical check.
+ *
+ * Defaults to false on any read failure so transient Redis blips err on the
+ * side of NOT sending — matches the existing safety bias in proposals/CRM.
+ */
+export async function isEmailWarmupComplete(agencyId: string): Promise<boolean> {
+  try {
+    const day = await getWarmupDay(agencyId)
+    return day >= WARMUP_DAYS_REQUIRED
+  } catch {
+    return false
+  }
+}

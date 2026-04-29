@@ -8,6 +8,7 @@ import { createHmac, timingSafeEqual } from 'crypto'
 import { createLogger } from '@mjagency/config'
 import { createEncryptedQueue } from '@mjagency/queue'
 import { REDIS_KEY } from '@mjagency/config'
+import { isEmailWarmupComplete } from '@mjagency/email'
 
 const PROPOSAL_HMAC_SECRET = process.env['PROPOSAL_HMAC_SECRET'] ?? ''
 const PAYLOAD_URL = process.env['PAYLOAD_URL'] ?? 'http://localhost:3000'
@@ -26,24 +27,12 @@ export interface ProposalActionOutput {
   error?: string
 }
 
-/**
- * Checks whether email warm-up for the given agency is complete.
- * REQ-134: 35-day warm-up must complete before sequence/tool/proposal emails activate.
- * Looks up warm-up status from Payload REST API (email_warmup_status collection).
- */
-async function isEmailWarmupComplete(agencyId: string): Promise<boolean> {
-  try {
-    const res = await fetch(
-      `${PAYLOAD_URL}/api/email_warmup_status?where[agency_id][equals]=${agencyId}&limit=1`,
-      { headers: { Authorization: `Bearer ${PAYLOAD_API_KEY}` } },
-    )
-    const data = await res.json() as { docs: Array<{ status: string; warmup_complete: boolean }> }
-    return data.docs[0]?.warmup_complete === true
-  } catch {
-    // If warm-up status cannot be determined, default to blocking email dispatch
-    return false
-  }
-}
+// Warm-up completeness is checked via @mjagency/email's isEmailWarmupComplete,
+// which reads the canonical Redis key `agency:<id>:email:warmup-day`.
+// The previous implementation queried a Payload `email_warmup_status`
+// collection that does not exist — every call 404'd, defaulted to false, and
+// silently suppressed every legitimate post-warm-up notification email.
+// (Audit-discovered silent integration gap, 2026-04-29.)
 
 export async function handleProposalAction(input: ProposalActionInput): Promise<ProposalActionOutput> {
   const log = createLogger({ service: 'mjagency-proposals', agencyId: 'unknown' })

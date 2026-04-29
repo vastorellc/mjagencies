@@ -1735,6 +1735,9 @@ importers:
       '@mjagency/db':
         specifier: workspace:*
         version: link:../db
+      '@mjagency/email':
+        specifier: workspace:*
+        version: link:../email
       '@mjagency/queue':
         specifier: workspace:*
         version: link:../queue
