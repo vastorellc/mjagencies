@@ -31,7 +31,8 @@
     "@mjagency/forms": "workspace:*",
     "@mjagency/media": "workspace:*",
     "@mjagency/queue": "workspace:*",
-    "@mjagency/seo": "workspace:*"
+    "@mjagency/seo": "workspace:*",
+    "@mjagency/tools": "workspace:*"
   },
   "devDependencies": {
     "@mjagency/testing": "workspace:*",

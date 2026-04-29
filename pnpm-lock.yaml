@@ -60,6 +60,9 @@ importers:
       '@mjagency/seo':
         specifier: workspace:*
         version: link:../../packages/seo
+      '@mjagency/tools':
+        specifier: workspace:*
+        version: link:../../packages/tools
       '@mjagency/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -154,6 +157,9 @@ importers:
       '@mjagency/seo':
         specifier: workspace:*
         version: link:../../packages/seo
+      '@mjagency/tools':
+        specifier: workspace:*
+        version: link:../../packages/tools
       '@mjagency/ui':
         specifier: workspace:*
         version: link:../../packages/ui

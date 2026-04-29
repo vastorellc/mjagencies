@@ -4,8 +4,8 @@ milestone: v9.1.20
 milestone_name: milestone
 status: completed
 stopped_at: Gap closure complete — all 6 closeable audit gaps resolved (commit e67d2b4 + f3063b1). Deferred: Gap 7 (Payload migrations) needs live Postgres.
-last_updated: "2026-04-29T20:30:00.000Z"
-last_activity: 2026-04-29 -- Phase 999.1 substantially complete. 68 of 72 MjImage slots installed across 12 agency apps. Phase A (foundation) bc2c42f, Phase B (3 real apps) adc92e7, Pre-D (case-studies CMS collection + 3 routes) 65bcc17, Pre-C (scaffold 9 phantom Next.js apps + 7 tools/[slug] hero wraps + 5 templates per phantom) a404bc9. Final 4 unreachable slots are tools/[slug] in web-ai/web-branding/web-construction/web-spa where @mjagency/tools has no tools registered.
+last_updated: "2026-04-29T21:00:00.000Z"
+last_activity: 2026-04-29 -- Phase 999.1 COMPLETE — 72 of 72 MjImage slots installed across all 12 agency apps. Phase A (foundation) bc2c42f, Phase B (3 real apps) adc92e7, Pre-D (case-studies CMS collection + 3 routes) 65bcc17, Pre-C (scaffold 9 phantom Next.js apps + 7 tools/[slug] hero wraps) a404bc9, final 4 tools/[slug] route files for web-ai/web-branding/web-construction/web-spa added with dormant-until-tools-registered pattern. All 12 apps × 6 templates × MjImage = 72/72 with non-optional alt, explicit width+height, no raw img tags.
 progress:
   total_phases: 12
   completed_phases: 12
@@ -171,7 +171,7 @@ Progress: [██████████] 100%
 ### Pending Todos
 
 - Run `doppler login` then resume Plan 01-06 (Doppler workspace bootstrap) — still blocked on interactive OAuth (human action required)
-- **Backlog 999.1** — MjImage slots × 6 templates × 12 apps (filed 2026-04-29, commit `3523f8a`). Substantially complete at **68/72 slots** installed across all 12 apps. Phase A `bc2c42f` (media barrel + deps); Phase B `adc92e7` (3 real apps); Pre-D `65bcc17` (case-studies collection + fetcher + 3 routes); Pre-C `a404bc9` (9 phantom apps scaffolded + 7 tools/[slug] wrapped). Final 4 slots (tools/[slug] in web-ai, web-branding, web-construction, web-spa) need tool definitions added to `@mjagency/tools` for those agencies — separate product concern. **Pre-B image pipeline still gates real seed runs** — 300 placeholder cloudflare_image_id slots still empty.
+- **Backlog 999.1** — COMPLETE. 72/72 MjImage slots installed across all 12 agency apps. Phase A `bc2c42f` (media barrel + deps); Phase B `adc92e7` (3 real apps); Pre-D `65bcc17` (case-studies collection + fetcher + 3 routes); Pre-C `a404bc9` (9 phantom apps scaffolded + 7 tools/[slug] wrapped); final 4 tools/[slug] routes added with dormant pattern (no errors, ready when @mjagency/tools registers tools for those agencies). **Pre-B image pipeline still gates actual rendering** — 300 placeholder cloudflare_image_id slots in agency-seed-manifest.ts still empty; until populated, every MjImage call site renders nothing (conditional on featured_image truthy).
 
 ### Resolved (audited 2026-04-29)
 
