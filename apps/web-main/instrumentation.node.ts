@@ -81,3 +81,10 @@ startDunningWorker()
 // individual failures are logged, not fatal.
 import { registerAllWorkers } from './src/jobs/register-all-workers.js'
 registerAllWorkers()
+
+// Audit fix: bridge the tool-pdf-email queue (filled by /api/tools/email-gate
+// and /api/tools/resend-pdf) onto the email-send queue so the existing
+// SMTP worker actually delivers the report email. One bridge per agency,
+// matching the producer's per-agency Redis prefix.
+import { registerToolPdfEmailBridges } from './src/jobs/tool-pdf-email-bridge.js'
+registerToolPdfEmailBridges()
