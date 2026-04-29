@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import { Globe, Monitor, Zap } from 'lucide-react'
 import { fetchPageBySlug } from '@mjagency/cms'
 
 const AGENCY_ID = 'webdev'
@@ -12,21 +13,24 @@ export const metadata: Metadata = {
     'We build custom sites, headless CMS platforms, and web applications in Next.js and TypeScript — fast, accessible, and maintainable.',
 }
 
-const SERVICES: { title: string; description: string }[] = [
+const SERVICES: { title: string; description: string; icon: React.ReactElement }[] = [
   {
     title: 'Marketing Sites & CMS',
     description:
       'Headless CMS builds (Payload, Contentful, Sanity) with Next.js — fast, editable, and SEO-optimised from day one.',
+    icon: <Globe size={28} />,
   },
   {
     title: 'Web Applications',
     description:
       'SaaS dashboards, portals, and product web apps with authentication, real-time data, and complex state — built to last.',
+    icon: <Monitor size={28} />,
   },
   {
     title: 'Performance Optimization',
     description:
       'LCP under 1.8s, CLS of 0, Core Web Vitals instrumented — performance enforced in CI, not bolted on post-launch.',
+    icon: <Zap size={28} />,
   },
 ]
 
@@ -187,6 +191,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     border: '1px solid var(--mj-color-border)',
                   }}
                 >
+                  <div style={{ color: 'var(--mj-color-brand-500)', marginBottom: 'var(--mj-space-3)' }}>
+                    {s.icon}
+                  </div>
                   <h3
                     style={{
                       fontSize: 'var(--mj-text-size-xl)',

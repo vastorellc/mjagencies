@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import { Film, Video, Play } from 'lucide-react'
 import { fetchPageBySlug } from '@mjagency/cms'
 
 const AGENCY_ID = 'video'
@@ -12,21 +13,24 @@ export const metadata: Metadata = {
     'We produce brand films, product videos, social content, and motion graphics for companies that need professional video without the overhead of a full production house.',
 }
 
-const SERVICES: { title: string; description: string }[] = [
+const SERVICES: { title: string; description: string; icon: React.ReactElement }[] = [
   {
     title: 'Brand Films',
     description:
       'Company stories, culture films, and documentary-style content that communicate who you are and why it matters.',
+    icon: <Film size={28} />,
   },
   {
     title: 'Product & Demo Videos',
     description:
       'Feature walkthroughs and product demonstrations that help prospects understand your product in under two minutes.',
+    icon: <Video size={28} />,
   },
   {
     title: 'Social Video',
     description:
       'Short-form content (Reels, TikTok, YouTube Shorts) shot and edited for platform-native performance.',
+    icon: <Play size={28} />,
   },
 ]
 
@@ -188,6 +192,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     border: '1px solid var(--mj-color-border)',
                   }}
                 >
+                  <div style={{ color: 'var(--mj-color-brand-500)', marginBottom: 'var(--mj-space-3)' }}>
+                    {s.icon}
+                  </div>
                   <h3
                     style={{
                       fontSize: 'var(--mj-text-size-xl)',

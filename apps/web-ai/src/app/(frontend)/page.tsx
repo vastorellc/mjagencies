@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import type React from 'react'
 import { fetchPageBySlug } from '@mjagency/cms'
+import { Brain, Bot, Server } from 'lucide-react'
 
 const AGENCY_ID = 'ai'
 
@@ -12,21 +13,24 @@ export const metadata: Metadata = {
     'We build LLM-powered products, agentic workflows, and custom ML systems that compound over time.',
 }
 
-const SERVICES: { title: string; description: string }[] = [
+const SERVICES: { title: string; description: string; icon: React.ReactElement }[] = [
   {
     title: 'LLM Integration',
     description:
       'Embed large language models into your product with evals, guardrails, and production monitoring.',
+    icon: <Brain size={28} />,
   },
   {
     title: 'Agentic Automation',
     description:
       'Automate multi-step business processes using AI agents with structured tool-use and human-in-the-loop checkpoints.',
+    icon: <Bot size={28} />,
   },
   {
     title: 'ML Model Deployment',
     description:
       'Take ML models from notebook to production with versioning, monitoring, and drift detection.',
+    icon: <Server size={28} />,
   },
 ]
 
@@ -187,6 +191,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     border: '1px solid var(--mj-color-border)',
                   }}
                 >
+                  <div style={{ color: 'var(--mj-color-brand-500)', marginBottom: 'var(--mj-space-3)' }}>
+                    {s.icon}
+                  </div>
                   <h3
                     style={{
                       fontSize: 'var(--mj-text-size-xl)',

@@ -13,9 +13,10 @@ import {
 import { SiteNav, SiteFooter } from '@mjagency/ui'
 
 export const metadata: Metadata = {
-  title: 'MJAgency Platform — Graphic Design',
+  metadataBase: new URL(process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://graphic.mjagency.com'),
+  title: 'MJ Graphic Agency — Design that holds up in print, pixels, and everything in between',
   description:
-    'The MJAgency multi-brand platform: 12 agency verticals — ecommerce, growth, webdev, AI, branding, strategy, finance, engineering, product, video, and graphic — all in one place.',
+    'Print design, packaging, and digital graphics executed with craft and precision by specialists who go deep.',
 }
 
 export default async function FrontendLayout({

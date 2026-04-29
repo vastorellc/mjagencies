@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import type React from 'react'
 import { fetchPageBySlug } from '@mjagency/cms'
+import { Network, Layers, Globe } from 'lucide-react'
 
 const AGENCY_ID = 'main'
 
@@ -12,21 +13,24 @@ export const metadata: Metadata = {
     'MJ Agency operates eleven specialist verticals — AI, branding, ecommerce, engineering, finance, graphic design, growth, product, strategy, video, and web development — under one roof.',
 }
 
-const SERVICES: { title: string; description: string }[] = [
+const SERVICES: { title: string; description: string; icon: React.ReactElement }[] = [
   {
     title: 'Multi-Practice Programs',
     description:
       'Coordinate branding, engineering, growth, and strategy through a single account lead without managing five vendor relationships.',
+    icon: <Network size={28} />,
   },
   {
     title: 'Specialist Verticals',
     description:
       'Each of our eleven practices is a depth specialist — not a generalist team stretched across unfamiliar territory.',
+    icon: <Layers size={28} />,
   },
   {
     title: 'Platform Integration',
     description:
       'All agencies run on a shared platform with unified CRM, analytics, and client reporting across every engagement.',
+    icon: <Globe size={28} />,
   },
 ]
 
@@ -188,6 +192,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     border: '1px solid var(--mj-color-border)',
                   }}
                 >
+                  <div style={{ color: 'var(--mj-color-brand-500)', marginBottom: 'var(--mj-space-3)' }}>
+                    {s.icon}
+                  </div>
                   <h3
                     style={{
                       fontSize: 'var(--mj-text-size-xl)',

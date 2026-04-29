@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import { Code2, Cloud, Users } from 'lucide-react'
 import { fetchPageBySlug } from '@mjagency/cms'
 
 const AGENCY_ID = 'engineering'
@@ -12,21 +13,24 @@ export const metadata: Metadata = {
     'We build full-stack applications, cloud infrastructure, and DevOps pipelines for product teams that need to move fast without accumulating debt.',
 }
 
-const SERVICES: { title: string; description: string }[] = [
+const SERVICES: { title: string; description: string; icon: React.ReactElement }[] = [
   {
     title: 'Full-Stack Development',
     description:
       'TypeScript, Next.js, Node.js, and Python — production-grade applications with documented architecture decisions.',
+    icon: <Code2 size={28} />,
   },
   {
     title: 'Cloud Infrastructure',
     description:
       'AWS and GCP infrastructure designed for reliability, cost efficiency, and zero-downtime deployments.',
+    icon: <Cloud size={28} />,
   },
   {
     title: 'Engineering Staff Aug',
     description:
       'Embedded engineers at any level — IC, tech lead, or architect — on monthly retainer with full code access.',
+    icon: <Users size={28} />,
   },
 ]
 
@@ -187,6 +191,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     border: '1px solid var(--mj-color-border)',
                   }}
                 >
+                  <div style={{ color: 'var(--mj-color-brand-500)', marginBottom: 'var(--mj-space-3)' }}>
+                    {s.icon}
+                  </div>
                   <h3
                     style={{
                       fontSize: 'var(--mj-text-size-xl)',

@@ -13,9 +13,10 @@ import {
 import { SiteNav, SiteFooter } from '@mjagency/ui'
 
 export const metadata: Metadata = {
-  title: 'MJAgency Platform — AI',
+  metadataBase: new URL(process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://ai.mjagency.com'),
+  title: 'MJ AI Agency — Intelligent automation for ambitious teams',
   description:
-    'The MJAgency multi-brand platform: 12 agency verticals — ecommerce, growth, webdev, AI, branding, strategy, finance, engineering, product, video, and graphic — all in one place.',
+    'We build LLM-powered products, agentic workflows, and custom ML systems that compound over time.',
 }
 
 export default async function FrontendLayout({

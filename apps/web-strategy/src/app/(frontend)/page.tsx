@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import { Globe, Target, Compass } from 'lucide-react'
 import { fetchPageBySlug } from '@mjagency/cms'
 
 const AGENCY_ID = 'strategy'
@@ -12,21 +13,24 @@ export const metadata: Metadata = {
     'We help growth-stage companies navigate market entry, competitive disruption, fundraising, and expansion with clear strategy and executable roadmaps.',
 }
 
-const SERVICES: { title: string; description: string }[] = [
+const SERVICES: { title: string; description: string; icon: React.ReactElement }[] = [
   {
     title: 'Market Entry Strategy',
     description:
       'Competitive mapping, customer segmentation, positioning, and go-to-market sequencing for new markets and new products.',
+    icon: <Globe size={28} />,
   },
   {
     title: 'Competitive Positioning',
     description:
       'Differentiation strategy grounded in market research — so you know exactly what to own and what to cede.',
+    icon: <Target size={28} />,
   },
   {
     title: 'Strategic Advisory',
     description:
       'Ongoing board-level advisory for companies navigating acquisitions, fundraises, or major strategic pivots.',
+    icon: <Compass size={28} />,
   },
 ]
 
@@ -187,6 +191,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     border: '1px solid var(--mj-color-border)',
                   }}
                 >
+                  <div style={{ color: 'var(--mj-color-brand-500)', marginBottom: 'var(--mj-space-3)' }}>
+                    {s.icon}
+                  </div>
                   <h3
                     style={{
                       fontSize: 'var(--mj-text-size-xl)',

@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import type React from 'react'
+import { Menu, X } from 'lucide-react'
 
 interface SiteNavProps {
   agencyName: string
@@ -120,13 +121,9 @@ export function SiteNav({ agencyName }: SiteNavProps): React.ReactElement {
           }}
         >
           {menuOpen ? (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M4 4L16 16M16 4L4 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
+            <X size={24} aria-hidden="true" />
           ) : (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M3 6h14M3 10h14M3 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
+            <Menu size={24} aria-hidden="true" />
           )}
         </button>
       </div>

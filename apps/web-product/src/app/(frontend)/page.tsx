@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import { Lightbulb, Users, Map } from 'lucide-react'
 import { fetchPageBySlug } from '@mjagency/cms'
 
 const AGENCY_ID = 'product'
@@ -12,21 +13,24 @@ export const metadata: Metadata = {
     'We provide fractional CPO services, product strategy, and discovery-led roadmap planning for software companies between Seed and Series C.',
 }
 
-const SERVICES: { title: string; description: string }[] = [
+const SERVICES: { title: string; description: string; icon: React.ReactElement }[] = [
   {
     title: 'Fractional CPO',
     description:
       'Own the product roadmap, lead engineering-design-product alignment, and report to leadership at 25–50% of full-time capacity.',
+    icon: <Lightbulb size={28} />,
   },
   {
     title: 'User Research & Discovery',
     description:
       'User interviews, usability studies, Jobs-to-be-Done analysis, and competitive audits synthesized into prioritized opportunity maps.',
+    icon: <Users size={28} />,
   },
   {
     title: 'Roadmap Strategy',
     description:
       'Impact-effort-confidence prioritization with explicit tradeoffs — so you make the right calls with the right information.',
+    icon: <Map size={28} />,
   },
 ]
 
@@ -188,6 +192,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     border: '1px solid var(--mj-color-border)',
                   }}
                 >
+                  <div style={{ color: 'var(--mj-color-brand-500)', marginBottom: 'var(--mj-space-3)' }}>
+                    {s.icon}
+                  </div>
                   <h3
                     style={{
                       fontSize: 'var(--mj-text-size-xl)',

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import { DollarSign, TrendingUp, BarChart3 } from 'lucide-react'
 import { fetchPageBySlug } from '@mjagency/cms'
 
 const AGENCY_ID = 'finance'
@@ -12,21 +13,24 @@ export const metadata: Metadata = {
     'We provide fractional CFO services, financial modeling, and fundraising support for growth-stage companies that need senior finance expertise without a full-time hire.',
 }
 
-const SERVICES: { title: string; description: string }[] = [
+const SERVICES: { title: string; description: string; icon: React.ReactElement }[] = [
   {
     title: 'Fractional CFO',
     description:
       'Monthly close oversight, board reporting, cash runway modeling, and ongoing financial strategy at 25–50% of full-time cost.',
+    icon: <DollarSign size={28} />,
   },
   {
     title: 'Fundraise Preparation',
     description:
       'Investor materials, 3-year financial model, cap table cleanup, and management Q&A coaching.',
+    icon: <TrendingUp size={28} />,
   },
   {
     title: 'Financial Modeling',
     description:
       'Unit economics, pricing analysis, scenario planning, and the financial models that inform your biggest decisions.',
+    icon: <BarChart3 size={28} />,
   },
 ]
 
@@ -187,6 +191,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     border: '1px solid var(--mj-color-border)',
                   }}
                 >
+                  <div style={{ color: 'var(--mj-color-brand-500)', marginBottom: 'var(--mj-space-3)' }}>
+                    {s.icon}
+                  </div>
                   <h3
                     style={{
                       fontSize: 'var(--mj-text-size-xl)',

@@ -13,9 +13,10 @@ import {
 import { SiteNav, SiteFooter } from '@mjagency/ui'
 
 export const metadata: Metadata = {
-  title: 'MJAgency Platform — Finance',
+  metadataBase: new URL(process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://finance.mjagency.com'),
+  title: 'MJ Finance Agency — Financial clarity for companies scaling from $1M to $50M',
   description:
-    'The MJAgency multi-brand platform: 12 agency verticals — ecommerce, growth, webdev, AI, branding, strategy, finance, engineering, product, video, and graphic — all in one place.',
+    'Fractional CFO services, fundraise preparation, and financial modeling for growth-stage companies.',
 }
 
 export default async function FrontendLayout({

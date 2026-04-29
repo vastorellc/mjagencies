@@ -33,9 +33,10 @@ import {
 const inter = Inter({ subsets: ['latin'], variable: '--font-brand', display: 'swap' })
 
 export const metadata: Metadata = {
-  title: 'MJAgency — Growth-Obsessed Digital Strategies',
+  metadataBase: new URL(process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://mjagency.com'),
+  title: 'MJ Agency — Eleven practices. One agency.',
   description:
-    'MJAgency delivers data-driven digital strategies for brands that demand measurable growth. 12 specialized agencies, one platform.',
+    'MJ Agency operates eleven specialist verticals under one roof — AI, branding, ecommerce, engineering, finance, graphic design, growth, product, strategy, video, and web development.',
 }
 
 export default async function FrontendLayout({

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import { Printer, Package, Layers } from 'lucide-react'
 import { fetchPageBySlug } from '@mjagency/cms'
 
 const AGENCY_ID = 'graphic'
@@ -12,21 +13,24 @@ export const metadata: Metadata = {
     'We produce print design, packaging, digital graphics, and environmental design for brands that demand visual precision at any scale.',
 }
 
-const SERVICES: { title: string; description: string }[] = [
+const SERVICES: { title: string; description: string; icon: React.ReactElement }[] = [
   {
     title: 'Print Design',
     description:
       'Brochures, direct mail, trade show materials, and collateral produced to press-ready standards.',
+    icon: <Printer size={28} />,
   },
   {
     title: 'Packaging Design',
     description:
       'Product packaging, labels, and retail packaging that performs on shelf and ships on spec.',
+    icon: <Package size={28} />,
   },
   {
     title: 'Digital Graphics',
     description:
       'Display ads, social templates, infographics, and digital assets sized and exported for every platform.',
+    icon: <Layers size={28} />,
   },
 ]
 
@@ -188,6 +192,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     border: '1px solid var(--mj-color-border)',
                   }}
                 >
+                  <div style={{ color: 'var(--mj-color-brand-500)', marginBottom: 'var(--mj-space-3)' }}>
+                    {s.icon}
+                  </div>
                   <h3
                     style={{
                       fontSize: 'var(--mj-text-size-xl)',

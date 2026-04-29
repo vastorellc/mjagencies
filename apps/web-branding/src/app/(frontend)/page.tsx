@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import { Compass, Palette, Sparkles } from 'lucide-react'
 import { fetchPageBySlug } from '@mjagency/cms'
 
 const AGENCY_ID = 'branding'
@@ -12,21 +13,24 @@ export const metadata: Metadata = {
     'We create strategy-driven visual identities for companies at every stage — from seed-stage startups to enterprise rebrands.',
 }
 
-const SERVICES: { title: string; description: string }[] = [
+const SERVICES: { title: string; description: string; icon: React.ReactElement }[] = [
   {
     title: 'Brand Strategy',
     description:
       'Positioning, values, and voice built on research — so your brand stands for something specific and true.',
+    icon: <Compass size={28} />,
   },
   {
     title: 'Visual Identity',
     description:
       'Logo, color system, typography, and brand guidelines that hold together at any scale.',
+    icon: <Palette size={28} />,
   },
   {
     title: 'Brand Activation',
     description:
       'Templates, campaign assets, and brand rollout support so your new identity lands consistently.',
+    icon: <Sparkles size={28} />,
   },
 ]
 
@@ -187,6 +191,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     border: '1px solid var(--mj-color-border)',
                   }}
                 >
+                  <div style={{ color: 'var(--mj-color-brand-500)', marginBottom: 'var(--mj-space-3)' }}>
+                    {s.icon}
+                  </div>
                   <h3
                     style={{
                       fontSize: 'var(--mj-text-size-xl)',

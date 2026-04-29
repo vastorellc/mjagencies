@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import { Search, Target, TrendingUp } from 'lucide-react'
 import { fetchPageBySlug } from '@mjagency/cms'
 
 const AGENCY_ID = 'growth'
@@ -12,21 +13,24 @@ export const metadata: Metadata = {
     'We build sustainable growth engines for B2B and B2C companies through SEO, paid acquisition, demand generation, and conversion rate optimization.',
 }
 
-const SERVICES: { title: string; description: string }[] = [
+const SERVICES: { title: string; description: string; icon: React.ReactElement }[] = [
   {
     title: 'SEO',
     description:
       'Technical SEO, content strategy, and link acquisition that builds organic traffic that lasts longer than the next algorithm update.',
+    icon: <Search size={28} />,
   },
   {
     title: 'Paid Acquisition',
     description:
       'In-house Google, Meta, and LinkedIn campaign management focused on channel-level CAC, not impression volume.',
+    icon: <Target size={28} />,
   },
   {
     title: 'Conversion Rate Optimization',
     description:
       'A/B testing, landing page optimization, and funnel analysis that improve the return on traffic you already have.',
+    icon: <TrendingUp size={28} />,
   },
 ]
 
@@ -187,6 +191,9 @@ export default async function HomePage(): Promise<React.ReactElement> {
                     border: '1px solid var(--mj-color-border)',
                   }}
                 >
+                  <div style={{ color: 'var(--mj-color-brand-500)', marginBottom: 'var(--mj-space-3)' }}>
+                    {s.icon}
+                  </div>
                   <h3
                     style={{
                       fontSize: 'var(--mj-text-size-xl)',
