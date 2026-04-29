@@ -1,0 +1,49 @@
+{
+  "name": "@mjagency/web-legal",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3015",
+    "build": "next build",
+    "start": "next start -p 3015",
+    "lint": "next lint --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "3.82.1",
+    "@payloadcms/next": "3.82.1",
+    "@payloadcms/richtext-lexical": "3.82.1",
+    "ioredis": "5.10.1",
+    "lucide-react": "0.525.0",
+    "next": "15.5.15",
+    "payload": "3.82.1",
+    "pino": "10.3.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "@mjagency/analytics": "workspace:*",
+    "@mjagency/auth": "workspace:*",
+    "@mjagency/cms": "workspace:*",
+    "@mjagency/compliance": "workspace:*",
+    "@mjagency/config": "workspace:*",
+    "@mjagency/email": "workspace:*",
+    "@mjagency/forms": "workspace:*",
+    "@mjagency/media": "workspace:*",
+    "@mjagency/queue": "workspace:*",
+    "@mjagency/seo": "workspace:*",
+    "@mjagency/tools": "workspace:*",
+    "@mjagency/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@mjagency/testing": "workspace:*",
+    "@types/node": "22.9.0",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "tailwindcss": "4.2.4",
+    "@tailwindcss/postcss": "4.2.4",
+    "typescript": "5.6.3",
+    "vitest": "2.1.8",
+    "eslint-config-next": "15.5.15"
+  }
+}

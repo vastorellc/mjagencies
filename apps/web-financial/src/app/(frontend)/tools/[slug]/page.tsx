@@ -9,6 +9,8 @@
 import { notFound } from 'next/navigation'
 import { getToolBySlug, getToolsByAgency, loadBenchmarks } from '@mjagency/tools'
 import { ToolPageTemplate } from '@mjagency/tools/pages'
+import { fetchPageBySlug } from '@mjagency/cms'
+import { MjImage } from '@mjagency/media'
 import type { Metadata } from 'next'
 
 const AGENCY_SLUG = 'financial'
@@ -45,11 +47,30 @@ export default async function ToolPage({ params }: ToolPageProps): Promise<React
   // Load benchmarks server-side (static JSON import — no runtime DB query)
   const benchmarks = await loadBenchmarks(AGENCY_SLUG, tool.benchmarkKeys)
 
+  // CMS marketing content (featured_image hero) — keyed by tool slug.
+  // Tool calculator data and CMS marketing data are decoupled (D-03 in
+  // 999.1-CONTEXT.md): tools package owns calculation logic, CMS owns
+  // imagery + copy. Conditional render — if no CMS record, no hero.
+  const cmsPage = await fetchPageBySlug(AGENCY_SLUG, slug)
+
   return (
-    <ToolPageTemplate
-      tool={tool}
-      benchmarks={benchmarks}
-      agencySlug={AGENCY_SLUG}
-    />
+    <>
+      {cmsPage?.featured_image && (
+        <MjImage
+          cloudflareImageId={cmsPage.featured_image.cloudflare_image_id}
+          alt={cmsPage.featured_image.alt_text}
+          width={cmsPage.featured_image.width}
+          height={cmsPage.featured_image.height}
+          priority
+          sizes="(min-width: 1280px) 1200px, 100vw"
+          style={{ borderRadius: 'var(--mj-radius-lg)', marginBottom: 'var(--mj-space-12)' }}
+        />
+      )}
+      <ToolPageTemplate
+        tool={tool}
+        benchmarks={benchmarks}
+        agencySlug={AGENCY_SLUG}
+      />
+    </>
   )
 }
