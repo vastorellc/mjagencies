@@ -1,0 +1,36 @@
+{
+  "name": "viral-copy-generator-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "make-admin": "tsx ../scripts/make-admin.ts"
+  },
+  "dependencies": {
+    "express": "5.2.1",
+    "@supabase/supabase-js": "2.105.1",
+    "drizzle-orm": "0.45.2",
+    "pg": "8.20.0",
+    "pg-boss": "12.18.1",
+    "cors": "2.8.6",
+    "pino": "10.3.1",
+    "multer": "1.4.5-lts.2"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.6",
+    "@types/pg": "8.20.0",
+    "@types/cors": "2.8.19",
+    "@types/multer": "1.4.12",
+    "typescript": "6.0.3",
+    "tsx": "4.21.0",
+    "drizzle-kit": "0.31.10",
+    "vitest": "^3.0.0",
+    "@vitest/coverage-v8": "^3.0.0"
+  }
+}
