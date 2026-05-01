@@ -10,7 +10,7 @@
     "test:coverage": "vitest run --coverage",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "make-admin": "tsx ../scripts/make-admin.ts"
+    "make-admin": "tsx src/scripts/make-admin.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.105.1",
