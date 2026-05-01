@@ -8,6 +8,7 @@ import * as schema from './schema.js'
 // both acceptable for a VPS backend using Drizzle and pg-boss.
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
 })
 
 export const db = drizzle(pool, { schema })
