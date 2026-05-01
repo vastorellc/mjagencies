@@ -1,0 +1,524 @@
+{
+  "id": "33ecba3c-2aa6-44d7-86e0-0c70918a2caa",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.learning_signals": {
+      "name": "learning_signals",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "post_id": {
+          "name": "post_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "platform": {
+          "name": "platform",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "niche": {
+          "name": "niche",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hook_text": {
+          "name": "hook_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hashtags": {
+          "name": "hashtags",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "actual_views": {
+          "name": "actual_views",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "overperformed": {
+          "name": "overperformed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signal_weights": {
+          "name": "signal_weights",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "learning_signals_user_id_fk": {
+          "name": "learning_signals_user_id_fk",
+          "tableFrom": "learning_signals",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "learning_signals_post_id_fk": {
+          "name": "learning_signals_post_id_fk",
+          "tableFrom": "learning_signals",
+          "tableTo": "posts",
+          "columnsFrom": [
+            "post_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "learning_signals_user_own": {
+          "name": "learning_signals_user_own",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = user_id",
+          "withCheck": "(select auth.uid()) = user_id"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.platform_posts": {
+      "name": "platform_posts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "post_id": {
+          "name": "post_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "platform": {
+          "name": "platform",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "upload_status": {
+          "name": "upload_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'idle'"
+        },
+        "platform_post_id": {
+          "name": "platform_post_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_views": {
+          "name": "actual_views",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "predicted_low": {
+          "name": "predicted_low",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "predicted_high": {
+          "name": "predicted_high",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "error_message": {
+          "name": "error_message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "posted_at": {
+          "name": "posted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "platform_posts_post_id_idx": {
+          "name": "platform_posts_post_id_idx",
+          "columns": [
+            {
+              "expression": "post_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "platform_posts_user_id_fk": {
+          "name": "platform_posts_user_id_fk",
+          "tableFrom": "platform_posts",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "platform_posts_post_id_fk": {
+          "name": "platform_posts_post_id_fk",
+          "tableFrom": "platform_posts",
+          "tableTo": "posts",
+          "columnsFrom": [
+            "post_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "platform_posts_user_own": {
+          "name": "platform_posts_user_own",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = user_id",
+          "withCheck": "(select auth.uid()) = user_id"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.posts": {
+      "name": "posts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "niche": {
+          "name": "niche",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "virality_score": {
+          "name": "virality_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "engine_signals": {
+          "name": "engine_signals",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "ai_output": {
+          "name": "ai_output",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "posts_niche_created_idx": {
+          "name": "posts_niche_created_idx",
+          "columns": [
+            {
+              "expression": "niche",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "posts_user_id_fk": {
+          "name": "posts_user_id_fk",
+          "tableFrom": "posts",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "posts_user_own": {
+          "name": "posts_user_own",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = user_id",
+          "withCheck": "(select auth.uid()) = user_id"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.settings": {
+      "name": "settings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ai_provider": {
+          "name": "ai_provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'gemini'"
+        },
+        "api_key_encrypted": {
+          "name": "api_key_encrypted",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "default_niche": {
+          "name": "default_niche",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'travel'"
+        },
+        "enabled_platforms": {
+          "name": "enabled_platforms",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"youtube\",\"instagram\",\"facebook\"}'"
+        },
+        "platform_config": {
+          "name": "platform_config",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "learned_weights": {
+          "name": "learned_weights",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "settings_user_id_fk": {
+          "name": "settings_user_id_fk",
+          "tableFrom": "settings",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "settings_user_id_unique": {
+          "name": "settings_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
+          ]
+        }
+      },
+      "policies": {
+        "settings_user_own": {
+          "name": "settings_user_own",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = user_id",
+          "withCheck": "(select auth.uid()) = user_id"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
