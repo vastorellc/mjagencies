@@ -96,7 +96,7 @@ Plans:
 - [ ] 01-02-PLAN.md — Drizzle schema: all four tables with UUID PKs, authUsers FK, RLS policies, drizzle-kit generate [BLOCKING]
 - [x] 01-03-PLAN.md — Express backend: auth/admin middleware, routes, pg-boss v12, VPS storage, startup orchestration
 - [x] 01-04-PLAN.md — Frontend: Vite + COOP/COEP plugin, Tailwind v4, login screen, App.tsx auth gate
-- [ ] 01-05-PLAN.md — Integration verification: Vitest suite, API smoke, pg-boss confirm, make-admin, manual phase sign-off
+- [~] 01-05-PLAN.md — Integration verification: Vitest suite, API smoke, pg-boss confirm, make-admin, manual phase sign-off (paused: human-verify checkpoint)
 
 **UI hint:** yes
 
@@ -463,7 +463,7 @@ indeterminate progress animation, and error boundaries throughout.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend + Auth Foundation | 4/5 | Executing | - |
+| 1. Backend + Auth Foundation | 5/5 automated | Awaiting human-verify | - |
 | 2. Settings + Social OAuth | 0/TBD | Not started | - |
 | 3. Video Upload + Analysis Engine | 0/TBD | Not started | - |
 | 4. Virality Score + Checklist | 0/TBD | Not started | - |

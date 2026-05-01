@@ -4,15 +4,15 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 1 in progress — executing
 status: executing
-stopped_at: Completed 01-04-PLAN.md — Vite + COOP/COEP plugin, Tailwind v4, login screen, App.tsx auth gate
-last_updated: "2026-05-01T12:00:00.000Z"
+stopped_at: "Paused at 01-05 Task 3 checkpoint:human-verify — automated tasks complete, awaiting manual browser/dashboard sign-off"
+last_updated: "2026-05-01T11:10:00.000Z"
 last_activity: 2026-05-01
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 5
-  completed_plans: 4
-  percent: 80
+  completed_plans: 5
+  percent: 100
 ---
 
 # Project State — Viral Copy Generator
@@ -22,22 +22,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 1 in progress — executing
+**Current phase:** Phase 1 — awaiting human-verify checkpoint (all automated tasks complete)
 
 ## Current Position
 
 Phase: 1 of 10 (Backend + Auth Foundation)
-Plan: 4 of 5 in current phase (complete — Plan 04 done)
-Status: Executing — Plan 04 complete; ready for Plan 05
+Plan: 5 of 5 in current phase (Tasks 1+2 complete — paused at Task 3 human-verify checkpoint)
+Status: Paused — awaiting manual browser/dashboard verification before Phase 1 can be marked complete
 Last activity: 2026-05-01
 
-Progress: [████████░░] 80%
+Progress: [██████████] 100% (automated)
 
 ## Phase Status
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Backend + Auth Foundation | 🔄 Executing (4/5 complete — Plan 05 next) |
+| 1 | Backend + Auth Foundation | ⏸ Awaiting human-verify (5/5 automated complete — human sign-off pending) |
 | 2 | Settings + Social OAuth | ⬜ Not started |
 | 3 | Video Upload + Analysis Engine | ⬜ Not started |
 | 4 | Virality Score + Checklist | ⬜ Not started |
@@ -78,6 +78,8 @@ Progress: [████████░░] 80%
 - **vite-env.d.ts triple-slash reference** — required for import.meta.env types and CSS module side-effect imports; must be in src/ and included in tsconfig
 - **font-bold on LoginPage submit button** — UI-SPEC checker overrides RESEARCH.md Pattern 8 (font-semibold); 2-weight rule: 400 body + 700 bold only
 - **error !== null conditional in LoginPage** — does not reserve space when no error; `{error && ...}` coerces empty string to no-render but `{error !== null && ...}` is explicit
+- **pg-boss v12 createQueue() before schedule()** — `pgboss.schedule` has FK on `(name)` referencing `pgboss.queue`; must call `createQueue(name)` before `schedule(name, cron, {})`
+- **nginx /uploads/ no internal directive** — Meta's Instagram/Facebook servers need public HTTPS access for Phase 6 video ingestion (STORE-02); CORP must be `cross-origin` not `same-origin`
 
 ### Critical Bugs to Avoid
 
@@ -100,6 +102,6 @@ Progress: [████████░░] 80%
 
 ## Session Continuity
 
-Last session: 2026-05-01T12:00:00.000Z
-Stopped at: Completed 01-04-PLAN.md — Vite + COOP/COEP plugin, Tailwind v4, login screen, App.tsx auth gate
-Resume: Run `/gsd-execute-phase 1` to execute Plan 05 (Integration verification: Vitest suite, API smoke, pg-boss confirm, make-admin, manual phase sign-off)
+Last session: 2026-05-01T11:10:00.000Z
+Stopped at: Paused at 01-05 Task 3 checkpoint:human-verify — Vitest pass, nginx config done, backend smoke pass, pg-boss createQueue fix applied
+Resume: Complete human-verify checklist in 01-05-SUMMARY.md, then run `/gsd-verify-work 1` to finalize Phase 1
