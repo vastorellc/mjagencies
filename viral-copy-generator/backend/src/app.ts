@@ -46,6 +46,11 @@ app.use(express.urlencoded({ extended: true }))
 // ── Public routes (no auth) ──────────────────────────────────────────────────
 app.use('/health', healthRouter)
 
+// ── OAuth callbacks — registered BEFORE authMiddleware ───────────────────────
+// Google's redirect to /callback carries no Bearer token; state param provides
+// CSRF protection + userId binding. These routes validate state before any DB write.
+app.use('/api/auth/google', authGoogleRouter)
+
 // ── Auth-gated API routes ────────────────────────────────────────────────────
 // authMiddleware applied to ALL /api/* routes — no exceptions per CLAUDE.md
 app.use('/api', authMiddleware)
@@ -53,7 +58,9 @@ app.use('/api/posts', postsRouter)
 
 // ── Phase 2: Settings + OAuth (auth-gated by app.use('/api', authMiddleware) above) ──
 app.use('/api/settings', settingsRouter)
-app.use('/api/auth/google', authGoogleRouter)
+// Note: authGoogleRouter is already mounted at /api/auth/google BEFORE authMiddleware above.
+// Its /connect route uses per-route authMiddleware; /callback is intentionally unprotected
+// (Google redirects without a Bearer token — state param provides CSRF + userId binding).
 app.use('/api/auth', authMetaRouter)  // routes: /instagram/{connect,callback}, /facebook/{connect,callback}
 
 // ── 404 handler ──────────────────────────────────────────────────────────────
