@@ -4,6 +4,9 @@ import cors from 'cors'
 import { authMiddleware } from './middleware/auth.js'
 import { healthRouter } from './routes/health.js'
 import { postsRouter } from './routes/posts.js'
+import { settingsRouter } from './routes/settings.js'
+import { authGoogleRouter } from './routes/auth-google.js'
+import { authMetaRouter } from './routes/auth-meta.js'
 import pino from 'pino'
 
 const logger = pino({
@@ -47,6 +50,11 @@ app.use('/health', healthRouter)
 // authMiddleware applied to ALL /api/* routes — no exceptions per CLAUDE.md
 app.use('/api', authMiddleware)
 app.use('/api/posts', postsRouter)
+
+// ── Phase 2: Settings + OAuth (auth-gated by app.use('/api', authMiddleware) above) ──
+app.use('/api/settings', settingsRouter)
+app.use('/api/auth/google', authGoogleRouter)
+app.use('/api/auth', authMetaRouter)  // routes: /instagram/{connect,callback}, /facebook/{connect,callback}
 
 // ── 404 handler ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {
