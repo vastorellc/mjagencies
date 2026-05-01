@@ -13,7 +13,8 @@ history, learning loops, admin panel, content research engine.
 - [ ] **AUTH-01**: User accounts are created exclusively by the admin via Supabase dashboard — no public signup form exists anywhere in the app
 - [ ] **AUTH-02**: Every screen and route is protected — unauthenticated users see only the login screen and are redirected there on any direct URL access
 - [ ] **AUTH-03**: User can log in with email and password (Supabase Auth), stay logged in across sessions, and log out
-- [ ] **AUTH-04**: All DB tables have `user_id UUID REFERENCES auth.users(id)` and Row Level Security policies — users can only read/write their own rows; no cross-user data leakage possible
+- [x] **AUTH-04
+**: All DB tables have `user_id UUID REFERENCES auth.users(id)` and Row Level Security policies — users can only read/write their own rows; no cross-user data leakage possible
 - [ ] **AUTH-05**: Admin role is set as a custom JWT claim (`role: 'admin'`) via Supabase service role key — only one admin account exists
 - [ ] **AUTH-06**: Admin panel routes/screens are inaccessible to non-admin users (enforced at both frontend guard and backend middleware)
 - [ ] **AUTH-07**: Password reset via Supabase email link — admin can also reset any user password directly from Supabase dashboard
@@ -90,10 +91,12 @@ history, learning loops, admin panel, content research engine.
 
 ### STORE — VPS File Storage
 
-- [ ] **STORE-01**: Uploaded video files stored on VPS at `/var/uploads/{user_id}/{uuid}.{ext}` — user-isolated paths
+- [x] **STORE-01
+**: Uploaded video files stored on VPS at `/var/uploads/{user_id}/{uuid}.{ext}` — user-isolated paths
 - [ ] **STORE-02**: Files served via Nginx at `VPS_PUBLIC_URL/uploads/{user_id}/{uuid}.{ext}` over public HTTPS (required for Meta video fetch)
 - [ ] **STORE-03**: Files deleted after successful social platform upload
-- [ ] **STORE-04**: pg-boss cleanup job deletes any file older than 1 hour (handles failed/abandoned uploads)
+- [x] **STORE-04
+**: pg-boss cleanup job deletes any file older than 1 hour (handles failed/abandoned uploads)
 - [ ] **STORE-05**: Instagram pre-upload size check: reject videos over 100 MB with clear error before queuing (Instagram hard limit)
 
 ### AUTOUP — Auto-Upload and Scheduling

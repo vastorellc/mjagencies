@@ -1,3 +1,20 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+current_phase: Phase 1 in progress — executing
+status: executing
+stopped_at: Completed 01-02-PLAN.md — schema + migration generated
+last_updated: "2026-05-01T10:38:49.623Z"
+last_activity: 2026-05-01
+progress:
+  total_phases: 10
+  completed_phases: 0
+  total_plans: 5
+  completed_plans: 2
+  percent: 40
+---
+
 # Project State — Viral Copy Generator
 
 ## Project Reference
@@ -10,17 +27,17 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 ## Current Position
 
 Phase: 1 of 10 (Backend + Auth Foundation)
-Plan: 1 of 5 in current phase (paused at checkpoint)
-Status: Executing — Plan 01 at checkpoint:human-action (Task 3: Supabase setup)
-Last activity: 2026-05-01 — Plan 01 Tasks 1-2 complete; awaiting Supabase project creation
+Plan: 2 of 5 in current phase (complete — Plan 02 done)
+Status: Executing — Plan 02 complete; ready for Plan 03
+Last activity: 2026-05-01
 
-Progress: [█░░░░░░░░░] 4%
+Progress: [████░░░░░░] 40%
 
 ## Phase Status
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Backend + Auth Foundation | 🔄 Executing (0/5 complete — Plan 01 at checkpoint) |
+| 1 | Backend + Auth Foundation | 🔄 Executing (2/5 complete — Plan 03 next) |
 | 2 | Settings + Social OAuth | ⬜ Not started |
 | 3 | Video Upload + Analysis Engine | ⬜ Not started |
 | 4 | Virality Score + Checklist | ⬜ Not started |
@@ -53,6 +70,9 @@ Progress: [█░░░░░░░░░] 4%
 - **Weekly Meta token refresh job** — 60-day token, no refresh token fallback
 - **EMA for score calibration** — `newEMA = 0.3 × newDelta + 0.7 × prevEMA`, activates at 10+ data points
 - **Hashtag aggregation uses unnest()** — spec SQL was wrong (scalar vs TEXT[])
+- **entities.roles.provider='supabase' mandatory** — without it drizzle-kit generate produces no CREATE POLICY statements (Pitfall 6)
+- **session pooler (port 5432) for DATABASE_URL** — direct connection is IPv6-only and unreachable; session pooler supports prepared statements for Drizzle and pg-boss
+- **drizzle-kit generate + migrate only** — push silently drops RLS policies (confirmed Pitfall 4)
 
 ### Critical Bugs to Avoid
 
@@ -75,6 +95,6 @@ Progress: [█░░░░░░░░░] 4%
 
 ## Session Continuity
 
-Last session: 2026-05-01
-Stopped at: Plan 01-01 Task 3 checkpoint:human-action — Supabase project setup required
-Resume: After completing Supabase setup and populating .env, run `/gsd-execute-phase 1` to continue from Task 3
+Last session: 2026-05-01T10:38:49.601Z
+Stopped at: Completed 01-02-PLAN.md — schema + migration generated
+Resume: Run `/gsd-execute-phase 1` to execute Plan 03 (Express app, auth middleware, routes)
