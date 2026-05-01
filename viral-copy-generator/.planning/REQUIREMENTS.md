@@ -11,8 +11,8 @@ history, learning loops, admin panel, content research engine.
 ### AUTH — Authentication and User Isolation
 
 - [ ] **AUTH-01**: User accounts are created exclusively by the admin via Supabase dashboard — no public signup form exists anywhere in the app
-- [ ] **AUTH-02**: Every screen and route is protected — unauthenticated users see only the login screen and are redirected there on any direct URL access
-- [ ] **AUTH-03**: User can log in with email and password (Supabase Auth), stay logged in across sessions, and log out
+- [x] **AUTH-02**: Every screen and route is protected — unauthenticated users see only the login screen and are redirected there on any direct URL access
+- [x] **AUTH-03**: User can log in with email and password (Supabase Auth), stay logged in across sessions, and log out
 - [x] **AUTH-04
 **: All DB tables have `user_id UUID REFERENCES auth.users(id)` and Row Level Security policies — users can only read/write their own rows; no cross-user data leakage possible
 - [ ] **AUTH-05**: Admin role is set as a custom JWT claim (`role: 'admin'`) via Supabase service role key — only one admin account exists
@@ -169,7 +169,7 @@ history, learning loops, admin panel, content research engine.
 - [ ] **UI-03**: Platform card colour accents: YouTube red · Instagram pink/purple · TikTok black+cyan · Facebook blue · X black+white
 - [ ] **UI-04**: Score colour coding: red (0–39) · amber (40–59) · green (60–79) · bright green (80–100)
 - [ ] **UI-05**: App usable on mobile phone (primary use case) — `h-[100dvh]` not `h-screen`, `viewport-fit=cover`, `pb-[env(safe-area-inset-bottom)]` for iOS Safari
-- [ ] **UI-06**: Auth screen (login + signup) is the entry point for unauthenticated users
+- [x] **UI-06**: Auth screen (login + signup) is the entry point for unauthenticated users
 
 ---
 

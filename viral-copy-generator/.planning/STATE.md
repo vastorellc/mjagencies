@@ -4,15 +4,15 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 1 in progress — executing
 status: executing
-stopped_at: Completed 01-03-PLAN.md — Express app, auth middleware, routes, pg-boss, storage
-last_updated: "2026-05-01T11:00:00.000Z"
+stopped_at: Completed 01-04-PLAN.md — Vite + COOP/COEP plugin, Tailwind v4, login screen, App.tsx auth gate
+last_updated: "2026-05-01T12:00:00.000Z"
 last_activity: 2026-05-01
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 5
-  completed_plans: 3
-  percent: 60
+  completed_plans: 4
+  percent: 80
 ---
 
 # Project State — Viral Copy Generator
@@ -27,17 +27,17 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 ## Current Position
 
 Phase: 1 of 10 (Backend + Auth Foundation)
-Plan: 3 of 5 in current phase (complete — Plan 03 done)
-Status: Executing — Plan 03 complete; ready for Plan 04
+Plan: 4 of 5 in current phase (complete — Plan 04 done)
+Status: Executing — Plan 04 complete; ready for Plan 05
 Last activity: 2026-05-01
 
-Progress: [██████░░░░] 60%
+Progress: [████████░░] 80%
 
 ## Phase Status
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Backend + Auth Foundation | 🔄 Executing (3/5 complete — Plan 04 next) |
+| 1 | Backend + Auth Foundation | 🔄 Executing (4/5 complete — Plan 05 next) |
 | 2 | Settings + Social OAuth | ⬜ Not started |
 | 3 | Video Upload + Analysis Engine | ⬜ Not started |
 | 4 | Virality Score + Checklist | ⬜ Not started |
@@ -75,6 +75,9 @@ Progress: [██████░░░░] 60%
 - **entities.roles.provider='supabase' mandatory** — without it drizzle-kit generate produces no CREATE POLICY statements (Pitfall 6)
 - **session pooler (port 5432) for DATABASE_URL** — direct connection is IPv6-only and unreachable; session pooler supports prepared statements for Drizzle and pg-boss
 - **drizzle-kit generate + migrate only** — push silently drops RLS policies (confirmed Pitfall 4)
+- **vite-env.d.ts triple-slash reference** — required for import.meta.env types and CSS module side-effect imports; must be in src/ and included in tsconfig
+- **font-bold on LoginPage submit button** — UI-SPEC checker overrides RESEARCH.md Pattern 8 (font-semibold); 2-weight rule: 400 body + 700 bold only
+- **error !== null conditional in LoginPage** — does not reserve space when no error; `{error && ...}` coerces empty string to no-render but `{error !== null && ...}` is explicit
 
 ### Critical Bugs to Avoid
 
@@ -97,6 +100,6 @@ Progress: [██████░░░░] 60%
 
 ## Session Continuity
 
-Last session: 2026-05-01T11:00:00.000Z
-Stopped at: Completed 01-03-PLAN.md — Express app, auth middleware, routes, pg-boss, storage
-Resume: Run `/gsd-execute-phase 1` to execute Plan 04 (Frontend: Vite + COOP/COEP plugin, Tailwind v4, login screen)
+Last session: 2026-05-01T12:00:00.000Z
+Stopped at: Completed 01-04-PLAN.md — Vite + COOP/COEP plugin, Tailwind v4, login screen, App.tsx auth gate
+Resume: Run `/gsd-execute-phase 1` to execute Plan 05 (Integration verification: Vitest suite, API smoke, pg-boss confirm, make-admin, manual phase sign-off)
