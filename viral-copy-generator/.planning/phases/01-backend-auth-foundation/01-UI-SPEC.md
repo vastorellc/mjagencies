@@ -1,7 +1,7 @@
 ---
 phase: 1
 slug: backend-auth-foundation
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-01
@@ -58,14 +58,16 @@ Source: 01-RESEARCH.md Pattern 8 (LoginPage.tsx), CLAUDE.md UI-05.
 
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
-| Body (input text, button label) | 16px | 400 regular | 1.5 |
-| Label (error message) | 14px | 400 regular | 1.5 |
-| Heading (app name) | 24px | 700 bold | 1.2 |
+| Body (input text, error message) | 14–16px | 400 regular | 1.5 |
+| Emphasis (heading, button label) | 14–24px | 700 bold | 1.2–1.5 |
 | Display | not used in Phase 1 | — | — |
+
+Two weights only: 400 (regular) and 700 (bold).
 
 Tailwind classes in use:
 - Heading: `text-2xl font-bold` → 24px / weight 700
-- Body inputs + button: `text-base` (default 16px) / weight 400 on inputs, `font-semibold` (weight 600) on button label
+- Button label: `font-bold` → weight 700 (collapsed from semibold — 2-weight rule)
+- Body inputs: `text-base` (default 16px) / weight 400
 - Error text: `text-sm` → 14px / weight 400
 
 Source: 01-RESEARCH.md Pattern 8 (LoginPage.tsx class list).
@@ -94,6 +96,16 @@ Heading and button label text: white (`#ffffff`).
 Error text: red-300 (`#fca5a5`) on red-900/40 background.
 
 Source: 01-RESEARCH.md Pattern 8 (LoginPage.tsx), phase_context in prompt.
+
+---
+
+## Visual Hierarchy
+
+Primary focal point: submit button (only accent-colored element on screen — purple-600 against zinc-950 background draws the eye immediately).
+
+Visual read order: heading → email input → password input → submit button.
+
+No secondary focal point. No competing accent colors. Error banner (red-900/40) is conditional and does not alter this hierarchy when absent.
 
 ---
 
@@ -134,7 +146,7 @@ Single file: `frontend/src/pages/LoginPage.tsx`
 
 5. Submit button
    - Tag: `<button type="submit">`
-   - Classes: `w-full rounded-lg bg-purple-600 py-3 font-semibold text-white transition hover:bg-purple-500 disabled:opacity-50`
+   - Classes: `w-full rounded-lg bg-purple-600 py-3 font-bold text-white transition hover:bg-purple-500 disabled:opacity-50`
    - States:
      - Default: "Sign in"
      - Loading: "Signing in..." + `disabled` attribute applied
@@ -241,11 +253,11 @@ The executor must verify each item before marking Phase 1 UI work complete:
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: FLAG (non-blocking — "Sign in" single-word CTA, login convention accepted)
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS (2 weights: 400 + 700; note: RESEARCH.md Pattern 8 still shows font-semibold — executor must use UI-SPEC, not research code)
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-05-01
