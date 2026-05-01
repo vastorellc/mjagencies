@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@theme {
+  /* Custom tokens are added here as phases require them */
+  /* Phase 1 uses only default Tailwind tokens */
+}
