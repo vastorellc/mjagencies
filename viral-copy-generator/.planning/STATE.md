@@ -4,15 +4,15 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 1 in progress — executing
 status: executing
-stopped_at: Completed 01-02-PLAN.md — schema + migration generated
-last_updated: "2026-05-01T10:38:49.623Z"
+stopped_at: Completed 01-03-PLAN.md — Express app, auth middleware, routes, pg-boss, storage
+last_updated: "2026-05-01T11:00:00.000Z"
 last_activity: 2026-05-01
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
-  percent: 40
+  completed_plans: 3
+  percent: 60
 ---
 
 # Project State — Viral Copy Generator
@@ -27,17 +27,17 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 ## Current Position
 
 Phase: 1 of 10 (Backend + Auth Foundation)
-Plan: 2 of 5 in current phase (complete — Plan 02 done)
-Status: Executing — Plan 02 complete; ready for Plan 03
+Plan: 3 of 5 in current phase (complete — Plan 03 done)
+Status: Executing — Plan 03 complete; ready for Plan 04
 Last activity: 2026-05-01
 
-Progress: [████░░░░░░] 40%
+Progress: [██████░░░░] 60%
 
 ## Phase Status
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Backend + Auth Foundation | 🔄 Executing (2/5 complete — Plan 03 next) |
+| 1 | Backend + Auth Foundation | 🔄 Executing (3/5 complete — Plan 04 next) |
 | 2 | Settings + Social OAuth | ⬜ Not started |
 | 3 | Video Upload + Analysis Engine | ⬜ Not started |
 | 4 | Virality Score + Checklist | ⬜ Not started |
@@ -69,6 +69,8 @@ Progress: [████░░░░░░] 40%
 - **Facebook Reels requires Page** — `page_id` + `page_access_token` stored from OAuth
 - **Weekly Meta token refresh job** — 60-day token, no refresh token fallback
 - **EMA for score calibration** — `newEMA = 0.3 × newDelta + 0.7 × prevEMA`, activates at 10+ data points
+- **COOP/COEP in Express middleware** — set on all backend responses before CORS/routes; required for Phase 3 SharedArrayBuffer support in @ffmpeg/core
+- **pg-boss named import { PgBoss }** — v12 ESM breaking change from default import; startup order: migrations → storage → boss → listen
 - **Hashtag aggregation uses unnest()** — spec SQL was wrong (scalar vs TEXT[])
 - **entities.roles.provider='supabase' mandatory** — without it drizzle-kit generate produces no CREATE POLICY statements (Pitfall 6)
 - **session pooler (port 5432) for DATABASE_URL** — direct connection is IPv6-only and unreachable; session pooler supports prepared statements for Drizzle and pg-boss
@@ -95,6 +97,6 @@ Progress: [████░░░░░░] 40%
 
 ## Session Continuity
 
-Last session: 2026-05-01T10:38:49.601Z
-Stopped at: Completed 01-02-PLAN.md — schema + migration generated
-Resume: Run `/gsd-execute-phase 1` to execute Plan 03 (Express app, auth middleware, routes)
+Last session: 2026-05-01T11:00:00.000Z
+Stopped at: Completed 01-03-PLAN.md — Express app, auth middleware, routes, pg-boss, storage
+Resume: Run `/gsd-execute-phase 1` to execute Plan 04 (Frontend: Vite + COOP/COEP plugin, Tailwind v4, login screen)
