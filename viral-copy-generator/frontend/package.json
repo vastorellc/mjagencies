@@ -1,0 +1,24 @@
+{
+  "name": "viral-copy-generator-frontend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "@supabase/supabase-js": "2.105.1",
+    "tailwindcss": "4.2.4",
+    "@tailwindcss/vite": "4.2.4"
+  },
+  "devDependencies": {
+    "vite": "^6.4.2",
+    "@vitejs/plugin-react": "4.7.0",
+    "typescript": "6.0.3",
+    "@types/react": "19.1.1",
+    "@types/react-dom": "19.1.2"
+  }
+}
