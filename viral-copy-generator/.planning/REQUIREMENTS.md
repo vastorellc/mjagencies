@@ -138,8 +138,79 @@
 
 ## Traceability
 
-*Filled by roadmapper agent.*
+*Updated by roadmapper agent — 2026-04-30*
 
-| Phase | Requirements Covered |
-|-------|----------------------|
-| TBD | TBD |
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| UI-01 | Phase 1: Backend Foundation | Pending |
+| UI-02 | Phase 1: Backend Foundation | Pending |
+| SETTINGS-01 | Phase 2: Settings + OAuth | Pending |
+| SETTINGS-02 | Phase 2: Settings + OAuth | Pending |
+| SETTINGS-03 | Phase 2: Settings + OAuth | Pending |
+| SETTINGS-04 | Phase 2: Settings + OAuth | Pending |
+| SETTINGS-05 | Phase 2: Settings + OAuth | Pending |
+| SETTINGS-06 | Phase 2: Settings + OAuth | Pending |
+| SETTINGS-07 | Phase 2: Settings + OAuth | Pending |
+| SETTINGS-08 | Phase 2: Settings + OAuth | Pending |
+| UPLOAD-01 | Phase 3: Video Upload + Analysis Engine | Pending |
+| UPLOAD-02 | Phase 3: Video Upload + Analysis Engine | Pending |
+| UPLOAD-03 | Phase 3: Video Upload + Analysis Engine | Pending |
+| ANALYSIS-01 | Phase 3: Video Upload + Analysis Engine | Pending |
+| ANALYSIS-02 | Phase 3: Video Upload + Analysis Engine | Pending |
+| ANALYSIS-03 | Phase 3: Video Upload + Analysis Engine | Pending |
+| ANALYSIS-04 | Phase 3: Video Upload + Analysis Engine | Pending |
+| ANALYSIS-05 | Phase 3: Video Upload + Analysis Engine | Pending |
+| ANALYSIS-06 | Phase 3: Video Upload + Analysis Engine | Pending |
+| ANALYSIS-07 | Phase 3: Video Upload + Analysis Engine | Pending |
+| ANALYSIS-08 | Phase 3: Video Upload + Analysis Engine | Pending |
+| ANALYSIS-09 | Phase 3: Video Upload + Analysis Engine | Pending |
+| SCORE-01 | Phase 4: Virality Score + Checklist | Pending |
+| SCORE-02 | Phase 4: Virality Score + Checklist | Pending |
+| SCORE-03 | Phase 4: Virality Score + Checklist | Pending |
+| SCORE-04 | Phase 4: Virality Score + Checklist | Pending |
+| SCORE-05 | Phase 4: Virality Score + Checklist | Pending |
+| SCORE-06 | Phase 4: Virality Score + Checklist | Pending |
+| SCORE-07 | Phase 4: Virality Score + Checklist | Pending |
+| AI-01 | Phase 5: AI Copy + Platform Cards | Pending |
+| AI-02 | Phase 5: AI Copy + Platform Cards | Pending |
+| AI-03 | Phase 5: AI Copy + Platform Cards | Pending |
+| AI-04 | Phase 5: AI Copy + Platform Cards | Pending |
+| AI-05 | Phase 5: AI Copy + Platform Cards | Pending |
+| AI-06 | Phase 5: AI Copy + Platform Cards | Pending |
+| AI-07 | Phase 5: AI Copy + Platform Cards | Pending |
+| AI-08 | Phase 5: AI Copy + Platform Cards | Pending |
+| PLATFORM-01 | Phase 5: AI Copy + Platform Cards | Pending |
+| PLATFORM-02 | Phase 5: AI Copy + Platform Cards | Pending |
+| PLATFORM-03 | Phase 5: AI Copy + Platform Cards | Pending |
+| PLATFORM-04 | Phase 5: AI Copy + Platform Cards | Pending |
+| PLATFORM-05 | Phase 5: AI Copy + Platform Cards | Pending |
+| PLATFORM-06 | Phase 5: AI Copy + Platform Cards | Pending |
+| PLATFORM-07 | Phase 5: AI Copy + Platform Cards | Pending |
+| PLATFORM-08 | Phase 5: AI Copy + Platform Cards | Pending |
+| PLATFORM-09 | Phase 5: AI Copy + Platform Cards | Pending |
+| PLATFORM-10 | Phase 5: AI Copy + Platform Cards | Pending |
+| UI-03 | Phase 5: AI Copy + Platform Cards | Pending |
+| UI-04 | Phase 5: AI Copy + Platform Cards | Pending |
+| UI-05 | Phase 5: AI Copy + Platform Cards | Pending |
+| AUTOUP-01 | Phase 6: Auto-Upload + Scheduling | Pending |
+| AUTOUP-02 | Phase 6: Auto-Upload + Scheduling | Pending |
+| AUTOUP-03 | Phase 6: Auto-Upload + Scheduling | Pending |
+| AUTOUP-04 | Phase 6: Auto-Upload + Scheduling | Pending |
+| AUTOUP-05 | Phase 6: Auto-Upload + Scheduling | Pending |
+| AUTOUP-06 | Phase 6: Auto-Upload + Scheduling | Pending |
+| AUTOUP-07 | Phase 6: Auto-Upload + Scheduling | Pending |
+| AUTOUP-08 | Phase 6: Auto-Upload + Scheduling | Pending |
+| HISTORY-01 | Phase 7: History + Learning Loops | Pending |
+| HISTORY-02 | Phase 7: History + Learning Loops | Pending |
+| HISTORY-03 | Phase 7: History + Learning Loops | Pending |
+| HISTORY-04 | Phase 7: History + Learning Loops | Pending |
+| HISTORY-05 | Phase 7: History + Learning Loops | Pending |
+| HISTORY-06 | Phase 7: History + Learning Loops | Pending |
+| LEARNING-01 | Phase 7: History + Learning Loops | Pending |
+| LEARNING-02 | Phase 7: History + Learning Loops | Pending |
+| LEARNING-03 | Phase 7: History + Learning Loops | Pending |
+| LEARNING-04 | Phase 7: History + Learning Loops | Pending |
+| LEARNING-05 | Phase 7: History + Learning Loops | Pending |
+| LEARNING-06 | Phase 7: History + Learning Loops | Pending |
+| LEARNING-07 | Phase 7: History + Learning Loops | Pending |
+| LEARNING-08 | Phase 7: History + Learning Loops | Pending |
