@@ -89,7 +89,15 @@ before any ffmpeg code is written.
 6. `/var/uploads/` directory exists on VPS; Nginx serves a test file at `VPS_PUBLIC_URL/uploads/test.txt`
 7. Frontend login screen is the only accessible screen for unauthenticated users — direct URL navigation redirects to login
 
-**Plans:** TBD
+**Plans:** 5 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Project scaffold: package manifests, test stubs, .env.example, make-admin script, Supabase setup checkpoint
+- [ ] 01-02-PLAN.md — Drizzle schema: all four tables with UUID PKs, authUsers FK, RLS policies, drizzle-kit generate [BLOCKING]
+- [ ] 01-03-PLAN.md — Express backend: auth/admin middleware, routes, pg-boss v12, VPS storage, startup orchestration
+- [ ] 01-04-PLAN.md — Frontend: Vite + COOP/COEP plugin, Tailwind v4, login screen, App.tsx auth gate
+- [ ] 01-05-PLAN.md — Integration verification: Vitest suite, API smoke, pg-boss confirm, make-admin, manual phase sign-off
+
 **UI hint:** yes
 
 ---
@@ -455,7 +463,7 @@ indeterminate progress animation, and error boundaries throughout.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend + Auth Foundation | 0/TBD | Not started | - |
+| 1. Backend + Auth Foundation | 0/5 | Planned | - |
 | 2. Settings + Social OAuth | 0/TBD | Not started | - |
 | 3. Video Upload + Analysis Engine | 0/TBD | Not started | - |
 | 4. Virality Score + Checklist | 0/TBD | Not started | - |
