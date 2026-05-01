@@ -21,6 +21,9 @@ export async function getBoss(): Promise<PgBoss> {
 }
 
 export async function registerCleanupJob(bossInstance: PgBoss): Promise<void> {
+  // pg-boss v12: queue must be created before schedule() — foreign key constraint on pgboss.schedule.name
+  await bossInstance.createQueue('cleanup-stale-files')
+
   // Runs every hour — deletes VPS files older than 1 hour (STORE-04)
   await bossInstance.schedule('cleanup-stale-files', '0 * * * *', {})
 
