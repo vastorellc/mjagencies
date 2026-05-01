@@ -136,8 +136,8 @@ pg-boss job keeps Meta tokens alive automatically.
 **Plans:** 7 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Crypto + env validation + OAuth credentials checkpoint (encryption.ts, oauth-state.ts, .env.example) [BLOCKING]
-- [ ] 02-02-PLAN.md — Settings routes (GET/PATCH/disconnect) + OAuth route stubs + app.ts wiring
+- [x] 02-01-PLAN.md — Crypto + env validation + OAuth credentials checkpoint (encryption.ts, oauth-state.ts, .env.example) [BLOCKING] (COMPLETE 2026-05-01)
+- [x] 02-02-PLAN.md — Settings routes (GET/PATCH/disconnect) + OAuth route stubs + app.ts wiring (COMPLETE 2026-05-01)
 - [ ] 02-03-PLAN.md — YouTube OAuth (googleapis 171.4.0, prompt=consent, encrypted tokens)
 - [ ] 02-04-PLAN.md — Meta OAuth (Instagram Login + Facebook Login for Business — two flows, account_type preflight, page selection)
 - [ ] 02-05-PLAN.md — Weekly meta-token-refresh pg-boss job (60-day token, 7-day cadence)

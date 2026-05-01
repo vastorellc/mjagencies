@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 2 planned — ready to execute
-status: ready_to_execute
-stopped_at: "Phase 2 planning complete — 7 plans in 5 waves verified, ready to run /gsd-execute-phase 2"
-last_updated: "2026-05-01T13:00:00.000Z"
+current_phase: "Phase 2 executing — 02-02 complete"
+status: executing
+stopped_at: "02-02 complete — settings HTTP surface + OAuth stubs + 10 integration tests"
+last_updated: "2026-05-01T21:25:33Z"
 last_activity: 2026-05-01
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 12
-  completed_plans: 5
-  percent: 10
+  completed_plans: 7
+  percent: 12
 ---
 
 # Project State — Viral Copy Generator
@@ -26,19 +26,19 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 
 ## Current Position
 
-Phase: 1 of 10 (Backend + Auth Foundation) — COMPLETE
-Plan: 5 of 5 in current phase (all tasks complete, UAT passed, code review fixes committed)
-Status: Phase 1 verified — ready to run /gsd-plan-phase 2
+Phase: 2 of 10 (Settings + Social OAuth) — EXECUTING (2/7 plans complete)
+Plan: 02-02 complete — Wave 2 done (settings HTTP surface + pg-mem integration tests)
+Status: 02-02 complete — ready to execute 02-03 (Google OAuth) or 02-04 (Meta OAuth) in Wave 3
 Last activity: 2026-05-01
 
-Progress: [██████████] 100% (automated)
+Progress: [█░░░░░░░░░] 12% (6 plans complete of ~50 estimated total)
 
 ## Phase Status
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
-| 2 | Settings + Social OAuth | 🟦 Planned (7 plans, 5 waves — verified, ready to execute) |
+| 2 | Settings + Social OAuth | 🟡 Executing (2/7 plans complete — 02-01 crypto, 02-02 settings surface done) |
 | 3 | Video Upload + Analysis Engine | ⬜ Not started |
 | 4 | Virality Score + Checklist | ⬜ Not started |
 | 5 | AI Copy + Platform Cards | ⬜ Not started |
@@ -81,6 +81,9 @@ Progress: [██████████] 100% (automated)
 - **error !== null conditional in LoginPage** — does not reserve space when no error; `{error && ...}` coerces empty string to no-render but `{error !== null && ...}` is explicit
 - **pg-boss v12 createQueue() before schedule()** — `pgboss.schedule` has FK on `(name)` referencing `pgboss.queue`; must call `createQueue(name)` before `schedule(name, cron, {})`
 - **nginx /uploads/ no internal directive** — Meta's Instagram/Facebook servers need public HTTPS access for Phase 6 video ingestion (STORE-02); CORP must be `cross-origin` not `same-origin`
+- **pg-mem v3.0.5 PatchedPool for drizzle tests** — pg-mem v3.0.5 lacks rowMode/getTypeParser/JSONB-merge; PatchedPool subclass in _helpers.ts intercepts and rewrites these in JS; test-only shim, production code unchanged
+- **Settings UPSERT partial-field update** — INSERT...onConflictDoUpdate uses dynamic Record<string,unknown> patch so PATCH with only default_niche does not overwrite api_key_encrypted
+- **TRUNCATE → DELETE in pg-mem tests** — pg-mem does not support TRUNCATE ... RESTART IDENTITY CASCADE; DELETE FROM table achieves per-test isolation
 
 ### Critical Bugs to Avoid
 
@@ -103,6 +106,6 @@ Progress: [██████████] 100% (automated)
 
 ## Session Continuity
 
-Last session: 2026-05-01T13:00:00.000Z
-Stopped at: Phase 2 plans verified — 7 plans, 5 waves, all SETTINGS-01..10 covered
-Resume: Run `/gsd-execute-phase 2` to execute (start with Wave 1: Plan 02-01 crypto + OAuth credentials checkpoint)
+Last session: 2026-05-01T21:25:33Z
+Stopped at: 02-02 complete — settings HTTP surface + OAuth stubs + 10 integration tests (all passing)
+Resume: Execute 02-03 (Google OAuth) or 02-04 (Meta OAuth) — both can run independently in Wave 3; app.ts already wired
