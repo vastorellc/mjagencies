@@ -33,7 +33,7 @@ by the admin only — no public registration.
 
 ## Phases
 
-- [ ] **Phase 1: Backend + Auth Foundation** — Supabase project, auth-gated Express scaffold, Drizzle + full schema with RLS, pg-boss, VPS file storage, COOP/COEP
+- [x] **Phase 1: Backend + Auth Foundation** — Supabase project, auth-gated Express scaffold, Drizzle + full schema with RLS, pg-boss, VPS file storage, COOP/COEP
 - [ ] **Phase 2: Settings + Social OAuth** — Per-user AI key encryption, YouTube + Meta OAuth (redirect flow, 2025 scopes), weekly token refresh job
 - [ ] **Phase 3: Video Upload + Analysis Engine** — In-browser ffmpeg.wasm + TF.js + Web Audio + Canvas with researched bug workarounds
 - [ ] **Phase 4: Virality Score + Checklist** — Weighted score, per-platform variants, three-state checklist, rule-based gap analysis
@@ -92,11 +92,11 @@ before any ffmpeg code is written.
 **Plans:** 5 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Project scaffold: package manifests, test stubs, .env.example, make-admin script, Supabase setup checkpoint
-- [ ] 01-02-PLAN.md — Drizzle schema: all four tables with UUID PKs, authUsers FK, RLS policies, drizzle-kit generate [BLOCKING]
+- [x] 01-01-PLAN.md — Project scaffold: package manifests, test stubs, .env.example, make-admin script, Supabase setup checkpoint
+- [x] 01-02-PLAN.md — Drizzle schema: all four tables with UUID PKs, authUsers FK, RLS policies, drizzle-kit generate [BLOCKING]
 - [x] 01-03-PLAN.md — Express backend: auth/admin middleware, routes, pg-boss v12, VPS storage, startup orchestration
 - [x] 01-04-PLAN.md — Frontend: Vite + COOP/COEP plugin, Tailwind v4, login screen, App.tsx auth gate
-- [~] 01-05-PLAN.md — Integration verification: Vitest suite, API smoke, pg-boss confirm, make-admin, manual phase sign-off (paused: human-verify checkpoint)
+- [x] 01-05-PLAN.md — Integration verification: Vitest suite, API smoke, pg-boss confirm, make-admin, manual phase sign-off (COMPLETE — human-verify approved 2026-05-01)
 
 **UI hint:** yes
 
@@ -463,7 +463,7 @@ indeterminate progress animation, and error boundaries throughout.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend + Auth Foundation | 5/5 automated | Awaiting human-verify | - |
+| 1. Backend + Auth Foundation | 5/5 | Complete | 2026-05-01 |
 | 2. Settings + Social OAuth | 0/TBD | Not started | - |
 | 3. Video Upload + Analysis Engine | 0/TBD | Not started | - |
 | 4. Virality Score + Checklist | 0/TBD | Not started | - |
