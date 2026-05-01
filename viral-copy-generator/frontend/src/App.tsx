@@ -10,7 +10,8 @@ export default function App() {
 
   useEffect(() => {
     // Restore existing session on mount (handles page refresh — AUTH-03 session persistence)
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) console.warn('[auth] getSession error:', error.message)
       setSession(session)
       setLoading(false)
     })

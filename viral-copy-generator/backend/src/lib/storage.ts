@@ -15,14 +15,23 @@ export async function initStorage(): Promise<void> {
 // Called by the pg-boss cleanup-stale-files schedule job
 export async function cleanupStaleFiles(maxAgeMs = 60 * 60 * 1000): Promise<void> {
   const now = Date.now()
+  const root = path.resolve(UPLOADS_ROOT)
   try {
-    const userDirs = await readdir(UPLOADS_ROOT)
+    const userDirs = await readdir(root)
     for (const userDir of userDirs) {
-      const userPath = path.join(UPLOADS_ROOT, userDir)
+      const userPath = path.resolve(root, userDir)
+      if (!userPath.startsWith(root + path.sep)) {
+        console.warn(`[storage] suspicious directory entry skipped: ${userDir}`)
+        continue
+      }
       try {
         const files = await readdir(userPath)
         for (const file of files) {
-          const filePath = path.join(userPath, file)
+          const filePath = path.resolve(userPath, file)
+          if (!filePath.startsWith(userPath + path.sep)) {
+            console.warn(`[storage] suspicious file entry skipped: ${file}`)
+            continue
+          }
           const stats = await stat(filePath)
           if (now - stats.mtimeMs > maxAgeMs) {
             await unlink(filePath)

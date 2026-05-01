@@ -12,9 +12,12 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
-    if (authError) setError(authError.message)
-    setLoading(false)
+    try {
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      if (authError) setError(authError.message)
+    } finally {
+      setLoading(false)
+    }
     // On success, onAuthStateChange fires SIGNED_IN → App re-renders with session → LoginPage unmounts
   }
 

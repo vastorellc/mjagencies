@@ -7,5 +7,5 @@ export const postsRouter = Router()
 // authMiddleware is applied at the app level for all /api/* routes
 postsRouter.get('/', (_req, res) => {
   // res.locals.userId is set by authMiddleware
-  res.json({ posts: [], userId: res.locals.userId as string })
+  res.json({ posts: [] })
 })

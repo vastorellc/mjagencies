@@ -116,6 +116,9 @@ export const learning_signals = pgTable('learning_signals', {
 // ROADMAP note: learned_weights JSONB column required
 // (spec omitted this — added per Phase 1 key implementation notes)
 // ============================================================
+// SECURITY: OAuth tokens in PlatformConfig MUST be AES-256-GCM encrypted before
+// writing to platform_config, and decrypted on read in the settings route.
+// Store as { iv: string; cipher: string } — never write plaintext tokens to the DB.
 export type PlatformConfig = {
   youtube?: { access_token: string; refresh_token: string; expiry: number } | null
   instagram?: { access_token: string; expiry: number } | null

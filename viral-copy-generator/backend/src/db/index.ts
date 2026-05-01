@@ -8,6 +8,10 @@ import * as schema from './schema.js'
 // both acceptable for a VPS backend using Drizzle and pg-boss.
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  // rejectUnauthorized: false — Supabase session pooler does not present a CA cert that
+  // Node.js trusts by default. Accepted risk: connection is still TLS-encrypted; MITM
+  // requires control of the network path between VPS and Supabase. Replace with
+  // { ca: process.env.SUPABASE_DB_CA_CERT } if the Supabase CA cert is available.
   ssl: { rejectUnauthorized: false },
 })
 

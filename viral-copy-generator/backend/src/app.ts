@@ -12,16 +12,27 @@ const logger = pino({
 
 export const app = express()
 
-// ── COOP/COEP headers — required on all responses (CLAUDE.md Security) ──────
-// Cross-Origin-Opener-Policy: same-origin + Cross-Origin-Embedder-Policy: require-corp
-// ensures SharedArrayBuffer is available for @ffmpeg/core (Phase 3+)
+// ── Security headers — required on all responses ────────────────────────────
 app.use((_req, res, next) => {
+  // COOP/COEP: required for SharedArrayBuffer / @ffmpeg/core (Phase 3+)
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
   res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp')
+  // Defensive headers
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+  // CSP: tighten per phase as new domains (AI providers, CDNs) are added
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; connect-src 'self' https://*.supabase.co; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:;",
+  )
   next()
 })
 
 // ── Middleware ───────────────────────────────────────────────────────────────
+if (process.env.NODE_ENV === 'production' && !process.env.APP_URL) {
+  throw new Error('APP_URL must be set in production')
+}
 app.use(cors({
   origin: process.env.APP_URL ?? 'http://localhost:5173',
   credentials: true,

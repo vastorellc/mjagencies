@@ -25,7 +25,13 @@ export async function registerCleanupJob(bossInstance: PgBoss): Promise<void> {
   await bossInstance.createQueue('cleanup-stale-files')
 
   // Runs every hour — deletes VPS files older than 1 hour (STORE-04)
-  await bossInstance.schedule('cleanup-stale-files', '0 * * * *', {})
+  // schedule() is not idempotent in pg-boss v12 — ignore duplicate constraint on restart
+  try {
+    await bossInstance.schedule('cleanup-stale-files', '0 * * * *', {})
+  } catch (err: unknown) {
+    const msg = (err as Error).message ?? ''
+    if (!msg.includes('duplicate') && !msg.includes('unique')) throw err
+  }
 
   await bossInstance.work('cleanup-stale-files', async (_job) => {
     await cleanupStaleFiles()

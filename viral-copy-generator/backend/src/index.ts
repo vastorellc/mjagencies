@@ -5,6 +5,11 @@ import { getBoss, registerCleanupJob } from './lib/boss.js'
 import { initStorage } from './lib/storage.js'
 import { app } from './app.js'
 
+const REQUIRED_ENV = ['DATABASE_URL', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'] as const
+for (const key of REQUIRED_ENV) {
+  if (!process.env[key]) throw new Error(`Missing required env var: ${key}`)
+}
+
 async function main(): Promise<void> {
   // 1. Run Drizzle migrations first (fast, idempotent — safe to run on every startup)
   await runMigrations()

@@ -15,7 +15,7 @@ export default function GeneratorPage() {
         </button>
       </header>
       <main className="flex flex-1 items-center justify-center text-zinc-400 text-sm">
-        Generator coming in Phase 3.
+        Upload a short-form video to analyse and generate viral copy.
       </main>
     </div>
   )
