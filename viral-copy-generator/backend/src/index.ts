@@ -5,9 +5,25 @@ import { getBoss, registerCleanupJob } from './lib/boss.js'
 import { initStorage } from './lib/storage.js'
 import { app } from './app.js'
 
-const REQUIRED_ENV = ['DATABASE_URL', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'] as const
+const REQUIRED_ENV = [
+  'DATABASE_URL',
+  'SUPABASE_URL',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  // Phase 2: per-user crypto + OAuth (T-02-07)
+  'ENCRYPTION_KEY',
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'META_APP_ID',
+  'META_APP_SECRET',
+  'APP_URL', // OAuth redirect URI base
+] as const
 for (const key of REQUIRED_ENV) {
   if (!process.env[key]) throw new Error(`Missing required env var: ${key}`)
+}
+
+// Defense-in-depth: ENCRYPTION_KEY must be at least 32 chars (T-02-07)
+if (process.env.ENCRYPTION_KEY!.length < 32) {
+  throw new Error('ENCRYPTION_KEY must be at least 32 characters')
 }
 
 async function main(): Promise<void> {
