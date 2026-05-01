@@ -59,10 +59,10 @@ completed: 2026-05-01
 
 ## Performance
 
-- **Duration:** 20 min
+- **Duration:** 20 min (automated tasks) + human verify
 - **Started:** 2026-05-01T10:50:00Z
-- **Completed:** 2026-05-01T11:10:00Z
-- **Tasks:** 2 of 3 automated complete (Task 3 = human-verify checkpoint)
+- **Completed:** 2026-05-01T11:30:00Z
+- **Tasks:** 3 of 3 complete (Tasks 1+2 automated, Task 3 human-approved)
 - **Files modified:** 2
 
 ## Accomplishments
@@ -132,64 +132,57 @@ All automated checks passed:
 | Migrations ran | startup log | `[migrate] all migrations applied` |
 | pg-boss started | startup log | `[pg-boss] started` + `[pg-boss] cleanup-stale-files job registered` |
 
-## Human Checkpoint Required — Task 3
+## Human Checkpoint — Task 3 — APPROVED
 
-The following items require manual browser/dashboard verification:
+The human verifier confirmed "Approved" for all Phase 1 browser and dashboard criteria.
 
-### Checklist for Human Verifier
+### Verified Criteria (manual confirmation)
 
 **1. Supabase dashboard checks:**
-- [ ] Authentication → Settings → "Enable email signups" is toggled OFF
-- [ ] Authentication → Users → admin user exists in the list
-- [ ] SQL Editor: `SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'pgboss'` returns 1 row
+- [x] Authentication → Settings → "Enable email signups" toggled OFF
+- [x] Authentication → Users → admin user (jamshed697@gmail.com) exists with role: admin JWT claim set via make-admin script
+- [x] SQL Editor: `pgboss` schema exists (1 row returned)
 
 **2. DB tables and RLS:**
-```sql
-SELECT table_name FROM information_schema.tables
-WHERE table_schema = 'public' ORDER BY table_name;
--- Expected: learning_signals, platform_posts, posts, settings
+- [x] All 4 tables present: `learning_signals`, `platform_posts`, `posts`, `settings`
+- [x] 4 RLS policies confirmed (one per table)
+- [x] `settings.learned_weights` column present
+- [x] `learning_signals.post_id` and `hashtags` columns present
 
-SELECT tablename, policyname FROM pg_policies WHERE schemaname = 'public';
--- Expected: 4 policies (one per table)
+**3. make-admin script:**
+- [x] Ran successfully for jamshed697@gmail.com — `app_metadata.role = 'admin'` set
 
-SELECT column_name FROM information_schema.columns
-WHERE table_name = 'settings' AND column_name = 'learned_weights';
--- Expected: 1 row
+**4. Frontend browser checks:**
+- [x] http://localhost:5173 → login screen appears for unauthenticated users
+- [x] DevTools Console → `self.crossOriginIsolated === true` (COOP/COEP active)
+- [x] Sign in → GeneratorPage with "Sign out" button visible
+- [x] Click "Sign out" → redirected to login screen (AUTH-03 logout)
+- [x] Sign in → refresh page → stays on GeneratorPage (AUTH-03 session persistence)
 
-SELECT column_name FROM information_schema.columns
-WHERE table_name = 'learning_signals' AND column_name IN ('post_id', 'hashtags');
--- Expected: 2 rows
-```
-
-**3. Run make-admin script** (admin user must exist in Supabase first):
-```bash
-cd backend && npm run make-admin -- admin@yourdomain.com
-```
-Expected output: `[make-admin] Admin role set for: admin@yourdomain.com`
-
-**4. Frontend browser checks** (run `npm run dev` in frontend/):
-- [ ] Open http://localhost:5173 — login screen appears (not app screen)
-- [ ] DevTools Console → type `self.crossOriginIsolated` → must return `true`
-- [ ] Sign in → GeneratorPage shows with "Sign out" button
-- [ ] Click "Sign out" → returns to login screen immediately (AUTH-03)
-- [ ] Sign in again → refresh page → stays on GeneratorPage (AUTH-03 session persistence)
-
-**5. Local uploads directory:**
-- [ ] `ls ${UPLOADS_PATH:-/var/uploads}` shows directory exists (created by backend startup)
-
-### Resume Signal
-Type "approved" if all criteria pass. Type the criterion number and failure description if anything fails.
+**5. Uploads directory:**
+- [x] `/var/uploads` directory created by backend startup (or `UPLOADS_PATH` override)
 
 ## Known Stubs
 
 None — this plan is verification-only; no UI or data-flow stubs introduced.
 
+## Self-Check: PASSED
+
+- [x] nginx/vcg.conf exists: `C:/Users/jamshaid_pph/ClaudeMJ/viral-copy-generator/nginx/vcg.conf`
+- [x] Commits exist: b01a36b (feat nginx + pg-boss fix), f5bc0d9 (fix make-admin script)
+- [x] Task 3 human-verify: APPROVED by user
+- [x] All Phase 1 success criteria met
+
 ## Next Phase Readiness
 
-- Phase 1 automation complete and green
-- Awaiting human sign-off on browser/dashboard checks before marking Phase 1 complete
-- Once approved, Phase 2 (Settings + Social OAuth) can begin
+- Phase 1 complete — all 5 plans executed, all 3 tasks in plan 05 done (including human sign-off)
+- Admin account configured (jamshed697@gmail.com) with role: admin JWT claim
+- pg-boss running, pgboss schema live in Supabase DB
+- All 4 tables with RLS policies, correct schema
+- Backend: /health 200, /api/posts 401
+- Frontend: auth-gated login, COOP/COEP active, Sign out + session persistence working
+- Phase 2 (Settings + Social OAuth) can begin — run `/gsd-plan-phase 2`
 
 ---
 *Phase: 01-backend-auth-foundation*
-*Completed: 2026-05-01 (awaiting human-verify checkpoint)*
+*Completed: 2026-05-01*
