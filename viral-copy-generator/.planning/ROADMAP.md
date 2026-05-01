@@ -2,124 +2,128 @@
 
 ## Overview
 
-Eight phases that deliver the full tool. Each phase must complete before the next begins —
-the dependency chain is hard. This roadmap incorporates deep per-phase technical research
-with all identified bottlenecks and spec errors corrected before execution begins.
+Ten phases delivering the full platform: auth-gated multi-user system, in-browser video
+analysis engine, AI copy generation, multi-platform auto-upload, post history + learning
+loops, admin panel, and a content research engine powered by external trend data and each
+user's own performance history.
 
-**Key spec corrections from research:**
-- Schema missing `learned_weights` column and `learning_signals.post_id` FK → fixed in Phase 1
-- Spec's hashtag SQL wrong (`hashtag` scalar vs `TEXT[]`) → fixed in Phase 7
-- Gemini inline video broken for all sizes → Files API always (Phase 5)
-- OpenAI blocks direct browser calls → backend proxy required (Phase 5)
-- Instagram scopes deprecated Jan 27 2025 → use new scopes (Phase 2 + 6)
-- Facebook Reels requires a Facebook Page → Page token flow added (Phase 2 + 6)
-- YouTube must use resumable upload → multipart has 5 MB hard limit (Phase 6)
-- Meta container must be created inside the BullMQ job → 24h expiry risk removed (Phase 6)
-- Instagram hard file size limit 100 MB → size check before queuing (Phase 6)
-- `tf.tidy()` cannot wrap async inference → element-passing + explicit dispose (Phase 3)
-- ffmpeg.wasm already has built-in worker → Phase 8 "Web Worker migration" is a config check, not a rewrite
+**Architecture:** Supabase (Auth + PostgreSQL + Realtime) + VPS (Node.js + Nginx + file
+storage) + pg-boss (PostgreSQL-backed job queue, no Redis). Every user account is created
+by the admin only — no public registration.
+
+**Spec corrections incorporated from deep research:**
+- No public signup — admin creates accounts in Supabase dashboard only
+- Supabase replaces raw PostgreSQL + Redis entirely
+- pg-boss replaces BullMQ (queue lives in Supabase DB, no separate Redis)
+- VPS local disk for file storage — not Supabase Storage
+- Supabase Realtime replaces upload status polling
+- All tables: `user_id` FK + RLS policies for per-user isolation
+- Schema additions: `learned_weights` column (settings), `post_id` FK (learning_signals)
+- Gemini Files API always (inline broken for all sizes)
+- OpenAI proxied through backend (CORS blocked in browser)
+- Instagram scopes: `instagram_business_basic` + `instagram_business_content_publish` (2025)
+- Facebook Reels: requires Facebook Page — `page_id` + `page_access_token` stored in Phase 2
+- Meta container created inside pg-boss job (not at schedule time — 24h expiry)
+- Instagram 100 MB file size gate before queuing
+- ffprobe return code bug — always read output file unconditionally
+- tf.tidy() async incompatibility — use element-passing + explicit dispose
+- COOP/COEP: configureServer middleware plugin in Vite (not server.headers — breaks HMR)
 
 ---
 
 ## Phases
 
-- [ ] **Phase 1: Backend Foundation** — Express + Drizzle + PostgreSQL + BullMQ/Redis scaffold with corrected DB schema and all API routes
-- [ ] **Phase 2: Settings + OAuth** — AI provider config, API key encryption, Google + Meta OAuth using redirect flow and new 2025 scopes
-- [ ] **Phase 3: Video Upload + Analysis Engine** — In-browser ffmpeg.wasm + TF.js + Web Audio + Canvas with researched API patterns and bug workarounds
+- [ ] **Phase 1: Backend + Auth Foundation** — Supabase project, auth-gated Express scaffold, Drizzle + full schema with RLS, pg-boss, VPS file storage, COOP/COEP
+- [ ] **Phase 2: Settings + Social OAuth** — Per-user AI key encryption, YouTube + Meta OAuth (redirect flow, 2025 scopes), weekly token refresh job
+- [ ] **Phase 3: Video Upload + Analysis Engine** — In-browser ffmpeg.wasm + TF.js + Web Audio + Canvas with researched bug workarounds
 - [ ] **Phase 4: Virality Score + Checklist** — Weighted score, per-platform variants, three-state checklist, rule-based gap analysis
-- [ ] **Phase 5: AI Copy + Platform Cards** — Gemini Files API, OpenAI backend proxy, Anthropic browser flag, 5 platform cards, Get Better Version
-- [ ] **Phase 6: Auto-Upload + Scheduling** — YouTube resumable, Meta two-step Reels with container-in-job fix, BullMQ PKT scheduling, Instagram 100 MB gate
-- [ ] **Phase 7: History + Learning Loops** — Post history, view logging transaction, EMA score calibration, corrected hashtag unnest queries
-- [ ] **Phase 8: Polish + Resilience** — Async tensor dispose, unified API error mapping, iOS Safari layout, indeterminate progress
+- [ ] **Phase 5: AI Copy + Platform Cards** — Gemini Files API, OpenAI proxy, Anthropic browser flag, 5 platform cards, Realtime upload state, Get Better Version
+- [ ] **Phase 6: Auto-Upload + Scheduling** — YouTube resumable, Meta two-step Reels with container-in-job fix, pg-boss PKT scheduling, Instagram 100 MB gate
+- [ ] **Phase 7: History + Learning Loops** — Post history (per-user RLS), atomic view logging transaction, EMA calibration, corrected hashtag unnest queries
+- [ ] **Phase 8: Admin Panel** — Queue manager, user management, learning data editor, system health, logs viewer
+- [ ] **Phase 9: Content Research Engine** — External trend APIs + user learning data + AI → content ideas, briefs, hashtag intelligence, 7-day calendar
+- [ ] **Phase 10: Polish + Resilience** — Async tensor dispose, unified API error mapping, iOS Safari layout, indeterminate progress, error boundaries
 
 ---
 
 ## Phase Details
 
-### Phase 1: Backend Foundation
+### Phase 1: Backend + Auth Foundation
 
-**Goal:** The full backend infrastructure is running, all DB tables exist with the corrected
-schema (including `learned_weights` and `post_id` FK that the spec omitted), Redis is
-configured for job persistence, and COOP/COEP headers are verified in both Vite dev and
-Nginx before any ffmpeg code is written.
+**Goal:** Supabase project is live, every route returns 401 for unauthenticated requests,
+all DB tables exist with corrected schema and RLS policies, pg-boss queue is running in
+Supabase DB, VPS file storage directory is initialised, and COOP/COEP headers are verified
+before any ffmpeg code is written.
 
 **Depends on:** Nothing (first phase)
 
-**Requirements:** UI-01, UI-02
-
-**Spec corrections addressed:**
-- Add `learned_weights JSONB DEFAULT NULL` to settings table (spec omitted this — Phase 4 + 7 depend on it)
-- Add `post_id UUID REFERENCES posts(id) ON DELETE CASCADE` to learning_signals (spec omitted — delete cascade broken without it)
-- Declare `learning_signals.hashtags` as `TEXT[]` array column (spec text implies scalar)
-- Use `drizzle-kit generate + migrate` — NOT `push` (push leaves no audit trail, silent DROP COLUMN on live data)
+**Requirements:** AUTH-01–07, STORE-01–04, UI-06
 
 **Key implementation notes:**
-- COOP/COEP in Vite: use `configureServer` middleware plugin, not `server.headers` (breaks HMR — vitejs/vite#16536)
-- Pin `@types/express` to exactly `5.0.6` (4.x types cause error handler type errors with Express 5)
-- Express 5 changes: wildcards must be named (`/*splat`), `res.redirect` arg order reversed, async throws forwarded natively (no asyncHandler wrapper needed)
-- Redis config (set before Phase 6): `maxmemory 200mb`, `maxmemory-policy noeviction`, `appendonly yes` (BullMQ jobs lost on restart without AOF)
-- AES-256-GCM: use `randomBytes(12)` for IV (12 bytes / 96-bit is NIST standard for GCM, not 16)
-- Vite: pin to `^6.0.0` (latest npm tag now points to v8)
-- Tailwind v4: `@import "tailwindcss"` + `@theme {}` in CSS — no `tailwind.config.js` at all
-- Run `migrate()` at app startup (under 100ms on small schema, provides audit trail)
-- Add 1–2 GB swap file on VPS; set `--max-old-space-size=384` on Node process
+- Supabase: create project, copy `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` to `.env`
+- Disable public signup in Supabase dashboard: Authentication → Settings → "Enable email signup" = OFF
+- Admin JWT claim: use service role key to set `app_metadata: { role: 'admin' }` on admin user
+- Drizzle: connects to Supabase PostgreSQL via `DATABASE_URL` (connection pooling URL from Supabase dashboard)
+- Use `drizzle-kit generate + migrate` — NOT `push` (silent DROP COLUMN risk)
+- All tables: add `user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE`
+- RLS: `ALTER TABLE posts ENABLE ROW LEVEL SECURITY; CREATE POLICY "user_own" ON posts USING (user_id = auth.uid())`; same for all tables
+- Settings table: add `learned_weights JSONB DEFAULT NULL` (spec omitted this)
+- learning_signals: add `post_id UUID REFERENCES posts(id) ON DELETE CASCADE` (spec omitted)
+- learning_signals: `hashtags TEXT[]` declared as array (Drizzle: `.array()`)
+- pg-boss: `new PgBoss({ connectionString: process.env.DATABASE_URL })` — queue schema created in Supabase DB automatically
+- COOP/COEP in Vite: use `configureServer` plugin (NOT `server.headers` — breaks HMR, vitejs/vite#16536)
+- Nginx: `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp`, `Cross-Origin-Resource-Policy: same-origin`
+- VPS: `mkdir -p /var/uploads && chown node:node /var/uploads`; Nginx serves `/uploads/` at `VPS_PUBLIC_URL/uploads/`
+- AES-256-GCM: `randomBytes(12)` IV (12 bytes / 96-bit NIST standard)
+- Express 5: `@types/express` pinned to `5.0.6`; named wildcards (`/*splat`); async errors forwarded natively
+- Tailwind v4: `@import "tailwindcss"` + `@theme {}` in CSS — no `tailwind.config.js`
+- Auth middleware: every Express route (except health) validates Supabase JWT via `supabase.auth.getUser(token)`
+- Frontend: Supabase client initialised with anon key; `onAuthStateChange` redirects to login if no session
 
 **Success Criteria:**
-1. `GET /health` returns 200 with DB connectivity and Redis connectivity confirmed
-2. All Drizzle migrations run cleanly against a fresh PostgreSQL 17 database — all 4 tables present including `settings.learned_weights` column and `learning_signals.post_id` FK
-3. BullMQ connects to Redis (with `appendonly yes` verified) and a test job enqueues, delays, and completes without error
-4. Frontend Vite dev server starts, renders a placeholder root screen, and hot-reloads correctly with COOP/COEP headers active (HMR not broken)
-5. `self.crossOriginIsolated === true` confirmed in browser console — both Vite dev and Nginx production configs verified before any ffmpeg code is written
-6. AES-256-GCM encrypt/decrypt round-trip test passes with `randomBytes(12)` IV
+1. Supabase project live; public signup disabled in dashboard; admin account created with `role: admin` JWT claim
+2. `GET /health` returns 200; `GET /api/posts` returns 401 without valid Supabase JWT
+3. All DB migrations run clean against Supabase PostgreSQL — all tables present including `settings.learned_weights` and `learning_signals.post_id` FK; RLS enabled on all tables
+4. pg-boss starts, connects to Supabase DB, test job enqueues and fires without error
+5. `self.crossOriginIsolated === true` in browser console (COOP/COEP verified in Vite dev AND Nginx) before any ffmpeg code is written
+6. `/var/uploads/` directory exists on VPS; Nginx serves a test file at `VPS_PUBLIC_URL/uploads/test.txt`
+7. Frontend login screen is the only accessible screen for unauthenticated users — direct URL navigation redirects to login
 
 **Plans:** TBD
 **UI hint:** yes
 
 ---
 
-### Phase 2: Settings + OAuth
+### Phase 2: Settings + Social OAuth
 
-**Goal:** User can configure AI provider, save an encrypted API key, connect YouTube via
-Google OAuth and Instagram + Facebook via Meta's Instagram Login (July 2024) using the
-correct 2025 scopes — all via a redirect-based flow (no popup, no localStorage). A weekly
-BullMQ job refreshes the 60-day Meta token automatically.
+**Goal:** Authenticated users can configure their AI provider with an encrypted personal
+API key, connect YouTube via Google OAuth and Instagram + Facebook via Meta Instagram Login
+(2025 scopes) using a COOP-safe redirect flow — all tokens stored per-user in DB. A weekly
+pg-boss job keeps Meta tokens alive automatically.
 
 **Depends on:** Phase 1
 
-**Requirements:** SETTINGS-01, SETTINGS-02, SETTINGS-03, SETTINGS-04, SETTINGS-05, SETTINGS-06, SETTINGS-07, SETTINGS-08
-
-**Critical blockers resolved:**
-- COOP `same-origin` kills OAuth popups via `window.opener` → use redirect flow: backend redirects to `/?screen=settings&connected=youtube` after code exchange; frontend reads query param in `useEffect`, switches screen, strips param, refetches settings
-- Meta App Review NOT required — app stays in Development Mode permanently; developer has role on app = all permissions work without App Review. Personal-only tool, never goes to Live Mode.
-- Facebook Reels requires a Facebook Page (not personal profile) → Phase 2 must retrieve and store `page_id` + `page_access_token` via `GET /me/accounts` after Meta OAuth
-
-**Instagram scope change (Jan 27, 2025):**
-- Old (deprecated): `instagram_basic`, `instagram_content_publish` — DO NOT USE
-- New (correct): `instagram_business_basic`, `instagram_business_content_publish`
-- Use Instagram Login path (not Facebook Login) — launched July 2024, does not require a Facebook Page for Instagram
-
-**Meta token lifecycle:**
-- Exchange short-lived token (1h) for long-lived token (60 days) immediately after OAuth
-- Long-lived token refreshable via `GET graph.instagram.com/refresh_access_token` before expiry
-- No refresh token exists — if 60-day window missed, user must re-authorize from scratch
-- **BullMQ weekly refresh job is Phase 2 scope** — not deferrable
+**Requirements:** SETTINGS-01–10
 
 **Key implementation notes:**
-- Google scopes: `https://www.googleapis.com/auth/youtube.upload` only; `access_type=offline` + `prompt=consent` for guaranteed refresh token
-- Token revocation — Google: `POST https://oauth2.googleapis.com/revoke` (body: `token=<access_token>`); Meta: `DELETE /{user_id}/permissions`
-- JSONB partial update: `sql\`${settings.platform_config} || ${JSON.stringify(patch)}::jsonb\`` — wrap in `SELECT FOR UPDATE` transaction
-- API key masking: decrypt server-side, return only `{ masked: '****last4' }` — masking in API response layer, not DB query
-- Settings: single row upsert, `id = 1`, `onConflictDoUpdate`
-- User must have Instagram Creator/Business account (free to switch in-app) and a Facebook Page — surface pre-flight check in Settings UI
+- OAuth redirect flow (no popup — COOP `same-origin` kills `window.opener`): backend redirects to `/?screen=settings&connected=youtube` after code exchange; frontend reads param in `useEffect`, strips it, refetches settings
+- Google scopes: `https://www.googleapis.com/auth/youtube.upload` + `https://www.googleapis.com/auth/youtube.readonly` (readonly added for Phase 9 research); `access_type=offline` + `prompt=consent` ensures refresh token
+- Meta scopes (2025): `instagram_business_basic` + `instagram_business_content_publish` via Instagram Login path — NOT Facebook Login, NOT deprecated `instagram_basic`
+- After Meta OAuth: exchange short-lived token (1h) for long-lived token (60 days) immediately; store in `settings.platform_config`
+- Facebook Page token: call `GET /me/accounts` after Meta OAuth; store `page_id` + `page_access_token` in `settings.platform_config.facebook`; user must have a Facebook Page (surface pre-flight check in UI)
+- Weekly pg-boss job: `boss.schedule('meta-token-refresh', '0 9 * * 1', {})` — refreshes via `GET graph.instagram.com/refresh_access_token` before 60-day expiry
+- JSONB partial update: `sql\`${settings.platform_config} || ${JSON.stringify(patch)}::jsonb\`` in `SELECT FOR UPDATE` transaction
+- API key masking: decrypt server-side, return `{ masked: '****last4' }` only
+- Settings row: single row per user, `ON CONFLICT (user_id) DO UPDATE`
+- Instagram pre-flight: check account type from Meta profile; show setup instructions if not Creator/Business
 
 **Success Criteria:**
-1. User selects Claude/Gemini/OpenAI, enters API key, saves it — page reload shows masked key (`****last4`); key stored AES-256-GCM encrypted in DB, never in localStorage
-2. User clicks "Connect YouTube", completes Google OAuth consent screen via redirect flow (no popup), and sees "Connected ✓" badge — token stored in `settings.platform_config` backend-only
-3. User clicks "Connect Instagram + Facebook", completes Meta OAuth via Instagram Login redirect flow, and sees both Instagram + Facebook connected — `page_id` + `page_access_token` stored from `GET /me/accounts` response
-4. Settings screen shows pre-flight warning if Instagram account is not Creator/Business type or if no Facebook Page is found
-5. Weekly BullMQ token refresh job exists, successfully refreshes a non-expired Meta token, and logs the result
-6. User can disconnect any platform — token is revoked via the correct API and cleared from DB
-7. TikTok credentials input renders greyed-out with "Pending API approval" label
+1. User saves AI API key — page reload shows `****last4`; key stored encrypted in DB per user; cannot be read by other users (RLS verified)
+2. YouTube OAuth completes via redirect flow (no popup); token stored per-user backend-only; "Connected ✓" badge appears
+3. Meta OAuth completes via Instagram Login redirect; both Instagram + Facebook show connected; `page_id` + `page_access_token` present in `settings.platform_config.facebook`
+4. Pre-flight warning shown if no Facebook Page found on the connected Meta account
+5. Weekly pg-boss job registered and successfully refreshes a non-expired Meta token
+6. Two different user accounts each connect their own YouTube/Meta accounts — each can only see their own connection status (RLS enforced)
 
 **Plans:** TBD
 **UI hint:** yes
@@ -128,44 +132,37 @@ BullMQ job refreshes the 60-day Meta token automatically.
 
 ### Phase 3: Video Upload + Analysis Engine
 
-**Goal:** User can drag-and-drop or pick a video (up to 250 MB), see thumbnail and metadata
-immediately from the HTML5 video element, and have all engine signals computed entirely
-in-browser via ffmpeg.wasm + TF.js + Web Audio API + Canvas — with a two-phase loading
-indicator and correct iOS fallback.
+**Goal:** Authenticated user can drag-and-drop or pick a video (up to 250 MB), see thumbnail
+and metadata immediately from HTML5 video element, and have all engine signals computed
+entirely in-browser — with correct ffprobe bug workaround, element-passing TF.js pattern,
+and WebAssembly fallback.
 
 **Depends on:** Phase 2
 
-**Requirements:** UPLOAD-01, UPLOAD-02, UPLOAD-03, ANALYSIS-01, ANALYSIS-02, ANALYSIS-03, ANALYSIS-04, ANALYSIS-05, ANALYSIS-06, ANALYSIS-07, ANALYSIS-08, ANALYSIS-09
-
-**Architecture clarifications from research:**
-- `@ffmpeg/ffmpeg` 0.12.x already spawns its own internal worker thread automatically — no manual Web Worker wrapping needed in Phase 3 or Phase 8
-- `@ffmpeg/core` (single-thread) does NOT require SharedArrayBuffer — iOS fallback is only needed for browsers without WebAssembly (iOS 15.2+ is fine)
-- `tf.tidy()` cannot wrap async inference — `model.detect()` and `estimateFaces()` are async; use element-passing pattern (pass HTML canvas/img element directly to model calls — models manage internal tensors)
-- Thumbnail + basic metadata (duration, width, height): use HTML5 video element `onloadedmetadata` + canvas `drawImage` — shown instantly on file select, before analysis begins
-
-**Critical bugs to avoid:**
-- `ffprobe()` confirmed bug (GitHub #817): returns -1 even on success — NEVER gate logic on return code; always call `readFile('meta.json', 'utf8')` unconditionally after ffprobe
-- `ffprobe()` requires `-o filename` flag — stdout not accessible in wasm; output must be written to virtual FS file and read back
-- Scene detection output is in the log stream, NOT a file: use `select=gt(scene\,0.4),showinfo -f null -` pattern; accumulate `ffmpeg.on('log', ...)` lines and parse `pts_time:X.XXX` with regex
-- MediaPipe face-detection: `solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_detection'` is MANDATORY in detector config — omitting it causes silent initialization failure
+**Requirements:** UPLOAD-01–03, ANALYSIS-01–10
 
 **Key implementation notes:**
-- ffmpeg singleton: create once at module init, reuse across analyses
-- TF.js model pre-warm: load COCO-SSD + face-detection in background when file is selected, not on Analyse click
-- Motion score: COCO-SSD bounding box centroid delta between consecutive frames (no built-in motion API in TF.js)
-- Beat detection: use `meyda` or `music-tempo` npm package for onset detection from Web Audio API FFT data
-- Frame extraction: `select='not(mod(n\,INTERVAL))',scale=512:512` — output as JPEG to virtual FS, read back as Uint8Array
-- iOS detection: `typeof WebAssembly === 'undefined'` — show fallback message + manual description textarea
+- Thumbnail + basic metadata instantly from HTML5 `video.onloadedmetadata` + canvas `drawImage` — before Analyse click
+- ffmpeg singleton: `new FFmpeg()` once at module init; reuse across analyses (library auto-spawns internal worker)
+- ffprobe BUG (GitHub #817): returns -1 even on success — `readFile('meta.json', 'utf8')` called unconditionally regardless of return code
+- ffprobe requires `-o filename` flag: `await ffmpeg.ffprobe(['-v', 'quiet', '-print_format', 'json', '-show_streams', '-o', 'meta.json', 'input.mp4'])`
+- Scene detection from log stream: `ffmpeg.on('log', ({ message }) => { if (message.includes('pts_time:')) ... })` during `select=gt(scene\,0.4),showinfo -f null -` exec
+- Frame extraction: `select='not(mod(n\\,INTERVAL))',scale=512:512` → JPEG output to virtual FS → read back as Uint8Array
+- TF.js models pre-warm on file select (background), not on Analyse click
+- TF.js inference: pass HTML canvas/img element directly to `model.detect(element)` — models manage internal tensors; use explicit `tensor.dispose()` in `try/finally` for any manually created tensors
+- MediaPipe face-detection: `solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_detection'` is MANDATORY — omit causes silent init failure
+- Motion score: COCO-SSD bounding box centroid delta across frame sequence
+- Beat detection: `meyda` or `music-tempo` npm package on Web Audio API FFT data
+- WebAssembly fallback: `typeof WebAssembly === 'undefined'` → show clear message + manual description textarea
 
 **Success Criteria:**
-1. User drags an MP4 or MOV — thumbnail and duration/resolution/aspect ratio appear instantly from HTML5 video element, before Analyse is clicked; files over 200 MB show a warning; files over 250 MB are rejected
-2. After clicking Analyse, "Analysing video..." loading state appears; ffmpeg extracts metadata (duration, fps, bitrate, audio presence), 10 frames as JPEG, and scene-change timestamps from log stream — no network request for the video file during this phase
-3. `ffprobe()` output is read unconditionally from the virtual FS file regardless of return code
-4. TF.js COCO-SSD produces object/scene labels; face-detection with MediaPipe solutionPath produces face-presence flag — tab does not crash on repeat analysis (tensor count stable)
-5. Motion score is computed as bounding box centroid delta across frame sequence
-6. Web Audio API produces audio energy score, beat presence flag, and max silence gap
-7. Canvas API produces brightness (luma) score
-8. On iOS Safari without WebAssembly, user sees a clear fallback message and manual description textarea — no blank screen or crash
+1. Drag-and-drop MP4/MOV — thumbnail + duration/resolution/aspect ratio appear instantly from HTML5 element; 200 MB warning shown; 250 MB hard reject
+2. Analyse clicked — "Analysing video..." state; ffmpeg extracts metadata, 10 frames, and scene timestamps from log stream — zero network requests for video file
+3. ffprobe output read unconditionally from virtual FS file regardless of -1 return code
+4. TF.js face-detection initialises with `solutionPath`; object labels produced; tab stable after 3 repeat analyses (no tensor leak)
+5. Motion score, audio energy, beat flag, silence gap, brightness all computed and present in `EngineSignals` object
+6. Browser without WebAssembly shows clear fallback — no crash or blank screen
+7. Authenticated user's analysis is session-scoped — analysis data not persisted until Phase 5 post save
 
 **Plans:** TBD
 **UI hint:** yes
@@ -175,38 +172,31 @@ indicator and correct iOS fallback.
 ### Phase 4: Virality Score + Checklist
 
 **Goal:** After analysis, user sees a 0–100 virality score with colour coding, per-platform
-variants, predicted view ranges, a three-state checklist (pass/fail/pending), and a
-rule-based gap analysis with actual video values in the fix messages — all without AI.
+variants using platform-specific scores for view range lookup, a three-state checklist
+(pass/fail/pending for Metadata Quality), and rule-based gap analysis with actual values
+interpolated in fix messages — all without any AI call.
 
 **Depends on:** Phase 3
 
-**Requirements:** SCORE-01, SCORE-02, SCORE-03, SCORE-04, SCORE-05, SCORE-06, SCORE-07
+**Requirements:** SCORE-01–08
 
-**Architecture decisions from research:**
-- Metadata Quality checklist section (8 items) requires AI output — render as `pending` in Phase 4, evaluated and updated in Phase 5
-- Checklist item type: `status: 'pass' | 'fail' | 'pending'` (not boolean)
-- View range lookup uses the platform-specific score (not overall score) — consistent with SCORE-03 and SCORE-04
-- Gap analysis: dynamic fix messages that embed actual measured values (e.g. "Max silence gap: 3.2s — remove gaps over 1.5s") — `gaps.ts` filters `checklist.filter(item => item.status === 'fail').map(item => item.fix)`
-- `EngineSignals` TypeScript interface lives at `frontend/src/lib/types.ts`, shared by Phase 3 (engine.ts) and Phase 4 (score.ts, checklist.ts, gaps.ts)
-
-**Score formula normalization (per-signal):**
-- Hook: `(hookSceneChange ? 50 : 0) + motionScoreFirst3s * 0.5`, bounded 0–100
-- Pacing: `100 * (1 - e^(-cutsPerMin / 6))` — exponential curve, prevents overflow
-- Face: binary 100/0
-- Audio: `energyScore * 0.75 + (beatDetected ? 15 : 0) - max(0, silenceGapMaxSeconds - 1.5) * 5`, floor 0 if no audio
-- Duration fit: 100 inside optimal range, linear decay to 0 at 2× upper bound
-- Aspect ratio: 100 if within ±0.02 of 9:16, else 0
-- Brightness: 0 below luma 30, ramps to 50 at luma 60, ramps to 100 at luma 80+
-- Edge cases: `durationSeconds === 0`, no audio, no face, no scene cuts, malformed aspect ratio all handled without crash
-
-**Learned weights merge:** `effectiveWeight = baseline + clampedDelta` where delta capped at ±15% of baseline; re-normalise to sum to 1.0; use baseline unchanged if `dataPoints < 10`
+**Key implementation notes:**
+- `EngineSignals` TypeScript interface at `frontend/src/lib/types.ts` — shared across engine.ts, score.ts, checklist.ts, gaps.ts
+- Checklist item type: `{ id, label, status: 'pass'|'fail'|'pending', fix: string }`
+- Metadata Quality section (8 items): render as `pending` in Phase 4; Phase 5 re-evaluates after AI output
+- View range lookup: use each platform's own computed score (not overall score)
+- Score formula normalisation per signal (see Phase 4 research for exact curves)
+- `settings.learned_weights` read at score compute time; `effectiveWeight = baseline + clampedDelta`; skip calibration if `dataPoints < 10`
+- Gap messages embed actual values: `gaps.ts` maps `checklist.filter(s === 'fail').map(item => item.fix)`
+- Edge cases handled: `durationSeconds === 0`, no audio, no face, no scene cuts, NaN aspect ratio
 
 **Success Criteria:**
-1. Overall virality score renders with correct colour: red 0–39, amber 40–59, green 60–79, bright green 80–100
-2. Per-platform score variants computed for all 5 platforms; expected view ranges displayed using each platform's own score (not overall score)
-3. Checklist renders all four sections; Video Technical and Virality Booster items show pass/fail; Metadata Quality items show `pending` (not failed) before AI has run; each failed item shows a fix message with actual video values interpolated
-4. Gap analysis list generated from failed checklist items with zero AI calls
-5. Score computation handles edge cases (no audio, no face, 0-duration, unknown aspect ratio) without crash or NaN
+1. Score renders with correct colour band; per-platform variants shown for all 5 platforms
+2. View ranges displayed using each platform's own score tier (not overall)
+3. Checklist: Video Technical + Virality Boosters show pass/fail; Metadata Quality 8 items show `pending`; each failed item has fix with actual values
+4. Gap analysis list generated from failed items, zero AI calls
+5. Score computes without crash/NaN for edge-case videos (no audio, no face, 0-duration)
+6. Learned weights applied when `dataPoints >= 10`; baseline used when below threshold
 
 **Plans:** TBD
 
@@ -214,45 +204,36 @@ rule-based gap analysis with actual video values in the fix messages — all wit
 
 ### Phase 5: AI Copy + Platform Cards
 
-**Goal:** One AI call returns all five platform outputs as JSON; five styled platform cards
-with per-field copy buttons; "Get Better Version" second pass; manual copy always available.
-Provider routing: Gemini via Files API (always), Claude from browser with explicit flag,
-OpenAI via backend proxy.
+**Goal:** One AI call returns all five platform outputs; five styled cards with per-field
+copy buttons and Realtime-powered upload state; "Get Better Version" second pass; Metadata
+Quality checklist updated from pending. Provider routing: Gemini via Files API always,
+Claude direct with explicit flag, OpenAI via backend proxy.
 
 **Depends on:** Phase 4
 
-**Requirements:** AI-01, AI-02, AI-03, AI-04, AI-05, AI-06, AI-07, AI-08, PLATFORM-01, PLATFORM-02, PLATFORM-03, PLATFORM-04, PLATFORM-05, PLATFORM-06, PLATFORM-07, PLATFORM-08, PLATFORM-09, PLATFORM-10, UI-03, UI-04, UI-05
+**Requirements:** AI-01–11, PLATFORM-01–10, UI-01–05
 
-**Critical spec corrections:**
-- Gemini inline video is broken for ALL sizes (Google acknowledged bug, 500/503 even for 300 KB files) — Files API is the only working path regardless of file size; spec's ">70 MB" threshold is wrong
-- OpenAI permanently blocks direct browser calls (intentional CORS policy, confirmed Jan 2026) — OpenAI calls must be proxied through the backend `/api/ai/generate` Express route; API key fetched from DB (already encrypted there from Phase 2)
-- Claude: `dangerouslyAllowBrowser: true` required in SDK constructor (Anthropic added CORS support Aug 2024, requires explicit opt-in); appropriate for BYO-key personal tool
-- Gemini JSON mode: `responseMimeType: "application/json"` alone is not enough — must pass `responseSchema` object alongside it
-
-**Provider routing table:**
-| Provider | Call origin | Video method | JSON mode |
-|----------|-------------|--------------|-----------|
-| Gemini 2.5 Flash | Browser (direct) | Files API always (upload → poll → generate) | `responseMimeType + responseSchema` |
-| Claude claude-sonnet-4-5 | Browser (direct, `dangerouslyAllowBrowser`) | 10 extracted frames as base64 image array | Prompt-level JSON instruction |
-| OpenAI gpt-4.1 | Backend proxy (CORS blocked) | 10 extracted frames as base64 image array | `response_format: { type: "json_object" }` |
-
-**JSON parsing robustness:** strip markdown fences → find first `{` and last `}` → JSON.parse → if still throws, return empty strings per field (never blank the whole card)
-
-**"Get Better Version":** full re-run of same prompt with `improved_script_outline` appended as additional context; images not re-sent → ~50% cheaper second call
-
-**Streaming:** not used — JSON cards cannot be meaningfully rendered partially; wait for complete response, render all 5 cards at once
-
-**Checklist update:** after AI output arrives, re-evaluate the 8 Metadata Quality checklist items (was `pending` from Phase 4) and update their status
+**Key implementation notes:**
+- Gemini: Files API always (inline broken — Google confirmed bug for ALL sizes); flow: `uploadFile` → poll `getFile` until state `ACTIVE` → `generateContent` with file URI; `responseMimeType + responseSchema` for JSON mode
+- Claude: `new Anthropic({ dangerouslyAllowBrowser: true })`; 10 base64 frames as `image` content blocks
+- OpenAI: `POST /api/ai/generate` backend proxy route; Express handler decrypts user's API key from DB, calls OpenAI, returns result; avoids CORS block
+- JSON parsing: strip markdown fences → find first `{` / last `}` → JSON.parse → on failure return empty strings per field (never blank card)
+- "Get Better Version": same prompt + `improved_script_outline` appended; images not re-sent (~50% cheaper)
+- Metadata Quality re-evaluation: after AI output, evaluate all 8 items and update from `pending` to `pass/fail`
+- Post saved to DB after first AI generation: `POST /api/posts` creates posts + platform_posts rows
+- Supabase Realtime: subscribe to `platform_posts` changes on `user_id` filter — upload state pushed to frontend without polling
+- AI call error handling (Phase 8 maps fully, but surface errors here): invalid key, rate limit, quota exhausted
 
 **Success Criteria:**
-1. Gemini: video is uploaded via Files API, polled until processing complete, then generation request sent — works for all file sizes including small files
-2. Claude: SDK initialized with `dangerouslyAllowBrowser: true`; 10 base64 frames sent as image content blocks — all 5 platform cards populate
-3. OpenAI: generation request goes to backend proxy route `/api/ai/generate`; API key fetched from DB — response returns to frontend correctly
-4. Malformed JSON (markdown fences, extra text, truncated) is handled without blank cards — strip + fallback always produces parseable output
-5. Metadata Quality checklist items transition from `pending` to `pass`/`fail` after AI output arrives
-6. "Get Better Version" fires a second AI call with `improved_script_outline` context; all cards update with new output
-7. TikTok card upload button is greyed out with "Available once API approved"; manual copy is active
-8. All copy buttons work; platform character limits displayed with live counter; app is usable on a mobile phone
+1. Gemini: Files API used for all sizes including small files; all 5 cards populate
+2. Claude: `dangerouslyAllowBrowser: true` set; 10 frames sent; cards populate
+3. OpenAI: request goes through backend proxy; API key never exposed to browser
+4. Malformed JSON (fences, truncation) handled — no blank cards
+5. Metadata Quality checklist updates from `pending` to `pass/fail` after AI returns
+6. "Get Better Version" fires second call with `improved_script_outline`; cards update
+7. Supabase Realtime subscription established; upload state changes appear without page refresh
+8. TikTok card: upload button greyed out, manual copy active; X card: copy only, no upload button
+9. Mobile layout — all cards, copy buttons reachable without horizontal scroll
 
 **Plans:** TBD
 **UI hint:** yes
@@ -261,55 +242,36 @@ OpenAI via backend proxy.
 
 ### Phase 6: Auto-Upload + Scheduling
 
-**Goal:** User can upload to YouTube, Instagram, and Facebook from the app via connected
-OAuth tokens, schedule at PKT peak times or a manual time, and see clear upload state per
-platform. All Meta containers created inside the BullMQ job to avoid 24h expiry risk.
+**Goal:** User can upload to YouTube, Instagram, and Facebook; schedule at PKT peak times
+or manual time; see Realtime upload state. Meta containers created inside pg-boss job to
+avoid 24h expiry. Instagram 100 MB gate prevents silent failures.
 
 **Depends on:** Phase 5
 
-**Requirements:** AUTOUP-01, AUTOUP-02, AUTOUP-03, AUTOUP-04, AUTOUP-05, AUTOUP-06, AUTOUP-07, AUTOUP-08
+**Requirements:** AUTOUP-01–08, STORE-05
 
-**Hard blockers resolved:**
-- Facebook Reels: requires a Facebook Page (not personal profile) — Phase 2 already stores `page_id` + `page_access_token` from `GET /me/accounts`; Phase 6 uses `page_access_token` for all Facebook API calls
-- Instagram account must be Creator/Business (personal accounts excluded from Graph API) — pre-flight check in Settings (Phase 2) surfaces this before Phase 6 is reached
-- Instagram scopes already corrected in Phase 2 to `instagram_business_basic` + `instagram_business_content_publish`
-
-**Critical flow fix — Meta container creation:**
-- Container must be created INSIDE the BullMQ job at fire time, NOT when the user clicks "Schedule"
-- Reason: Instagram containers expire in 24 hours — a container created at schedule time will be expired by the time a post scheduled 48h+ in advance fires
-- Job payload: `{ platform, filePath, caption, hashtags, scheduledAt }` — no container ID in payload
-
-**File size gates (before queuing):**
-- Instagram: hard 100 MB limit — reject with clear error for videos 100–250 MB before queuing
-- YouTube: no hard limit via resumable upload (handles up to 256 GB)
-- Facebook: 1 GB limit (no practical issue for this tool)
-
-**Upload flows:**
-- YouTube: `youtube.videos.insert({ media: { mimeType: 'video/mp4', body: fs.createReadStream(filePath) } })` — googleapis handles chunking; Shorts auto-detected by YouTube server-side (vertical + ≤60s + `#Shorts` in title)
-- Instagram: POST `/media` (container) → poll `GET /{container-id}?fields=status_code` every 5s until `FINISHED` (max 5 min) → POST `/media_publish`; never publish on `IN_PROGRESS`; `EXPIRED` = create new container
-- Facebook: POST `/{page-id}/video_reels` with `upload_phase=START` → upload bytes to `upload_url` → POST `/{page-id}/video_reels` with `upload_phase=FINISH, video_state=PUBLISHED`; uses `page_access_token`
-- TikTok: code behind `isTikTokApproved` flag, button greyed out, activatable without re-deploy
-
-**Temp file lifecycle:**
-- Frontend POSTs video to backend → written to `/tmp/{uuid}.mp4`
-- Backend serves at `GET /uploads/{uuid}.mp4` (Nginx proxies this with public HTTPS)
-- Meta fetch: container creation references `VPS_PUBLIC_URL/uploads/{uuid}.mp4`
-- Cleanup: delete file after `media_publish` success; BullMQ cleanup job deletes files older than 1 hour (handles failed publishes)
-
-**Environment requirement:** `VPS_PUBLIC_URL` must be set as env var before Phase 6 can be tested
-
-**BullMQ scheduling:** delayed jobs stored in Redis sorted set (fire timestamp as score); survive server restart IF Redis has `appendonly yes` (set in Phase 1); `removeOnComplete: { count: 100 }`, `removeOnFail: { count: 50 }`
-
-**Upload state tracking:** `platform_posts.upload_status` updated by BullMQ worker on job complete/fail; frontend polls `GET /api/posts/{id}/status` every 3s while any platform shows `pending` or `uploading`
+**Key implementation notes:**
+- Video flow: frontend POSTs file to `POST /api/upload/file` → backend writes `/var/uploads/{user_id}/{uuid}.mp4` → returns `{ fileId, publicUrl }`
+- pg-boss job payload: `{ userId, fileId, filePath, publicUrl, platform, caption, hashtags, scheduledAt }` — no container ID (created at fire time)
+- Meta container creation INSIDE worker: `async function uploadInstagram(job)` calls `POST /me/media` at fire time
+- Instagram 100 MB gate: `if (fileSizeBytes > 100 * 1024 * 1024) throw new Error('Instagram: max 100 MB')` before `boss.send()`
+- Instagram poll: `GET /{container-id}?fields=status_code` every 5s; `FINISHED` → publish; `EXPIRED` → create new container; `ERROR` → fail job
+- Facebook: use `page_access_token` + `page_id` from `settings.platform_config.facebook`; `POST /{page-id}/video_reels` two-phase flow
+- YouTube: `youtube.videos.insert({ media: { mimeType: 'video/mp4', body: fs.createReadStream(filePath) } })` — googleapis handles chunking
+- File cleanup: `fs.unlink(filePath)` after successful social upload; pg-boss job `boss.send('cleanup-stale-files', {})` hourly — deletes files older than 1h
+- Supabase Realtime: `platform_posts.upload_status` updated by worker → pushed to frontend
+- `VPS_PUBLIC_URL` env var must be set for Meta video fetch
 
 **Success Criteria:**
-1. Instagram pre-flight: if account is not Creator/Business type, Settings screen shows a clear setup instruction — upload button disabled until resolved
-2. YouTube: a 250 MB test video uploads successfully via `googleapis videos.insert` resumable stream; Shorts detected server-side; upload_status transitions to `posted`
-3. Instagram Reels: container created inside BullMQ job (not at schedule time); status polled every 5s; `media_publish` only called after `FINISHED`; videos over 100 MB show a clear rejection error before queuing
-4. Facebook Reels: upload uses `page_access_token` from `settings.platform_config.facebook.page_access_token`; `page_id` used in all Facebook API paths
-5. Scheduled upload queued with BullMQ delay fires at correct PKT time after a server restart (Redis AOF confirmed)
-6. Temp file cleaned up after successful `media_publish`; cleanup job removes any file older than 1 hour
-7. Upload state per platform cycles Idle → Uploading → Posted/Failed with descriptive error messages (never silent failure)
+1. Instagram: videos over 100 MB rejected before queuing with clear error message
+2. Meta container created inside pg-boss worker at fire time — not at schedule time
+3. Instagram poll only calls `media_publish` after `status_code === 'FINISHED'`
+4. Facebook upload uses `page_access_token` + `page_id` from settings
+5. YouTube 250 MB video uploads via resumable stream successfully
+6. pg-boss delayed job fires at correct PKT time after a server restart
+7. Stale files (>1h) cleaned up by hourly pg-boss job
+8. Upload state transitions (Idle → Uploading → Posted/Failed) pushed via Realtime — no polling
+9. TikTok upload code present behind `isTikTokApproved = false` flag
 
 **Plans:** TBD
 
@@ -317,115 +279,171 @@ platform. All Meta containers created inside the BullMQ job to avoid 24h expiry 
 
 ### Phase 7: History + Learning Loops
 
-**Goal:** User can browse all past generated posts, log actual views per platform in a single
-DB transaction that atomically updates accuracy + learning signals + learned weights, and
-view learning insights computed entirely by SQL aggregation — feeding top hooks and hashtags
-back into AI prompts and self-calibrating the score formula.
+**Goal:** Authenticated user sees only their own post history (RLS enforced). Logging actual
+views executes as a single atomic transaction. EMA score calibration activates at 10+ data
+points. Hashtag aggregation uses `unnest()`. Learning data injected fresh into every AI call.
 
 **Depends on:** Phase 6
 
-**Requirements:** HISTORY-01, HISTORY-02, HISTORY-03, HISTORY-04, HISTORY-05, HISTORY-06, LEARNING-01, LEARNING-02, LEARNING-03, LEARNING-04, LEARNING-05, LEARNING-06, LEARNING-07, LEARNING-08
+**Requirements:** HISTORY-01–06, LEARNING-01–09
 
-**Spec SQL corrections:**
-- Spec Loop 1 hashtag query references `hashtag` (scalar) but column is `TEXT[]` — use `unnest(hashtags) AS hashtag` in a subquery; must use `db.execute(sql\`...\`)` (no Drizzle fluent builder equivalent)
-- Hook learning: use `MAX(actual_views)` not `AVG` — for a solo creator, max surfaces the viral ceiling of each hook
-- Platform filter in post history: needs an EXISTS subquery (`platform` lives in `platform_posts`, not `posts`)
-- `COALESCE(niche, 'Other')` in GROUP BY — NULL niches from engine detection silently exclude posts; fall back to `settings.default_niche` when writing to `learning_signals`
-
-**View logging transaction (atomic — all 4 writes or none):**
-```
-db.transaction(async (tx) => {
-  1. UPDATE platform_posts SET actual_views, views_logged_at
-  2. Compute accuracy (overperformed / matched / underperformed)
-  3. INSERT INTO learning_signals (niche, platform, hook_text, hashtags, virality_score, actual_views, score_accuracy)
-  4. Compute EMA delta for each signal; UPDATE settings SET learned_weights
-})
-```
-Partial commit silently corrupts learning loops — must be a single transaction.
-
-**EMA formula for score calibration:**
-`newEMA = 0.3 × newDelta + 0.7 × prevEMA`
-Store per-signal deltas (not raw weights) in `settings.learned_weights` JSONB alongside `dataPoints` counter.
-Cap each delta at ±0.15. On application side: if `dataPoints < 10`, use baseline weights unchanged.
-
-**Learning injection:** fetch fresh before every AI call via `Promise.all([getLearningHooks, getLearningHashtags])` — queries are <5ms on local DB, no per-session caching needed
-
-**Best posting times query:**
-```sql
-SELECT EXTRACT(DOW FROM posted_at AT TIME ZONE 'Asia/Karachi') as day,
-       EXTRACT(HOUR FROM posted_at AT TIME ZONE 'Asia/Karachi') as hour,
-       AVG(actual_views) as avg_views
-FROM platform_posts
-WHERE platform = $platform AND actual_views IS NOT NULL
-GROUP BY day, hour
-HAVING COUNT(*) >= 2
-ORDER BY avg_views DESC
-```
-
-**Bar chart:** pure Tailwind with inline `style={{ width: '${pct}%' }}` — Tailwind cannot generate dynamic width classes at build time
+**Key implementation notes:**
+- All queries: RLS on `posts` ensures per-user isolation automatically — no `WHERE user_id =` needed in app code
+- Platform filter: EXISTS subquery (`platform` is in `platform_posts`, not `posts`)
+- Hashtag aggregation: `SELECT unnest(hashtags) AS hashtag, AVG(actual_views) ...` via `db.execute(sql\`...\`)`
+- Hook learning: `SELECT hook_text, MAX(actual_views)` — MAX not AVG for viral ceiling
+- View logging transaction (single `db.transaction()`):
+  1. `UPDATE platform_posts SET actual_views, views_logged_at`
+  2. Compute accuracy label
+  3. `INSERT INTO learning_signals (niche = COALESCE(niche, default_niche), ...)`
+  4. Compute EMA delta; `UPDATE settings SET learned_weights`
+- EMA: `newEMA = 0.3 × newDelta + 0.7 × prevEMA`; delta capped ±15%; re-normalise weights to sum 1.0; skip calibration if `dataPoints < 10`
+- Best times query: `EXTRACT(DOW/HOUR FROM posted_at AT TIME ZONE 'Asia/Karachi')`, `HAVING COUNT(*) >= 2`
+- Bar chart: `style={{ width: \`${pct}%\` }}` inline (Tailwind can't generate dynamic width at build time)
+- `COALESCE(niche, 'Other')` in GROUP BY; fall back to `default_niche` at write time for NULL niches
+- Learning injection: `Promise.all([getLearningHooks(niche), getLearningHashtags(niche, platform)])` before every AI call
 
 **Success Criteria:**
-1. Post History lists all posts newest-first; platform filter uses EXISTS subquery correctly; niche + date range filters work
-2. Logging actual views completes as a single atomic transaction — if any write fails, no partial state is committed; accuracy label appears immediately
-3. After 10+ logged data points, a virality score computed on a niche with calibration data visibly differs from the baseline formula
-4. When fewer than 5 data points exist for a niche, AI prompt falls back to hardcoded hashtag bank without error
-5. Learning Insights shows top 5 hooks (`MAX(actual_views)`) and top 10 hashtags (`unnest(hashtags)` aggregated correctly) per niche
-6. Best posting times displayed in PKT using `AT TIME ZONE 'Asia/Karachi'` conversion
-7. Bar chart renders with inline style (not dynamic Tailwind class) — displays from 1 data point
+1. Post history shows only authenticated user's posts — querying another user's posts returns empty (RLS verified)
+2. Platform filter uses EXISTS subquery — correct results for platform-filtered view
+3. View logging: all 4 DB writes succeed atomically; if any fails, none commit
+4. After 10+ data points, score formula produces different result than baseline (calibration active)
+5. With < 5 data points for a niche, AI prompt uses hardcoded hashtag bank without error
+6. Hashtag aggregation uses `unnest(hashtags)` — top 10 per niche/platform correct
+7. Best posting times shown in PKT timezone
+8. Bar chart renders with inline style — displays from 1 data point onward
+9. "Calibrated (N posts)" badge appears on score card when active
 
 **Plans:** TBD
 **UI hint:** yes
 
 ---
 
-### Phase 8: Polish + Resilience
+### Phase 8: Admin Panel
 
-**Goal:** The tool runs smoothly under repeated use, on mobile, and under all error conditions.
-Async tensor dispose, unified API error mapping, iOS Safari layout fixes, indeterminate
-progress animation, and score calibration indicator.
+**Goal:** Admin user (only) can access a management panel showing all upload jobs across
+all users, user account management, learning data inspection, system health metrics, and
+application logs — without access to individual users' API keys or generated content.
 
 **Depends on:** Phase 7
 
-**Requirements:** (quality properties spanning Phases 1–7)
+**Requirements:** ADMIN-01–10
 
-**Architecture clarifications:**
-- ffmpeg.wasm Web Worker: `@ffmpeg/ffmpeg` 0.12.x already runs WASM in an internal worker — Phase 8 is a config verification (`optimizeDeps.exclude` in Vite) and profiling task, not an architecture rewrite
-- UI freeze if it occurs comes from `ffmpeg.writeFile()` + TF.js input prep on main thread — profile with Chrome DevTools first, only move these to a wrapper Worker if freeze is confirmed
-
-**Async tensor leak fix:**
-- `tf.tidy()` does NOT work with async functions — cleanup never fires in async context
-- Pattern: pass HTML canvas/img elements directly to model calls (models manage internal tensors); use explicit `imageTensor.dispose()` in `try/finally` for any manually created tensors
-- Add `tf.memory().numTensors` logging in DEV mode only; should be stable across repeat analyses
-
-**Unified API error mapping table:**
-| Condition | Claude `error.type` | Gemini `error.status` | OpenAI `error.code` | UI action |
-|-----------|--------------------|-----------------------|---------------------|-----------|
-| Invalid key | `authentication_error` | `UNAUTHENTICATED` | `invalid_api_key` | "Invalid API key — update in Settings" |
-| Rate limited | `rate_limit_error` | `RESOURCE_EXHAUSTED` | `rate_limit_exceeded` | "Rate limited — try again in 60s" + retry button |
-| Quota exhausted | `rate_limit_error` | `RESOURCE_EXHAUSTED` | `insufficient_quota` | "API quota exhausted — check your account" |
-| Model busy | `overloaded_error` | `UNAVAILABLE` | — | "Model busy — try again" + retry button |
-| Network error | — | — | — | "Network error" + retry button |
-
-Retry button only for retryable errors (rate_limited, model_busy, network) — never for invalid_key or quota_exhausted.
-
-**iOS Safari layout:**
-- Replace all `h-screen` / `100vh` with `h-[100dvh]` (iOS 15.4+ dynamic viewport height)
-- Add `viewport-fit=cover` to meta viewport tag
-- Fixed bottom elements: `pb-[env(safe-area-inset-bottom)]`
-
-**ffmpeg progress:** `on('progress')` is unreliable for image/frame extraction tasks (documented in ffmpeg.wasm) — use indeterminate spinner animation, not a percentage bar
-
-**OAuth expiry:** if backend receives 401 from YouTube/Meta API during upload, return structured error `{ code: 'oauth_expired', platform }` → frontend shows "YouTube connection expired — reconnect in Settings"
-
-**Score calibration indicator:** small badge on the virality score card: "Calibrated (N posts)" when `dataPoints >= 10`, nothing when using baseline
+**Key implementation notes:**
+- Admin guard: `if (req.user.app_metadata?.role !== 'admin') return res.status(403).json({ error: 'Forbidden' })` on all admin routes; frontend route guard checks JWT claim before rendering
+- pg-boss job listing: `SELECT * FROM pgboss.job WHERE state IN ('created','active','failed') ORDER BY createdon DESC` via Drizzle raw SQL
+- Job retry: `boss.resume(jobId)`; job cancel: `boss.cancel(jobId)`
+- System health: VPS stats via `os.cpus()`, `os.totalmem()`, `os.freemem()`; disk usage via `df -h /var` exec; Supabase DB size via `SELECT pg_size_pretty(pg_database_size(current_database()))`
+- Logs: structured JSON logs via `pino`; admin endpoint tails last N lines from log file or streams from pino transport
+- Admin sees aggregate stats via SQL GROUP BY — not individual user content
+- User management: Supabase Admin API (`supabase.auth.admin.listUsers()`, `updateUserById` to disable)
+- Learning reset: `DELETE FROM learning_signals WHERE user_id = $userId` + `UPDATE settings SET learned_weights = NULL WHERE user_id = $userId` in transaction
 
 **Success Criteria:**
-1. Five consecutive video analyses without page reload — no UI freeze; TF.js tensor count stable (`tf.memory().numTensors` constant after each run in DEV mode)
-2. Each API error state (invalid key, rate limit, quota exhausted, model busy, network) shows the correct user-facing message from the unified mapping table; retry button appears only for retryable errors
-3. OAuth expiry during upload shows "reconnect in Settings" message, not a raw error
-4. Full workflow completable on a mid-range Android phone — no layout breakage, no unreachable touch targets
-5. iOS Safari: `h-[100dvh]` in place of `h-screen`; no content clipped by dynamic browser chrome
-6. Score card shows "Calibrated (N posts)" badge when learning data is active
+1. Non-admin JWT receives 403 on any `/api/admin/*` route; admin-panel screen not rendered for non-admin users
+2. Admin sees all pg-boss jobs across all users with correct state, platform, and user_id
+3. Admin can retry a failed job — job re-enters queue and fires
+4. Admin can disable a user account — disabled user cannot log in; their data intact
+5. System health panel shows live VPS CPU/memory/disk and Supabase DB size
+6. Admin cannot retrieve any user's decrypted API key or OAuth token (API returns masked values only)
+7. Admin can reset learning data for a user — `learning_signals` deleted + `learned_weights` nulled atomically
+
+**Plans:** TBD
+**UI hint:** yes
+
+---
+
+### Phase 9: Content Research Engine
+
+**Goal:** Authenticated users access a separate Research screen where external trend data
+(YouTube, Google Trends, Reddit, ExplodingTopics) is combined with their own learning
+history to generate AI-powered content ideas, full video briefs, a hashtag intelligence
+tab, and a 7-day content calendar — all cached for 24 hours, refreshable on demand.
+
+**Depends on:** Phase 7 (needs learning data to personalise research)
+
+**Requirements:** RESEARCH-01–15
+
+**Architecture:**
+- `trend_cache` table: `(id, source, niche, data JSONB, fetched_at)` — global cache (shared across users for same niche/source to conserve API quota)
+- `content_ideas` table: `(id, user_id, idea JSONB, niches TEXT[], platforms TEXT[], generated_at, saved BOOLEAN)` — per-user RLS
+- pg-boss daily job: `boss.schedule('refresh-trends', '0 5 * * *', {})` — refreshes all trend sources for all active niches
+
+**External data sources:**
+- **YouTube Data API v3**: `GET /youtube/v3/videos?chart=mostPopular&regionCode=PK&videoCategoryId={id}&part=snippet,statistics` — reuses user's YouTube OAuth token; add `youtube.readonly` scope in Phase 2 (non-breaking addition)
+- **Google Trends**: `google-trends-api` npm package; `googleTrends.interestOverTime({ keyword: niche, geo: 'PK' })` + `relatedTopics`
+- **Reddit API**: `GET https://www.reddit.com/r/{subreddit}/hot.json` — no OAuth needed for public subreddits; subreddit map per niche (r/pakistan, r/travel, r/motorcycles, r/programming, r/CasualPakistan)
+- **ExplodingTopics**: fetch `https://explodingtopics.com/category/{niche}` page + parse rising topics; or use their API if budget allows
+- **User learning data**: top hooks + top hashtags + best-performing niches from learning_signals (fresh query per user)
+
+**AI generation call:**
+```
+Prompt context:
+- Trending topics from YouTube/Google/Reddit/ExplodingTopics (for user's niches)
+- User's top 5 performing hooks (from learning_signals)
+- User's top 10 performing hashtags per niche (from learning_signals)
+- User's best-performing niche (highest avg actual_views)
+- User's PKT optimal posting times (from learning_signals)
+
+Output: JSON array of 5-10 content ideas, each with:
+{ title, angle, hookVariants[3], scriptOutline, keyMoments[3-5],
+  brollSuggestions, platforms[], estimatedStrength,
+  gapWarnings[], hashtagSuggestions[] }
+```
+
+**Key implementation notes:**
+- 24h cache check: `WHERE source = $source AND niche = $niche AND fetched_at > NOW() - INTERVAL '24 hours'`
+- On-demand refresh: frontend sends `POST /api/research/refresh` → pg-boss job fires immediately bypassing cache
+- Freshness indicator: `fetched_at` shown as "Last updated: Xh ago"
+- Hashtag intelligence tab: merge external trend data with user's own top hashtags, ranked by `trendVelocity * (1 + userAvgViews / 1000)`
+- Calendar: 7 slots per day × 7 days; assign ideas to optimal PKT windows from SETTINGS-10; one idea per platform per slot
+- Gap warnings in ideas: rule-based pre-analysis of content type (e.g. face-free outdoor → "expect low face score — compensate with strong hook and high pacing")
+
+**Success Criteria:**
+1. Research screen loads with cached trend data for user's default niche — results appear instantly from cache
+2. YouTube trending, Google Trends, Reddit, and ExplodingTopics all fetched and stored in `trend_cache` per niche
+3. Daily pg-boss job refreshes all trend sources; on-demand refresh button works and updates freshness indicator
+4. AI generates 5–10 content ideas using both trend data and user's own learning history
+5. Each idea includes: concept, 3 hook variants, script outline, key moments, B-roll, platforms, gap warnings
+6. Hashtag intelligence tab shows external trending hashtags merged with user's own top performers
+7. 7-day calendar populated with ideas assigned to PKT-optimal posting windows
+8. User can save an idea — appears in saved list on next session (per-user RLS)
+9. Two different users see different personalised recommendations (their own learning data used as context)
+
+**Plans:** TBD
+**UI hint:** yes
+
+---
+
+### Phase 10: Polish + Resilience
+
+**Goal:** The platform runs smoothly under repeated use, on mobile, on iOS Safari, and under
+all error conditions — unified API error mapping, async tensor cleanup, iOS layout fixes,
+indeterminate progress animation, and error boundaries throughout.
+
+**Depends on:** Phase 9
+
+**Requirements:** Quality properties spanning all phases
+
+**Key implementation notes:**
+- TF.js async tensor leak: `tf.tidy()` does NOT work with async functions — use explicit `tensor.dispose()` in `try/finally`; log `tf.memory().numTensors` in DEV only
+- ffmpeg progress: `on('progress')` unreliable for frame extraction — use indeterminate spinner, not percentage bar
+- Unified API error mapping (Claude `error.type` / Gemini `error.status` / OpenAI `error.code` → UI message + retry decision)
+- Retry button only for: `rate_limited`, `model_busy`, `network_error` — never for `invalid_key` or `quota_exhausted`
+- OAuth expiry during upload: backend returns `{ code: 'oauth_expired', platform }` → "Reconnect [platform] in Settings"
+- iOS Safari layout: `h-[100dvh]` (not `h-screen`), `viewport-fit=cover` in meta viewport, `pb-[env(safe-area-inset-bottom)]` on fixed bottom elements
+- COOP/COEP + Google OAuth popup: verified working via redirect flow (no popup used anywhere)
+- Score calibration badge: "Calibrated (N posts)" when `dataPoints >= 10`
+- React error boundary on Generator, Research, and Admin screens — uncaught error shows recovery message, not blank screen
+- Bundle: `optimizeDeps.exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/core']` in Vite config; TF.js models lazy-loaded when file is selected
+
+**Success Criteria:**
+1. Five consecutive analyses — TF.js tensor count stable; no UI freeze
+2. Every API error state (invalid key, rate limit, quota, model busy, network) shows correct user-facing message; retry button appears only for retryable errors
+3. OAuth expiry during upload shows "Reconnect in Settings" — not raw error
+4. Full workflow completable on mid-range Android phone — no layout breakage
+5. iOS Safari: `h-[100dvh]` in place; no content clipped by browser chrome
+6. Error boundary catches uncaught errors on all main screens — shows recovery UI, not blank
 7. ffmpeg progress shows indeterminate animation — no broken percentage bar
 
 **Plans:** TBD
@@ -437,11 +455,13 @@ Retry button only for retryable errors (rate_limited, model_busy, network) — n
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend Foundation | 0/TBD | Not started | - |
-| 2. Settings + OAuth | 0/TBD | Not started | - |
+| 1. Backend + Auth Foundation | 0/TBD | Not started | - |
+| 2. Settings + Social OAuth | 0/TBD | Not started | - |
 | 3. Video Upload + Analysis Engine | 0/TBD | Not started | - |
 | 4. Virality Score + Checklist | 0/TBD | Not started | - |
 | 5. AI Copy + Platform Cards | 0/TBD | Not started | - |
 | 6. Auto-Upload + Scheduling | 0/TBD | Not started | - |
 | 7. History + Learning Loops | 0/TBD | Not started | - |
-| 8. Polish + Resilience | 0/TBD | Not started | - |
+| 8. Admin Panel | 0/TBD | Not started | - |
+| 9. Content Research Engine | 0/TBD | Not started | - |
+| 10. Polish + Resilience | 0/TBD | Not started | - |
