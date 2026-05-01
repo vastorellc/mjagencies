@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 1 planned — ready to execute
+**Current phase:** Phase 1 in progress — executing
 
 ## Current Position
 
 Phase: 1 of 10 (Backend + Auth Foundation)
-Plan: 0 of 5 in current phase
-Status: Ready to execute
-Last activity: 2026-05-01 — Phase 1 planned: 5-wave plan (scaffold → schema → backend → frontend → verify)
+Plan: 1 of 5 in current phase (paused at checkpoint)
+Status: Executing — Plan 01 at checkpoint:human-action (Task 3: Supabase setup)
+Last activity: 2026-05-01 — Plan 01 Tasks 1-2 complete; awaiting Supabase project creation
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 4%
 
 ## Phase Status
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Backend + Auth Foundation | 📋 Planned (5 plans, ready to execute) |
+| 1 | Backend + Auth Foundation | 🔄 Executing (0/5 complete — Plan 01 at checkpoint) |
 | 2 | Settings + Social OAuth | ⬜ Not started |
 | 3 | Video Upload + Analysis Engine | ⬜ Not started |
 | 4 | Virality Score + Checklist | ⬜ Not started |
@@ -39,6 +39,7 @@ Progress: [░░░░░░░░░░] 0%
 
 ### Architecture Decisions
 
+- **@vitejs/plugin-react pinned at 4.7.0** — v6.0.1 requires vite@^8, incompatible with locked vite@^6; 4.7.0 supports vite ^4/5/6/7
 - **Supabase** (Auth + PostgreSQL + Realtime) — multi-user platform, RLS enforces per-user isolation
 - **pg-boss** (PostgreSQL-backed queue) — replaces BullMQ + Redis; queue lives in Supabase DB
 - **VPS file storage** — `/var/uploads/{user_id}/{uuid}.ext`; Nginx served; NOT Supabase Storage
@@ -75,5 +76,5 @@ Progress: [░░░░░░░░░░] 0%
 ## Session Continuity
 
 Last session: 2026-05-01
-Stopped at: Phase 1 planned — 5 plans across 5 waves, verified clean
-Resume: `/gsd-execute-phase 1`
+Stopped at: Plan 01-01 Task 3 checkpoint:human-action — Supabase project setup required
+Resume: After completing Supabase setup and populating .env, run `/gsd-execute-phase 1` to continue from Task 3
