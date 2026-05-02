@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 4 (Virality Score + Checklist) — 4/8 plans complete; Phase 3 paused at Wave 0 (fixtures deferred)
+current_phase: Phase 4 (Virality Score + Checklist) — 5/8 plans complete; Phase 3 paused at Wave 0 (fixtures deferred)
 status: paused
-stopped_at: Completed 04-04-PLAN.md
-last_updated: "2026-05-02T03:44:49.799Z"
+stopped_at: Completed 04-05-PLAN.md
+last_updated: "2026-05-02T03:48:14Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 28
-  completed_plans: 17
-  percent: 61
+  completed_plans: 19
+  percent: 68
 ---
 
 # Project State — Viral Copy Generator
@@ -22,16 +22,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 4 (Virality Score + Checklist) — 4/8 plans complete; Phase 3 paused at Wave 0 (fixtures deferred)
+**Current phase:** Phase 4 (Virality Score + Checklist) — 5/8 plans complete; Phase 3 paused at Wave 0 (fixtures deferred)
 
 ## Current Position
 
-Phase: 4 of 10 (Virality Score + Checklist) — IN PROGRESS (4/8 plans complete)
-Plan: 04-04 complete (ScorePanel.tsx hero ring + calibration footer; 13 happy-dom tests pass; tsc clean). Next: 04-05.
-Status: Phase 3 paused at Wave 0 awaiting fixture videos; Phase 4 Wave 1 done; Wave 2 underway (1/4 UI components shipped — ScorePanel).
+Phase: 4 of 10 (Virality Score + Checklist) — IN PROGRESS (5/8 plans complete)
+Plan: 04-05 complete (PlatformCardGrid.tsx 5-card grid with 1-letter circles, band-colored scores, view-range strings; 7 happy-dom tests pass; tsc clean). Next: 04-06.
+Status: Phase 3 paused at Wave 0 awaiting fixture videos; Phase 4 Wave 1 done; Wave 2 underway (2/4 UI components shipped — ScorePanel + PlatformCardGrid).
 Last activity: 2026-05-02
 
-Progress: [██████░░░░] 61%
+Progress: [███████░░░] 68%
 
 ## Phase Status
 
@@ -40,7 +40,7 @@ Progress: [██████░░░░] 61%
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
 | 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
-| 4 | Virality Score + Checklist | 🟡 In progress (4/8 plans — 04-01 score.ts + 04-02 checklist.ts + 04-03 gaps.ts/viewRange.ts + 04-04 ScorePanel.tsx complete; 131 lib tests + 13 ScorePanel tests pass; Wave 1 done, Wave 2 started) |
+| 4 | Virality Score + Checklist | 🟡 In progress (5/8 plans — 04-01 score.ts + 04-02 checklist.ts + 04-03 gaps.ts/viewRange.ts + 04-04 ScorePanel.tsx + 04-05 PlatformCardGrid.tsx complete; 131 lib tests + 13 ScorePanel tests + 7 PlatformCardGrid tests pass; Wave 1 done, Wave 2 underway 2/4) |
 | 5 | AI Copy + Platform Cards | ⬜ Not started |
 | 6 | Auto-Upload + Scheduling | ⬜ Not started |
 | 7 | History + Learning Loops | ⬜ Not started |
