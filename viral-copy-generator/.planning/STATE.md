@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 5 (AI Copy + Platform Cards) — executing
-status: executing
-stopped_at: "05-02 — Wave 1: types + backend AI proxy route + CSP + proxyAIGenerate"
-last_updated: "2026-05-02T09:30:00Z"
+current_phase: Phase 5 (AI Copy + Platform Cards) — checkpoint:human-verify
+status: checkpoint
+stopped_at: "05-06 — Wave 4: GeneratorPage full integration — awaiting human smoke test"
+last_updated: "2026-05-02T15:00:00Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 10
   completed_phases: 4
   total_plans: 34
-  completed_plans: 30
-  percent: 88
+  completed_plans: 36
+  percent: 94
 ---
 
 # Project State — Viral Copy Generator
@@ -22,16 +22,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 5 (AI Copy + Platform Cards) — executing Wave 1 (05-02)
+**Current phase:** Phase 5 (AI Copy + Platform Cards) — checkpoint:human-verify (all 6 plans complete)
 
 ## Current Position
 
-Phase: 5 of 10 (AI Copy + Platform Cards) — IN PROGRESS (1/6 plans complete; executing 05-02)
-Plan: 05-02 — Wave 1: AI types + backend /api/ai/generate route + CSP extension + proxyAIGenerate in api.ts
-Status: Executing Wave 1 (05-02). Checkpoint 05-01 approved by human 2026-05-02.
+Phase: 5 of 10 (AI Copy + Platform Cards) — ALL PLANS COMPLETE (6/6) — awaiting human smoke test
+Plan: 05-06 — Wave 4: GeneratorPage fully integrated
+Status: All waves complete. Human checkpoint: run tests + smoke test in browser, type "approved" to close phase.
 Last activity: 2026-05-02
 
-Progress: [█████████░] 85%
+Progress: [█████████░] 94%
 
 ## Phase Status
 
@@ -41,7 +41,7 @@ Progress: [█████████░] 85%
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
 | 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
 | 4 | Virality Score + Checklist | ✅ Complete (8/8 plans, 179/179 tests, verification 6/6 passed 2026-05-02) |
-| 5 | AI Copy + Platform Cards | 🔄 In progress (1/6 plans complete; executing Wave 1 05-02) |
+| 5 | AI Copy + Platform Cards | 🔄 Checkpoint — all 6 plans complete; awaiting human smoke test |
 | 6 | Auto-Upload + Scheduling | ⬜ Not started |
 | 7 | History + Learning Loops | ⬜ Not started |
 | 8 | Admin Panel | ⬜ Not started |
