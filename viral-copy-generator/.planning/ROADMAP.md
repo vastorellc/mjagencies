@@ -35,7 +35,7 @@ by the admin only — no public registration.
 
 - [x] **Phase 1: Backend + Auth Foundation** — Supabase project, auth-gated Express scaffold, Drizzle + full schema with RLS, pg-boss, VPS file storage, COOP/COEP
 - [x] **Phase 2: Settings + Social OAuth** — Per-user AI key encryption, YouTube + Meta OAuth (redirect flow, 2025 scopes), weekly token refresh job *(provisionally complete 2026-05-02 — automated suite 47/47; E2E round-trips deferred pending credential provisioning)*
-- [ ] **Phase 3: Video Upload + Analysis Engine** — In-browser ffmpeg.wasm + TF.js + Web Audio + Canvas with researched bug workarounds
+- [~] **Phase 3: Video Upload + Analysis Engine** — In-browser ffmpeg.wasm + TF.js + Web Audio + Canvas with researched bug workarounds *(paused 2026-05-02 at Wave 0 — vitest infra installed; fixture videos deferred; pivoted to Phase 4)*
 - [ ] **Phase 4: Virality Score + Checklist** — Weighted score, per-platform variants, three-state checklist, rule-based gap analysis
 - [ ] **Phase 5: AI Copy + Platform Cards** — Gemini Files API, OpenAI proxy, Anthropic browser flag, 5 platform cards, Realtime upload state, Get Better Version
 - [ ] **Phase 6: Auto-Upload + Scheduling** — YouTube resumable, Meta two-step Reels with container-in-job fix, pg-boss PKT scheduling, Instagram 100 MB gate
@@ -185,7 +185,7 @@ and WebAssembly fallback.
 **Plans:** 8 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Wave 0: Vitest browser-mode infra + 5 fixture videos + test scripts
+- [~] 03-01-PLAN.md — Wave 0: Vitest browser-mode infra + 5 fixture videos + test scripts (PARTIAL 2026-05-02 — Tasks 1+2 done: vitest 4 dual-project config + setup; Tasks 3+4 deferred awaiting fixture videos)
 - [ ] 03-02-PLAN.md — EngineSignals types + engine.ts skeleton (canRunEngine, getFFmpeg singleton, warmup, analyse stub) + 9 runtime deps pinned
 - [ ] 03-03-PLAN.md — Upload UI primitives: UploadDropzone (drag-drop + picker, 250 MB cap) + VideoPreview (thumbnail + description) + upload.ts validators
 - [ ] 03-04-PLAN.md — ffmpeg pipeline: probeVideo (ANALYSIS-10 unconditional read) + detectScenes (log stream) + extractFrames (~10 base64 JPEGs)
@@ -485,7 +485,7 @@ indeterminate progress animation, and error boundaries throughout.
 |-------|----------------|--------|-----------|
 | 1. Backend + Auth Foundation | 5/5 | Complete | 2026-05-01 |
 | 2. Settings + Social OAuth | 7/7 | Provisionally complete (E2E deferred) | 2026-05-02 |
-| 3. Video Upload + Analysis Engine | 0/TBD | Not started | - |
+| 3. Video Upload + Analysis Engine | 1/8 partial | Paused at Wave 0 (fixtures deferred) | - |
 | 4. Virality Score + Checklist | 0/TBD | Not started | - |
 | 5. AI Copy + Platform Cards | 0/TBD | Not started | - |
 | 6. Auto-Upload + Scheduling | 0/TBD | Not started | - |

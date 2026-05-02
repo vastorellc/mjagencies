@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 2 — provisionally complete (E2E deferred pending OAuth credentials)
-status: phase_complete_partial
-stopped_at: 02-07 deferred per user choice — automated suite 47/47, real OAuth round-trips deferred
-last_updated: "2026-05-02T01:55:00.000Z"
+current_phase: Phase 3 paused at Wave 0 (fixtures deferred); pivoting to Phase 4
+status: phase_paused_pivoting
+stopped_at: 03-01 partial — vitest infra installed; fixture videos deferred per user; jumping to Phase 4
+last_updated: "2026-05-02T02:30:00.000Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 10
   completed_phases: 2
-  total_plans: 12
+  total_plans: 20
   completed_plans: 12
   percent: 20
 ---
@@ -22,16 +22,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 2 — provisionally complete (E2E deferred pending OAuth credentials)
+**Current phase:** Phase 3 paused at Wave 0 (fixtures deferred); pivoting to Phase 4 (Virality Score + Checklist)
 
 ## Current Position
 
-Phase: 2 of 10 (Settings + Social OAuth) — PROVISIONALLY COMPLETE
-Plan: 02-07 deferred — automated suite 47/47 passing; real OAuth round-trips deferred until credentials provisioned
-Status: Phase 2 ready to close out via /gsd-verify-work 2 after `.env` credentials are set; Phase 3 can begin in parallel
+Phase: 3 of 10 (Video Upload + Analysis Engine) — PAUSED at Wave 0
+Plan: 03-01 partial (Tasks 1+2 complete: vitest 4 dual-project config + setup; Tasks 3+4 deferred awaiting fixture videos)
+Status: Phase 3 paused per user choice; pivoting to Phase 4. Resume Phase 3 via `/gsd-execute-phase 3` once fixture videos drop into `frontend/test/fixtures/`
 Last activity: 2026-05-02
 
-Progress: [██░░░░░░░░] 20% (2 of 10 phases)
+Progress: [██░░░░░░░░] 20% (2 of 10 phases complete; Phase 3 partial)
 
 ## Phase Status
 
@@ -39,7 +39,7 @@ Progress: [██░░░░░░░░] 20% (2 of 10 phases)
 |---|-------|--------|
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
-| 3 | Video Upload + Analysis Engine | ⬜ Not started |
+| 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
 | 4 | Virality Score + Checklist | ⬜ Not started |
 | 5 | AI Copy + Platform Cards | ⬜ Not started |
 | 6 | Auto-Upload + Scheduling | ⬜ Not started |
@@ -125,6 +125,9 @@ Progress: [██░░░░░░░░] 20% (2 of 10 phases)
 
 ## Session Continuity
 
-Last session: 2026-05-02T01:55:00Z
-Stopped at: Phase 2 provisionally complete — 47/47 automated tests pass; 02-07 E2E + 02-01 Task 3 (credential provisioning) deferred per user choice
-Resume: When credentials are provisioned, run `/gsd-verify-work 2` to close Phase 2; or run `/gsd-plan-phase 3` to begin Phase 3 (Video Upload + Analysis Engine) in parallel
+Last session: 2026-05-02T02:30:00Z
+Stopped at: Phase 3 Wave 0 paused — vitest 4 dual-project config + setup landed (Plan 03-01 Tasks 1+2); fixture videos deferred per user choice; pivoting to Phase 4
+Resume:
+- Phase 3: drop 5 fixture videos into `viral-copy-generator/frontend/test/fixtures/` (per the README), then `/gsd-execute-phase 3` to resume from Plan 03-01 Task 3
+- Phase 4 (active): `/gsd-discuss-phase 4 --auto` (Virality Score + Checklist — pure functions over mocked EngineSignals)
+- Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`
