@@ -122,7 +122,10 @@ export const learning_signals = pgTable('learning_signals', {
 export type PlatformConfig = {
   youtube?: { access_token: string; refresh_token: string; expiry: number } | null
   instagram?: { access_token: string; expiry: number } | null
-  facebook?: { access_token: string; page_id: string; expiry: number } | null
+  facebook?:
+    | { access_token: string; page_id: string; expiry: number }
+    | { setup_required: true }
+    | null
 }
 
 export const settings = pgTable('settings', {
