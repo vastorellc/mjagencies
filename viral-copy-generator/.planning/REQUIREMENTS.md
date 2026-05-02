@@ -83,8 +83,10 @@ history, learning loops, admin panel, content research engine.
 - [x] **SETTINGS-03**: User can toggle platforms on/off (YouTube / Instagram / Facebook / TikTok / X) _(02-02)_
 - [x] **SETTINGS-04
 **: User can connect YouTube via Google OAuth 2.0 — server-side redirect flow; tokens stored backend-only per user
-- [ ] **SETTINGS-05**: User can connect Instagram + Facebook via Meta Instagram Login (July 2024) — correct 2025 scopes: `instagram_business_basic` + `instagram_business_content_publish`
-- [ ] **SETTINGS-06**: Phase 2 stores `page_id` + `page_access_token` from `GET /me/accounts` for Facebook Reels uploads
+- [x] **SETTINGS-05
+**: User can connect Instagram + Facebook via Meta Instagram Login (July 2024) — correct 2025 scopes: `instagram_business_basic` + `instagram_business_content_publish`
+- [x] **SETTINGS-06
+**: Phase 2 stores `page_id` + `page_access_token` from `GET /me/accounts` for Facebook Reels uploads
 - [x] **SETTINGS-07**: Weekly pg-boss job refreshes 60-day Meta long-lived token before expiry (no refresh token exists — missed window requires re-auth) _(02-05: meta-refresh.ts pg-boss cron '0 9 * * 1', per-user error isolation, 7/7 tests)_
 - [x] **SETTINGS-08**: TikTok credentials input exists but greyed out "Pending API approval" _(02-02: enabled_platforms storage supports tiktok; UI greyed-out in 02-06)_
 - [x] **SETTINGS-09**: User can disconnect any connected platform (token revoked, cleared from DB) _(02-02: DELETE /api/settings/connections/:platform with JSONB merge)_
@@ -165,11 +167,14 @@ history, learning loops, admin panel, content research engine.
 
 ### UI — Interface and UX
 
-- [ ] **UI-01**: No routing library — useState screen switching between screens (Generator, History, Research, Settings + Admin for admin users)
-- [ ] **UI-02**: No UI component library — Tailwind CSS only, mobile-first layout
+- [x] **UI-01
+**: No routing library — useState screen switching between screens (Generator, History, Research, Settings + Admin for admin users)
+- [x] **UI-02
+**: No UI component library — Tailwind CSS only, mobile-first layout
 - [ ] **UI-03**: Platform card colour accents: YouTube red · Instagram pink/purple · TikTok black+cyan · Facebook blue · X black+white
 - [ ] **UI-04**: Score colour coding: red (0–39) · amber (40–59) · green (60–79) · bright green (80–100)
-- [ ] **UI-05**: App usable on mobile phone (primary use case) — `h-[100dvh]` not `h-screen`, `viewport-fit=cover`, `pb-[env(safe-area-inset-bottom)]` for iOS Safari
+- [x] **UI-05
+**: App usable on mobile phone (primary use case) — `h-[100dvh]` not `h-screen`, `viewport-fit=cover`, `pb-[env(safe-area-inset-bottom)]` for iOS Safari
 - [x] **UI-06**: Auth screen (login + signup) is the entry point for unauthenticated users
 
 ---

@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: "Phase 2 executing — 02-05 complete"
-status: executing
-stopped_at: 02-05 complete — Weekly Meta token refresh pg-boss job (SETTINGS-07), 7/7 tests passing
-last_updated: "2026-05-02T01:22:02Z"
+current_phase: Phase 2 executing — 6/7 plans complete
+status: completed
+stopped_at: 02-06 complete — Settings UI frontend, 2/2 tasks, tsc + build pass
+last_updated: "2026-05-02T01:52:54.371Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 12
-  completed_plans: 10
-  percent: 83
+  completed_plans: 11
+  percent: 92
 ---
 
 # Project State — Viral Copy Generator
@@ -22,23 +22,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 2 executing — 5/7 plans complete
+**Current phase:** Phase 2 executing — 6/7 plans complete
 
 ## Current Position
 
-Phase: 2 of 10 (Settings + Social OAuth) — EXECUTING (5/7 plans complete)
-Plan: 02-05 complete — Wave 4 done (Weekly Meta token refresh pg-boss job, cron '0 9 * * 1', 7 tests passing)
-Status: 02-05 complete — ready to execute 02-06 (Settings UI frontend) in Wave 4
-Last activity: 2026-05-02
+Phase: 2 of 10 (Settings + Social OAuth) — EXECUTING (6/7 plans complete)
+Plan: 02-06 complete — Settings UI frontend (SettingsPage, App.tsx screen switcher, types.ts), tsc + build pass
+Status: 02-06 complete — ready to execute 02-07 (frontend integration tests) in Wave 4
+Last activity: 2026-05-01
 
-Progress: [████████░░] 83%
+Progress: [█████████░] 92%
 
 ## Phase Status
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
-| 2 | Settings + Social OAuth | 🟡 Executing (5/7 plans complete — 02-01 crypto, 02-02 settings surface, 02-03 Google OAuth, 02-04 Meta OAuth, 02-05 weekly refresh done) |
+| 2 | Settings + Social OAuth | 🟡 Executing (6/7 plans complete — 02-01 crypto, 02-02 settings surface, 02-03 Google OAuth, 02-04 Meta OAuth, 02-05 weekly refresh, 02-06 Settings UI done) |
 | 3 | Video Upload + Analysis Engine | ⬜ Not started |
 | 4 | Virality Score + Checklist | ⬜ Not started |
 | 5 | AI Copy + Platform Cards | ⬜ Not started |
@@ -95,6 +95,9 @@ Progress: [████████░░] 83%
 - **PlatformConfig.facebook widened to union type** — `{ access_token, page_id, expiry } | { setup_required: true } | null`; no as-unknown cast needed (CLAUDE.md rule 9)
 - **Test assertion error message must not contain 'duplicate' substring** — the meta-refresh duplicate-swallow catch block checks msg.includes('duplicate'); test error messages used to verify re-throw must not contain this substring
 - **SettingsRow type with index signature [key: string]: unknown** — required for db.execute<T extends Record<string,unknown>> generic constraint; type alias (not interface) with index signature satisfies constraint without cast
+- **useState screen switcher in App.tsx** — currentScreen: 'generator' | 'settings'; no routing library; onNavigate prop threads the setter to child screens; Screen type in types.ts extensible for Phase 3+
+- **oauthBanner state in App.tsx not SettingsPage** — banner must survive the generator→settings screen transition triggered by the OAuth redirect params; App.tsx is the correct owner
+- **OAuth redirect params read in session-aware useEffect** — second useEffect depends on `session` so it only runs once the user is authenticated; history.replaceState strips params immediately after read
 
 ### Critical Bugs to Avoid
 
@@ -117,6 +120,6 @@ Progress: [████████░░] 83%
 
 ## Session Continuity
 
-Last session: 2026-05-02T01:22:02Z
-Stopped at: 02-05 complete — Weekly Meta token refresh pg-boss job, 7/7 tests passing
-Resume: Execute 02-06 (Settings UI frontend) — Wave 4
+Last session: 2026-05-02T01:52:54.342Z
+Stopped at: 02-06 complete — Settings UI frontend, 2/2 tasks, tsc + build pass
+Resume: Execute 02-07 (frontend integration tests) — Wave 4
