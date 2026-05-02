@@ -246,3 +246,100 @@ describe('Niche-Pakistan — D-18', () => {
     expect(it.fix).toBe('')
   })
 })
+
+// ============================================================================
+// Phase 5: Metadata Quality re-evaluation (AI-10, D-09..D-12)
+// Added in Plan 05-01 Wave 0 — go GREEN when checklist.ts is extended in Plan 05-04
+// ============================================================================
+
+import type { AIOutput } from './types'
+
+const FULL_AI_OUTPUT: AIOutput = {
+  youtube: { title: 'A'.repeat(55), description: 'D'.repeat(120), tags: Array(12).fill('tag'), hook: 'Hook line' },
+  instagram: { caption: 'C'.repeat(175), hashtags: Array(27).fill('#h'), cover_text: 'Cover' },
+  tiktok: { hook: 'TH', caption: 'T'.repeat(100), hashtags: Array(5).fill('#t') },
+  facebook: { caption: 'FC', cta: 'Click here', hashtags: Array(2).fill('#f') },
+  x: { tweet: 'TW'.repeat(10), hashtags: Array(2).fill('#x') },
+  script_outline: 'Outline',
+}
+
+const MOCK_SIGNALS_MQ: EngineSignals = {
+  durationSec: 30, width: 1080, height: 1920, aspectRatio: 0.5625,
+  fps: 30, bitrate: 5000000, hasAudio: true, audioEnergy: 0.6,
+  beatPresent: true, silenceGapsSec: [], sceneCount: 5,
+  sceneTimestamps: [0.8, 2.1, 4.5, 7.0, 10.2], faceCount: 1,
+  objectLabels: ['person'], motionScore: 0.4, brightnessScore: 0.5,
+  framesBase64: [],
+}
+
+describe('buildChecklist — MQ re-evaluation with aiOutput (AI-10, D-09..D-12)', () => {
+  const options: ChecklistOptions = { niche: 'travel', enabledPlatforms: ['youtube', 'instagram', 'tiktok', 'facebook', 'x'] }
+
+  it('all 8 MQ items are pending when aiOutput is not provided', () => {
+    const items = buildChecklist(MOCK_SIGNALS_MQ, options)
+    const mqItems = items.filter(i => i.category === 'metadata-quality')
+    expect(mqItems).toHaveLength(8)
+    expect(mqItems.every(i => i.status === 'pending')).toBe(true)
+  })
+
+  it('D-09: YouTube title ≤60 → pass; >60 → fail with char count', () => {
+    const shortTitleOutput: AIOutput = { ...FULL_AI_OUTPUT, youtube: { ...FULL_AI_OUTPUT.youtube, title: 'A'.repeat(72) } }
+    const items = buildChecklist(MOCK_SIGNALS_MQ, options, shortTitleOutput)
+    const item = items.find(i => i.id === 'caption_length_youtube')!
+    expect(item.status).toBe('fail')
+    expect(item.fix).toContain('72')
+    expect(item.fix).toContain('60')
+
+    const goodOutput: AIOutput = { ...FULL_AI_OUTPUT, youtube: { ...FULL_AI_OUTPUT.youtube, title: 'A'.repeat(55) } }
+    const items2 = buildChecklist(MOCK_SIGNALS_MQ, options, goodOutput)
+    expect(items2.find(i => i.id === 'caption_length_youtube')!.status).toBe('pass')
+  })
+
+  it('D-09: Instagram caption 150-200 → pass; outside range → fail', () => {
+    const shortOutput: AIOutput = { ...FULL_AI_OUTPUT, instagram: { ...FULL_AI_OUTPUT.instagram, caption: 'C'.repeat(100) } }
+    const items = buildChecklist(MOCK_SIGNALS_MQ, options, shortOutput)
+    expect(items.find(i => i.id === 'caption_length_instagram')!.status).toBe('fail')
+
+    const goodOutput: AIOutput = { ...FULL_AI_OUTPUT, instagram: { ...FULL_AI_OUTPUT.instagram, caption: 'C'.repeat(175) } }
+    const items2 = buildChecklist(MOCK_SIGNALS_MQ, options, goodOutput)
+    expect(items2.find(i => i.id === 'caption_length_instagram')!.status).toBe('pass')
+  })
+
+  it('D-11: IG hashtags 25-30 → pass; outside → fail with count', () => {
+    const badOutput: AIOutput = { ...FULL_AI_OUTPUT, instagram: { ...FULL_AI_OUTPUT.instagram, hashtags: Array(10).fill('#h') } }
+    const items = buildChecklist(MOCK_SIGNALS_MQ, options, badOutput)
+    const item = items.find(i => i.id === 'hashtag_count_in_band')!
+    expect(item.status).toBe('fail')
+    expect(item.fix).toContain('10')
+  })
+
+  it('D-10: hook_in_first_line pass when youtube.hook is non-empty', () => {
+    const items = buildChecklist(MOCK_SIGNALS_MQ, options, FULL_AI_OUTPUT)
+    expect(items.find(i => i.id === 'hook_in_first_line')!.status).toBe('pass')
+  })
+
+  it('D-10: cta_present pass when facebook.cta is non-empty', () => {
+    const items = buildChecklist(MOCK_SIGNALS_MQ, options, FULL_AI_OUTPUT)
+    expect(items.find(i => i.id === 'cta_present')!.status).toBe('pass')
+  })
+
+  it('D-12: language_match_niche pass when instagram.caption is non-empty', () => {
+    const items = buildChecklist(MOCK_SIGNALS_MQ, options, FULL_AI_OUTPUT)
+    expect(items.find(i => i.id === 'language_match_niche')!.status).toBe('pass')
+  })
+
+  it('D-12: description_keyword_density pass when youtube.description is non-empty', () => {
+    const items = buildChecklist(MOCK_SIGNALS_MQ, options, FULL_AI_OUTPUT)
+    expect(items.find(i => i.id === 'description_keyword_density')!.status).toBe('pass')
+  })
+
+  it('D-11: skips disabled platforms rather than failing them', () => {
+    const optionsNoIG: ChecklistOptions = { niche: 'travel', enabledPlatforms: ['youtube', 'tiktok', 'facebook', 'x'] }
+    // IG hashtag count wrong but IG is disabled — should not affect hashtag_count_in_band
+    const badIGOutput: AIOutput = { ...FULL_AI_OUTPUT, instagram: { ...FULL_AI_OUTPUT.instagram, hashtags: Array(5).fill('#h') } }
+    const items = buildChecklist(MOCK_SIGNALS_MQ, optionsNoIG, badIGOutput)
+    // TikTok hashtags are in band (5 tags) — should pass
+    const item = items.find(i => i.id === 'hashtag_count_in_band')!
+    expect(item.status).toBe('pass')
+  })
+})
