@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 2 executing — 6/7 plans complete
-status: completed
-stopped_at: 02-06 complete — Settings UI frontend, 2/2 tasks, tsc + build pass
-last_updated: "2026-05-02T01:52:54.371Z"
+current_phase: Phase 2 — provisionally complete (E2E deferred pending OAuth credentials)
+status: phase_complete_partial
+stopped_at: 02-07 deferred per user choice — automated suite 47/47, real OAuth round-trips deferred
+last_updated: "2026-05-02T01:55:00.000Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 10
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 12
-  completed_plans: 11
-  percent: 92
+  completed_plans: 12
+  percent: 20
 ---
 
 # Project State — Viral Copy Generator
@@ -22,23 +22,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 2 executing — 6/7 plans complete
+**Current phase:** Phase 2 — provisionally complete (E2E deferred pending OAuth credentials)
 
 ## Current Position
 
-Phase: 2 of 10 (Settings + Social OAuth) — EXECUTING (6/7 plans complete)
-Plan: 02-06 complete — Settings UI frontend (SettingsPage, App.tsx screen switcher, types.ts), tsc + build pass
-Status: 02-06 complete — ready to execute 02-07 (frontend integration tests) in Wave 4
-Last activity: 2026-05-01
+Phase: 2 of 10 (Settings + Social OAuth) — PROVISIONALLY COMPLETE
+Plan: 02-07 deferred — automated suite 47/47 passing; real OAuth round-trips deferred until credentials provisioned
+Status: Phase 2 ready to close out via /gsd-verify-work 2 after `.env` credentials are set; Phase 3 can begin in parallel
+Last activity: 2026-05-02
 
-Progress: [█████████░] 92%
+Progress: [██░░░░░░░░] 20% (2 of 10 phases)
 
 ## Phase Status
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
-| 2 | Settings + Social OAuth | 🟡 Executing (6/7 plans complete — 02-01 crypto, 02-02 settings surface, 02-03 Google OAuth, 02-04 Meta OAuth, 02-05 weekly refresh, 02-06 Settings UI done) |
+| 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
 | 3 | Video Upload + Analysis Engine | ⬜ Not started |
 | 4 | Virality Score + Checklist | ⬜ Not started |
 | 5 | AI Copy + Platform Cards | ⬜ Not started |
@@ -52,6 +52,11 @@ Progress: [█████████░] 92%
 
 - **Phase 1: Backend + Auth Foundation** — Completed 2026-05-01
   - Supabase project + all 4 tables with RLS, pg-boss running, auth-gated Express backend, login screen with COOP/COEP, admin account configured
+
+- **Phase 2: Settings + Social OAuth** — Provisionally complete 2026-05-02
+  - AES-256-GCM crypto + OAuth CSRF state + settings GET/PATCH/disconnect routes + Google YouTube OAuth + Meta Instagram/Facebook OAuth + weekly Meta token refresh job + Settings UI with screen switcher
+  - Automated suite: 47/47 Vitest pass, tsc clean, frontend build clean (76 modules / 410 kB)
+  - Deferred: real OAuth round-trip E2E verification (02-07) and credential provisioning (02-01 Task 3) — pending `.env` setup; close via `/gsd-verify-work 2` when ready
 
 ## Accumulated Context
 
@@ -120,6 +125,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-05-02T01:52:54.342Z
-Stopped at: 02-06 complete — Settings UI frontend, 2/2 tasks, tsc + build pass
-Resume: Execute 02-07 (frontend integration tests) — Wave 4
+Last session: 2026-05-02T01:55:00Z
+Stopped at: Phase 2 provisionally complete — 47/47 automated tests pass; 02-07 E2E + 02-01 Task 3 (credential provisioning) deferred per user choice
+Resume: When credentials are provisioned, run `/gsd-verify-work 2` to close Phase 2; or run `/gsd-plan-phase 3` to begin Phase 3 (Video Upload + Analysis Engine) in parallel

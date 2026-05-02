@@ -34,7 +34,7 @@ by the admin only — no public registration.
 ## Phases
 
 - [x] **Phase 1: Backend + Auth Foundation** — Supabase project, auth-gated Express scaffold, Drizzle + full schema with RLS, pg-boss, VPS file storage, COOP/COEP
-- [ ] **Phase 2: Settings + Social OAuth** — Per-user AI key encryption, YouTube + Meta OAuth (redirect flow, 2025 scopes), weekly token refresh job
+- [x] **Phase 2: Settings + Social OAuth** — Per-user AI key encryption, YouTube + Meta OAuth (redirect flow, 2025 scopes), weekly token refresh job *(provisionally complete 2026-05-02 — automated suite 47/47; E2E round-trips deferred pending credential provisioning)*
 - [ ] **Phase 3: Video Upload + Analysis Engine** — In-browser ffmpeg.wasm + TF.js + Web Audio + Canvas with researched bug workarounds
 - [ ] **Phase 4: Virality Score + Checklist** — Weighted score, per-platform variants, three-state checklist, rule-based gap analysis
 - [ ] **Phase 5: AI Copy + Platform Cards** — Gemini Files API, OpenAI proxy, Anthropic browser flag, 5 platform cards, Realtime upload state, Get Better Version
@@ -141,8 +141,8 @@ Plans:
 - [x] 02-03-PLAN.md — YouTube OAuth (googleapis 171.4.0, prompt=consent, encrypted tokens) (COMPLETE 2026-05-01)
 - [x] 02-04-PLAN.md — Meta OAuth (Instagram Login + Facebook Login for Business — two flows, account_type preflight, page selection) (COMPLETE 2026-05-02)
 - [x] 02-05-PLAN.md — Weekly meta-token-refresh pg-boss job (60-day token, 7-day cadence) (COMPLETE 2026-05-02)
-- [ ] 02-06-PLAN.md — Frontend SettingsPage + App.tsx screen switcher + OAuth-redirect param handler
-- [ ] 02-07-PLAN.md — Verification: automated suite + curl smoke + manual OAuth round-trip checkpoint
+- [x] 02-06-PLAN.md — Frontend SettingsPage + App.tsx screen switcher + OAuth-redirect param handler (COMPLETE 2026-05-02)
+- [x] 02-07-PLAN.md — Verification: automated 47/47 ✓; real OAuth round-trips deferred pending `.env` credentials (PARTIAL 2026-05-02 — close via `/gsd-verify-work 2`)
 
 **UI hint:** yes
 
@@ -474,7 +474,7 @@ indeterminate progress animation, and error boundaries throughout.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Backend + Auth Foundation | 5/5 | Complete | 2026-05-01 |
-| 2. Settings + Social OAuth | 4/7 | Executing | - |
+| 2. Settings + Social OAuth | 7/7 | Provisionally complete (E2E deferred) | 2026-05-02 |
 | 3. Video Upload + Analysis Engine | 0/TBD | Not started | - |
 | 4. Virality Score + Checklist | 0/TBD | Not started | - |
 | 5. AI Copy + Platform Cards | 0/TBD | Not started | - |
