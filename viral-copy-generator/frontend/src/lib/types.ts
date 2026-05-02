@@ -99,3 +99,66 @@ export interface ScoreResult {
   overall: number
   perPlatform: PerPlatformScores
 }
+
+// ============================================================================
+// Phase 5: AI Output + Platform Cards (D-03)
+// ============================================================================
+
+export interface YouTubeOutput {
+  title: string
+  description: string
+  tags: string[]
+  hook: string
+}
+
+export interface InstagramOutput {
+  caption: string
+  hashtags: string[]
+  cover_text: string
+}
+
+export interface TikTokOutput {
+  hook: string
+  caption: string
+  hashtags: string[]
+}
+
+export interface FacebookOutput {
+  caption: string
+  cta: string
+  hashtags: string[]
+}
+
+export interface XOutput {
+  tweet: string
+  hashtags: string[]
+}
+
+export interface AIOutput {
+  youtube: YouTubeOutput
+  instagram: InstagramOutput
+  tiktok: TikTokOutput
+  facebook: FacebookOutput
+  x: XOutput
+  script_outline: string
+}
+
+export type UploadStatus = 'idle' | 'uploading' | 'posted' | 'failed'
+
+export interface PostSaveResponse {
+  postId: string
+}
+
+export interface CreatePostBody {
+  title: string
+  niche: string
+  virality_score: number
+  engine_signals: Record<string, unknown>
+  ai_output: Record<string, unknown>
+  enabled_platforms: string[]
+}
+
+export interface AIProxyBody {
+  prompt: string
+  frames?: string[]  // base64 JPEGs; omit on second pass (D-05)
+}

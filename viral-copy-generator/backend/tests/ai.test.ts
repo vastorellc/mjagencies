@@ -1,11 +1,11 @@
 // Wave 0 stub — tests go GREEN when ai.ts route is implemented in Plan 05-02.
 // Covers: AI-05 (T-5-01: API key NEVER in response body)
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import request from 'supertest'
 
-// Import will fail RED until Plan 05-02 creates backend/src/routes/ai.ts
-// and app.ts wires /api/ai
-import { app } from '../app.js'
+// Set env before app import
+process.env.ENCRYPTION_KEY = process.env.ENCRYPTION_KEY ?? 'a'.repeat(48)
+process.env.APP_URL = process.env.APP_URL ?? 'http://localhost:5173'
 
 // Mock the openai module to avoid real API calls in tests
 vi.mock('openai', () => ({
@@ -21,7 +21,7 @@ vi.mock('openai', () => ({
 }))
 
 // Mock the DB + decrypt to return a fake encrypted key
-vi.mock('../db/index.js', () => ({
+vi.mock('../src/db/index.js', () => ({
   db: {
     select: vi.fn().mockReturnValue({
       from: vi.fn().mockReturnValue({
@@ -36,17 +36,30 @@ vi.mock('../db/index.js', () => ({
   },
 }))
 
-vi.mock('../lib/encryption.js', () => ({
+vi.mock('../src/lib/encryption.js', () => ({
   decrypt: vi.fn().mockReturnValue('sk-real-api-key-that-must-not-appear-in-response'),
+  encrypt: vi.fn().mockReturnValue('fake_encrypted'),
+  maskKey: vi.fn().mockReturnValue('****abcd'),
 }))
 
 // Mock authMiddleware so we can test the route with a fake userId
-vi.mock('../middleware/auth.js', () => ({
+vi.mock('../src/middleware/auth.js', () => ({
   authMiddleware: vi.fn((req: any, res: any, next: any) => {
     res.locals.userId = 'test-user-id'
     next()
   }),
 }))
+
+// Mock supabaseAdmin (imported transitively by authMiddleware)
+vi.mock('../src/lib/supabase.js', () => ({
+  supabaseAdmin: {
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id', app_metadata: {} } }, error: null }),
+    },
+  },
+}))
+
+import { app } from '../src/app.js'
 
 describe('POST /api/ai/generate — T-5-01: API key never in response', () => {
   it('returns 200 with { text } and does not leak the API key', async () => {
@@ -64,7 +77,7 @@ describe('POST /api/ai/generate — T-5-01: API key never in response', () => {
 
   it('returns 400 when no API key is configured for user', async () => {
     // Override DB mock to return no api_key_encrypted
-    const { db } = await import('../db/index.js')
+    const { db } = await import('../src/db/index.js')
     vi.mocked(db.select).mockReturnValueOnce({
       from: vi.fn().mockReturnValue({
         where: vi.fn().mockReturnValue({

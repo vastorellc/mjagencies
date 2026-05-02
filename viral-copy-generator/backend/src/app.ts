@@ -7,6 +7,7 @@ import { postsRouter } from './routes/posts.js'
 import { settingsRouter } from './routes/settings.js'
 import { authGoogleRouter } from './routes/auth-google.js'
 import { authMetaRouter } from './routes/auth-meta.js'
+import { aiRouter } from './routes/ai.js'
 import pino from 'pino'
 
 const logger = pino({
@@ -27,7 +28,7 @@ app.use((_req, res, next) => {
   // CSP: tighten per phase as new domains (AI providers, CDNs) are added
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; connect-src 'self' https://*.supabase.co; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:;",
+    "default-src 'self'; connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com https://api.anthropic.com; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:;",
   )
   next()
 })
@@ -62,6 +63,9 @@ app.use('/api/posts', postsRouter)
 
 // ── Phase 2: Settings + OAuth (auth-gated by app.use('/api', authMiddleware) above) ──
 app.use('/api/settings', settingsRouter)
+
+// ── Phase 5: AI proxy (auth-gated by app.use('/api', authMiddleware) above) ──
+app.use('/api/ai', aiRouter)
 
 // ── 404 handler ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {
