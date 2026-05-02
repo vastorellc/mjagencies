@@ -182,7 +182,17 @@ and WebAssembly fallback.
 6. Browser without WebAssembly shows clear fallback — no crash or blank screen
 7. Authenticated user's analysis is session-scoped — analysis data not persisted until Phase 5 post save
 
-**Plans:** TBD
+**Plans:** 8 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Wave 0: Vitest browser-mode infra + 5 fixture videos + test scripts
+- [ ] 03-02-PLAN.md — EngineSignals types + engine.ts skeleton (canRunEngine, getFFmpeg singleton, warmup, analyse stub) + 9 runtime deps pinned
+- [ ] 03-03-PLAN.md — Upload UI primitives: UploadDropzone (drag-drop + picker, 250 MB cap) + VideoPreview (thumbnail + description) + upload.ts validators
+- [ ] 03-04-PLAN.md — ffmpeg pipeline: probeVideo (ANALYSIS-10 unconditional read) + detectScenes (log stream) + extractFrames (~10 base64 JPEGs)
+- [ ] 03-05-PLAN.md — TF.js pipeline: MediaPipe face detector (solutionPath mandatory) + COCO-SSD object labels + motion score + tensor leak regression test
+- [ ] 03-06-PLAN.md — Audio + brightness: Meyda OfflineAudioContext (energy/beat/silence) + BT.601 luma + ANALYSIS-07 network regression test
+- [ ] 03-07-PLAN.md — Generator state machine: AnalysisProgress + AnalysisError + WasmFallbackBanner + MobileAdvisoryBanner + GeneratorPage rewrite
+- [ ] 03-08-PLAN.md — A2/A3 calibration evidence + manual smoke test on 5 fixtures (CHECKPOINT)
 **UI hint:** yes
 
 ---
