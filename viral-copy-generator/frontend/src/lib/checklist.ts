@@ -3,6 +3,7 @@ import type {
   ChecklistItem,
   Niche,
   Platform,
+  AIOutput,
 } from './types'
 
 export interface ChecklistOptions {
@@ -38,6 +39,7 @@ function fmtInt(n: number): string {
 export function buildChecklist(
   signals: EngineSignals,
   options: ChecklistOptions,
+  aiOutput?: AIOutput,
 ): ChecklistItem[] {
   const items: ChecklistItem[] = []
 
@@ -113,16 +115,129 @@ export function buildChecklist(
   }
 
   // ============================================================================
-  // D-16: Metadata Quality (8 items, all pending in Phase 4 — Phase 5 fills)
+  // D-16: Metadata Quality (8 items)
+  // Phase 4: all pending. Phase 5: re-evaluated when aiOutput is provided (D-09..D-12).
   // ============================================================================
-  items.push(pending('caption_length_youtube',     'metadata-quality', 'YouTube caption length'))
-  items.push(pending('caption_length_instagram',   'metadata-quality', 'Instagram caption length'))
-  items.push(pending('caption_length_tiktok',      'metadata-quality', 'TikTok caption length'))
-  items.push(pending('hashtag_count_in_band',      'metadata-quality', 'Hashtag count per platform'))
-  items.push(pending('hook_in_first_line',         'metadata-quality', 'Hook present in first line'))
-  items.push(pending('cta_present',                'metadata-quality', 'Call-to-action present'))
-  items.push(pending('language_match_niche',       'metadata-quality', 'Language matches niche'))
-  items.push(pending('description_keyword_density','metadata-quality', 'Description keyword density'))
+  if (!aiOutput) {
+    // Phase 4 default — all pending until AI output arrives
+    items.push(pending('caption_length_youtube',      'metadata-quality', 'YouTube caption length'))
+    items.push(pending('caption_length_instagram',    'metadata-quality', 'Instagram caption length'))
+    items.push(pending('caption_length_tiktok',       'metadata-quality', 'TikTok caption length'))
+    items.push(pending('hashtag_count_in_band',       'metadata-quality', 'Hashtag count per platform'))
+    items.push(pending('hook_in_first_line',          'metadata-quality', 'Hook present in first line'))
+    items.push(pending('cta_present',                 'metadata-quality', 'Call-to-action present'))
+    items.push(pending('language_match_niche',        'metadata-quality', 'Language matches niche'))
+    items.push(pending('description_keyword_density', 'metadata-quality', 'Description keyword density'))
+  } else {
+    // D-09: Character count checks
+    const ytTitleLen = aiOutput.youtube.title.length
+    if (ytTitleLen <= 60) {
+      items.push(pass('caption_length_youtube', 'metadata-quality', 'YouTube caption length'))
+    } else {
+      items.push(fail(
+        'caption_length_youtube', 'metadata-quality', 'YouTube caption length',
+        `Title is ${ytTitleLen} chars; keep ≤60.`,
+      ))
+    }
+
+    const igCaptionLen = aiOutput.instagram.caption.length
+    if (igCaptionLen >= 150 && igCaptionLen <= 200) {
+      items.push(pass('caption_length_instagram', 'metadata-quality', 'Instagram caption length'))
+    } else {
+      items.push(fail(
+        'caption_length_instagram', 'metadata-quality', 'Instagram caption length',
+        `Caption is ${igCaptionLen} chars; aim for 150-200 chars.`,
+      ))
+    }
+
+    const ttCaptionLen = aiOutput.tiktok.caption.length
+    if (ttCaptionLen <= 150) {
+      items.push(pass('caption_length_tiktok', 'metadata-quality', 'TikTok caption length'))
+    } else {
+      items.push(fail(
+        'caption_length_tiktok', 'metadata-quality', 'TikTok caption length',
+        `TikTok caption is ${ttCaptionLen} chars; keep ≤150.`,
+      ))
+    }
+
+    // D-11: Hashtag count — evaluate ONLY enabled platforms; skip disabled ones
+    let hashtagPass = true
+    let hashtagFailFix = ''
+
+    if (options.enabledPlatforms.includes('instagram')) {
+      const igCount = aiOutput.instagram.hashtags.length
+      if (igCount < 25 || igCount > 30) {
+        hashtagPass = false
+        hashtagFailFix = `Instagram: use 25-30 hashtags; got ${igCount}.`
+      }
+    }
+    if (hashtagPass && options.enabledPlatforms.includes('tiktok')) {
+      const ttCount = aiOutput.tiktok.hashtags.length
+      if (ttCount < 4 || ttCount > 6) {
+        hashtagPass = false
+        hashtagFailFix = `TikTok: use 4-6 hashtags; got ${ttCount}.`
+      }
+    }
+    if (hashtagPass && options.enabledPlatforms.includes('youtube')) {
+      const ytCount = aiOutput.youtube.tags.length
+      if (ytCount < 10 || ytCount > 15) {
+        hashtagPass = false
+        hashtagFailFix = `YouTube: use 10-15 tags; got ${ytCount}.`
+      }
+    }
+
+    if (hashtagPass) {
+      items.push(pass('hashtag_count_in_band', 'metadata-quality', 'Hashtag count per platform'))
+    } else {
+      items.push(fail('hashtag_count_in_band', 'metadata-quality', 'Hashtag count per platform', hashtagFailFix))
+    }
+
+    // D-10: Presence checks
+    const ytEnabled = options.enabledPlatforms.includes('youtube')
+    const ttEnabled = options.enabledPlatforms.includes('tiktok')
+    const hookPresent =
+      (ytEnabled && aiOutput.youtube.hook.trim().length > 0) ||
+      (ttEnabled && aiOutput.tiktok.hook.trim().length > 0)
+
+    if (hookPresent) {
+      items.push(pass('hook_in_first_line', 'metadata-quality', 'Hook present in first line'))
+    } else {
+      items.push(fail(
+        'hook_in_first_line', 'metadata-quality', 'Hook present in first line',
+        'Add a hook suggestion — first line should grab attention in 3 seconds.',
+      ))
+    }
+
+    const fbEnabled = options.enabledPlatforms.includes('facebook')
+    if (!fbEnabled || aiOutput.facebook.cta.trim().length > 0) {
+      items.push(pass('cta_present', 'metadata-quality', 'Call-to-action present'))
+    } else {
+      items.push(fail(
+        'cta_present', 'metadata-quality', 'Call-to-action present',
+        'Add a call-to-action to the Facebook caption.',
+      ))
+    }
+
+    // D-12: Language / keyword density — presence-only checks (trust the prompt)
+    const igEnabled = options.enabledPlatforms.includes('instagram')
+    if (!igEnabled || aiOutput.instagram.caption.trim().length > 0) {
+      items.push(pass('language_match_niche', 'metadata-quality', 'Language matches niche'))
+    } else {
+      items.push(fail(
+        'language_match_niche', 'metadata-quality', 'Language matches niche',
+        'Instagram caption is empty.',
+      ))
+    }
+
+    if (!ytEnabled || aiOutput.youtube.description.trim().length > 0) {
+      items.push(pass('description_keyword_density', 'metadata-quality', 'Description keyword density'))
+    } else {
+      items.push(fail(
+        'description_keyword_density', 'metadata-quality', 'Description keyword density',
+        'YouTube description is empty — add SEO keywords.',
+      ))
+    }
+  }
 
   // ============================================================================
   // D-17: Virality Boosters (5 items)
