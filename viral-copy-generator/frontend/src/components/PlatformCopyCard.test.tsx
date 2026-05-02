@@ -1,7 +1,7 @@
 // Wave 0 stub — tests go GREEN when PlatformCopyCard.tsx is implemented in Plan 05-05.
 // Covers: PLATFORM-03 (copy button), PLATFORM-06 (TikTok upload disabled), PLATFORM-09 (upload states)
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 
 // Import will fail RED until Plan 05-05 creates PlatformCopyCard.tsx
 import PlatformCopyCard from './PlatformCopyCard'
@@ -19,7 +19,7 @@ const MOCK_OUTPUT: AIOutput = {
 describe('PlatformCopyCard — copy button (PLATFORM-03)', () => {
   it('copy button calls navigator.clipboard.writeText with field text', async () => {
     const clipboardSpy = vi.fn().mockResolvedValue(undefined)
-    Object.assign(navigator, { clipboard: { writeText: clipboardSpy } })
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: clipboardSpy }, configurable: true })
 
     render(
       <PlatformCopyCard
@@ -40,7 +40,7 @@ describe('PlatformCopyCard — copy button (PLATFORM-03)', () => {
   it('copy button shows "Copied!" text for 1.5s after click', async () => {
     vi.useFakeTimers()
     const clipboardSpy = vi.fn().mockResolvedValue(undefined)
-    Object.assign(navigator, { clipboard: { writeText: clipboardSpy } })
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: clipboardSpy }, configurable: true })
 
     render(
       <PlatformCopyCard
@@ -52,10 +52,10 @@ describe('PlatformCopyCard — copy button (PLATFORM-03)', () => {
     )
 
     const copyBtns = screen.getAllByRole('button', { name: /copy/i })
-    fireEvent.click(copyBtns[0])
-    await waitFor(() => expect(screen.getByText('Copied!')).toBeInTheDocument())
-    vi.advanceTimersByTime(1600)
-    await waitFor(() => expect(screen.queryByText('Copied!')).not.toBeInTheDocument())
+    await act(async () => { fireEvent.click(copyBtns[0]) })
+    expect(screen.getByText('Copied!')).toBeInTheDocument()
+    act(() => { vi.advanceTimersByTime(1600) })
+    expect(screen.queryByText('Copied!')).not.toBeInTheDocument()
     vi.useRealTimers()
   })
 })
