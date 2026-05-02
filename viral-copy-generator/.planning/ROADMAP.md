@@ -226,7 +226,17 @@ interpolated in fix messages — all without any AI call.
 5. Score computes without crash/NaN for edge-case videos (no audio, no face, 0-duration)
 6. Learned weights applied when `dataPoints >= 10`; baseline used when below threshold
 
-**Plans:** TBD
+**Plans:** 8 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — types.ts extensions + score.ts (curves D-05..D-11, weights D-04+D-12, bandForScore D-14, applyLearnedWeights D-20) + comprehensive unit tests
+- [ ] 04-02-PLAN.md — checklist.ts (21 items per D-15..D-18) + unit tests covering all edge cases
+- [ ] 04-03-PLAN.md — gaps.ts (buildGapAnalysis D-19) + viewRange.ts (D-13 lookup) + unit tests
+- [ ] 04-04-PLAN.md — ScorePanel.tsx (hero ring D-22+D-23, calibration footer D-21) + render tests
+- [ ] 04-05-PLAN.md — PlatformCardGrid.tsx (5 mini-cards with view ranges) + render tests
+- [ ] 04-06-PLAN.md — ChecklistAccordion.tsx (4 collapsible sections, default-expand rules) + render tests
+- [ ] 04-07-PLAN.md — GapAnalysisPanel.tsx (numbered list, hidden when empty) + render tests
+- [ ] 04-08-PLAN.md — GeneratorPage integration (useMemo D-24) + integration tests + full-suite verification
 
 ---
 
@@ -486,7 +496,7 @@ indeterminate progress animation, and error boundaries throughout.
 | 1. Backend + Auth Foundation | 5/5 | Complete | 2026-05-01 |
 | 2. Settings + Social OAuth | 7/7 | Provisionally complete (E2E deferred) | 2026-05-02 |
 | 3. Video Upload + Analysis Engine | 1/8 partial | Paused at Wave 0 (fixtures deferred) | - |
-| 4. Virality Score + Checklist | 0/TBD | Not started | - |
+| 4. Virality Score + Checklist | 0/8 | Not started | - |
 | 5. AI Copy + Platform Cards | 0/TBD | Not started | - |
 | 6. Auto-Upload + Scheduling | 0/TBD | Not started | - |
 | 7. History + Learning Loops | 0/TBD | Not started | - |
