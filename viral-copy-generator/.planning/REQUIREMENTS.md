@@ -40,9 +40,9 @@ history, learning loops, admin panel, content research engine.
 
 ### SCORE — Virality Scoring, Checklist, Gap Analysis
 
-- [ ] **SCORE-01**: System computes a virality score (0–100) from engine signals using the weighted formula (hook 25%, pacing 20%, face 15%, audio 15%, duration fit 10%, aspect ratio 10%, brightness 5%) with normalised per-signal curves
-- [ ] **SCORE-02**: Score shown with colour coding: red (0–39), amber (40–59), green (60–79), bright green (80–100)
-- [ ] **SCORE-03**: Score computed overall AND per platform (platform-weighted variants with defined weight tables)
+- [x] **SCORE-01**: System computes a virality score (0–100) from engine signals using the weighted formula (hook 25%, pacing 20%, face 15%, audio 15%, duration fit 10%, aspect ratio 10%, brightness 5%) with normalised per-signal curves *(complete 2026-05-02 — 04-01 score.ts BASELINE_WEIGHTS + 7 curves)*
+- [x] **SCORE-02**: Score shown with colour coding: red (0–39), amber (40–59), green (60–79), bright green (80–100) *(complete 2026-05-02 — 04-01 bandForScore)*
+- [x] **SCORE-03**: Score computed overall AND per platform (platform-weighted variants with defined weight tables) *(complete 2026-05-02 — 04-01 PLATFORM_WEIGHTS + computeScore returns ScoreResult{overall, perPlatform})*
 - [ ] **SCORE-04**: System shows expected view range per platform per score tier using platform-specific score (not overall score)
 - [ ] **SCORE-05**: System shows pass/fail/pending checklist: Video Technical + Metadata Quality (pending until AI runs) + Virality Boosters + Pakistan-specific niche checks
 - [ ] **SCORE-06**: Every failed checklist item shows a specific actionable fix with actual video values interpolated (e.g. "Silence gap: 3.2s — remove gaps over 1.5s")

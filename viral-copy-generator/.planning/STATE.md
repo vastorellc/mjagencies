@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 3 paused at Wave 0 (fixtures deferred); pivoting to Phase 4
-status: phase_paused_pivoting
-stopped_at: 03-01 partial — vitest infra installed; fixture videos deferred per user; jumping to Phase 4
-last_updated: "2026-05-02T02:30:00.000Z"
+current_phase: Phase 4 — Virality Score + Checklist (in progress, 1/8 plans complete)
+status: phase_in_progress
+stopped_at: 04-01 complete — score.ts library shipped (48/48 tests pass); next is 04-02 checklist.ts
+last_updated: "2026-05-02T03:24:00.000Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 10
   completed_phases: 2
-  total_plans: 20
-  completed_plans: 12
-  percent: 20
+  total_plans: 28
+  completed_plans: 13
+  percent: 22
 ---
 
 # Project State — Viral Copy Generator
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 
 ## Current Position
 
-Phase: 3 of 10 (Video Upload + Analysis Engine) — PAUSED at Wave 0
-Plan: 03-01 partial (Tasks 1+2 complete: vitest 4 dual-project config + setup; Tasks 3+4 deferred awaiting fixture videos)
-Status: Phase 3 paused per user choice; pivoting to Phase 4. Resume Phase 3 via `/gsd-execute-phase 3` once fixture videos drop into `frontend/test/fixtures/`
+Phase: 4 of 10 (Virality Score + Checklist) — IN PROGRESS (1/8 plans complete)
+Plan: 04-01 complete (types.ts + score.ts + score.test.ts; 48/48 tests pass; tsc clean). Next: 04-02 checklist.ts.
+Status: Phase 3 paused at Wave 0 awaiting fixture videos; Phase 4 active and unblocked (pure functions over mocked EngineSignals).
 Last activity: 2026-05-02
 
-Progress: [██░░░░░░░░] 20% (2 of 10 phases complete; Phase 3 partial)
+Progress: [██░░░░░░░░] 22% (2 phases complete; Phase 3 paused; Phase 4 1/8 plans)
 
 ## Phase Status
 
@@ -40,7 +40,7 @@ Progress: [██░░░░░░░░] 20% (2 of 10 phases complete; Phase 3
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
 | 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
-| 4 | Virality Score + Checklist | ⬜ Not started |
+| 4 | Virality Score + Checklist | 🟡 In progress (1/8 plans — 04-01 score.ts library complete, 48/48 tests pass) |
 | 5 | AI Copy + Platform Cards | ⬜ Not started |
 | 6 | Auto-Upload + Scheduling | ⬜ Not started |
 | 7 | History + Learning Loops | ⬜ Not started |
@@ -125,9 +125,9 @@ Progress: [██░░░░░░░░] 20% (2 of 10 phases complete; Phase 3
 
 ## Session Continuity
 
-Last session: 2026-05-02T02:30:00Z
-Stopped at: Phase 3 Wave 0 paused — vitest 4 dual-project config + setup landed (Plan 03-01 Tasks 1+2); fixture videos deferred per user choice; pivoting to Phase 4
+Last session: 2026-05-02T03:24:00Z
+Stopped at: Phase 4 Plan 04-01 complete — frontend/src/lib/{types.ts (extended), score.ts (new), score.test.ts (new, 48/48 pass)}; tsc clean; commits 9e48960, 953d229, 9f4331d
 Resume:
+- Phase 4 (active): `/gsd-execute-phase 4` to continue with 04-02 (checklist.ts)
 - Phase 3: drop 5 fixture videos into `viral-copy-generator/frontend/test/fixtures/` (per the README), then `/gsd-execute-phase 3` to resume from Plan 03-01 Task 3
-- Phase 4 (active): `/gsd-discuss-phase 4 --auto` (Virality Score + Checklist — pure functions over mocked EngineSignals)
 - Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`
