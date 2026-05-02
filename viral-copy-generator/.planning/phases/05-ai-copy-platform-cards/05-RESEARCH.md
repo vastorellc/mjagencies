@@ -822,22 +822,19 @@ STATE_UNSPECIFIED — default/unknown; treat like PROCESSING
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **OpenAI image_url format in chat.completions (A1)**
+1. **OpenAI image_url format in chat.completions (A1)** — RESOLVED
    - What we know: Anthropic uses `{ type: 'image', source: { type: 'base64', data: '...' } }`
-   - What's unclear: Whether OpenAI SDK 6.35 `chat.completions` uses `image_url: { url: 'data:...' }` or a different structure for base64 inline
-   - Recommendation: Verify against `openai` 6.35.0 TypeScript types after install (`ChatCompletionContentPartImage`); the data URI format is a safe assumption but confirm.
+   - Resolution: OpenAI SDK 6.35.0 `ChatCompletionContentPartImage` type uses `{ type: 'image_url', image_url: { url: string } }` where `url` accepts data URIs (`data:image/jpeg;base64,...`). This is confirmed in the openai TypeScript package typings and OpenAI Vision API docs. Plan 02 implements this format: `image_url: { url: \`data:image/jpeg;base64,${b64}\` }`.
 
-2. **Supabase Realtime enabled for platform_posts**
+2. **Supabase Realtime enabled for platform_posts** — RESOLVED
    - What we know: The `platform_posts` table exists with `upload_status` column
-   - What's unclear: Whether the project's Supabase instance has Realtime enabled for this specific table
-   - Recommendation: Make Wave 0 task to verify in Supabase Dashboard → Database → Replication → Supabase Realtime → `platform_posts` table toggle.
+   - Resolution: Wave 0 plan (05-01) includes a human checkpoint task to verify/enable Realtime in Supabase Dashboard → Database → Replication → `platform_posts` toggle. Execution is blocked at the checkpoint until this is confirmed.
 
-3. **Gemini file upload when signals === null (description-only path)**
-   - What we know: D-06 says button is active when `selectedFile === null` AND description is present; Gemini Files API requires a file
-   - What's unclear: Whether to skip the Files API step (send text-only prompt to Gemini) when no file is selected
-   - Recommendation: When `selectedFile === null`, call `generateContent` with text-only prompt (no `fileData` part) — this is explicitly supported by Gemini. The ACTIVE poll loop is simply not needed.
+3. **Gemini file upload when signals === null (description-only path)** — RESOLVED
+   - What we know: D-06 says button is active when `selectedFile === null` AND description is present
+   - Resolution: When `selectedFile === null`, ai.ts calls `generateContent` with text-only content (no `fileData` part, no poll loop). Gemini explicitly supports text-only prompts with the same model. Plan 03 implements both branches (file path with poll vs. text-only path) with a single `if (selectedFile)` guard.
 
 ---
 
