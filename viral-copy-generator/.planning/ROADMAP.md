@@ -36,7 +36,7 @@ by the admin only — no public registration.
 - [x] **Phase 1: Backend + Auth Foundation** — Supabase project, auth-gated Express scaffold, Drizzle + full schema with RLS, pg-boss, VPS file storage, COOP/COEP
 - [x] **Phase 2: Settings + Social OAuth** — Per-user AI key encryption, YouTube + Meta OAuth (redirect flow, 2025 scopes), weekly token refresh job *(provisionally complete 2026-05-02 — automated suite 47/47; E2E round-trips deferred pending credential provisioning)*
 - [~] **Phase 3: Video Upload + Analysis Engine** — In-browser ffmpeg.wasm + TF.js + Web Audio + Canvas with researched bug workarounds *(paused 2026-05-02 at Wave 0 — vitest infra installed; fixture videos deferred; pivoted to Phase 4)*
-- [~] **Phase 4: Virality Score + Checklist** — Weighted score, per-platform variants, three-state checklist, rule-based gap analysis *(in progress 2026-05-02 — plans 04-01 + 04-02 complete: score.ts + checklist.ts libraries; 89/89 lib tests pass)*
+- [~] **Phase 4: Virality Score + Checklist** — Weighted score, per-platform variants, three-state checklist, rule-based gap analysis *(in progress 2026-05-02 — plans 04-01 + 04-02 + 04-03 complete: score.ts + checklist.ts + gaps.ts + viewRange.ts; Wave 1 done; 131/131 lib tests pass)*
 - [ ] **Phase 5: AI Copy + Platform Cards** — Gemini Files API, OpenAI proxy, Anthropic browser flag, 5 platform cards, Realtime upload state, Get Better Version
 - [ ] **Phase 6: Auto-Upload + Scheduling** — YouTube resumable, Meta two-step Reels with container-in-job fix, pg-boss PKT scheduling, Instagram 100 MB gate
 - [ ] **Phase 7: History + Learning Loops** — Post history (per-user RLS), atomic view logging transaction, EMA calibration, corrected hashtag unnest queries
@@ -231,7 +231,7 @@ interpolated in fix messages — all without any AI call.
 Plans:
 - [x] 04-01-PLAN.md — types.ts extensions + score.ts (curves D-05..D-11, weights D-04+D-12, bandForScore D-14, applyLearnedWeights D-20) + comprehensive unit tests *(complete 2026-05-02 — 48/48 tests pass; 04-01-SUMMARY.md)*
 - [x] 04-02-PLAN.md — checklist.ts (21 items per D-15..D-18) + unit tests covering all edge cases *(complete 2026-05-02 — 41/41 tests pass; 04-02-SUMMARY.md)*
-- [ ] 04-03-PLAN.md — gaps.ts (buildGapAnalysis D-19) + viewRange.ts (D-13 lookup) + unit tests
+- [x] 04-03-PLAN.md — gaps.ts (buildGapAnalysis D-19) + viewRange.ts (D-13 lookup) + unit tests *(complete 2026-05-02 — 42/42 new tests pass; 131/131 lib suite green; 04-03-SUMMARY.md)*
 - [ ] 04-04-PLAN.md — ScorePanel.tsx (hero ring D-22+D-23, calibration footer D-21) + render tests
 - [ ] 04-05-PLAN.md — PlatformCardGrid.tsx (5 mini-cards with view ranges) + render tests
 - [ ] 04-06-PLAN.md — ChecklistAccordion.tsx (4 collapsible sections, default-expand rules) + render tests
@@ -496,7 +496,7 @@ indeterminate progress animation, and error boundaries throughout.
 | 1. Backend + Auth Foundation | 5/5 | Complete | 2026-05-01 |
 | 2. Settings + Social OAuth | 7/7 | Provisionally complete (E2E deferred) | 2026-05-02 |
 | 3. Video Upload + Analysis Engine | 1/8 partial | Paused at Wave 0 (fixtures deferred) | - |
-| 4. Virality Score + Checklist | 0/8 | Not started | - |
+| 4. Virality Score + Checklist | 3/8 | In progress (Wave 1 done) | - |
 | 5. AI Copy + Platform Cards | 0/TBD | Not started | - |
 | 6. Auto-Upload + Scheduling | 0/TBD | Not started | - |
 | 7. History + Learning Loops | 0/TBD | Not started | - |
