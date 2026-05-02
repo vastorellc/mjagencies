@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: "Phase 2 executing — 02-02 complete"
+current_phase: "Phase 2 executing — 02-03 complete"
 status: executing
-stopped_at: "02-02 complete — settings HTTP surface + OAuth stubs + 10 integration tests"
-last_updated: "2026-05-01T21:25:33Z"
+stopped_at: 02-03 complete — Google OAuth /connect + /callback + 5 tests passing
+last_updated: "2026-05-02T00:43:04.745Z"
 last_activity: 2026-05-01
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 12
-  completed_plans: 7
-  percent: 12
+  completed_plans: 8
+  percent: 67
 ---
 
 # Project State — Viral Copy Generator
@@ -26,19 +26,19 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 
 ## Current Position
 
-Phase: 2 of 10 (Settings + Social OAuth) — EXECUTING (2/7 plans complete)
-Plan: 02-02 complete — Wave 2 done (settings HTTP surface + pg-mem integration tests)
-Status: 02-02 complete — ready to execute 02-03 (Google OAuth) or 02-04 (Meta OAuth) in Wave 3
-Last activity: 2026-05-01
+Phase: 2 of 10 (Settings + Social OAuth) — EXECUTING (3/7 plans complete)
+Plan: 02-03 complete — Wave 3 done (Google OAuth /connect + /callback + 5 tests passing)
+Status: 02-03 complete — ready to execute 02-04 (Meta OAuth) in Wave 3
+Last activity: 2026-05-02
 
-Progress: [█░░░░░░░░░] 12% (6 plans complete of ~50 estimated total)
+Progress: [███████░░░] 67%
 
 ## Phase Status
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
-| 2 | Settings + Social OAuth | 🟡 Executing (2/7 plans complete — 02-01 crypto, 02-02 settings surface done) |
+| 2 | Settings + Social OAuth | 🟡 Executing (3/7 plans complete — 02-01 crypto, 02-02 settings surface, 02-03 Google OAuth done) |
 | 3 | Video Upload + Analysis Engine | ⬜ Not started |
 | 4 | Virality Score + Checklist | ⬜ Not started |
 | 5 | AI Copy + Platform Cards | ⬜ Not started |
@@ -84,6 +84,9 @@ Progress: [█░░░░░░░░░] 12% (6 plans complete of ~50 estimate
 - **pg-mem v3.0.5 PatchedPool for drizzle tests** — pg-mem v3.0.5 lacks rowMode/getTypeParser/JSONB-merge; PatchedPool subclass in _helpers.ts intercepts and rewrites these in JS; test-only shim, production code unchanged
 - **Settings UPSERT partial-field update** — INSERT...onConflictDoUpdate uses dynamic Record<string,unknown> patch so PATCH with only default_niche does not overwrite api_key_encrypted
 - **TRUNCATE → DELETE in pg-mem tests** — pg-mem does not support TRUNCATE ... RESTART IDENTITY CASCADE; DELETE FROM table achieves per-test isolation
+- **OAuth callback before authMiddleware** — /callback router mounted before `app.use('/api', authMiddleware)`; Google redirect carries no Bearer token; state param provides CSRF + userId; /connect gated via per-route authMiddleware
+- **JSON on /connect not 302** — CORS hides Location header on cross-origin opaque redirects from XHR; frontend uses window.location.assign(auth_url); confirmed browser behaviour
+- **prompt=consent mandatory on Google OAuth** — without it refresh_token only issued on first connect; subsequent reconnects return no refresh_token (Pitfall 2)
 
 ### Critical Bugs to Avoid
 
@@ -106,6 +109,6 @@ Progress: [█░░░░░░░░░] 12% (6 plans complete of ~50 estimate
 
 ## Session Continuity
 
-Last session: 2026-05-01T21:25:33Z
-Stopped at: 02-02 complete — settings HTTP surface + OAuth stubs + 10 integration tests (all passing)
-Resume: Execute 02-03 (Google OAuth) or 02-04 (Meta OAuth) — both can run independently in Wave 3; app.ts already wired
+Last session: 2026-05-02T00:43:04.721Z
+Stopped at: 02-03 complete — Google OAuth /connect + /callback + 5 tests passing
+Resume: Execute 02-04 (Meta OAuth) — Wave 3, same app.ts pattern as 02-03

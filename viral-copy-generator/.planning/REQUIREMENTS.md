@@ -81,7 +81,8 @@ history, learning loops, admin panel, content research engine.
 - [x] **SETTINGS-01**: User can select AI provider and save their own API key — stored encrypted AES-256-GCM per user in DB, never in localStorage _(02-01, 02-02)_
 - [x] **SETTINGS-02**: User can set a default niche (pre-fills generation context for every analysis) _(02-02)_
 - [x] **SETTINGS-03**: User can toggle platforms on/off (YouTube / Instagram / Facebook / TikTok / X) _(02-02)_
-- [ ] **SETTINGS-04**: User can connect YouTube via Google OAuth 2.0 — server-side redirect flow; tokens stored backend-only per user
+- [x] **SETTINGS-04
+**: User can connect YouTube via Google OAuth 2.0 — server-side redirect flow; tokens stored backend-only per user
 - [ ] **SETTINGS-05**: User can connect Instagram + Facebook via Meta Instagram Login (July 2024) — correct 2025 scopes: `instagram_business_basic` + `instagram_business_content_publish`
 - [ ] **SETTINGS-06**: Phase 2 stores `page_id` + `page_access_token` from `GET /me/accounts` for Facebook Reels uploads
 - [ ] **SETTINGS-07**: Weekly pg-boss job refreshes 60-day Meta long-lived token before expiry (no refresh token exists — missed window requires re-auth)
