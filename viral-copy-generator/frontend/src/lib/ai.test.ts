@@ -5,7 +5,7 @@
 import { describe, it, expect, vi } from 'vitest'
 
 // Import will fail RED until Plan 05-03 creates ai.ts
-import { parseAIOutput, buildAICallParams } from './ai'
+import { parseAIOutput, buildAICallParams, getGeminiConfig } from './ai'
 
 describe('parseAIOutput — JSON robustness (AI-09)', () => {
   it('parses clean JSON object', () => {
@@ -75,8 +75,6 @@ describe('buildAICallParams — second pass (AI-11)', () => {
 
 describe('Gemini config — AI-06', () => {
   it('getGeminiConfig includes both responseMimeType and responseSchema', () => {
-    // Import will be available after Plan 05-03
-    const { getGeminiConfig } = require('./ai')
     const config = getGeminiConfig()
     expect(config.responseMimeType).toBe('application/json')
     expect(config.responseSchema).toBeDefined()
