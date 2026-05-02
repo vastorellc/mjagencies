@@ -1,7 +1,7 @@
 ---
 phase: 5
 slug: ai-copy-platform-cards
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-02
@@ -51,7 +51,6 @@ Standard 8-point scale. All values are multiples of 4.
 | 3xl | — | 64px | Not used in Phase 5 |
 
 Exceptions:
-- Upload area description textarea: `py-2.5` (10px) for comfortable touch target on mobile
 - Copy button touch target: minimum `min-h-[44px]` on mobile (iOS HIG touch target standard)
 - File picker label: `px-4 py-3` (16px/12px) to match existing form inputs in LoginPage
 
@@ -59,13 +58,13 @@ Exceptions:
 
 ## Typography
 
-Established pattern from LoginPage.tsx and existing components. Phase 5 adds no new type sizes.
+Established pattern from LoginPage.tsx and existing components. Phase 5 adds one type size for TikTok hook prominence.
 
 | Role | Size | Weight | Line Height | Tailwind classes |
 |------|------|--------|-------------|-----------------|
-| Body | 14px | 400 (normal) | 1.5 | `text-sm` (default leading) |
 | Label | 12px | 400 (normal) | 1.4 | `text-xs` |
-| Heading / Bold UI | 14px | 700 (bold) | 1.4 | `text-sm font-bold` |
+| Body | 14px | 400 (normal) | 1.5 | `text-sm` (default leading) |
+| Platform Hook | 16px | 700 (bold) | 1.4 | `text-base font-bold` |
 | App title / H1 | 24px | 700 (bold) | 1.2 | `text-2xl font-bold` |
 
 Weight rule (locked in STATE.md §"Accumulated Context"):
@@ -289,7 +288,7 @@ x:         "rounded-lg border-2 border-zinc-400 bg-zinc-900 p-4 flex flex-col ga
 **Tags/hashtags field** (array rendered as space-separated string for copy):
 ```
 <p class="text-sm text-zinc-100 flex flex-wrap gap-1">
-  {tags.map(tag => <span class="rounded bg-zinc-800 px-1.5 py-0.5 text-xs">{tag}</span>)}
+  {tags.map(tag => <span class="rounded bg-zinc-800 px-2 py-1 text-xs">{tag}</span>)}
 </p>
 ```
 Copy button copies `tags.join(' ')` (space-separated) for YouTube tags; `hashtags.join(' ')` for hashtag fields.
@@ -320,7 +319,7 @@ Copy button copies `tags.join(' ')` (space-separated) for YouTube tags; `hashtag
 1. Hook (copyable; labelled "Hook"; displayed prominently `text-base font-bold text-white`)
 2. Caption (copyable; char count `{n}/150`; overflow red at >150)
 3. Hashtags (copyable; count label `{n} tags`)
-4. Upload button: always `<button disabled class="rounded bg-zinc-800 px-3 py-1.5 text-xs text-zinc-500 cursor-not-allowed">Available once API approved</button>`
+4. Upload button: always `<button disabled class="rounded bg-zinc-800 px-3 py-1 text-xs text-zinc-500 cursor-not-allowed">Available once API approved</button>`
 
 ### Facebook Card — Fields Rendered
 
@@ -355,7 +354,7 @@ Spinner element: `<span class="inline-block h-4 w-4 animate-spin rounded-full bo
 Rendered only after first successful AI generation. Positioned directly below the X card (last card), before the ScorePanel.
 
 ```
-<button class="w-full rounded-lg border border-zinc-600 bg-zinc-800 py-2.5 text-sm text-zinc-200 transition hover:bg-zinc-700">
+<button class="w-full rounded-lg border border-zinc-600 bg-zinc-800 py-3 text-sm text-zinc-200 transition hover:bg-zinc-700">
   Get Better Version
 </button>
 ```
@@ -377,13 +376,13 @@ Implementation: `useState<Record<string, boolean>>` keyed by `"{platform}-{field
 
 | State | Classes | Label |
 |-------|---------|-------|
-| idle | `rounded bg-zinc-700 px-3 py-1.5 text-xs text-zinc-200 hover:bg-zinc-600` | "Upload" |
-| uploading | `rounded bg-zinc-700 px-3 py-1.5 text-xs text-zinc-400 cursor-not-allowed flex items-center gap-1` | Spinner + "Uploading…" |
-| posted | `rounded bg-green-800 px-3 py-1.5 text-xs text-green-200 cursor-default` | "Posted ✓" |
-| failed | `rounded bg-red-900 px-3 py-1.5 text-xs text-red-300 hover:bg-red-800` | "Retry Upload" |
+| idle | `rounded bg-zinc-700 px-3 py-1 text-xs text-zinc-200 hover:bg-zinc-600` | "Upload" |
+| uploading | `rounded bg-zinc-700 px-3 py-1 text-xs text-zinc-400 cursor-not-allowed flex items-center gap-1` | Spinner + "Uploading…" |
+| posted | `rounded bg-green-800 px-3 py-1 text-xs text-green-200 cursor-default` | "Posted ✓" |
+| failed | `rounded bg-red-900 px-3 py-1 text-xs text-red-300 hover:bg-red-800` | "Retry Upload" |
 
 TikTok upload (always):
-`rounded bg-zinc-800 px-3 py-1.5 text-xs text-zinc-500 cursor-not-allowed`
+`rounded bg-zinc-800 px-3 py-1 text-xs text-zinc-500 cursor-not-allowed`
 Label: "Available once API approved"
 
 X: no upload button rendered.
@@ -396,7 +395,7 @@ X: no upload button rendered.
 
 Retry button (rate limited / network error only):
 ```
-<button class="mt-1 rounded bg-zinc-700 px-3 py-1.5 text-xs text-zinc-200 hover:bg-zinc-600">
+<button class="mt-1 rounded bg-zinc-700 px-3 py-1 text-xs text-zinc-200 hover:bg-zinc-600">
   Try Again
 </button>
 ```
@@ -429,7 +428,7 @@ Single spinner + "Generating copy…" for the full duration of the AI call.
       rows="2"
       maxlength="280"
       placeholder="Optional: brief description — helps AI when video is ambiguous"
-      class="w-full rounded-lg bg-zinc-800 px-4 py-2.5 text-sm text-white placeholder-zinc-400 outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+      class="w-full rounded-lg bg-zinc-800 px-4 py-3 text-sm text-white placeholder-zinc-400 outline-none focus:ring-2 focus:ring-purple-500 resize-none"
     />
     <span class="text-right text-xs text-zinc-500">{description.length}/280</span>
   </label>
