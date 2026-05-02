@@ -45,7 +45,7 @@ decisions:
 metrics:
   duration: "319s"
   completed_date: "2026-05-02"
-  tasks_completed: 2
+  tasks_completed: 3
   tasks_total: 3
   files_created: 3
   files_modified: 3
@@ -61,7 +61,7 @@ Install three pinned AI SDK packages and scaffold four test files in RED state c
 |------|-------------|--------|--------|
 | 1 | Install AI SDK packages at pinned versions | d0cbc56 | Done |
 | 2 | Scaffold Wave 0 test stubs (RED state, all four files) | c66f54c | Done |
-| 3 | Checkpoint: Verify SDKs + Supabase Realtime | — | AWAITING HUMAN |
+| 3 | Checkpoint: Verify SDKs + Supabase Realtime | — | Done (human approved 2026-05-02) |
 
 ## What Was Built
 
