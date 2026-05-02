@@ -3,12 +3,16 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import GeneratorPage from './GeneratorPage'
 import type { EngineSignals } from '../lib/types'
 
-// Mock the supabase module — Sign out button calls supabase.auth.signOut()
+// Mock supabase — GeneratorPage uses auth (signOut, getSession, onAuthStateChange) + Realtime
 vi.mock('../lib/supabase', () => ({
   supabase: {
     auth: {
-      signOut: vi.fn().mockResolvedValue({ error: null }),
+      signOut:            vi.fn().mockResolvedValue({ error: null }),
+      getSession:         vi.fn().mockResolvedValue({ data: { session: null } }),
+      onAuthStateChange:  vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
     },
+    channel:       vi.fn().mockReturnValue({ on: vi.fn().mockReturnThis(), subscribe: vi.fn().mockReturnThis() }),
+    removeChannel: vi.fn().mockResolvedValue('ok'),
   },
 }))
 
@@ -37,10 +41,10 @@ function mockSignals(overrides: Partial<EngineSignals> = {}): EngineSignals {
 }
 
 describe('GeneratorPage — initial empty state', () => {
-  it('renders placeholder copy when no signals provided', () => {
+  it('renders upload area and generate button when no signals provided', () => {
     const onNavigate = vi.fn()
     render(<GeneratorPage onNavigate={onNavigate} />)
-    expect(screen.getByText(/Upload a short-form video/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /generate copy/i })).toBeInTheDocument()
     expect(screen.queryByTestId('score-results')).toBeNull()
   })
 

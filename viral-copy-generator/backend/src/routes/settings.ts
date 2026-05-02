@@ -134,6 +134,34 @@ settingsRouter.patch('/', async (req: Request, res: Response) => {
   })
 })
 
+// GET /settings/key — returns decrypted API key to the authenticated owner ONLY.
+// CLAUDE.md: key returned via dedicated endpoint, never embedded in general GET /settings.
+// Frontend calls this only immediately before callAI() — key stays in function scope.
+settingsRouter.get('/key', async (_req: Request, res: Response) => {
+  const userId = res.locals.userId as string
+  const rows = await db
+    .select({ api_key_encrypted: settings.api_key_encrypted })
+    .from(settings)
+    .where(eq(settings.user_id, userId))
+    .limit(1)
+
+  if (!rows[0]?.api_key_encrypted) {
+    res.json({ api_key: null })
+    return
+  }
+
+  let api_key: string | null = null
+  try {
+    api_key = decrypt(rows[0].api_key_encrypted)
+  } catch {
+    res.status(500).json({ error: 'key_decrypt_failed' })
+    return
+  }
+
+  // T-5-01: key returned to authenticated owner only — never logged, never in general GET
+  res.json({ api_key })
+})
+
 // SETTINGS-09: Disconnect a platform — JSONB merge patch sets the named key to null
 // without disturbing other platforms.
 settingsRouter.delete('/connections/:platform', async (req: Request, res: Response) => {
