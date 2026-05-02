@@ -191,13 +191,23 @@ describe("meta-token-refresh (SETTINGS-07)", () => {
   })
 
   it('Test 3: non-duplicate schedule error is re-thrown', async () => {
-    const boss = new FakeBoss()
-    ;(boss.schedule as unknown as ReturnType<typeof vi.fn>) = vi.fn(async () => {
-      throw new Error('connection refused — not a duplicate')
-    })
+    // Build a plain object boss double where schedule always throws a non-duplicate error
+    const boss = {
+      calls: [] as string[],
+      async createQueue(name: string): Promise<void> {
+        this.calls.push(`createQueue:${name}`)
+      },
+      async schedule(_name: string, _cron: string, _data: object): Promise<void> {
+        throw new Error('connection refused to pg-boss')
+      },
+      async work(name: string, _handler: (job: unknown) => Promise<void>): Promise<unknown> {
+        this.calls.push(`work:${name}`)
+        return null
+      },
+    }
     await expect(
       registerMetaTokenRefreshJob(boss as unknown as import('pg-boss').default),
-    ).rejects.toThrow('connection refused')
+    ).rejects.toThrow('connection refused to pg-boss')
   })
 
   it('Test 4: refreshAllInstagramTokens skips users without instagram (calls refresh exactly 2×)', async () => {
@@ -244,26 +254,28 @@ describe("meta-token-refresh (SETTINGS-07)", () => {
   })
 
   it('Test 7: expiry recomputed as Date.now() + expires_in * 1000', async () => {
-    const { db } = await import('../src/db/index.js')
-
-    // Capture the patch passed to the update call
-    let capturedPatch: unknown = null
-    ;(db.transaction as ReturnType<typeof vi.fn>).mockImplementation(
-      async (cb: (tx: unknown) => Promise<void>) => {
-        const tx = {
-          execute: vi.fn(),
-          update: vi.fn((_table: unknown) => ({
-            set: vi.fn((patch: unknown) => {
-              capturedPatch = patch
-              return { where: vi.fn(() => Promise.resolve()) }
-            }),
-          })),
+    // Capture the JSON.stringify call in the worker to extract the patch value.
+    // The worker calls JSON.stringify(patch) where patch = { instagram: { access_token, expiry } }.
+    // We spy on JSON.stringify to capture the argument before it is passed to the sql template.
+    let capturedInstagram: { access_token: string; expiry: number } | null = null
+    const origStringify = JSON.stringify.bind(JSON)
+    const stringifySpy = vi.spyOn(JSON, 'stringify').mockImplementation(
+      (value: unknown, ...rest: Parameters<typeof JSON.stringify> extends [unknown, ...infer R] ? R : never) => {
+        if (
+          value !== null &&
+          typeof value === 'object' &&
+          'instagram' in (value as object)
+        ) {
+          const v = value as { instagram: { access_token: string; expiry: number } }
+          capturedInstagram = v.instagram
         }
-        await cb(tx)
+        return origStringify(value, ...(rest as [undefined, undefined]))
       },
     )
 
+    const { db } = await import('../src/db/index.js')
     const before = Date.now()
+
     const { refreshInstagramToken } = await import('../src/lib/oauth-meta.js')
     ;(refreshInstagramToken as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       access_token: 'new-token',
@@ -277,14 +289,12 @@ describe("meta-token-refresh (SETTINGS-07)", () => {
     await refreshAllInstagramTokens()
     const after = Date.now()
 
-    expect(capturedPatch).not.toBeNull()
-    // The patch is passed as a drizzle set() object — we verify via JSON serialisation
-    const patchStr = JSON.stringify(capturedPatch)
-    // The patch should contain an expiry number in the JSON structure
-    const expiryMatch = patchStr.match(/"expiry":(\d+)/)
-    expect(expiryMatch).not.toBeNull()
-    const expiry = parseInt(expiryMatch![1], 10)
-    expect(expiry).toBeGreaterThanOrEqual(before + 5184000 * 1000)
-    expect(expiry).toBeLessThanOrEqual(after + 5184000 * 1000)
+    stringifySpy.mockRestore()
+
+    expect(capturedInstagram).not.toBeNull()
+    expect(capturedInstagram!.expiry).toBeGreaterThanOrEqual(before + 5184000 * 1000)
+    expect(capturedInstagram!.expiry).toBeLessThanOrEqual(after + 5184000 * 1000)
+    // Also verify the access_token was re-encrypted (decrypt should give back 'new-token')
+    expect(decrypt(capturedInstagram!.access_token)).toBe('new-token')
   })
 })
