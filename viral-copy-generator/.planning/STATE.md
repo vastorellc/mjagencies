@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 4 — Virality Score + Checklist (in progress, 1/8 plans complete)
-status: phase_in_progress
-stopped_at: 04-01 complete — score.ts library shipped (48/48 tests pass); next is 04-02 checklist.ts
-last_updated: "2026-05-02T03:24:00.000Z"
+current_phase: Phase 4 (Virality Score + Checklist) — 2/8 plans complete; Phase 3 paused at Wave 0 (fixtures deferred)
+status: paused
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-05-02T03:32:41.194Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 28
-  completed_plans: 13
-  percent: 22
+  completed_plans: 15
+  percent: 54
 ---
 
 # Project State — Viral Copy Generator
@@ -22,16 +22,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 3 paused at Wave 0 (fixtures deferred); pivoting to Phase 4 (Virality Score + Checklist)
+**Current phase:** Phase 4 (Virality Score + Checklist) — 2/8 plans complete; Phase 3 paused at Wave 0 (fixtures deferred)
 
 ## Current Position
 
-Phase: 4 of 10 (Virality Score + Checklist) — IN PROGRESS (1/8 plans complete)
-Plan: 04-01 complete (types.ts + score.ts + score.test.ts; 48/48 tests pass; tsc clean). Next: 04-02 checklist.ts.
+Phase: 4 of 10 (Virality Score + Checklist) — IN PROGRESS (2/8 plans complete)
+Plan: 04-02 complete (checklist.ts + checklist.test.ts; 41/41 tests pass; tsc clean). Next: 04-03 gaps.ts.
 Status: Phase 3 paused at Wave 0 awaiting fixture videos; Phase 4 active and unblocked (pure functions over mocked EngineSignals).
 Last activity: 2026-05-02
 
-Progress: [██░░░░░░░░] 22% (2 phases complete; Phase 3 paused; Phase 4 1/8 plans)
+Progress: [█████░░░░░] 54% (2 phases complete; Phase 3 paused; Phase 4 2/8 plans)
 
 ## Phase Status
 
@@ -40,7 +40,7 @@ Progress: [██░░░░░░░░] 22% (2 phases complete; Phase 3 pause
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
 | 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
-| 4 | Virality Score + Checklist | 🟡 In progress (1/8 plans — 04-01 score.ts library complete, 48/48 tests pass) |
+| 4 | Virality Score + Checklist | 🟡 In progress (2/8 plans — 04-01 score.ts + 04-02 checklist.ts complete; 89/89 lib tests pass) |
 | 5 | AI Copy + Platform Cards | ⬜ Not started |
 | 6 | Auto-Upload + Scheduling | ⬜ Not started |
 | 7 | History + Learning Loops | ⬜ Not started |
@@ -103,6 +103,11 @@ Progress: [██░░░░░░░░] 22% (2 phases complete; Phase 3 pause
 - **useState screen switcher in App.tsx** — currentScreen: 'generator' | 'settings'; no routing library; onNavigate prop threads the setter to child screens; Screen type in types.ts extensible for Phase 3+
 - **oauthBanner state in App.tsx not SettingsPage** — banner must survive the generator→settings screen transition triggered by the OAuth redirect params; App.tsx is the correct owner
 - **OAuth redirect params read in session-aware useEffect** — second useEffect depends on `session` so it only runs once the user is authenticated; history.replaceState strips params immediately after read
+- **ChecklistOptions camelCase shape** — `{ niche: Niche; enabledPlatforms: Platform[] }`; caller maps from `settings.default_niche / settings.enabled_platforms` at the GeneratorPage boundary
+- **beat_aligned_audio + no_long_silence return 'pending' when hasAudio=false** (D-25) — gap analysis (04-03) skips them so the user is not asked to fix what they cannot fix without audio
+- **vertical_for_reels_shorts info-only when no short-form platform enabled** — does not penalise X-only or Facebook-only users; only fails when the user has IG/TikTok/YouTube enabled AND aspect is wide
+- **no_face_niche_ok always status='pass'; label switches** — reassurance copy (`No-face content matches travel/hotel/drive niche…`) only when faceCount=0 AND niche in {travel, hotels, cars, bikes}; otherwise generic label
+- **fmt1/fmt2/fmtInt format helpers return 'unknown' for non-finite values** — guards every fix-string interpolation against NaN/Infinity leakage into UI
 
 ### Critical Bugs to Avoid
 
@@ -125,9 +130,10 @@ Progress: [██░░░░░░░░] 22% (2 phases complete; Phase 3 pause
 
 ## Session Continuity
 
-Last session: 2026-05-02T03:24:00Z
-Stopped at: Phase 4 Plan 04-01 complete — frontend/src/lib/{types.ts (extended), score.ts (new), score.test.ts (new, 48/48 pass)}; tsc clean; commits 9e48960, 953d229, 9f4331d
+Last session: 2026-05-02T03:32:41.147Z
+Stopped at: Completed 04-02-PLAN.md
 Resume:
-- Phase 4 (active): `/gsd-execute-phase 4` to continue with 04-02 (checklist.ts)
+
+- Phase 4 (active): `/gsd-execute-phase 4` to continue with 04-03 (gaps.ts)
 - Phase 3: drop 5 fixture videos into `viral-copy-generator/frontend/test/fixtures/` (per the README), then `/gsd-execute-phase 3` to resume from Plan 03-01 Task 3
 - Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`

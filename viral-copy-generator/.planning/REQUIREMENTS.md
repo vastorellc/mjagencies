@@ -44,10 +44,13 @@ history, learning loops, admin panel, content research engine.
 - [x] **SCORE-02**: Score shown with colour coding: red (0–39), amber (40–59), green (60–79), bright green (80–100) *(complete 2026-05-02 — 04-01 bandForScore)*
 - [x] **SCORE-03**: Score computed overall AND per platform (platform-weighted variants with defined weight tables) *(complete 2026-05-02 — 04-01 PLATFORM_WEIGHTS + computeScore returns ScoreResult{overall, perPlatform})*
 - [ ] **SCORE-04**: System shows expected view range per platform per score tier using platform-specific score (not overall score)
-- [ ] **SCORE-05**: System shows pass/fail/pending checklist: Video Technical + Metadata Quality (pending until AI runs) + Virality Boosters + Pakistan-specific niche checks
-- [ ] **SCORE-06**: Every failed checklist item shows a specific actionable fix with actual video values interpolated (e.g. "Silence gap: 3.2s — remove gaps over 1.5s")
+- [x] **SCORE-05
+**: System shows pass/fail/pending checklist: Video Technical + Metadata Quality (pending until AI runs) + Virality Boosters + Pakistan-specific niche checks
+- [x] **SCORE-06
+**: Every failed checklist item shows a specific actionable fix with actual video values interpolated (e.g. "Silence gap: 3.2s — remove gaps over 1.5s")
 - [ ] **SCORE-07**: System generates a rule-based gap analysis list triggered by checklist failures — zero AI cost
-- [ ] **SCORE-08**: Checklist item type is three-state: `pass | fail | pending` (Metadata Quality items are `pending` until Phase 5 AI output arrives)
+- [x] **SCORE-08
+**: Checklist item type is three-state: `pass | fail | pending` (Metadata Quality items are `pending` until Phase 5 AI output arrives)
 
 ### AI — AI Copy Generation
 
