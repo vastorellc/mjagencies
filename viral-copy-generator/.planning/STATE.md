@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 4 (Virality Score + Checklist) — 3/8 plans complete; Phase 3 paused at Wave 0 (fixtures deferred)
+current_phase: Phase 4 (Virality Score + Checklist) — 4/8 plans complete; Phase 3 paused at Wave 0 (fixtures deferred)
 status: paused
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-05-02T03:40:24.228Z"
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-05-02T03:44:49.799Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 28
-  completed_plans: 16
-  percent: 57
+  completed_plans: 17
+  percent: 61
 ---
 
 # Project State — Viral Copy Generator
@@ -22,16 +22,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 4 (Virality Score + Checklist) — 3/8 plans complete; Phase 3 paused at Wave 0 (fixtures deferred)
+**Current phase:** Phase 4 (Virality Score + Checklist) — 4/8 plans complete; Phase 3 paused at Wave 0 (fixtures deferred)
 
 ## Current Position
 
-Phase: 4 of 10 (Virality Score + Checklist) — IN PROGRESS (3/8 plans complete)
-Plan: 04-03 complete (gaps.ts + viewRange.ts; 42 new tests; 131/131 lib tests pass; tsc clean). Next: 04-04.
-Status: Phase 3 paused at Wave 0 awaiting fixture videos; Phase 4 Wave 1 functionally complete (score + checklist + gaps + viewRange); Wave 2 (UI components) unblocked.
+Phase: 4 of 10 (Virality Score + Checklist) — IN PROGRESS (4/8 plans complete)
+Plan: 04-04 complete (ScorePanel.tsx hero ring + calibration footer; 13 happy-dom tests pass; tsc clean). Next: 04-05.
+Status: Phase 3 paused at Wave 0 awaiting fixture videos; Phase 4 Wave 1 done; Wave 2 underway (1/4 UI components shipped — ScorePanel).
 Last activity: 2026-05-02
 
-Progress: [██████░░░░] 57%
+Progress: [██████░░░░] 61%
 
 ## Phase Status
 
@@ -40,7 +40,7 @@ Progress: [██████░░░░] 57%
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
 | 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
-| 4 | Virality Score + Checklist | 🟡 In progress (3/8 plans — 04-01 score.ts + 04-02 checklist.ts + 04-03 gaps.ts/viewRange.ts complete; 131/131 lib tests pass; Wave 1 done) |
+| 4 | Virality Score + Checklist | 🟡 In progress (4/8 plans — 04-01 score.ts + 04-02 checklist.ts + 04-03 gaps.ts/viewRange.ts + 04-04 ScorePanel.tsx complete; 131 lib tests + 13 ScorePanel tests pass; Wave 1 done, Wave 2 started) |
 | 5 | AI Copy + Platform Cards | ⬜ Not started |
 | 6 | Auto-Upload + Scheduling | ⬜ Not started |
 | 7 | History + Learning Loops | ⬜ Not started |
@@ -111,6 +111,8 @@ Progress: [██████░░░░] 57%
 - **GAP_GROUP_ORDER excludes 'metadata-quality'** (Plan 04-03) — defensive: even if a metadata-quality item somehow has status='fail', it has no bucket in the group map and is naturally dropped; group order video-technical → virality-boosters → niche-pakistan
 - **viewRangeFor takes platform's own score (SCORE-04), not overall** — caller passes `perPlatform[platform]` from ScoreResult; D-13 ranges are calibrated per-platform; the function itself is a pure Platform+score → string lookup
 - **VIEW_RANGES strings copied verbatim from D-13** — no concatenation/interpolation; IG and FB share identical tiers (both Meta algorithmic); test asserts parity to lock the design intent
+- **ScorePanel BAND_CLASSES Record<ColorBand,string>** (Plan 04-04) — full Tailwind class strings stored per band (not dynamic concatenation); Tailwind 4 JIT tree-shake fails on dynamic class names; pattern reused by all Phase 4 UI band-coloured components
+- **ScorePanel data-band attribute** — exposes the resolved ColorBand on the ring node for tests + future styling hooks; complements the className for assertion-without-Tailwind-coupling
 
 ### Critical Bugs to Avoid
 
@@ -133,10 +135,10 @@ Progress: [██████░░░░] 57%
 
 ## Session Continuity
 
-Last session: 2026-05-02T03:38:05Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-05-02T03:44:14.329Z
+Stopped at: Completed 04-04-PLAN.md
 Resume:
 
-- Phase 4 (active): `/gsd-execute-phase 4` to continue with 04-04 (Wave 2 UI starts)
+- Phase 4 (active): `/gsd-execute-phase 4` to continue with 04-05 (Wave 2 UI continues — PlatformCardGrid)
 - Phase 3: drop 5 fixture videos into `viral-copy-generator/frontend/test/fixtures/` (per the README), then `/gsd-execute-phase 3` to resume from Plan 03-01 Task 3
 - Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`
