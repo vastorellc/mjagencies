@@ -273,7 +273,15 @@ Claude direct with explicit flag, OpenAI via backend proxy.
 8. TikTok card: upload button greyed out, manual copy active; X card: copy only, no upload button
 9. Mobile layout — all cards, copy buttons reachable without horizontal scroll
 
-**Plans:** TBD
+**Plans:** 6 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Wave 0: SDK installs + test stubs (RED state, Nyquist)
+- [ ] 05-02-PLAN.md — Types + backend routes (AIOutput types, OpenAI proxy, POST /api/posts, CSP update)
+- [ ] 05-03-PLAN.md — prompt.ts + ai.ts (Gemini Files API, Claude browser, OpenAI routing, JSON robustness)
+- [ ] 05-04-PLAN.md — checklist.ts MQ re-evaluation + api.ts typed wrappers
+- [ ] 05-05-PLAN.md — PlatformCopyCard component (5 platforms, copy buttons, upload states, colour accents)
+- [ ] 05-06-PLAN.md — GeneratorPage integration (file picker, AI call, Realtime, Get Better Version) + checkpoint
 **UI hint:** yes
 
 ---
