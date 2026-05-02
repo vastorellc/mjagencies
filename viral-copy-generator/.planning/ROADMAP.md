@@ -140,7 +140,7 @@ Plans:
 - [x] 02-02-PLAN.md — Settings routes (GET/PATCH/disconnect) + OAuth route stubs + app.ts wiring (COMPLETE 2026-05-01)
 - [x] 02-03-PLAN.md — YouTube OAuth (googleapis 171.4.0, prompt=consent, encrypted tokens) (COMPLETE 2026-05-01)
 - [x] 02-04-PLAN.md — Meta OAuth (Instagram Login + Facebook Login for Business — two flows, account_type preflight, page selection) (COMPLETE 2026-05-02)
-- [ ] 02-05-PLAN.md — Weekly meta-token-refresh pg-boss job (60-day token, 7-day cadence)
+- [x] 02-05-PLAN.md — Weekly meta-token-refresh pg-boss job (60-day token, 7-day cadence) (COMPLETE 2026-05-02)
 - [ ] 02-06-PLAN.md — Frontend SettingsPage + App.tsx screen switcher + OAuth-redirect param handler
 - [ ] 02-07-PLAN.md — Verification: automated suite + curl smoke + manual OAuth round-trip checkpoint
 

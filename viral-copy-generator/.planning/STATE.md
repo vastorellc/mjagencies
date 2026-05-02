@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: "Phase 2 executing — 02-04 complete"
+current_phase: "Phase 2 executing — 02-05 complete"
 status: executing
-stopped_at: 02-04 complete — Meta OAuth /connect + /callback for Instagram + Facebook, 9 tests passing
-last_updated: "2026-05-02T01:11:07Z"
+stopped_at: 02-05 complete — Weekly Meta token refresh pg-boss job (SETTINGS-07), 7/7 tests passing
+last_updated: "2026-05-02T01:22:02Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 12
-  completed_plans: 9
-  percent: 75
+  completed_plans: 10
+  percent: 83
 ---
 
 # Project State — Viral Copy Generator
@@ -22,23 +22,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 1 complete — UAT passed (11/11), code review fixes applied
+**Current phase:** Phase 2 executing — 5/7 plans complete
 
 ## Current Position
 
-Phase: 2 of 10 (Settings + Social OAuth) — EXECUTING (4/7 plans complete)
-Plan: 02-04 complete — Wave 3 done (Meta OAuth Instagram + Facebook /connect + /callback + 9 tests passing)
-Status: 02-04 complete — ready to execute 02-05 (weekly Meta token refresh pg-boss job) in Wave 4
+Phase: 2 of 10 (Settings + Social OAuth) — EXECUTING (5/7 plans complete)
+Plan: 02-05 complete — Wave 4 done (Weekly Meta token refresh pg-boss job, cron '0 9 * * 1', 7 tests passing)
+Status: 02-05 complete — ready to execute 02-06 (Settings UI frontend) in Wave 4
 Last activity: 2026-05-02
 
-Progress: [███████░░░] 75%
+Progress: [████████░░] 83%
 
 ## Phase Status
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
-| 2 | Settings + Social OAuth | 🟡 Executing (4/7 plans complete — 02-01 crypto, 02-02 settings surface, 02-03 Google OAuth, 02-04 Meta OAuth done) |
+| 2 | Settings + Social OAuth | 🟡 Executing (5/7 plans complete — 02-01 crypto, 02-02 settings surface, 02-03 Google OAuth, 02-04 Meta OAuth, 02-05 weekly refresh done) |
 | 3 | Video Upload + Analysis Engine | ⬜ Not started |
 | 4 | Virality Score + Checklist | ⬜ Not started |
 | 5 | AI Copy + Platform Cards | ⬜ Not started |
@@ -93,6 +93,8 @@ Progress: [███████░░░] 75%
 - **PERSONAL Instagram account rejection** — PERSONAL accounts cannot publish via API; account_type preflight GET /me?fields=account_type before DB write; PERSONAL -> failRedirect without storing any token (Pitfall 4)
 - **Facebook no-page -> setup_required flag** — when /me/accounts returns no page with CREATE_CONTENT task, store `{ setup_required: true }` in platform_config.facebook and redirect with warning=no_facebook_page; UI surfaces "Create Facebook Page" CTA (Open Question 1)
 - **PlatformConfig.facebook widened to union type** — `{ access_token, page_id, expiry } | { setup_required: true } | null`; no as-unknown cast needed (CLAUDE.md rule 9)
+- **Test assertion error message must not contain 'duplicate' substring** — the meta-refresh duplicate-swallow catch block checks msg.includes('duplicate'); test error messages used to verify re-throw must not contain this substring
+- **SettingsRow type with index signature [key: string]: unknown** — required for db.execute<T extends Record<string,unknown>> generic constraint; type alias (not interface) with index signature satisfies constraint without cast
 
 ### Critical Bugs to Avoid
 
@@ -115,6 +117,6 @@ Progress: [███████░░░] 75%
 
 ## Session Continuity
 
-Last session: 2026-05-02T01:11:07Z
-Stopped at: 02-04 complete — Meta OAuth Instagram + Facebook /connect + /callback + 9 tests passing
-Resume: Execute 02-05 (weekly Meta token refresh pg-boss job) — Wave 4
+Last session: 2026-05-02T01:22:02Z
+Stopped at: 02-05 complete — Weekly Meta token refresh pg-boss job, 7/7 tests passing
+Resume: Execute 02-06 (Settings UI frontend) — Wave 4
