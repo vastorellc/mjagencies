@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 5 (AI Copy + Platform Cards) — planning in progress
-status: in_progress
-stopped_at: Phase 4 verified — advancing to Phase 5
-last_updated: "2026-05-02T08:00:00Z"
+current_phase: Phase 5 (AI Copy + Platform Cards) — executing
+status: paused_at_checkpoint
+stopped_at: "05-01 checkpoint:human-verify — SDK install + Wave 0 stubs complete; awaiting Supabase Realtime confirmation"
+last_updated: "2026-05-02T09:12:43Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 10
   completed_phases: 4
-  total_plans: 28
-  completed_plans: 28
-  percent: 100
+  total_plans: 34
+  completed_plans: 29
+  percent: 85
 ---
 
 # Project State — Viral Copy Generator
@@ -22,16 +22,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 4 complete (8/8 plans) — run `/gsd-verify-work 4` to close, then `/clear` + `/gsd-discuss-phase 5`
+**Current phase:** Phase 5 (AI Copy + Platform Cards) — executing, paused at checkpoint 05-01
 
 ## Current Position
 
-Phase: 4 of 10 (Virality Score + Checklist) — COMPLETE (8/8 plans)
-Plan: 04-08 complete (GeneratorPage integration — all 4 Phase 4 components wired via useMemo; 179/179 unit tests; 84 modules / 424 kB build).
-Status: Phase 4 done; Phase 3 still paused at Wave 0 awaiting fixture videos.
+Phase: 5 of 10 (AI Copy + Platform Cards) — IN PROGRESS (1/6 plans; paused at checkpoint)
+Plan: 05-01 checkpoint — SDK install + Wave 0 test stubs complete; awaiting Supabase Realtime verification.
+Status: Paused at `checkpoint:human-verify` in 05-01. Resume after user confirms Supabase Realtime ON for `platform_posts`.
 Last activity: 2026-05-02
 
-Progress: [█████████░] 96%
+Progress: [█████████░] 85%
 
 ## Phase Status
 
@@ -41,7 +41,7 @@ Progress: [█████████░] 96%
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
 | 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
 | 4 | Virality Score + Checklist | ✅ Complete (8/8 plans, 179/179 tests, verification 6/6 passed 2026-05-02) |
-| 5 | AI Copy + Platform Cards | ⬜ Not started |
+| 5 | AI Copy + Platform Cards | 🔄 In progress (1/6 plans; paused checkpoint:human-verify) |
 | 6 | Auto-Upload + Scheduling | ⬜ Not started |
 | 7 | History + Learning Loops | ⬜ Not started |
 | 8 | Admin Panel | ⬜ Not started |

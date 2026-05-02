@@ -276,7 +276,7 @@ Claude direct with explicit flag, OpenAI via backend proxy.
 **Plans:** 6 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Wave 0: SDK installs + test stubs (RED state, Nyquist)
+- [x] 05-01-PLAN.md — Wave 0: SDK installs + test stubs (RED state, Nyquist) *(complete 2026-05-02 — 2/2 auto tasks done; paused checkpoint:human-verify — Supabase Realtime)*
 - [ ] 05-02-PLAN.md — Types + backend routes (AIOutput types, OpenAI proxy, POST /api/posts, CSP update)
 - [ ] 05-03-PLAN.md — prompt.ts + ai.ts (Gemini Files API, Claude browser, OpenAI routing, JSON robustness)
 - [ ] 05-04-PLAN.md — checklist.ts MQ re-evaluation + api.ts typed wrappers
