@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: "Phase 2 executing — 02-03 complete"
+current_phase: "Phase 2 executing — 02-04 complete"
 status: executing
-stopped_at: 02-03 complete — Google OAuth /connect + /callback + 5 tests passing
-last_updated: "2026-05-02T00:43:04.745Z"
-last_activity: 2026-05-01
+stopped_at: 02-04 complete — Meta OAuth /connect + /callback for Instagram + Facebook, 9 tests passing
+last_updated: "2026-05-02T01:11:07Z"
+last_activity: 2026-05-02
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 12
-  completed_plans: 8
-  percent: 67
+  completed_plans: 9
+  percent: 75
 ---
 
 # Project State — Viral Copy Generator
@@ -26,19 +26,19 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 
 ## Current Position
 
-Phase: 2 of 10 (Settings + Social OAuth) — EXECUTING (3/7 plans complete)
-Plan: 02-03 complete — Wave 3 done (Google OAuth /connect + /callback + 5 tests passing)
-Status: 02-03 complete — ready to execute 02-04 (Meta OAuth) in Wave 3
+Phase: 2 of 10 (Settings + Social OAuth) — EXECUTING (4/7 plans complete)
+Plan: 02-04 complete — Wave 3 done (Meta OAuth Instagram + Facebook /connect + /callback + 9 tests passing)
+Status: 02-04 complete — ready to execute 02-05 (weekly Meta token refresh pg-boss job) in Wave 4
 Last activity: 2026-05-02
 
-Progress: [███████░░░] 67%
+Progress: [███████░░░] 75%
 
 ## Phase Status
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
-| 2 | Settings + Social OAuth | 🟡 Executing (3/7 plans complete — 02-01 crypto, 02-02 settings surface, 02-03 Google OAuth done) |
+| 2 | Settings + Social OAuth | 🟡 Executing (4/7 plans complete — 02-01 crypto, 02-02 settings surface, 02-03 Google OAuth, 02-04 Meta OAuth done) |
 | 3 | Video Upload + Analysis Engine | ⬜ Not started |
 | 4 | Virality Score + Checklist | ⬜ Not started |
 | 5 | AI Copy + Platform Cards | ⬜ Not started |
@@ -84,9 +84,15 @@ Progress: [███████░░░] 67%
 - **pg-mem v3.0.5 PatchedPool for drizzle tests** — pg-mem v3.0.5 lacks rowMode/getTypeParser/JSONB-merge; PatchedPool subclass in _helpers.ts intercepts and rewrites these in JS; test-only shim, production code unchanged
 - **Settings UPSERT partial-field update** — INSERT...onConflictDoUpdate uses dynamic Record<string,unknown> patch so PATCH with only default_niche does not overwrite api_key_encrypted
 - **TRUNCATE → DELETE in pg-mem tests** — pg-mem does not support TRUNCATE ... RESTART IDENTITY CASCADE; DELETE FROM table achieves per-test isolation
-- **OAuth callback before authMiddleware** — /callback router mounted before `app.use('/api', authMiddleware)`; Google redirect carries no Bearer token; state param provides CSRF + userId; /connect gated via per-route authMiddleware
+- **OAuth callback before authMiddleware** — /callback router mounted before `app.use('/api', authMiddleware)`; Google + Meta redirects carry no Bearer token; state param provides CSRF + userId; /connect gated via per-route authMiddleware
 - **JSON on /connect not 302** — CORS hides Location header on cross-origin opaque redirects from XHR; frontend uses window.location.assign(auth_url); confirmed browser behaviour
 - **prompt=consent mandatory on Google OAuth** — without it refresh_token only issued on first connect; subsequent reconnects return no refresh_token (Pitfall 2)
+- **Two separate Meta OAuth flows** — Instagram Login (api.instagram.com, instagram_business_basic + instagram_business_content_publish) and Facebook Login for Business (graph.facebook.com, pages_show_list + pages_manage_posts + pages_read_engagement); same META_APP_ID/META_APP_SECRET but different authorization servers (research Pitfall 9)
+- **Instagram #_ code trim** — Meta appends `#_` to the redirect URI code; strip with `code.replace(/#_$/, '')` before token exchange (Pitfall 1)
+- **Instagram short->long-lived exchange mandatory** — short-lived (1h) token from code exchange must be exchanged for long-lived (60-day) before storage; no refresh_token — weekly ig_refresh_token grant extends it
+- **PERSONAL Instagram account rejection** — PERSONAL accounts cannot publish via API; account_type preflight GET /me?fields=account_type before DB write; PERSONAL -> failRedirect without storing any token (Pitfall 4)
+- **Facebook no-page -> setup_required flag** — when /me/accounts returns no page with CREATE_CONTENT task, store `{ setup_required: true }` in platform_config.facebook and redirect with warning=no_facebook_page; UI surfaces "Create Facebook Page" CTA (Open Question 1)
+- **PlatformConfig.facebook widened to union type** — `{ access_token, page_id, expiry } | { setup_required: true } | null`; no as-unknown cast needed (CLAUDE.md rule 9)
 
 ### Critical Bugs to Avoid
 
@@ -109,6 +115,6 @@ Progress: [███████░░░] 67%
 
 ## Session Continuity
 
-Last session: 2026-05-02T00:43:04.721Z
-Stopped at: 02-03 complete — Google OAuth /connect + /callback + 5 tests passing
-Resume: Execute 02-04 (Meta OAuth) — Wave 3, same app.ts pattern as 02-03
+Last session: 2026-05-02T01:11:07Z
+Stopped at: 02-04 complete — Meta OAuth Instagram + Facebook /connect + /callback + 9 tests passing
+Resume: Execute 02-05 (weekly Meta token refresh pg-boss job) — Wave 4

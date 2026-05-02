@@ -138,8 +138,8 @@ pg-boss job keeps Meta tokens alive automatically.
 Plans:
 - [x] 02-01-PLAN.md — Crypto + env validation + OAuth credentials checkpoint (encryption.ts, oauth-state.ts, .env.example) [BLOCKING] (COMPLETE 2026-05-01)
 - [x] 02-02-PLAN.md — Settings routes (GET/PATCH/disconnect) + OAuth route stubs + app.ts wiring (COMPLETE 2026-05-01)
-- [ ] 02-03-PLAN.md — YouTube OAuth (googleapis 171.4.0, prompt=consent, encrypted tokens)
-- [ ] 02-04-PLAN.md — Meta OAuth (Instagram Login + Facebook Login for Business — two flows, account_type preflight, page selection)
+- [x] 02-03-PLAN.md — YouTube OAuth (googleapis 171.4.0, prompt=consent, encrypted tokens) (COMPLETE 2026-05-01)
+- [x] 02-04-PLAN.md — Meta OAuth (Instagram Login + Facebook Login for Business — two flows, account_type preflight, page selection) (COMPLETE 2026-05-02)
 - [ ] 02-05-PLAN.md — Weekly meta-token-refresh pg-boss job (60-day token, 7-day cadence)
 - [ ] 02-06-PLAN.md — Frontend SettingsPage + App.tsx screen switcher + OAuth-redirect param handler
 - [ ] 02-07-PLAN.md — Verification: automated suite + curl smoke + manual OAuth round-trip checkpoint
@@ -474,7 +474,7 @@ indeterminate progress animation, and error boundaries throughout.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Backend + Auth Foundation | 5/5 | Complete | 2026-05-01 |
-| 2. Settings + Social OAuth | 0/7 | Not started | - |
+| 2. Settings + Social OAuth | 4/7 | Executing | - |
 | 3. Video Upload + Analysis Engine | 0/TBD | Not started | - |
 | 4. Virality Score + Checklist | 0/TBD | Not started | - |
 | 5. AI Copy + Platform Cards | 0/TBD | Not started | - |
