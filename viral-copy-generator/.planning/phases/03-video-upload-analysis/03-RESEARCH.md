@@ -951,32 +951,32 @@ Extracted from `viral-copy-generator/CLAUDE.md` — these are **enforcement-grad
 
 **Confirmation needed:** A2/A3 should be tuned against the 5 fixture videos in Wave 0 — flag this for the planner to schedule a calibration task.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should ffmpeg-core be self-hosted (`public/ffmpeg/`) vs CDN-loaded?**
    - What we know: CDN is simpler and Phase 1 has no perf budget yet. Self-host eliminates CDN dependency and lets us add SRI eventually.
    - What's unclear: Does jsdelivr have rate limits that would bite at scale? Unknown.
-   - Recommendation: **Start with CDN** (toBlobURL, baseURL = `https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd`); revisit in Phase 10 polish if user reports show slow first-load. Adding self-hosting later is a 5-line change.
+   - **RESOLVED:** Start with CDN (toBlobURL, baseURL = `https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd`). Plan 03-02 implements this. Revisit in Phase 10 polish if user reports show slow first-load. Adding self-hosting later is a 5-line change.
 
 2. **Should beat detection use `spectralFlux` only, or add tempo (BPM) tracking?**
    - What we know: Meyda doesn't ship a BPM tracker — only the building blocks. Phase 4 score formula treats beat as binary (`beatPresent`).
    - What's unclear: Does Phase 4 derive value from BPM number vs binary?
-   - Recommendation: **Binary `beatPresent` only in Phase 3**. If Phase 4 wants BPM, add `web-audio-beat-detector` library or similar in Phase 10 polish.
+   - **RESOLVED:** Binary `beatPresent` only in Phase 3. Plan 03-06 uses spectralFlux mean threshold. If Phase 4 wants BPM, add `web-audio-beat-detector` library or similar in Phase 10 polish.
 
 3. **How to handle videos shorter than ~3 seconds?**
    - What we know: For 90 frames total at 30fps, N = 9 → ~10 frames. For < 30 frames (1s video), N = 3 → ~10 frames may be visually identical.
    - What's unclear: ROADMAP doesn't specify a minimum duration.
-   - Recommendation: **Soft warning** if `durationSec < 5` ("Very short videos may not produce reliable analysis") — non-blocking. Add to D-10-style banner area.
+   - **RESOLVED:** Soft warning if `durationSec < 5` ("Very short videos may not produce reliable analysis") — non-blocking advisory. Implementation lives in 03-07 (GeneratorPage state machine surfaces warning when EngineSignals.durationSec < 5).
 
 4. **Pre-warm timing — block Analyse button or let it queue?**
    - What we know: D-07 says background pre-warm; "Preparing models…" appears only if user clicks Analyse before pre-warm done.
    - What's unclear: If user clicks Analyse during pre-warm, does the click queue (analyse() awaits warmup()) or block?
-   - Recommendation: **Queue.** `analyse()` calls `await warmup()` internally, which resolves immediately if already warm. UI shows "Preparing models…" while waiting.
+   - **RESOLVED:** Queue. `analyse()` calls `await warmup()` internally, which resolves immediately if already warm. UI shows "Preparing models…" while waiting. Plan 03-02 implements this pattern; Plan 03-07 surfaces the lazy "Preparing models…" label only when the queue is non-empty.
 
 5. **Worker thread for engine.ts?**
    - What we know: ffmpeg.wasm 0.12.x already runs in its own internal worker. TF.js uses WebGL on main thread. Meyda is sync.
    - What's unclear: Does main-thread blocking on Meyda windows cause UI jank?
-   - Recommendation: **No worker for v1**. Profile in Phase 10; if needed, move audio analysis to a worker.
+   - **RESOLVED:** No worker for v1. engine.ts runs on main thread (ffmpeg.wasm has its own internal worker, TF.js uses WebGL). Profile in Phase 10 polish; if Meyda windows cause UI jank, move audio analysis to a worker then.
 
 ## Sources
 
