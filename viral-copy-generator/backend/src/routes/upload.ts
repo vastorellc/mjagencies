@@ -1,6 +1,7 @@
 // backend/src/routes/upload.ts
 // POST /api/upload/file  — multer disk storage, 260 MB limit
 // POST /api/upload/schedule — enqueue pg-boss job; filePath/publicUrl derived server-side
+// GET  /api/upload/peak-times — returns next 2 PKT peak-time slots for a given platform
 import { Router, type Request, type Response } from 'express'
 import multer from 'multer'
 import { randomUUID } from 'node:crypto'
@@ -8,6 +9,7 @@ import path from 'node:path'
 import { mkdir, rename, stat } from 'node:fs/promises'
 import { UPLOADS_ROOT } from '../lib/storage.js'
 import { getBoss } from '../lib/boss.js'
+import { getPeakTimes, type SchedulablePlatform } from '../lib/scheduling.js'
 import { db } from '../db/index.js'
 import { platform_posts } from '../db/schema.js'
 import { eq, and } from 'drizzle-orm'
@@ -199,4 +201,19 @@ uploadRouter.post('/schedule', async (req: Request, res: Response): Promise<void
   await boss.send(jobName, payload, sendOptions)
 
   res.json({ ok: true, platformPostId })
+})
+
+// GET /api/upload/peak-times?platform=<platform>
+// Returns { slots: string[] } — up to 2 upcoming PKT peak-time slots as UTC ISO-8601 strings.
+// Allowlist check on platform param guards against injection (T-06-11).
+const PEAK_VALID_PLATFORMS = ['youtube', 'instagram', 'tiktok', 'facebook', 'x']
+
+uploadRouter.get('/peak-times', (req: Request, res: Response): void => {
+  const platform = req.query['platform'] as string | undefined
+  if (!platform || !PEAK_VALID_PLATFORMS.includes(platform)) {
+    res.status(400).json({ error: 'invalid_platform' })
+    return
+  }
+  const slots = getPeakTimes(platform as SchedulablePlatform)
+  res.json({ slots })
 })
