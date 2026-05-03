@@ -10,6 +10,7 @@ import { authMetaRouter } from './routes/auth-meta.js'
 import { aiRouter } from './routes/ai.js'
 import { uploadRouter } from './routes/upload.js'
 import { platformPostsRouter } from './routes/platformPosts.js'
+import { learningRouter } from './routes/learning.js'
 import pino from 'pino'
 
 const logger = pino({
@@ -74,6 +75,7 @@ app.use('/api/upload', uploadRouter)
 
 // ── Phase 7: History view logging + learning loops (auth-gated by app.use('/api', authMiddleware) above) ──
 app.use('/api/platform-posts', platformPostsRouter)
+app.use('/api/learning', learningRouter)
 
 // ── 404 handler ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {
