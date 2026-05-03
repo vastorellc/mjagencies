@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 8 (Admin Panel) — ready to plan
-status: planning
-stopped_at: Completed 08-01-PLAN.md — adminMiddleware + adminRouter scaffold
-last_updated: "2026-05-03T20:11:34.042Z"
+current_phase: Phase 8 (Admin Panel) — executing (2/8 plans complete)
+status: executing
+stopped_at: Completed 08-02-PLAN.md — pg-boss queue management endpoints
+last_updated: "2026-05-03T20:16:58.250Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 53
-  completed_plans: 39
-  percent: 74
+  completed_plans: 40
+  percent: 75
 ---
 
 # Project State — Viral Copy Generator
@@ -27,11 +27,11 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 ## Current Position
 
 Phase: 8 of 10 (Admin Panel)
-Plan: —
-Status: Phase 7 provisionally complete (20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` once backend .env is configured and both servers restarted). Ready to plan Phase 8.
+Plan: 08-02 complete (2/8 plans)
+Status: Executing Phase 8. 08-02 complete — pg-boss queue management endpoints (GET /jobs, POST /jobs/:id/retry, DELETE /jobs/:id) added to adminRouter. Next: 08-03.
 Last activity: 2026-05-03
 
-Progress: [███████░░░] 74%
+Progress: [████████░░] 75%
 
 ## Phase Status
 
@@ -44,7 +44,7 @@ Progress: [███████░░░] 74%
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
 | 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
-| 8 | Admin Panel | 🔄 Executing (1/8 plans) |
+| 8 | Admin Panel | 🔄 Executing (2/8 plans) |
 | 9 | Content Research Engine | ⬜ Not started |
 | 10 | Polish + Resilience | ⬜ Not started |
 
@@ -144,6 +144,7 @@ Progress: [███████░░░] 74%
 - **vitest.config.ts include covers both test directories** — backend uses tests/ (integration) and src/test/ (unit); include: ['tests/**/*.test.ts', 'src/test/**/*.test.ts']
 - **adminMiddleware is synchronous** — reads already-populated res.locals.user; no async/await; avoids Express 5 async error forwarding edge case for sync handlers; app_metadata.role read exclusively from server-side Supabase field
 - **Double-gate admin auth pattern** — authMiddleware at app.use('/api') (401 without JWT) then adminMiddleware at router.use() inside adminRouter (403 without admin role); both required per ADMIN-01
+- **pg-boss v12 resume/cancel take (name, id) not (id)** — boss.resume(name, jobId) and boss.cancel(name, jobId); queue name looked up from pgboss.job before each call so the public API remains jobId-only; returns 404 if job not found
 
 ### Critical Bugs to Avoid
 
@@ -166,8 +167,8 @@ Progress: [███████░░░] 74%
 
 ## Session Continuity
 
-Last session: 2026-05-03T20:11:33.980Z
-Stopped at: Completed 08-01-PLAN.md — adminMiddleware + adminRouter scaffold
+Last session: 2026-05-03T20:16:58.206Z
+Stopped at: Completed 08-02-PLAN.md — pg-boss queue management endpoints
 Resume:
 
 - Phase 8: `/gsd-plan-phase 8` → Admin Panel

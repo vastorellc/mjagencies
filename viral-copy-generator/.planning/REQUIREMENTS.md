@@ -148,8 +148,10 @@ history, learning loops, admin panel, content research engine.
 
 - [x] **ADMIN-01
 **: Admin panel is a separate screen accessible only to users with `role: 'admin'` JWT claim — frontend guard + backend middleware both enforce this
-- [ ] **ADMIN-02**: Admin can view all pg-boss jobs (pending, active, failed, completed) across all users with job type, user_id, platform, scheduled time
-- [ ] **ADMIN-03**: Admin can retry any failed upload job or cancel any pending job
+- [x] **ADMIN-02
+**: Admin can view all pg-boss jobs (pending, active, failed, completed) across all users with job type, user_id, platform, scheduled time
+- [x] **ADMIN-03
+**: Admin can retry any failed upload job or cancel any pending job
 - [ ] **ADMIN-04**: Admin can view all registered users — email, join date, last active, upload count, connected platforms
 - [ ] **ADMIN-05**: Admin can disable/enable any user account
 - [ ] **ADMIN-06**: Admin can view and reset learning data for any user (learning_signals + learned_weights)
