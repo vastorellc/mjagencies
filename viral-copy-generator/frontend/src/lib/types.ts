@@ -162,3 +162,26 @@ export interface AIProxyBody {
   prompt: string
   frames?: string[]  // base64 JPEGs; omit on second pass (D-05)
 }
+
+// ============================================================================
+// Phase 6: Auto-Upload + Scheduling
+// ============================================================================
+
+export interface UploadFileResponse {
+  fileId: string
+  publicUrl: string
+}
+
+export interface ScheduleUploadBody {
+  postId: string
+  platform: string
+  fileId: string
+  caption: string
+  hashtags: string[]
+  scheduledAt?: string   // ISO-8601 UTC; omit for immediate dispatch
+}
+
+export interface ScheduleUploadResponse {
+  ok: boolean
+  platformPostId: string
+}
