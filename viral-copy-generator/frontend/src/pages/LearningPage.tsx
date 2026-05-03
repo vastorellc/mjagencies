@@ -108,7 +108,7 @@ export default function LearningPage({ onNavigate }: Props) {
                     return (
                       <div key={i} className="flex flex-col gap-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-zinc-200 truncate pr-2 max-w-[75%]">{hook.hook_text}</span>
+                          <span className="text-zinc-200 truncate pr-2" style={{ maxWidth: '75%' }}>{hook.hook_text}</span>
                           <span className="text-zinc-400 shrink-0">{fmt(hook.max_views)} views</span>
                         </div>
                         {/* LEARNING-03: inline style width -- NEVER dynamic Tailwind class */}
