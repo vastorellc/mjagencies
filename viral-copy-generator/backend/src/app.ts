@@ -9,6 +9,7 @@ import { authGoogleRouter } from './routes/auth-google.js'
 import { authMetaRouter } from './routes/auth-meta.js'
 import { aiRouter } from './routes/ai.js'
 import { uploadRouter } from './routes/upload.js'
+import { platformPostsRouter } from './routes/platformPosts.js'
 import pino from 'pino'
 
 const logger = pino({
@@ -70,6 +71,9 @@ app.use('/api/ai', aiRouter)
 
 // ── Phase 6: Upload + scheduling (auth-gated by app.use('/api', authMiddleware) above) ──
 app.use('/api/upload', uploadRouter)
+
+// ── Phase 7: History view logging + learning loops (auth-gated by app.use('/api', authMiddleware) above) ──
+app.use('/api/platform-posts', platformPostsRouter)
 
 // ── 404 handler ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {
