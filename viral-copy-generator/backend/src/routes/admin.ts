@@ -8,6 +8,12 @@ import { getBoss } from '../lib/boss.js'
 import { eq, sql } from 'drizzle-orm'
 import { learning_signals, settings, platform_posts, posts } from '../db/schema.js'
 import { supabaseAdmin } from '../lib/supabase.js'
+import os from 'os'
+import { exec } from 'child_process'
+import { promisify } from 'util'
+import { readFile } from 'fs/promises'
+
+const execAsync = promisify(exec)
 
 export const adminRouter = Router()
 
@@ -338,5 +344,76 @@ adminRouter.get('/stats/platforms', async (_req, res) => {
         ? Math.round((totalSucceeded / totalUploads) * 100)
         : 0,
     },
+  })
+})
+
+// ── ADMIN-07: System health dashboard ────────────────────────────────────────
+// Returns VPS CPU/memory, disk usage via df -h, and Supabase DB size via SQL.
+// Disk usage: exec('df -h /var') — /var is where VPS uploads are stored.
+// Fail-partial: if disk or DB query fails, returns what is available + error field.
+adminRouter.get('/health', async (_req, res) => {
+  const cpuCount = os.cpus().length
+  const totalMemMB = Math.round(os.totalmem() / (1024 * 1024))
+  const freeMemMB = Math.round(os.freemem() / (1024 * 1024))
+  const usedMemMB = totalMemMB - freeMemMB
+  const memUsePct = Math.round((usedMemMB / totalMemMB) * 100)
+
+  // Disk usage — parse df -h /var output
+  let diskInfo: { size: string; used: string; avail: string; usePct: string } | null = null
+  let diskError: string | null = null
+  try {
+    const { stdout } = await execAsync('df -h /var')
+    const lines = stdout.trim().split('\n')
+    // Second line has the data row: Filesystem Size Used Avail Use% Mountpoint
+    const parts = lines[1]?.split(/\s+/) ?? []
+    if (parts.length >= 5) {
+      diskInfo = {
+        size: parts[1] ?? '?',
+        used: parts[2] ?? '?',
+        avail: parts[3] ?? '?',
+        usePct: parts[4] ?? '?',
+      }
+    }
+  } catch (err: unknown) {
+    diskError = (err as Error).message ?? 'df command failed'
+  }
+
+  // Supabase DB size — raw SQL query on current database
+  let dbSize: string | null = null
+  let dbError: string | null = null
+  try {
+    const result = await db.execute<{ db_size: string }>(
+      sql`SELECT pg_size_pretty(pg_database_size(current_database())) AS db_size`
+    )
+    dbSize = result.rows[0]?.db_size ?? null
+  } catch (err: unknown) {
+    dbError = (err as Error).message ?? 'DB size query failed'
+  }
+
+  // pg-boss queue depth — count of pending/active jobs
+  let queueDepth = 0
+  try {
+    const queueResult = await db.execute<{ depth: string }>(
+      sql`SELECT COUNT(*)::text AS depth FROM pgboss.job WHERE state IN ('created', 'active', 'retry')`
+    )
+    queueDepth = parseInt(queueResult.rows[0]?.depth ?? '0', 10)
+  } catch {
+    // Non-fatal — leave queueDepth at 0
+  }
+
+  res.json({
+    cpu: { count: cpuCount },
+    memory: {
+      total_mb: totalMemMB,
+      free_mb: freeMemMB,
+      used_mb: usedMemMB,
+      use_pct: memUsePct,
+    },
+    disk: diskInfo ?? { error: diskError },
+    database: dbSize != null
+      ? { size: dbSize }
+      : { error: dbError },
+    queue: { pending_jobs: queueDepth },
+    timestamp: new Date().toISOString(),
   })
 })
