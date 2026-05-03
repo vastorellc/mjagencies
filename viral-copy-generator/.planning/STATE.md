@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: "Phase 6 (Auto-Upload + Scheduling) — Plan 01 complete"
-status: in_progress
-stopped_at: Completed 06-01-PLAN.md (upload route + worker skeleton)
-last_updated: "2026-05-03T11:11:31Z"
+current_phase: "Phase 5 (AI Copy + Platform Cards) — checkpoint:human-verify (all 6 plans complete)"
+status: executing
+stopped_at: Completed 06-03-PLAN.md (PKT peak-time scheduling utility + GET /api/upload/peak-times)
+last_updated: "2026-05-03T11:25:00.000Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
   completed_phases: 4
   total_plans: 39
-  completed_plans: 29
-  percent: 74
+  completed_plans: 30
+  percent: 77
 ---
 
 # Project State — Viral Copy Generator
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 
 ## Current Position
 
-Phase: 6 of 10 (Auto-Upload + Scheduling) — Plan 01 of N complete
-Plan: 06-01 — Wave 1: upload route + worker skeleton
-Status: In progress. Plan 06-01 complete. Proceed to 06-02 (YouTube worker).
+Phase: 6 of 10 (Auto-Upload + Scheduling) — Plan 02 of N complete
+Plan: 06-02 — Wave 2: YouTube/Instagram/Facebook upload workers + TikTok stub
+Status: In progress. Plans 06-01 and 06-02 complete. Proceed to 06-03 (scheduling route).
 Last activity: 2026-05-03
 
-Progress: [███████░░░] 74%
+Progress: [████████░░] 77%
 
 ## Phase Status
 
@@ -42,7 +42,7 @@ Progress: [███████░░░] 74%
 | 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
 | 4 | Virality Score + Checklist | ✅ Complete (8/8 plans, 179/179 tests, verification 6/6 passed 2026-05-02) |
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
-| 6 | Auto-Upload + Scheduling | 🔵 In progress (1/N plans, Plan 01 complete) |
+| 6 | Auto-Upload + Scheduling | 🔵 In progress (3/5 plans complete: 06-01 upload route, 06-02 platform workers, 06-03 PKT scheduling) |
 | 7 | History + Learning Loops | ⬜ Not started |
 | 8 | Admin Panel | ⬜ Not started |
 | 9 | Content Research Engine | ⬜ Not started |
@@ -96,6 +96,10 @@ Progress: [███████░░░] 74%
 - **pg-boss v12 work() receives Job<T>[] batch array** — iterate with for..of inside handler; WorkHandler<ReqData> signature: `(jobs: Job<ReqData>[]) => Promise<void>`
 - **multer diskStorage tmp dir + rename pattern** — userId unavailable in multer destination() callback (no res.locals access); write to UPLOADS_ROOT/tmp/{uuid}.mp4 then rename to UPLOADS_ROOT/{userId}/{uuid}.mp4 in route handler
 - **Platform worker stubs for Plan 06-01** — upload-youtube/instagram/facebook/tiktok.ts stubs required for TypeScript module resolution; throw "not yet implemented" until Plan 06-02
+- **Instagram container created at job fire time** — createContainer() called inside uploadInstagram() worker body (not at schedule time or module level); Instagram containers expire 24h after creation; job may fire days later
+- **YouTube token refresh 5-min buffer** — refresh access_token if Date.now() + 300000 > expiry; refreshed token encrypted and persisted back to settings.platform_config.youtube immediately
+- **Facebook binary upload uses createReadStream + duplex: half** — Node 22 native fetch accepts ReadStream body with duplex: 'half'; no @ts-expect-error suppression needed in TypeScript 6
+- **TikTok stub gates on TIKTOK_APPROVED=true env** — uploadTikTok() always throws; worker checks flag first; stub error message explains activation path
 - **pg-mem v3.0.5 PatchedPool for drizzle tests** — pg-mem v3.0.5 lacks rowMode/getTypeParser/JSONB-merge; PatchedPool subclass in _helpers.ts intercepts and rewrites these in JS; test-only shim, production code unchanged
 - **Settings UPSERT partial-field update** — INSERT...onConflictDoUpdate uses dynamic Record<string,unknown> patch so PATCH with only default_niche does not overwrite api_key_encrypted
 - **TRUNCATE → DELETE in pg-mem tests** — pg-mem does not support TRUNCATE ... RESTART IDENTITY CASCADE; DELETE FROM table achieves per-test isolation
@@ -147,11 +151,11 @@ Progress: [███████░░░] 74%
 
 ## Session Continuity
 
-Last session: 2026-05-03T11:11:31Z
-Stopped at: Completed 06-01-PLAN.md (upload route + worker skeleton)
+Last session: 2026-05-03T11:25:00.000Z
+Stopped at: Completed 06-03-PLAN.md (PKT peak-time scheduling utility + GET /api/upload/peak-times)
 Resume:
 
-- Phase 6: `/gsd-execute-phase 6` → continue from Plan 06-02 (YouTube worker)
+- Phase 6: `/gsd-execute-phase 6` → continue from Plan 06-04 (ScheduleModal frontend + upload wiring)
 - Phase 4 verification: `/gsd-verify-work 4` then `/clear`
 - Phase 3: drop 5 fixture videos into `viral-copy-generator/frontend/test/fixtures/` (per the README), then `/gsd-execute-phase 3` to resume from Plan 03-01 Task 3
 - Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`

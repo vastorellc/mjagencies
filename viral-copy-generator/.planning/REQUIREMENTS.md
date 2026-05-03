@@ -102,17 +102,22 @@ history, learning loops, admin panel, content research engine.
 - [x] **STORE-01
 **: Uploaded video files stored on VPS at `/var/uploads/{user_id}/{uuid}.{ext}` — user-isolated paths
 - [ ] **STORE-02**: Files served via Nginx at `VPS_PUBLIC_URL/uploads/{user_id}/{uuid}.{ext}` over public HTTPS (required for Meta video fetch)
-- [ ] **STORE-03**: Files deleted after successful social platform upload
+- [x] **STORE-03
+**: Files deleted after successful social platform upload
 - [x] **STORE-04
 **: pg-boss cleanup job deletes any file older than 1 hour (handles failed/abandoned uploads)
 - [ ] **STORE-05**: Instagram pre-upload size check: reject videos over 100 MB with clear error before queuing (Instagram hard limit)
 
 ### AUTOUP — Auto-Upload and Scheduling
 
-- [ ] **AUTOUP-01**: YouTube upload uses resumable protocol via `googleapis videos.insert` with readable stream — never multipart (5 MB hard limit)
-- [ ] **AUTOUP-02**: Instagram Reels: two-step flow — container created inside pg-boss job (not at schedule time, 24h expiry), poll `status_code` until `FINISHED`, then publish — never publish on `IN_PROGRESS`
-- [ ] **AUTOUP-03**: Facebook Reels uses `page_access_token` + `page_id` stored from Settings OAuth — same Meta app as Instagram
-- [ ] **AUTOUP-04**: TikTok upload code built but hidden behind `isTikTokApproved` flag — activatable without re-deploy
+- [x] **AUTOUP-01
+**: YouTube upload uses resumable protocol via `googleapis videos.insert` with readable stream — never multipart (5 MB hard limit)
+- [x] **AUTOUP-02
+**: Instagram Reels: two-step flow — container created inside pg-boss job (not at schedule time, 24h expiry), poll `status_code` until `FINISHED`, then publish — never publish on `IN_PROGRESS`
+- [x] **AUTOUP-03
+**: Facebook Reels uses `page_access_token` + `page_id` stored from Settings OAuth — same Meta app as Instagram
+- [x] **AUTOUP-04
+**: TikTok upload code built but hidden behind `isTikTokApproved` flag — activatable without re-deploy
 - [ ] **AUTOUP-05**: User can schedule upload at PKT peak times or override with manual datetime
 - [ ] **AUTOUP-06**: Peak times: YouTube Fri/Sat/Sun 6pm+8pm PKT · Instagram Mon/Wed/Fri 7pm+9pm PKT · TikTok Tue/Thu/Fri 8pm+10pm PKT · Facebook Wed/Thu 8pm+10pm PKT
 - [ ] **AUTOUP-07**: pg-boss queues scheduled uploads — jobs persist in Supabase DB and survive server restarts
