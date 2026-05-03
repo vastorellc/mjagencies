@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: "Phase 5 (AI Copy + Platform Cards) — checkpoint:human-verify (all 6 plans complete)"
 status: executing
-stopped_at: Completed 06-03-PLAN.md (PKT peak-time scheduling utility + GET /api/upload/peak-times)
-last_updated: "2026-05-03T11:25:00.000Z"
+stopped_at: Completed 06-04-PLAN.md (ScheduleModal + handleUpload wiring + Phase 6 frontend integration)
+last_updated: "2026-05-03T12:11:00.000Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 
 ## Current Position
 
-Phase: 6 of 10 (Auto-Upload + Scheduling) — Plan 02 of N complete
-Plan: 06-02 — Wave 2: YouTube/Instagram/Facebook upload workers + TikTok stub
-Status: In progress. Plans 06-01 and 06-02 complete. Proceed to 06-03 (scheduling route).
+Phase: 6 of 10 (Auto-Upload + Scheduling) — Plan 04 of N complete
+Plan: 06-04 — Wave 3: ScheduleModal + frontend upload wiring
+Status: In progress. Plans 06-01, 06-02, 06-03, 06-04 complete. Proceed to 06-05 (E2E/integration tests).
 Last activity: 2026-05-03
 
 Progress: [████████░░] 77%
@@ -42,7 +42,7 @@ Progress: [████████░░] 77%
 | 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
 | 4 | Virality Score + Checklist | ✅ Complete (8/8 plans, 179/179 tests, verification 6/6 passed 2026-05-02) |
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
-| 6 | Auto-Upload + Scheduling | 🔵 In progress (3/5 plans complete: 06-01 upload route, 06-02 platform workers, 06-03 PKT scheduling) |
+| 6 | Auto-Upload + Scheduling | 🔵 In progress (4/5 plans complete: 06-01 upload route, 06-02 platform workers, 06-03 PKT scheduling, 06-04 ScheduleModal + frontend wiring) |
 | 7 | History + Learning Loops | ⬜ Not started |
 | 8 | Admin Panel | ⬜ Not started |
 | 9 | Content Research Engine | ⬜ Not started |
@@ -130,6 +130,10 @@ Progress: [████████░░] 77%
 - **GeneratorPage __testSignals prop** — temporary Phase 4 test hook; seeds useState initial value; Phase 3 replaces by calling setSignals() from analyse() callback in upload component
 - **useMemo triple-derived state in GeneratorPage** — scoreResult → checklistItems → gapMessages; all null-guarded on signals; renders placeholder when signals===null
 - **PKT peak times are UTC+5, no DST** — Pakistan does not observe daylight saving; getPeakTimes() scans forward 14 days returning first 2 slots >5min in future as UTC ISO strings
+- **ScheduleModal rendered at page root level** — outside `<main overflow-y-auto>` to avoid overlay clipping; fixed inset-0 z-50 covers full viewport
+- **ScheduleUploadBody omits filePath/publicUrl/fileSizeBytes** — backend derives from userId+fileId (T-06-13 mitigation); client sends only postId/platform/fileId/caption/hashtags/scheduledAt
+- **Instagram 100 MB gate is UX-only (frontend)** — backend multer stat()-based check is authoritative; frontend gate improves UX by blocking modal before any network call
+- **handleScheduleConfirm optimistic upload status** — sets 'uploading' immediately; Supabase Realtime pushes 'posted'/'failed' from platform_posts without polling
 - **setUTCDate before setUTCHours in candidate construction** — setUTCHours first then setUTCDate causes month-rollover on last-day-of-month; correct order: advance date first, then set hours
 - **vitest.config.ts include covers both test directories** — backend uses tests/ (integration) and src/test/ (unit); include: ['tests/**/*.test.ts', 'src/test/**/*.test.ts']
 
@@ -154,11 +158,11 @@ Progress: [████████░░] 77%
 
 ## Session Continuity
 
-Last session: 2026-05-03T11:25:00.000Z
-Stopped at: Completed 06-03-PLAN.md (PKT peak-time scheduling utility + GET /api/upload/peak-times)
+Last session: 2026-05-03T12:11:00.000Z
+Stopped at: Completed 06-04-PLAN.md (ScheduleModal + handleUpload wiring + Phase 6 frontend integration)
 Resume:
 
-- Phase 6: `/gsd-execute-phase 6` → continue from Plan 06-04 (ScheduleModal frontend + upload wiring)
+- Phase 6: `/gsd-execute-phase 6` → continue from Plan 06-05 (E2E / integration tests for upload route)
 - Phase 4 verification: `/gsd-verify-work 4` then `/clear`
 - Phase 3: drop 5 fixture videos into `viral-copy-generator/frontend/test/fixtures/` (per the README), then `/gsd-execute-phase 3` to resume from Plan 03-01 Task 3
 - Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`
