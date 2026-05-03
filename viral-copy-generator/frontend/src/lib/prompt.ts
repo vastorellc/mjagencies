@@ -1,4 +1,4 @@
-import type { EngineSignals, Niche, Platform } from './types'
+import type { EngineSignals, Niche, Platform, LearningData } from './types'
 
 // Real niche hashtag banks for Pakistani short-form creators (AI-07, CLAUDE.md rule 5 — no placeholders)
 export const NICHE_HASHTAGS: Record<Niche, string[]> = {
@@ -62,6 +62,7 @@ export function buildPrompt(
   description: string,
   niche: Niche,
   options: BuildPromptOptions,
+  learningData?: LearningData,
 ): string {
   const hashtags = NICHE_HASHTAGS[niche] ?? NICHE_HASHTAGS.other
   const platforms = options.enabledPlatforms.join(', ')
@@ -93,12 +94,27 @@ export function buildPrompt(
     ? `\n## Improved Script Outline (from first generation)\n${options.scriptOutline}\n\nPlease use this outline as the foundation and improve the copy further.\n`
     : ''
 
+  // LEARNING-06: inject top hooks + hashtags from user's learning data (fresh, no caching)
+  const learningSection = learningData && (learningData.topHooks.length > 0 || learningData.topHashtags.length > 0)
+    ? `
+## Your Top-Performing Content (based on your actual view data)
+${learningData.topHooks.length > 0
+  ? `Top hooks that performed best for you:\n${learningData.topHooks.map(h => `- "${h.hook_text}" (${h.max_views.toLocaleString()} views)`).join('\n')}`
+  : ''}
+${learningData.topHashtags.length > 0
+  ? `\nTop hashtags by average views:\n${learningData.topHashtags.map(h => h.hashtag).join(' ')}`
+  : ''}
+
+Use this data to inform your copy -- especially the hook style and hashtag selection.
+`
+    : ''
+
   return `You are an expert social media copywriter for Pakistani short-form video creators.
 Your task: generate platform-optimised copy for a short-form video in the "${niche}" niche.
 Target audience: Pakistani creators and viewers. Language: English with natural Urdu phrases
 where they feel authentic (e.g. "yaar", "zabardast", "masha Allah") — not forced, not every sentence.
 Active platforms to generate copy for: ${platforms}.
-${signalsSection}${descSection}${secondPassSection}
+${signalsSection}${descSection}${secondPassSection}${learningSection}
 ## Niche Hashtag Bank (select the most relevant)
 ${hashtags.join(' ')}
 

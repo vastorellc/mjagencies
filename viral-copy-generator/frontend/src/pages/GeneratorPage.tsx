@@ -19,7 +19,8 @@ import { buildChecklist } from '../lib/checklist'
 import { buildGapAnalysis } from '../lib/gaps'
 import { buildPrompt } from '../lib/prompt'
 import { callAI } from '../lib/ai'
-import { fetchSettings, createPost, fetchApiKey, uploadFile, scheduleUpload } from '../lib/api'
+import { fetchSettings, createPost, fetchApiKey, uploadFile, scheduleUpload, fetchTopHooks, fetchTopHashtags, fetchLearningWeights } from '../lib/api'
+import type { LearningData } from '../lib/types'
 import ScheduleModal from '../components/ScheduleModal'
 import ScorePanel from '../components/ScorePanel'
 import PlatformCardGrid from '../components/PlatformCardGrid'
@@ -51,8 +52,8 @@ const RETRYABLE_ERRORS = new Set(['rate_limited', 'network_error'])
 export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
   // Phase 3/4 state
   const [signals, _setSignals] = useState<EngineSignals | null>(__testSignals ?? null)
-  const [learnedWeights] = useState<LearnedWeights | null>(null)
-  const [dataPoints] = useState<number>(0)
+  const [learnedWeights, setLearnedWeights] = useState<LearnedWeights | null>(null)
+  const [dataPoints, setDataPoints] = useState<number>(0)
 
   // Phase 5 state
   const [userId, setUserId] = useState<string | null>(null)
@@ -76,6 +77,13 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
     fetchSettings()
       .then(data => setSettingsData(data))
       .catch(() => { /* fall back to defaults — non-blocking per D-13 */ })
+
+    fetchLearningWeights()
+      .then(data => {
+        setDataPoints(data.data_points)
+        setLearnedWeights(data.learned_weights as LearnedWeights | null)
+      })
+      .catch(() => { /* non-blocking -- defaults to 0 / null */ })
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUserId(session?.user?.id ?? null)
@@ -158,10 +166,18 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
       }
 
       const scriptOutline = opts.isSecondPass ? (aiOutput?.script_outline ?? undefined) : undefined
+
+      // LEARNING-06: fresh fetch -- no caching; queries < 5ms (backend raw SQL)
+      const [topHooks, topHashtags] = await Promise.all([
+        fetchTopHooks(niche),
+        fetchTopHashtags(niche, enabledPlatforms[0]),
+      ])
+      const learningData: LearningData = { topHooks, topHashtags }
+
       const prompt = buildPrompt(signals, description, niche, {
         enabledPlatforms,
         scriptOutline,
-      })
+      }, learningData)
 
       const result = await callAI({
         provider: aiProvider,
@@ -284,6 +300,20 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
       <header className="flex items-center justify-between px-4 py-3">
         <span className="font-bold">Viral Copy Generator</span>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onNavigate('history')}
+            className="rounded bg-zinc-800 px-3 py-1.5 text-sm hover:bg-zinc-700"
+          >
+            History
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigate('learning')}
+            className="rounded bg-zinc-800 px-3 py-1.5 text-sm hover:bg-zinc-700"
+          >
+            Insights
+          </button>
           <button
             type="button"
             onClick={() => onNavigate('settings')}

@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import GeneratorPage from './pages/GeneratorPage'
 import SettingsPage from './pages/SettingsPage'
 import HistoryPage from './pages/HistoryPage'
+import LearningPage from './pages/LearningPage'
 import type { Screen } from './lib/types'
 
 export default function App() {
@@ -77,6 +78,10 @@ export default function App() {
 
   if (currentScreen === 'history') {
     return <HistoryPage onNavigate={setCurrentScreen} />
+  }
+
+  if (currentScreen === 'learning') {
+    return <LearningPage onNavigate={setCurrentScreen} />
   }
 
   return <GeneratorPage onNavigate={setCurrentScreen} />
