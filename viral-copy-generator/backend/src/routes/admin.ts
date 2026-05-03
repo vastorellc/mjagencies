@@ -417,3 +417,59 @@ adminRouter.get('/health', async (_req, res) => {
     timestamp: new Date().toISOString(),
   })
 })
+
+// ── ADMIN-08: Application log viewer ─────────────────────────────────────────
+// Reads last N lines from the pino log file (LOG_FILE env var, default /var/log/app.log).
+// ?lines= query param controls how many lines to return (1-500, default 100).
+// Returns raw JSON lines array — pino writes newline-delimited JSON.
+// ADMIN-08: filterable by user_id and time range via query params.
+adminRouter.get('/logs', async (req, res) => {
+  const logPath = process.env.LOG_FILE ?? '/var/log/app.log'
+  const rawLines = parseInt(String(req.query.lines ?? '100'), 10)
+  const lineCount = Math.min(Math.max(1, isNaN(rawLines) ? 100 : rawLines), 500)
+
+  // Optional filters from query params
+  const filterUserId = typeof req.query.userId === 'string' ? req.query.userId : null
+  const filterFrom   = typeof req.query.from   === 'string' ? req.query.from   : null  // ISO-8601
+
+  let content: string
+  try {
+    content = await readFile(logPath, 'utf8')
+  } catch (err: unknown) {
+    const msg = (err as Error).message ?? 'unknown error'
+    // Graceful degradation: log file may not exist in dev or if pino transport not configured
+    res.json({ lines: [], meta: { logPath, error: msg } })
+    return
+  }
+
+  // pino writes newline-delimited JSON — parse each line independently
+  const allLines = content.split('\n').filter(line => line.trim().length > 0)
+
+  // Apply filters on parsed JSON lines (fail-open if line is not valid JSON)
+  const filtered = allLines.filter(line => {
+    try {
+      const parsed = JSON.parse(line) as Record<string, unknown>
+      if (filterUserId && parsed['userId'] !== filterUserId && parsed['user_id'] !== filterUserId) return false
+      if (filterFrom) {
+        const time = parsed['time']
+        if (typeof time === 'number' && time < new Date(filterFrom).getTime()) return false
+      }
+      return true
+    } catch {
+      return true  // Keep non-JSON lines (startup messages etc.)
+    }
+  })
+
+  // Return last N lines (tail behaviour)
+  const tailLines = filtered.slice(-lineCount)
+
+  res.json({
+    lines: tailLines,
+    meta: {
+      logPath,
+      total_lines: allLines.length,
+      filtered_lines: filtered.length,
+      returned: tailLines.length,
+    },
+  })
+})
