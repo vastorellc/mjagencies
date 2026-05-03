@@ -37,7 +37,7 @@ by the admin only — no public registration.
 - [x] **Phase 2: Settings + Social OAuth** — Per-user AI key encryption, YouTube + Meta OAuth (redirect flow, 2025 scopes), weekly token refresh job *(provisionally complete 2026-05-02 — automated suite 47/47; E2E round-trips deferred pending credential provisioning)*
 - [~] **Phase 3: Video Upload + Analysis Engine** — In-browser ffmpeg.wasm + TF.js + Web Audio + Canvas with researched bug workarounds *(paused 2026-05-02 at Wave 0 — vitest infra installed; fixture videos deferred; pivoted to Phase 4)*
 - [x] **Phase 4: Virality Score + Checklist** — Weighted score, per-platform variants, three-state checklist, rule-based gap analysis *(complete 2026-05-02 — 8/8 plans, 179/179 tests, tsc clean, build 84 modules / 424 kB, verification 6/6 passed)*
-- [ ] **Phase 5: AI Copy + Platform Cards** — Gemini Files API, OpenAI proxy, Anthropic browser flag, 5 platform cards, Realtime upload state, Get Better Version
+- [x] **Phase 5: AI Copy + Platform Cards** — Gemini Files API, OpenAI proxy, Anthropic browser flag, 5 platform cards, Realtime upload state, Get Better Version *(complete 2026-05-03 — 6/6 plans, 206/206 tests, tsc clean)*
 - [ ] **Phase 6: Auto-Upload + Scheduling** — YouTube resumable, Meta two-step Reels with container-in-job fix, pg-boss PKT scheduling, Instagram 100 MB gate
 - [ ] **Phase 7: History + Learning Loops** — Post history (per-user RLS), atomic view logging transaction, EMA calibration, corrected hashtag unnest queries
 - [ ] **Phase 8: Admin Panel** — Queue manager, user management, learning data editor, system health, logs viewer

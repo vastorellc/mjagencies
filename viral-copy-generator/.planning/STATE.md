@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 5 (AI Copy + Platform Cards) — checkpoint:human-verify
-status: checkpoint
-stopped_at: "05-06 — Wave 4: GeneratorPage full integration — awaiting human smoke test"
-last_updated: "2026-05-02T15:00:00Z"
-last_activity: 2026-05-02
+current_phase: Phase 6 (Auto-Upload + Scheduling) — planning
+status: planning
+stopped_at: ""
+last_updated: "2026-05-03T00:00:00Z"
+last_activity: 2026-05-03
 progress:
   total_phases: 10
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 34
   completed_plans: 36
-  percent: 94
+  percent: 95
 ---
 
 # Project State — Viral Copy Generator
@@ -41,7 +41,7 @@ Progress: [█████████░] 94%
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
 | 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
 | 4 | Virality Score + Checklist | ✅ Complete (8/8 plans, 179/179 tests, verification 6/6 passed 2026-05-02) |
-| 5 | AI Copy + Platform Cards | 🔄 Checkpoint — all 6 plans complete; awaiting human smoke test |
+| 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | ⬜ Not started |
 | 7 | History + Learning Loops | ⬜ Not started |
 | 8 | Admin Panel | ⬜ Not started |
