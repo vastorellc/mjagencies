@@ -76,3 +76,56 @@ adminRouter.get('/jobs', async (req, res) => {
 
   res.json({ jobs })
 })
+
+// ── ADMIN-03: Retry a failed job ─────────────────────────────────────────────
+// boss.resume(name, jobId) transitions the job from 'failed' back to 'created' state.
+// pg-boss v12 requires both the queue name and the job id — we look up the name
+// from pgboss.job before calling resume so the caller only needs the id.
+adminRouter.post('/jobs/:id/retry', async (req, res) => {
+  const jobId = req.params.id
+  if (!jobId || typeof jobId !== 'string') {
+    res.status(400).json({ error: 'Missing job id' })
+    return
+  }
+
+  // Look up the queue name for this job (required by pg-boss v12 API)
+  const lookup = await db.execute<{ name: string }>(
+    sql`SELECT name FROM pgboss.job WHERE id = ${jobId} LIMIT 1`
+  )
+  if (lookup.rows.length === 0) {
+    res.status(404).json({ error: 'Job not found' })
+    return
+  }
+  const queueName = lookup.rows[0]!.name
+
+  const boss = await getBoss()
+  // boss.resume returns CommandResponse — transitions failed job back to created
+  await boss.resume(queueName, jobId)
+  res.json({ ok: true, jobId })
+})
+
+// ── ADMIN-03: Cancel a pending or active job ─────────────────────────────────
+// boss.cancel(name, jobId) transitions a job from 'created' or 'active' to 'cancelled'.
+// pg-boss v12 requires both the queue name and the job id — we look up the name
+// from pgboss.job before calling cancel so the caller only needs the id.
+adminRouter.delete('/jobs/:id', async (req, res) => {
+  const jobId = req.params.id
+  if (!jobId || typeof jobId !== 'string') {
+    res.status(400).json({ error: 'Missing job id' })
+    return
+  }
+
+  // Look up the queue name for this job (required by pg-boss v12 API)
+  const lookup = await db.execute<{ name: string }>(
+    sql`SELECT name FROM pgboss.job WHERE id = ${jobId} LIMIT 1`
+  )
+  if (lookup.rows.length === 0) {
+    res.status(404).json({ error: 'Job not found' })
+    return
+  }
+  const queueName = lookup.rows[0]!.name
+
+  const boss = await getBoss()
+  await boss.cancel(queueName, jobId)
+  res.json({ ok: true, jobId })
+})
