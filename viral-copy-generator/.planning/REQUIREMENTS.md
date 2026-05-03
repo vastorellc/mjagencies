@@ -156,10 +156,14 @@ history, learning loops, admin panel, content research engine.
 **: Admin can view all registered users — email, join date, last active, upload count, connected platforms
 - [x] **ADMIN-05
 **: Admin can disable/enable any user account
-- [ ] **ADMIN-06**: Admin can view and reset learning data for any user (learning_signals + learned_weights)
-- [ ] **ADMIN-07**: Admin can view system health dashboard: VPS CPU, memory, disk usage; Supabase DB size; pg-boss queue depth
-- [ ] **ADMIN-08**: Admin can view application logs: upload errors, AI call errors, OAuth failures — filterable by user and time range
-- [ ] **ADMIN-09**: Admin can view aggregate platform stats: total uploads per platform, success/failure rates, avg virality score across all users
+- [x] **ADMIN-06
+**: Admin can view and reset learning data for any user (learning_signals + learned_weights)
+- [x] **ADMIN-07
+**: Admin can view system health dashboard: VPS CPU, memory, disk usage; Supabase DB size; pg-boss queue depth
+- [x] **ADMIN-08
+**: Admin can view application logs: upload errors, AI call errors, OAuth failures — filterable by user and time range
+- [x] **ADMIN-09
+**: Admin can view aggregate platform stats: total uploads per platform, success/failure rates, avg virality score across all users
 - [x] **ADMIN-10
 **: Admin cannot view individual users' API keys, OAuth tokens, or generated copy — only system-level data
 

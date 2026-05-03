@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 8 (Admin Panel) — executing (5/8 plans complete)
+current_phase: Phase 8 (Admin Panel) — executing (6/8 plans complete)
 status: executing
-stopped_at: "Completed 08-05-PLAN.md — system health (GET /health: os+df+pg_size_pretty+queue) and log viewer (GET /logs: pino tail with filters)"
-last_updated: "2026-05-03T20:36:00Z"
+stopped_at: Completed 08-06-PLAN.md — admin types (Screen+admin, AdminJob/User/Health/Logs/PlatformStats) and 10 typed API client functions
+last_updated: "2026-05-03T20:38:10.373Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 53
-  completed_plans: 43
-  percent: 81
+  completed_plans: 44
+  percent: 83
 ---
 
 # Project State — Viral Copy Generator
@@ -27,11 +27,11 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 ## Current Position
 
 Phase: 8 of 10 (Admin Panel)
-Plan: 08-05 complete (5/8 plans)
-Status: Executing Phase 8. 08-05 complete — GET /health (os.cpus/totalmem/freemem, df -h /var parsed, pg_size_pretty DB size, pg-boss queue COUNT) and GET /logs (LOG_FILE env var, 1-500 line cap, pino JSON filter by userId/from) added to adminRouter. Next: 08-06.
+Plan: 08-06 complete (6/8 plans)
+Status: Executing Phase 8. 08-06 complete — Screen type extended with 'admin', 9 admin TypeScript interfaces (AdminJob, AdminUser, AdminHealthResponse, AdminLogsResponse, AdminPlatformStat, AdminPlatformStatsResponse + supporting types) and 10 typed API client functions added (fetchAdminJobs/retryAdminJob/cancelAdminJob/fetchAdminUsers/disableAdminUser/enableAdminUser/resetAdminLearning/fetchAdminHealth/fetchAdminLogs/fetchAdminPlatformStats). tsc clean. Next: 08-07.
 Last activity: 2026-05-03
 
-Progress: [████████░░] 81%
+Progress: [████████░░] 83%
 
 ## Phase Status
 
@@ -44,7 +44,7 @@ Progress: [████████░░] 81%
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
 | 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
-| 8 | Admin Panel | 🔄 Executing (5/8 plans) |
+| 8 | Admin Panel | 🔄 Executing (6/8 plans) |
 | 9 | Content Research Engine | ⬜ Not started |
 | 10 | Polish + Resilience | ⬜ Not started |
 
@@ -154,6 +154,10 @@ Progress: [████████░░] 81%
 - **Fixed-string exec() for disk usage** — 'df -h /var' is a compile-time literal with no user input concatenated; prevents shell injection while enabling VPS introspection (T-08-17)
 - **LOG_FILE env var only for log path** — readFile receives process.env.LOG_FILE; no request-time path construction; operator sets path at deploy time (T-08-19)
 - **Pino log parsing fail-open** — non-JSON lines (startup messages, stack traces) pass all filters and appear in tail result so no log output is silently lost
+- **AdminDiskInfo exported as named interface** — enables 08-07 AdminPage type-narrowing on fail-partial health.disk field (`'size' in health.disk` type guard)
+- **fetchAdminLogs options object not positional params** — all three filters (lines, userId, from) are optional; object param avoids undefined-chaining at call sites in AdminPage
+- **resetAdminLearning returns {deleted: number} not void** — AdminPage confirmation display shows 'Deleted N signals' without an extra GET fetch
+- **disableAdminUser reads error body on failure** — backend sends `{ error: 'Cannot disable your own account' }` for self-lockout; error propagates to AdminPage UI without a second fetch
 
 ### Critical Bugs to Avoid
 
@@ -176,8 +180,8 @@ Progress: [████████░░] 81%
 
 ## Session Continuity
 
-Last session: 2026-05-03T20:36:00Z
-Stopped at: Completed 08-05-PLAN.md — system health + log viewer (GET /health, GET /logs)
+Last session: 2026-05-03T20:38:10.352Z
+Stopped at: Completed 08-06-PLAN.md — admin types (Screen+admin, AdminJob/User/Health/Logs/PlatformStats) and 10 typed API client functions
 Resume:
 
 - Phase 8: `/gsd-plan-phase 8` → Admin Panel
