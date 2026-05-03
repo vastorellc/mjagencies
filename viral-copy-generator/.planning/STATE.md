@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 7 (History + Learning Loops) — plan 05 complete
-status: executing
-stopped_at: Completed 07-05-PLAN.md — LearningPage + learning injection in GeneratorPage + App.tsx routing
-last_updated: "2026-05-03T19:30:00Z"
+current_phase: Phase 8 (Admin Panel) — ready to plan
+status: planning
+stopped_at: Phase 7 provisionally complete — all 20 automated checks pass; smoke test deferred pending backend .env + Vite proxy restart
+last_updated: "2026-05-03T21:00:00Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 45
-  completed_plans: 38
-  percent: 84
+  completed_plans: 44
+  percent: 88
 ---
 
 # Project State — Viral Copy Generator
@@ -22,16 +22,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 7 (History + Learning Loops) — ready to plan
+**Current phase:** Phase 8 (Admin Panel) — ready to plan
 
 ## Current Position
 
-Phase: 7 of 10 (History + Learning Loops)
+Phase: 8 of 10 (Admin Panel)
 Plan: —
-Status: Phase 6 provisionally complete (smoke test deferred). Ready to plan Phase 7.
+Status: Phase 7 provisionally complete (20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` once backend .env is configured and both servers restarted). Ready to plan Phase 8.
 Last activity: 2026-05-03
 
-Progress: [█████████░] 90%
+Progress: [█████████░] 88%
 
 ## Phase Status
 
@@ -43,7 +43,7 @@ Progress: [█████████░] 90%
 | 4 | Virality Score + Checklist | ✅ Complete (8/8 plans, 179/179 tests, verification 6/6 passed 2026-05-02) |
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
-| 7 | History + Learning Loops | 🟡 In progress (5/N plans complete — backend routes 01/02 done, frontend types+API 03 done, HistoryPage 04 done, LearningPage 05 done) |
+| 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
 | 8 | Admin Panel | ⬜ Not started |
 | 9 | Content Research Engine | ⬜ Not started |
 | 10 | Polish + Resilience | ⬜ Not started |
@@ -57,6 +57,12 @@ Progress: [█████████░] 90%
   - AES-256-GCM crypto + OAuth CSRF state + settings GET/PATCH/disconnect routes + Google YouTube OAuth + Meta Instagram/Facebook OAuth + weekly Meta token refresh job + Settings UI with screen switcher
   - Automated suite: 47/47 Vitest pass, tsc clean, frontend build clean (76 modules / 410 kB)
   - Deferred: real OAuth round-trip E2E verification (02-07) and credential provisioning (02-01 Task 3) — pending `.env` setup; close via `/gsd-verify-work 2` when ready
+
+- **Phase 7: History + Learning Loops** — Provisionally complete 2026-05-03
+  - GET /api/posts (EXISTS subquery platform filter, newest-first), DELETE /api/posts/:id, POST /api/platform-posts/:id/views (atomic db.transaction with EMA calibration)
+  - 5 learning endpoints: /hooks (MAX views), /hashtags (unnest), /posting-times (PKT EXTRACT + HAVING COUNT≥2), /niche-performance (COALESCE), /weights
+  - HistoryPage (filters, inline view logging, accuracy badge), LearningPage (inline-style bar charts), learning injection in GeneratorPage (fetchTopHooks/fetchTopHashtags before every AI call)
+  - All 20 automated checks pass; smoke test deferred (backend .env + server restart required)
 
 - **Phase 4: Virality Score + Checklist** — Execution complete 2026-05-02 (pending /gsd-verify-work 4)
   - score.ts (piecewise linear formula, per-platform weights, EMA calibration) + checklist.ts (21 items, 3-state) + gaps.ts + viewRange.ts
@@ -162,6 +168,7 @@ Last session: 2026-05-03T19:30:00Z
 Stopped at: Completed 07-05-PLAN.md — LearningPage + learning injection in GeneratorPage + App.tsx routing
 Resume:
 
-- Phase 7: `/gsd-execute-phase 7` → continue from next plan (Phase 7 feature work)
+- Phase 8: `/gsd-plan-phase 8` → Admin Panel
+- Phase 7: `/gsd-verify-work 7` once backend `.env` configured + servers restarted (smoke test: History, Insights, view logging, Generate Copy regression)
 - Phase 6: `/gsd-verify-work 6` once OAuth accounts connected
 - Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`
