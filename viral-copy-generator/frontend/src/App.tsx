@@ -6,6 +6,7 @@ import GeneratorPage from './pages/GeneratorPage'
 import SettingsPage from './pages/SettingsPage'
 import HistoryPage from './pages/HistoryPage'
 import LearningPage from './pages/LearningPage'
+import AdminPage from './pages/AdminPage'
 import type { Screen } from './lib/types'
 
 export default function App() {
@@ -66,6 +67,15 @@ export default function App() {
   // AUTH-02 + UI-06: unauthenticated → login screen only, regardless of URL
   if (!session) return <LoginPage />
 
+  // ADMIN-01: Derive admin status from Supabase app_metadata (set by service role — not forgeable by client)
+  const isAdmin = session.user.app_metadata?.['role'] === 'admin'
+
+  if (currentScreen === 'admin') {
+    // ADMIN-01: Double-check isAdmin before rendering — prevents accidental render if state drifts
+    if (!isAdmin) return <GeneratorPage onNavigate={setCurrentScreen} />
+    return <AdminPage onNavigate={setCurrentScreen} />
+  }
+
   if (currentScreen === 'settings') {
     return (
       <SettingsPage
@@ -84,5 +94,21 @@ export default function App() {
     return <LearningPage onNavigate={setCurrentScreen} />
   }
 
-  return <GeneratorPage onNavigate={setCurrentScreen} />
+  // ADMIN-01: Admin nav button shown only for admin users — UX guard only; backend is authoritative
+  return (
+    <>
+      <GeneratorPage onNavigate={setCurrentScreen} />
+      {isAdmin && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <button
+            type="button"
+            onClick={() => setCurrentScreen('admin')}
+            className="rounded-full bg-zinc-800 border border-zinc-600 px-3 py-2 text-xs font-medium text-zinc-300 shadow-lg hover:bg-zinc-700"
+          >
+            Admin
+          </button>
+        </div>
+      )}
+    </>
+  )
 }
