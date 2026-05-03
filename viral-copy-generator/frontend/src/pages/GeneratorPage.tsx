@@ -19,7 +19,8 @@ import { buildChecklist } from '../lib/checklist'
 import { buildGapAnalysis } from '../lib/gaps'
 import { buildPrompt } from '../lib/prompt'
 import { callAI } from '../lib/ai'
-import { fetchSettings, createPost, fetchApiKey } from '../lib/api'
+import { fetchSettings, createPost, fetchApiKey, uploadFile, scheduleUpload } from '../lib/api'
+import ScheduleModal from '../components/ScheduleModal'
 import ScorePanel from '../components/ScorePanel'
 import PlatformCardGrid from '../components/PlatformCardGrid'
 import ChecklistAccordion from '../components/ChecklistAccordion'
@@ -65,6 +66,10 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
   const [postId, setPostId] = useState<string | null>(null)
   const [uploadStatuses, setUploadStatuses] = useState<Record<string, string>>({})
   const isFirstGenerationRef = useRef<boolean>(true)
+
+  // Phase 6: upload modal state
+  const [scheduleModal, setScheduleModal] = useState<{ platform: Platform } | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   // D-13: Fetch settings on mount; populate userId from auth session
   useEffect(() => {
@@ -206,6 +211,72 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
     }
   }
 
+  // Phase 6: handle upload button click — open ScheduleModal after gates pass
+  async function handleUpload(platform: Platform) {
+    // TikTok: never called (button disabled in PlatformCopyCard), but guard anyway
+    if (platform === 'tiktok' || platform === 'x') return
+
+    // STORE-05: Instagram 100 MB gate — enforce before modal opens (UX; backend enforces authoritatively)
+    if (platform === 'instagram' && selectedFile && selectedFile.size > 100 * 1024 * 1024) {
+      setUploadError('Instagram: max 100 MB. Compress the video before uploading.')
+      return
+    }
+
+    setUploadError(null)
+    setScheduleModal({ platform })
+  }
+
+  // Phase 6: called when user confirms the schedule modal
+  async function handleScheduleConfirm(scheduledAt: string | null) {
+    if (!scheduleModal || !selectedFile || !postId) {
+      setScheduleModal(null)
+      return
+    }
+    const { platform } = scheduleModal
+    setScheduleModal(null)
+
+    // Update optimistic status to uploading
+    setUploadStatuses(prev => ({ ...prev, [platform]: 'uploading' }))
+
+    try {
+      // 1. Upload file to VPS — backend returns fileId
+      const { fileId } = await uploadFile(selectedFile)
+
+      // 2. Build caption + hashtags from aiOutput
+      const output = aiOutput
+      let caption = ''
+      let hashtags: string[] = []
+      if (output) {
+        if (platform === 'youtube') {
+          caption = output.youtube.title + '\n\n' + output.youtube.description
+          hashtags = output.youtube.tags
+        } else if (platform === 'instagram') {
+          caption = output.instagram.caption
+          hashtags = output.instagram.hashtags
+        } else if (platform === 'facebook') {
+          caption = output.facebook.caption + '\n\n' + output.facebook.cta
+          hashtags = output.facebook.hashtags
+        }
+      }
+
+      // 3. Schedule the pg-boss upload job
+      // filePath and publicUrl are derived server-side from userId + fileId — not sent from client
+      await scheduleUpload({
+        postId,
+        platform,
+        fileId,
+        caption,
+        hashtags,
+        scheduledAt: scheduledAt ?? undefined,
+      })
+      // Realtime subscription will push the status update when worker runs
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'upload_failed'
+      setUploadError(msg)
+      setUploadStatuses(prev => ({ ...prev, [platform]: 'failed' }))
+    }
+  }
+
   const canGenerate = (selectedFile !== null || description.trim().length > 0) && !aiLoading
 
   return (
@@ -326,9 +397,7 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
                   platform={platform}
                   aiOutput={aiOutput}
                   uploadStatus={(uploadStatuses[platform] as UploadStatus | undefined) ?? 'idle'}
-                  onUpload={() => {
-                    // Phase 6 wires this to the upload route
-                  }}
+                  onUpload={() => { void handleUpload(platform) }}
                 />
               ))}
             </div>
@@ -363,8 +432,22 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
             </div>
           )}
 
+          {/* Phase 6: Upload error */}
+          {uploadError && (
+            <p className="rounded bg-red-900/40 px-3 py-2 text-sm text-red-300">{uploadError}</p>
+          )}
+
         </div>
       </main>
+
+      {/* Phase 6: Schedule Modal — rendered outside main scroll area to avoid clipping */}
+      {scheduleModal && (
+        <ScheduleModal
+          platform={scheduleModal.platform}
+          onConfirm={(scheduledAt) => { void handleScheduleConfirm(scheduledAt) }}
+          onCancel={() => setScheduleModal(null)}
+        />
+      )}
     </div>
   )
 }
