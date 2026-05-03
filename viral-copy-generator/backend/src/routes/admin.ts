@@ -180,3 +180,55 @@ adminRouter.get('/users', async (_req, res) => {
 
   res.json({ users: safeUsers })
 })
+
+// ── ADMIN-05: Disable a user account ─────────────────────────────────────────
+// Sets ban_duration to '87600h' (10 years) — the user cannot log in while banned.
+// Admin cannot disable themselves (safety guard).
+adminRouter.patch('/users/:userId/disable', async (req, res) => {
+  const targetUserId = req.params.userId
+  const adminUserId = res.locals.userId as string | undefined
+
+  if (!targetUserId || typeof targetUserId !== 'string') {
+    res.status(400).json({ error: 'Missing userId' })
+    return
+  }
+
+  // Prevent admin from accidentally locking themselves out
+  if (targetUserId === adminUserId) {
+    res.status(400).json({ error: 'Admin cannot disable their own account' })
+    return
+  }
+
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(targetUserId, {
+    ban_duration: '87600h',  // 10 years — effectively permanent; reversible via /enable
+  })
+
+  if (error) {
+    res.status(502).json({ error: 'Failed to disable user' })
+    return
+  }
+
+  res.json({ ok: true, userId: targetUserId, action: 'disabled' })
+})
+
+// ── ADMIN-05: Re-enable a disabled user account ───────────────────────────────
+// Clears the ban by setting ban_duration to 'none'. User can log in immediately.
+adminRouter.patch('/users/:userId/enable', async (req, res) => {
+  const targetUserId = req.params.userId
+
+  if (!targetUserId || typeof targetUserId !== 'string') {
+    res.status(400).json({ error: 'Missing userId' })
+    return
+  }
+
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(targetUserId, {
+    ban_duration: 'none',
+  })
+
+  if (error) {
+    res.status(502).json({ error: 'Failed to enable user' })
+    return
+  }
+
+  res.json({ ok: true, userId: targetUserId, action: 'enabled' })
+})
