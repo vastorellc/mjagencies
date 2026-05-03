@@ -319,7 +319,14 @@ avoid 24h expiry. Instagram 100 MB gate prevents silent failures.
 8. Upload state transitions (Idle → Uploading → Posted/Failed) pushed via Realtime — no polling
 9. TikTok upload code present behind `isTikTokApproved = false` flag
 
-**Plans:** TBD
+**Plans:** 5 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — File upload route (POST /api/upload/file multer) + pg-boss worker skeleton + deleteFile() + VPS_PUBLIC_URL validation
+- [ ] 06-02-PLAN.md — Platform workers: uploadYouTube (resumable stream), uploadInstagram (container-in-job + poll), uploadFacebook (page token + 3-phase), uploadTikTok stub
+- [ ] 06-03-PLAN.md — PKT peak-time scheduling utility (getPeakTimes) + GET /api/upload/peak-times endpoint + unit tests
+- [ ] 06-04-PLAN.md — Frontend: ScheduleModal + api.ts upload wrappers + GeneratorPage handleUpload wiring + Instagram 100 MB gate
+- [ ] 06-05-PLAN.md — Verification checkpoint: automated checks + human smoke test
 
 ---
 
