@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase'
 import LoginPage from './pages/LoginPage'
 import GeneratorPage from './pages/GeneratorPage'
 import SettingsPage from './pages/SettingsPage'
+import HistoryPage from './pages/HistoryPage'
 import type { Screen } from './lib/types'
 
 export default function App() {
@@ -73,5 +74,10 @@ export default function App() {
       />
     )
   }
+
+  if (currentScreen === 'history') {
+    return <HistoryPage onNavigate={setCurrentScreen} />
+  }
+
   return <GeneratorPage onNavigate={setCurrentScreen} />
 }
