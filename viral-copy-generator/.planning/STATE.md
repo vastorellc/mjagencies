@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 6 (Auto-Upload + Scheduling) — ready to execute
-status: planned
-stopped_at: ""
-last_updated: "2026-05-03T00:00:00Z"
+current_phase: "Phase 6 (Auto-Upload + Scheduling) — Plan 01 complete"
+status: in_progress
+stopped_at: Completed 06-01-PLAN.md (upload route + worker skeleton)
+last_updated: "2026-05-03T11:11:31Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
-  completed_phases: 5
-  total_plans: 34
-  completed_plans: 36
-  percent: 95
+  completed_phases: 4
+  total_plans: 39
+  completed_plans: 29
+  percent: 74
 ---
 
 # Project State — Viral Copy Generator
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 
 ## Current Position
 
-Phase: 5 of 10 (AI Copy + Platform Cards) — ALL PLANS COMPLETE (6/6) — awaiting human smoke test
-Plan: 05-06 — Wave 4: GeneratorPage fully integrated
-Status: All waves complete. Human checkpoint: run tests + smoke test in browser, type "approved" to close phase.
-Last activity: 2026-05-02
+Phase: 6 of 10 (Auto-Upload + Scheduling) — Plan 01 of N complete
+Plan: 06-01 — Wave 1: upload route + worker skeleton
+Status: In progress. Plan 06-01 complete. Proceed to 06-02 (YouTube worker).
+Last activity: 2026-05-03
 
-Progress: [█████████░] 94%
+Progress: [███████░░░] 74%
 
 ## Phase Status
 
@@ -42,7 +42,7 @@ Progress: [█████████░] 94%
 | 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
 | 4 | Virality Score + Checklist | ✅ Complete (8/8 plans, 179/179 tests, verification 6/6 passed 2026-05-02) |
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
-| 6 | Auto-Upload + Scheduling | ⬜ Not started |
+| 6 | Auto-Upload + Scheduling | 🔵 In progress (1/N plans, Plan 01 complete) |
 | 7 | History + Learning Loops | ⬜ Not started |
 | 8 | Admin Panel | ⬜ Not started |
 | 9 | Content Research Engine | ⬜ Not started |
@@ -93,6 +93,9 @@ Progress: [█████████░] 94%
 - **error !== null conditional in LoginPage** — does not reserve space when no error; `{error && ...}` coerces empty string to no-render but `{error !== null && ...}` is explicit
 - **pg-boss v12 createQueue() before schedule()** — `pgboss.schedule` has FK on `(name)` referencing `pgboss.queue`; must call `createQueue(name)` before `schedule(name, cron, {})`
 - **nginx /uploads/ no internal directive** — Meta's Instagram/Facebook servers need public HTTPS access for Phase 6 video ingestion (STORE-02); CORP must be `cross-origin` not `same-origin`
+- **pg-boss v12 work() receives Job<T>[] batch array** — iterate with for..of inside handler; WorkHandler<ReqData> signature: `(jobs: Job<ReqData>[]) => Promise<void>`
+- **multer diskStorage tmp dir + rename pattern** — userId unavailable in multer destination() callback (no res.locals access); write to UPLOADS_ROOT/tmp/{uuid}.mp4 then rename to UPLOADS_ROOT/{userId}/{uuid}.mp4 in route handler
+- **Platform worker stubs for Plan 06-01** — upload-youtube/instagram/facebook/tiktok.ts stubs required for TypeScript module resolution; throw "not yet implemented" until Plan 06-02
 - **pg-mem v3.0.5 PatchedPool for drizzle tests** — pg-mem v3.0.5 lacks rowMode/getTypeParser/JSONB-merge; PatchedPool subclass in _helpers.ts intercepts and rewrites these in JS; test-only shim, production code unchanged
 - **Settings UPSERT partial-field update** — INSERT...onConflictDoUpdate uses dynamic Record<string,unknown> patch so PATCH with only default_niche does not overwrite api_key_encrypted
 - **TRUNCATE → DELETE in pg-mem tests** — pg-mem does not support TRUNCATE ... RESTART IDENTITY CASCADE; DELETE FROM table achieves per-test isolation
@@ -144,11 +147,11 @@ Progress: [█████████░] 94%
 
 ## Session Continuity
 
-Last session: 2026-05-02T07:05:00Z
-Stopped at: Completed 04-08-PLAN.md (Phase 4 execution complete)
+Last session: 2026-05-03T11:11:31Z
+Stopped at: Completed 06-01-PLAN.md (upload route + worker skeleton)
 Resume:
 
+- Phase 6: `/gsd-execute-phase 6` → continue from Plan 06-02 (YouTube worker)
 - Phase 4 verification: `/gsd-verify-work 4` then `/clear`
-- Phase 5: `/clear` → `/gsd-discuss-phase 5` → `/gsd-plan-phase 5` → `/gsd-execute-phase 5`
 - Phase 3: drop 5 fixture videos into `viral-copy-generator/frontend/test/fixtures/` (per the README), then `/gsd-execute-phase 3` to resume from Plan 03-01 Task 3
 - Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`
