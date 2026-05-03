@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 8 (Admin Panel) — executing (6/8 plans complete)
+current_phase: Phase 8 (Admin Panel) — executing (7/8 plans complete)
 status: executing
-stopped_at: Completed 08-06-PLAN.md — admin types (Screen+admin, AdminJob/User/Health/Logs/PlatformStats) and 10 typed API client functions
+stopped_at: Completed 08-07-PLAN.md — AdminPage.tsx with 5 admin tabs (Queue/Users/Health/Logs/Stats), all 10 admin API functions consumed, inline-style bar charts, tsc clean
 last_updated: "2026-05-03T20:38:10.373Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 53
-  completed_plans: 44
-  percent: 83
+  completed_plans: 45
+  percent: 85
 ---
 
 # Project State — Viral Copy Generator
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 ## Current Position
 
 Phase: 8 of 10 (Admin Panel)
-Plan: 08-06 complete (6/8 plans)
-Status: Executing Phase 8. 08-06 complete — Screen type extended with 'admin', 9 admin TypeScript interfaces (AdminJob, AdminUser, AdminHealthResponse, AdminLogsResponse, AdminPlatformStat, AdminPlatformStatsResponse + supporting types) and 10 typed API client functions added (fetchAdminJobs/retryAdminJob/cancelAdminJob/fetchAdminUsers/disableAdminUser/enableAdminUser/resetAdminLearning/fetchAdminHealth/fetchAdminLogs/fetchAdminPlatformStats). tsc clean. Next: 08-07.
+Plan: 08-07 complete (7/8 plans)
+Status: Executing Phase 8. 08-07 complete — AdminPage.tsx (558 lines) with 5 admin tabs fully implemented: Queue (job list, state badges, retry/cancel), Users (disable/enable, learning reset, banned badge), Health (CPU/memory/disk/DB/queue with fail-partial), Logs (line-count selector, raw log display), Platform Stats (inline-style bar charts, success rates). All 10 admin API functions consumed. tsc clean. Next: 08-08.
 Last activity: 2026-05-03
 
 Progress: [████████░░] 83%
@@ -44,7 +44,7 @@ Progress: [████████░░] 83%
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
 | 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
-| 8 | Admin Panel | 🔄 Executing (6/8 plans) |
+| 8 | Admin Panel | 🔄 Executing (7/8 plans) |
 | 9 | Content Research Engine | ⬜ Not started |
 | 10 | Polish + Resilience | ⬜ Not started |
 
@@ -158,6 +158,10 @@ Progress: [████████░░] 83%
 - **fetchAdminLogs options object not positional params** — all three filters (lines, userId, from) are optional; object param avoids undefined-chaining at call sites in AdminPage
 - **resetAdminLearning returns {deleted: number} not void** — AdminPage confirmation display shows 'Deleted N signals' without an extra GET fetch
 - **disableAdminUser reads error body on failure** — backend sends `{ error: 'Cannot disable your own account' }` for self-lockout; error propagates to AdminPage UI without a second fetch
+- **JOB_STATE_STYLES Record<string, string> with ?? fallback** — unknown pg-boss job states (future additions) fall back to zinc badge instead of crashing the render; robust without needing type cast
+- **showAllJobs checkbox drives fetchAdminJobs(includeAll)** — default omits cancelled/completed jobs; admin opts in for full pg-boss history; consistent with 08-06 API param design
+- **resetResults Record<string,number> in-memory state** — stores deleted count per userId; AdminPage shows confirmation without a second GET; cleared on page reload (v1 acceptable)
+- **AdminPage tab-scoped data loading** — useEffect fires per-tab; each of 5 tabs manages its own loading/error/data state; tabs load only when activated (not on mount)
 
 ### Critical Bugs to Avoid
 
@@ -180,11 +184,12 @@ Progress: [████████░░] 83%
 
 ## Session Continuity
 
-Last session: 2026-05-03T20:38:10.352Z
-Stopped at: Completed 08-06-PLAN.md — admin types (Screen+admin, AdminJob/User/Health/Logs/PlatformStats) and 10 typed API client functions
+Last session: 2026-05-03T20:50:00.000Z
+Stopped at: Completed 08-07-PLAN.md — AdminPage.tsx 558 lines, 5 admin tabs (Queue/Users/Health/Logs/Stats) all fully implemented
 Resume:
 
-- Phase 8: `/gsd-plan-phase 8` → Admin Panel
+- Phase 8: Next plan is 08-08 — App.tsx wiring (admin screen guard + navigation) to complete Phase 8
+- Phase 8: `/gsd-execute-phase 8` → 08-08 is the final plan
 - Phase 7: `/gsd-verify-work 7` once backend `.env` configured + servers restarted (smoke test: History, Insights, view logging, Generate Copy regression)
 - Phase 6: `/gsd-verify-work 6` once OAuth accounts connected
 - Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`

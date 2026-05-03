@@ -417,8 +417,8 @@ Plans:
 - [x] 08-03-PLAN.md -- User management routes: GET /users, PATCH /:userId/disable, PATCH /:userId/enable *(complete 2026-05-03)*
 - [x] 08-04-PLAN.md -- Learning reset + platform stats: DELETE /:userId/learning, GET /stats/platforms *(complete 2026-05-03)*
 - [x] 08-05-PLAN.md -- System health + logs: GET /health, GET /logs *(complete 2026-05-03)*
-- [ ] 08-06-PLAN.md -- Frontend admin types (AdminJob, AdminUser etc.) + api.ts admin functions
-- [ ] 08-07-PLAN.md -- AdminPage.tsx: 5-tab admin panel UI (queue, users, health, logs, stats)
+- [x] 08-06-PLAN.md -- Frontend admin types (AdminJob, AdminUser etc.) + api.ts admin functions *(complete 2026-05-03)*
+- [x] 08-07-PLAN.md -- AdminPage.tsx: 5-tab admin panel UI (queue, users, health, logs, stats) *(complete 2026-05-03)*
 - [ ] 08-08-PLAN.md -- App.tsx admin routing + isAdmin guard + human verification checkpoint
 **UI hint:** yes
 
@@ -533,6 +533,6 @@ indeterminate progress animation, and error boundaries throughout.
 | 5. AI Copy + Platform Cards | 0/TBD | Not started | - |
 | 6. Auto-Upload + Scheduling | 0/TBD | Not started | - |
 | 7. History + Learning Loops | 0/TBD | Not started | - |
-| 8. Admin Panel | 0/TBD | Not started | - |
+| 8. Admin Panel | 7/8 | Executing | 2026-05-03 |
 | 9. Content Research Engine | 0/TBD | Not started | - |
 | 10. Polish + Resilience | 0/TBD | Not started | - |
