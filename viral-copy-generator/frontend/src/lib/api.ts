@@ -4,6 +4,7 @@ import type {
   UploadFileResponse, ScheduleUploadBody, ScheduleUploadResponse,
   PostWithPlatforms, LogViewsResponse, TopHook, TopHashtag,
   PostingTimeSlot, NichePerformance, LearningWeightsResponse, PostFilters,
+  AdminJob, AdminUser, AdminHealthResponse, AdminLogsResponse, AdminPlatformStatsResponse,
 } from './types'
 
 async function getAccessToken(): Promise<string | null> {
@@ -223,4 +224,119 @@ export async function fetchLearningWeights(): Promise<LearningWeightsResponse> {
   const res = await apiFetch('/learning/weights')
   if (!res.ok) return { learned_weights: null, data_points: 0, is_calibrated: false }
   return res.json() as Promise<LearningWeightsResponse>
+}
+
+// ============================================================================
+// Phase 8: Admin Panel
+// ============================================================================
+
+/**
+ * GET /api/admin/jobs?state=all
+ * Returns all pg-boss jobs across all users — ADMIN-02.
+ * state=all includes cancelled jobs; default omits cancelled.
+ */
+export async function fetchAdminJobs(includeAll = false): Promise<AdminJob[]> {
+  const qs = includeAll ? '?state=all' : ''
+  const res = await apiFetch(`/admin/jobs${qs}`)
+  if (!res.ok) throw new Error('admin_jobs_fetch_failed')
+  const json = await res.json() as { jobs: AdminJob[] }
+  return json.jobs
+}
+
+/**
+ * POST /api/admin/jobs/:id/retry
+ * Retries a failed pg-boss job — ADMIN-03.
+ */
+export async function retryAdminJob(jobId: string): Promise<void> {
+  const res = await apiFetch(`/admin/jobs/${encodeURIComponent(jobId)}/retry`, { method: 'POST' })
+  if (!res.ok) throw new Error('admin_job_retry_failed')
+}
+
+/**
+ * DELETE /api/admin/jobs/:id
+ * Cancels a pending pg-boss job — ADMIN-03.
+ */
+export async function cancelAdminJob(jobId: string): Promise<void> {
+  const res = await apiFetch(`/admin/jobs/${encodeURIComponent(jobId)}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error('admin_job_cancel_failed')
+}
+
+/**
+ * GET /api/admin/users
+ * Returns all users with safe metadata only — ADMIN-04. ADMIN-10: no tokens.
+ */
+export async function fetchAdminUsers(): Promise<AdminUser[]> {
+  const res = await apiFetch('/admin/users')
+  if (!res.ok) throw new Error('admin_users_fetch_failed')
+  const json = await res.json() as { users: AdminUser[] }
+  return json.users
+}
+
+/**
+ * PATCH /api/admin/users/:userId/disable
+ * Bans a user account — ADMIN-05.
+ */
+export async function disableAdminUser(userId: string): Promise<void> {
+  const res = await apiFetch(`/admin/users/${encodeURIComponent(userId)}/disable`, { method: 'PATCH' })
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({})) as { error?: string }
+    throw new Error(json.error ?? 'admin_disable_user_failed')
+  }
+}
+
+/**
+ * PATCH /api/admin/users/:userId/enable
+ * Restores a banned user account — ADMIN-05.
+ */
+export async function enableAdminUser(userId: string): Promise<void> {
+  const res = await apiFetch(`/admin/users/${encodeURIComponent(userId)}/enable`, { method: 'PATCH' })
+  if (!res.ok) throw new Error('admin_enable_user_failed')
+}
+
+/**
+ * DELETE /api/admin/users/:userId/learning
+ * Resets learning_signals + learned_weights for a user — ADMIN-06.
+ * Returns deleted count for confirmation display.
+ */
+export async function resetAdminLearning(userId: string): Promise<{ deleted: number }> {
+  const res = await apiFetch(`/admin/users/${encodeURIComponent(userId)}/learning`, { method: 'DELETE' })
+  if (!res.ok) throw new Error('admin_reset_learning_failed')
+  return res.json() as Promise<{ deleted: number }>
+}
+
+/**
+ * GET /api/admin/health
+ * Returns VPS CPU/memory/disk + Supabase DB size + queue depth — ADMIN-07.
+ */
+export async function fetchAdminHealth(): Promise<AdminHealthResponse> {
+  const res = await apiFetch('/admin/health')
+  if (!res.ok) throw new Error('admin_health_fetch_failed')
+  return res.json() as Promise<AdminHealthResponse>
+}
+
+/**
+ * GET /api/admin/logs?lines=N&userId=...&from=ISO
+ * Returns last N log lines from the pino log file — ADMIN-08.
+ */
+export async function fetchAdminLogs(
+  options: { lines?: number; userId?: string; from?: string } = {},
+): Promise<AdminLogsResponse> {
+  const params = new URLSearchParams()
+  if (options.lines)  params.set('lines', String(options.lines))
+  if (options.userId) params.set('userId', options.userId)
+  if (options.from)   params.set('from', options.from)
+  const qs = params.size > 0 ? `?${params.toString()}` : ''
+  const res = await apiFetch(`/admin/logs${qs}`)
+  if (!res.ok) throw new Error('admin_logs_fetch_failed')
+  return res.json() as Promise<AdminLogsResponse>
+}
+
+/**
+ * GET /api/admin/stats/platforms
+ * Returns aggregate platform stats across all users — ADMIN-09.
+ */
+export async function fetchAdminPlatformStats(): Promise<AdminPlatformStatsResponse> {
+  const res = await apiFetch('/admin/stats/platforms')
+  if (!res.ok) throw new Error('admin_platform_stats_fetch_failed')
+  return res.json() as Promise<AdminPlatformStatsResponse>
 }
