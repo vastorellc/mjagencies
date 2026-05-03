@@ -129,6 +129,9 @@ Progress: [████████░░] 77%
 - **ScorePanel data-band attribute** — exposes the resolved ColorBand on the ring node for tests + future styling hooks; complements the className for assertion-without-Tailwind-coupling
 - **GeneratorPage __testSignals prop** — temporary Phase 4 test hook; seeds useState initial value; Phase 3 replaces by calling setSignals() from analyse() callback in upload component
 - **useMemo triple-derived state in GeneratorPage** — scoreResult → checklistItems → gapMessages; all null-guarded on signals; renders placeholder when signals===null
+- **PKT peak times are UTC+5, no DST** — Pakistan does not observe daylight saving; getPeakTimes() scans forward 14 days returning first 2 slots >5min in future as UTC ISO strings
+- **setUTCDate before setUTCHours in candidate construction** — setUTCHours first then setUTCDate causes month-rollover on last-day-of-month; correct order: advance date first, then set hours
+- **vitest.config.ts include covers both test directories** — backend uses tests/ (integration) and src/test/ (unit); include: ['tests/**/*.test.ts', 'src/test/**/*.test.ts']
 
 ### Critical Bugs to Avoid
 
