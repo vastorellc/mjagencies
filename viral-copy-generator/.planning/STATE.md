@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 8 (Admin Panel) — executing (2/8 plans complete)
+current_phase: Phase 8 (Admin Panel) — executing (3/8 plans complete)
 status: executing
-stopped_at: Completed 08-02-PLAN.md — pg-boss queue management endpoints
-last_updated: "2026-05-03T20:16:58.250Z"
+stopped_at: "Completed 08-03-PLAN.md — user management endpoints (GET /users, PATCH /users/:userId/disable, PATCH /users/:userId/enable)"
+last_updated: "2026-05-03T20:22:33.785Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 53
-  completed_plans: 40
-  percent: 75
+  completed_plans: 41
+  percent: 77
 ---
 
 # Project State — Viral Copy Generator
@@ -27,11 +27,11 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 ## Current Position
 
 Phase: 8 of 10 (Admin Panel)
-Plan: 08-02 complete (2/8 plans)
-Status: Executing Phase 8. 08-02 complete — pg-boss queue management endpoints (GET /jobs, POST /jobs/:id/retry, DELETE /jobs/:id) added to adminRouter. Next: 08-03.
+Plan: 08-03 complete (3/8 plans)
+Status: Executing Phase 8. 08-03 complete — user management endpoints (GET /users with ADMIN-10 safe-field allowlist, PATCH /users/:userId/disable with 87600h ban, PATCH /users/:userId/enable to clear ban, admin self-lockout guard) added to adminRouter. Next: 08-04.
 Last activity: 2026-05-03
 
-Progress: [████████░░] 75%
+Progress: [████████░░] 77%
 
 ## Phase Status
 
@@ -44,7 +44,7 @@ Progress: [████████░░] 75%
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
 | 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
-| 8 | Admin Panel | 🔄 Executing (2/8 plans) |
+| 8 | Admin Panel | 🔄 Executing (3/8 plans) |
 | 9 | Content Research Engine | ⬜ Not started |
 | 10 | Polish + Resilience | ⬜ Not started |
 
@@ -145,6 +145,8 @@ Progress: [████████░░] 75%
 - **adminMiddleware is synchronous** — reads already-populated res.locals.user; no async/await; avoids Express 5 async error forwarding edge case for sync handlers; app_metadata.role read exclusively from server-side Supabase field
 - **Double-gate admin auth pattern** — authMiddleware at app.use('/api') (401 without JWT) then adminMiddleware at router.use() inside adminRouter (403 without admin role); both required per ADMIN-01
 - **pg-boss v12 resume/cancel take (name, id) not (id)** — boss.resume(name, jobId) and boss.cancel(name, jobId); queue name looked up from pgboss.job before each call so the public API remains jobId-only; returns 404 if job not found
+- **Supabase ban_duration '87600h' for permanent disable, 'none' to restore** — updateUserById with ban_duration disables login; reversible with 'none'; admin self-lockout guard compares targetUserId vs res.locals.userId (ADMIN-05)
+- **GET /admin/users ADMIN-10 allowlist** — explicit object literal (id, email, created_at, last_sign_in_at, banned bool, upload_count, connected_platforms); platform_config keys extracted via Object.keys only — token values never touched (ADMIN-04, ADMIN-10)
 
 ### Critical Bugs to Avoid
 
@@ -167,8 +169,8 @@ Progress: [████████░░] 75%
 
 ## Session Continuity
 
-Last session: 2026-05-03T20:16:58.206Z
-Stopped at: Completed 08-02-PLAN.md — pg-boss queue management endpoints
+Last session: 2026-05-03T20:22:25.818Z
+Stopped at: Completed 08-03-PLAN.md — user management endpoints (GET /users, PATCH /users/:userId/disable, PATCH /users/:userId/enable)
 Resume:
 
 - Phase 8: `/gsd-plan-phase 8` → Admin Panel

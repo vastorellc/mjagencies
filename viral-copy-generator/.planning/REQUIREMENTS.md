@@ -152,8 +152,10 @@ history, learning loops, admin panel, content research engine.
 **: Admin can view all pg-boss jobs (pending, active, failed, completed) across all users with job type, user_id, platform, scheduled time
 - [x] **ADMIN-03
 **: Admin can retry any failed upload job or cancel any pending job
-- [ ] **ADMIN-04**: Admin can view all registered users — email, join date, last active, upload count, connected platforms
-- [ ] **ADMIN-05**: Admin can disable/enable any user account
+- [x] **ADMIN-04
+**: Admin can view all registered users — email, join date, last active, upload count, connected platforms
+- [x] **ADMIN-05
+**: Admin can disable/enable any user account
 - [ ] **ADMIN-06**: Admin can view and reset learning data for any user (learning_signals + learned_weights)
 - [ ] **ADMIN-07**: Admin can view system health dashboard: VPS CPU, memory, disk usage; Supabase DB size; pg-boss queue depth
 - [ ] **ADMIN-08**: Admin can view application logs: upload errors, AI call errors, OAuth failures — filterable by user and time range
