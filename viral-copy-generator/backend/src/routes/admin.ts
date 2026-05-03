@@ -267,3 +267,76 @@ adminRouter.delete('/users/:userId/learning', async (req, res) => {
 
   res.json({ ok: true, userId: targetUserId, deleted: deletedCount })
 })
+
+// ── ADMIN-09: Aggregate platform stats across all users ──────────────────────
+// Returns: total uploads per platform, success/failure counts, avg virality score.
+// ADMIN-10: No individual post content, copy, or AI output returned — aggregates only.
+adminRouter.get('/stats/platforms', async (_req, res) => {
+  // Aggregate upload stats from platform_posts — group by platform
+  const uploadStatsRows = await db.execute<{
+    platform: string
+    total: string
+    succeeded: string
+    failed: string
+  }>(
+    sql`
+      SELECT
+        platform,
+        COUNT(*)::text AS total,
+        COUNT(*) FILTER (WHERE upload_status = 'posted')::text AS succeeded,
+        COUNT(*) FILTER (WHERE upload_status = 'failed')::text AS failed
+      FROM platform_posts
+      GROUP BY platform
+      ORDER BY total DESC
+    `
+  )
+
+  // Aggregate avg virality score from posts — group by platform via platform_posts join
+  const scoreStatsRows = await db.execute<{
+    platform: string
+    avg_score: string
+  }>(
+    sql`
+      SELECT
+        pp.platform,
+        AVG(p.virality_score)::text AS avg_score
+      FROM platform_posts pp
+      JOIN posts p ON p.id = pp.post_id
+      GROUP BY pp.platform
+    `
+  )
+
+  // Merge into a single response object keyed by platform
+  const scoreMap: Record<string, number> = {}
+  for (const row of scoreStatsRows.rows) {
+    scoreMap[row.platform] = parseFloat(row.avg_score)
+  }
+
+  const platformStats = uploadStatsRows.rows.map(row => ({
+    platform: row.platform,
+    total_uploads: parseInt(row.total, 10),
+    succeeded: parseInt(row.succeeded, 10),
+    failed: parseInt(row.failed, 10),
+    success_rate: parseInt(row.total, 10) > 0
+      ? Math.round((parseInt(row.succeeded, 10) / parseInt(row.total, 10)) * 100)
+      : 0,
+    avg_virality_score: scoreMap[row.platform]
+      ? Math.round(scoreMap[row.platform])
+      : null,
+  }))
+
+  // Overall totals
+  const totalUploads = platformStats.reduce((s, p) => s + p.total_uploads, 0)
+  const totalSucceeded = platformStats.reduce((s, p) => s + p.succeeded, 0)
+
+  res.json({
+    platform_stats: platformStats,
+    totals: {
+      uploads: totalUploads,
+      succeeded: totalSucceeded,
+      overall_success_rate: totalUploads > 0
+        ? Math.round((totalSucceeded / totalUploads) * 100)
+        : 0,
+    },
+  })
+})
