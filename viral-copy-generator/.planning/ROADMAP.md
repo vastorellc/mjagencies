@@ -367,7 +367,15 @@ points. Hashtag aggregation uses `unnest()`. Learning data injected fresh into e
 8. Bar chart renders with inline style — displays from 1 data point onward
 9. "Calibrated (N posts)" badge appears on score card when active
 
-**Plans:** TBD
+**Plans:** 6 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — GET /api/posts full impl (EXISTS filter) + DELETE /api/posts/:id (cascade)
+- [ ] 07-02-PLAN.md — backend/src/routes/learning.ts: 5 GET endpoints (hooks MAX, hashtags unnest, posting-times PKT, niche-performance COALESCE, weights)
+- [ ] 07-03-PLAN.md — frontend types.ts Phase 7 extensions + api.ts 8 new client functions
+- [ ] 07-04-PLAN.md — HistoryPage.tsx: post list, platform/niche/date filters, inline view logging, accuracy badge, delete
+- [ ] 07-05-PLAN.md — LearningPage.tsx (bar charts inline style) + GeneratorPage learning injection + prompt.ts extension + App.tsx nav wiring
+- [ ] 07-06-PLAN.md — Automated structural verification (20 checks) + human visual checkpoint
 **UI hint:** yes
 
 ---
