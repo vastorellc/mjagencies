@@ -1,4 +1,4 @@
-export type Screen = 'generator' | 'settings'
+export type Screen = 'generator' | 'settings' | 'history' | 'learning'
 
 export type AIProvider = 'claude' | 'gemini' | 'openai'
 export const AI_PROVIDERS: AIProvider[] = ['claude', 'gemini', 'openai']
@@ -184,4 +184,99 @@ export interface ScheduleUploadBody {
 export interface ScheduleUploadResponse {
   ok: boolean
   platformPostId: string
+}
+
+// ============================================================================
+// Phase 7: History + Learning Loops
+// ============================================================================
+
+// PlatformPostRow — matches platform_posts DB row shape returned by GET /api/posts
+export interface PlatformPostRow {
+  id: string
+  user_id: string
+  post_id: string
+  platform: string
+  upload_status: string
+  platform_post_id: string | null
+  actual_views: number | null
+  predicted_low: number | null
+  predicted_high: number | null
+  error_message: string | null
+  posted_at: string | null    // ISO-8601 string (serialized from DB timestamp)
+  created_at: string
+}
+
+// PostWithPlatforms — shape returned by GET /api/posts
+export interface PostWithPlatforms {
+  id: string
+  user_id: string
+  title: string
+  niche: string
+  virality_score: number
+  engine_signals: Record<string, unknown>
+  ai_output: Record<string, unknown>
+  description: string | null
+  created_at: string           // ISO-8601 string
+  updated_at: string
+  platforms: PlatformPostRow[]
+}
+
+// Accuracy label — returned by POST /api/platform-posts/:id/views and
+// derived from PlatformPostRow.actual_views vs predicted_low/predicted_high
+export type AccuracyLabel = 'overperformed' | 'matched' | 'underperformed'
+
+// LogViewsResponse — from POST /api/platform-posts/:id/views
+export interface LogViewsResponse {
+  ok: boolean
+  accuracy: AccuracyLabel
+}
+
+// TopHook — from GET /api/learning/hooks
+export interface TopHook {
+  hook_text: string
+  max_views: number
+}
+
+// TopHashtag — from GET /api/learning/hashtags
+export interface TopHashtag {
+  hashtag: string
+  avg_views: number
+}
+
+// PostingTimeSlot — from GET /api/learning/posting-times
+export interface PostingTimeSlot {
+  dow: number          // 0=Sunday … 6=Saturday
+  hour: number         // 0–23, PKT (UTC+5)
+  platform: string
+  avg_views: number
+  post_count: number
+}
+
+// NichePerformance — from GET /api/learning/niche-performance
+export interface NichePerformance {
+  niche: string
+  avg_views: number
+  max_views: number
+  total_posts: number
+}
+
+// LearningWeightsResponse — from GET /api/learning/weights
+export interface LearningWeightsResponse {
+  learned_weights: Record<string, number> | null
+  data_points: number
+  is_calibrated: boolean
+}
+
+// LearningData — passed into buildPrompt() for LEARNING-06 injection
+export interface LearningData {
+  topHooks: TopHook[]
+  topHashtags: TopHashtag[]
+}
+
+// PostFilters — used by HistoryPage to build GET /api/posts query string
+export interface PostFilters {
+  platform?: string
+  niche?: string
+  from?: string    // YYYY-MM-DD
+  to?: string      // YYYY-MM-DD
 }

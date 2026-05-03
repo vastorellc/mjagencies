@@ -1,5 +1,10 @@
 import { supabase } from './supabase'
-import type { AIProxyBody, SettingsResponse, CreatePostBody, PostSaveResponse, UploadFileResponse, ScheduleUploadBody, ScheduleUploadResponse } from './types'
+import type {
+  AIProxyBody, SettingsResponse, CreatePostBody, PostSaveResponse,
+  UploadFileResponse, ScheduleUploadBody, ScheduleUploadResponse,
+  PostWithPlatforms, LogViewsResponse, TopHook, TopHashtag,
+  PostingTimeSlot, NichePerformance, LearningWeightsResponse, PostFilters,
+} from './types'
 
 async function getAccessToken(): Promise<string | null> {
   const { data: { session } } = await supabase.auth.getSession()
@@ -97,4 +102,125 @@ export async function fetchPeakTimes(platform: string): Promise<string[]> {
   if (!res.ok) return []
   const json = await res.json() as { slots: string[] }
   return json.slots ?? []
+}
+
+// ============================================================================
+// Phase 7: History + Learning Loops
+// ============================================================================
+
+/**
+ * GET /api/posts — returns authenticated user's posts, newest-first.
+ * Filters are optional; platform filter uses EXISTS subquery server-side.
+ */
+export async function fetchPosts(filters: PostFilters = {}): Promise<PostWithPlatforms[]> {
+  const params = new URLSearchParams()
+  if (filters.platform) params.set('platform', filters.platform)
+  if (filters.niche)    params.set('niche', filters.niche)
+  if (filters.from)     params.set('from', filters.from)
+  if (filters.to)       params.set('to', filters.to)
+
+  const qs = params.size > 0 ? `?${params.toString()}` : ''
+  const res = await apiFetch(`/posts${qs}`)
+  if (!res.ok) throw new Error('posts_fetch_failed')
+  const json = await res.json() as { posts: PostWithPlatforms[] }
+  return json.posts
+}
+
+/**
+ * DELETE /api/posts/:id — deletes post, cascades to platform_posts and learning_signals.
+ */
+export async function deletePost(postId: string): Promise<void> {
+  const res = await apiFetch(`/posts/${encodeURIComponent(postId)}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error('post_delete_failed')
+}
+
+/**
+ * POST /api/platform-posts/:platformPostId/views — logs actual views.
+ * Returns accuracy label for inline display.
+ * HISTORY-04, HISTORY-05, LEARNING-08: all 4 DB writes execute atomically server-side.
+ */
+export async function logActualViews(
+  platformPostId: string,
+  actualViews: number,
+): Promise<LogViewsResponse> {
+  const res = await apiFetch(`/platform-posts/${encodeURIComponent(platformPostId)}/views`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ actualViews }),
+  })
+  if (!res.ok) throw new Error('log_views_failed')
+  return res.json() as Promise<LogViewsResponse>
+}
+
+/**
+ * GET /api/learning/hooks?niche=...
+ * Returns top 5 hooks by MAX(actual_views) — LEARNING-01.
+ * Called fresh before every AI generation — no caching (LEARNING-06).
+ * Fail-open: returns [] on any error so AI generation is never blocked.
+ */
+export async function fetchTopHooks(niche?: string): Promise<TopHook[]> {
+  try {
+    const qs = niche ? `?niche=${encodeURIComponent(niche)}` : ''
+    const res = await apiFetch(`/learning/hooks${qs}`)
+    if (!res.ok) return []
+    const json = await res.json() as { hooks: TopHook[] }
+    return json.hooks ?? []
+  } catch {
+    return []
+  }
+}
+
+/**
+ * GET /api/learning/hashtags?niche=...&platform=...
+ * Returns top 10 hashtags by avg_views using unnest() aggregation — LEARNING-02.
+ * Called fresh before every AI generation — no caching (LEARNING-06).
+ * Fail-open: returns [] on any error so AI generation is never blocked.
+ */
+export async function fetchTopHashtags(niche?: string, platform?: string): Promise<TopHashtag[]> {
+  try {
+    const params = new URLSearchParams()
+    if (niche)    params.set('niche', niche)
+    if (platform) params.set('platform', platform)
+    const qs = params.size > 0 ? `?${params.toString()}` : ''
+    const res = await apiFetch(`/learning/hashtags${qs}`)
+    if (!res.ok) return []
+    const json = await res.json() as { hashtags: TopHashtag[] }
+    return json.hashtags ?? []
+  } catch {
+    return []
+  }
+}
+
+/**
+ * GET /api/learning/posting-times?platform=...
+ * Returns best PKT posting times — LEARNING-04.
+ */
+export async function fetchPostingTimes(platform?: string): Promise<PostingTimeSlot[]> {
+  const qs = platform ? `?platform=${encodeURIComponent(platform)}` : ''
+  const res = await apiFetch(`/learning/posting-times${qs}`)
+  if (!res.ok) return []
+  const json = await res.json() as { times: PostingTimeSlot[] }
+  return json.times ?? []
+}
+
+/**
+ * GET /api/learning/niche-performance
+ * Returns niche breakdown — LEARNING-05.
+ */
+export async function fetchNichePerformance(): Promise<NichePerformance[]> {
+  const res = await apiFetch('/learning/niche-performance')
+  if (!res.ok) return []
+  const json = await res.json() as { niches: NichePerformance[] }
+  return json.niches ?? []
+}
+
+/**
+ * GET /api/learning/weights
+ * Returns learned_weights, data_points, is_calibrated — LEARNING-09.
+ * Returns safe defaults on error so callers never need to null-check.
+ */
+export async function fetchLearningWeights(): Promise<LearningWeightsResponse> {
+  const res = await apiFetch('/learning/weights')
+  if (!res.ok) return { learned_weights: null, data_points: 0, is_calibrated: false }
+  return res.json() as Promise<LearningWeightsResponse>
 }
