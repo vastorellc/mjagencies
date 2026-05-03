@@ -1,4 +1,4 @@
-export type Screen = 'generator' | 'settings' | 'history' | 'learning'
+export type Screen = 'generator' | 'settings' | 'history' | 'learning' | 'admin'
 
 export type AIProvider = 'claude' | 'gemini' | 'openai'
 export const AI_PROVIDERS: AIProvider[] = ['claude', 'gemini', 'openai']
@@ -279,4 +279,90 @@ export interface PostFilters {
   niche?: string
   from?: string    // YYYY-MM-DD
   to?: string      // YYYY-MM-DD
+}
+
+// ============================================================================
+// Phase 8: Admin Panel
+// ============================================================================
+
+// AdminJob — shape returned by GET /api/admin/jobs
+// data field contains safe fields only (ADMIN-10: no tokens, no api keys)
+export interface AdminJobData {
+  userId?: string
+  platform?: string
+  fileId?: string
+  scheduledAt?: string
+  postId?: string
+}
+
+export interface AdminJob {
+  id: string
+  name: string
+  state: 'created' | 'retry' | 'active' | 'completed' | 'cancelled' | 'failed'
+  data: AdminJobData
+  createdon: string
+  startedon: string | null
+  completedon: string | null
+}
+
+// AdminUser — shape returned by GET /api/admin/users (ADMIN-04)
+// ADMIN-10: no api_key_encrypted, no OAuth tokens
+export interface AdminUser {
+  id: string
+  email: string | null
+  created_at: string
+  last_sign_in_at: string | null
+  banned: boolean
+  upload_count: number
+  connected_platforms: string[]
+}
+
+// AdminHealthResponse — shape returned by GET /api/admin/health (ADMIN-07)
+export interface AdminDiskInfo {
+  size: string
+  used: string
+  avail: string
+  usePct: string
+}
+
+export interface AdminHealthResponse {
+  cpu: { count: number }
+  memory: { total_mb: number; free_mb: number; used_mb: number; use_pct: number }
+  disk: AdminDiskInfo | { error: string }
+  database: { size: string } | { error: string }
+  queue: { pending_jobs: number }
+  timestamp: string
+}
+
+// AdminLogsResponse — shape returned by GET /api/admin/logs (ADMIN-08)
+export interface AdminLogsMeta {
+  logPath: string
+  total_lines: number
+  filtered_lines: number
+  returned: number
+  error?: string
+}
+
+export interface AdminLogsResponse {
+  lines: string[]
+  meta: AdminLogsMeta
+}
+
+// AdminPlatformStat — one platform row from GET /api/admin/stats/platforms (ADMIN-09)
+export interface AdminPlatformStat {
+  platform: string
+  total_uploads: number
+  succeeded: number
+  failed: number
+  success_rate: number
+  avg_virality_score: number | null
+}
+
+export interface AdminPlatformStatsResponse {
+  platform_stats: AdminPlatformStat[]
+  totals: {
+    uploads: number
+    succeeded: number
+    overall_success_rate: number
+  }
 }
