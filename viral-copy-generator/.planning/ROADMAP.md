@@ -416,7 +416,7 @@ Plans:
 - [x] 08-02-PLAN.md -- Queue manager routes: GET /jobs, POST /jobs/:id/retry, DELETE /jobs/:id *(complete 2026-05-03)*
 - [x] 08-03-PLAN.md -- User management routes: GET /users, PATCH /:userId/disable, PATCH /:userId/enable *(complete 2026-05-03)*
 - [x] 08-04-PLAN.md -- Learning reset + platform stats: DELETE /:userId/learning, GET /stats/platforms *(complete 2026-05-03)*
-- [ ] 08-05-PLAN.md -- System health + logs: GET /health, GET /logs
+- [x] 08-05-PLAN.md -- System health + logs: GET /health, GET /logs *(complete 2026-05-03)*
 - [ ] 08-06-PLAN.md -- Frontend admin types (AdminJob, AdminUser etc.) + api.ts admin functions
 - [ ] 08-07-PLAN.md -- AdminPage.tsx: 5-tab admin panel UI (queue, users, health, logs, stats)
 - [ ] 08-08-PLAN.md -- App.tsx admin routing + isAdmin guard + human verification checkpoint

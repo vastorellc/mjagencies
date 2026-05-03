@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 8 (Admin Panel) — executing (4/8 plans complete)
+current_phase: Phase 8 (Admin Panel) — executing (5/8 plans complete)
 status: executing
-stopped_at: "Completed 08-04-PLAN.md — learning data reset + platform stats (DELETE /users/:userId/learning, GET /stats/platforms)"
-last_updated: "2026-05-03T20:28:00Z"
+stopped_at: "Completed 08-05-PLAN.md — system health (GET /health: os+df+pg_size_pretty+queue) and log viewer (GET /logs: pino tail with filters)"
+last_updated: "2026-05-03T20:36:00Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 53
-  completed_plans: 42
-  percent: 79
+  completed_plans: 43
+  percent: 81
 ---
 
 # Project State — Viral Copy Generator
@@ -27,11 +27,11 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 ## Current Position
 
 Phase: 8 of 10 (Admin Panel)
-Plan: 08-04 complete (4/8 plans)
-Status: Executing Phase 8. 08-04 complete — DELETE /users/:userId/learning (atomic db.transaction: DELETE learning_signals + NULL learned_weights) and GET /stats/platforms (COUNT FILTER + AVG JOIN aggregate SQL, no individual content) added to adminRouter. Next: 08-05.
+Plan: 08-05 complete (5/8 plans)
+Status: Executing Phase 8. 08-05 complete — GET /health (os.cpus/totalmem/freemem, df -h /var parsed, pg_size_pretty DB size, pg-boss queue COUNT) and GET /logs (LOG_FILE env var, 1-500 line cap, pino JSON filter by userId/from) added to adminRouter. Next: 08-06.
 Last activity: 2026-05-03
 
-Progress: [████████░░] 77%
+Progress: [████████░░] 81%
 
 ## Phase Status
 
@@ -44,7 +44,7 @@ Progress: [████████░░] 77%
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
 | 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
-| 8 | Admin Panel | 🔄 Executing (4/8 plans) |
+| 8 | Admin Panel | 🔄 Executing (5/8 plans) |
 | 9 | Content Research Engine | ⬜ Not started |
 | 10 | Polish + Resilience | ⬜ Not started |
 
@@ -150,6 +150,10 @@ Progress: [████████░░] 77%
 - **Learning reset COUNT inside transaction** — COUNT(*) executed inside db.transaction() before DELETE so count is atomic with the delete; avoids a separate pre-flight query that could race with concurrent deletions (ADMIN-06)
 - **Platform stats as two separate GROUP BY queries** — uploadStatsRows + scoreStatsRows merged in JS rather than OUTER JOIN; cleaner sql template, avoids NULL/0 ambiguity in conditional aggregates across joined tables (ADMIN-09)
 - **avg_virality_score returns null not 0 when no data** — scoreMap falsy guard returns null explicitly so UI can distinguish "no uploads with scores" from "average score of 0" (ADMIN-10)
+- **Fail-partial health endpoint** — disk (exec df) and database (pg_size_pretty) each have independent try/catch so one failure does not suppress the other; admin sees maximum diagnostic info in degraded scenarios (ADMIN-07)
+- **Fixed-string exec() for disk usage** — 'df -h /var' is a compile-time literal with no user input concatenated; prevents shell injection while enabling VPS introspection (T-08-17)
+- **LOG_FILE env var only for log path** — readFile receives process.env.LOG_FILE; no request-time path construction; operator sets path at deploy time (T-08-19)
+- **Pino log parsing fail-open** — non-JSON lines (startup messages, stack traces) pass all filters and appear in tail result so no log output is silently lost
 
 ### Critical Bugs to Avoid
 
@@ -172,8 +176,8 @@ Progress: [████████░░] 77%
 
 ## Session Continuity
 
-Last session: 2026-05-03T20:28:00Z
-Stopped at: Completed 08-04-PLAN.md — learning reset + platform stats (DELETE /users/:userId/learning, GET /stats/platforms)
+Last session: 2026-05-03T20:36:00Z
+Stopped at: Completed 08-05-PLAN.md — system health + log viewer (GET /health, GET /logs)
 Resume:
 
 - Phase 8: `/gsd-plan-phase 8` → Admin Panel
