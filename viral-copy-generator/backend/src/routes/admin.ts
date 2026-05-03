@@ -5,7 +5,8 @@ import { Router } from 'express'
 import { adminMiddleware } from '../middleware/admin.js'
 import { db } from '../db/index.js'
 import { getBoss } from '../lib/boss.js'
-import { sql } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
+import { learning_signals, settings, platform_posts, posts } from '../db/schema.js'
 import { supabaseAdmin } from '../lib/supabase.js'
 
 export const adminRouter = Router()
@@ -231,4 +232,38 @@ adminRouter.patch('/users/:userId/enable', async (req, res) => {
   }
 
   res.json({ ok: true, userId: targetUserId, action: 'enabled' })
+})
+
+// ── ADMIN-06: Reset learning data for a user ─────────────────────────────────
+// Atomically: DELETE all learning_signals WHERE user_id = $userId
+//             + UPDATE settings SET learned_weights = NULL WHERE user_id = $userId
+// Both writes are in a single db.transaction() — LEARNING-08 pattern: no partial commit.
+// Returns count of deleted learning_signals rows for confirmation.
+adminRouter.delete('/users/:userId/learning', async (req, res) => {
+  const targetUserId = req.params.userId
+
+  if (!targetUserId || typeof targetUserId !== 'string') {
+    res.status(400).json({ error: 'Missing userId' })
+    return
+  }
+
+  let deletedCount = 0
+
+  await db.transaction(async (tx) => {
+    // Count before delete (for response feedback)
+    const countResult = await tx.execute<{ count: string }>(
+      sql`SELECT COUNT(*)::text AS count FROM learning_signals WHERE user_id = ${targetUserId}`
+    )
+    deletedCount = parseInt(countResult.rows[0]?.count ?? '0', 10)
+
+    // Write 1: Delete all learning_signals for this user
+    await tx.delete(learning_signals).where(eq(learning_signals.user_id, targetUserId))
+
+    // Write 2: Null out learned_weights in settings
+    await tx.update(settings)
+      .set({ learned_weights: null })
+      .where(eq(settings.user_id, targetUserId))
+  })
+
+  res.json({ ok: true, userId: targetUserId, deleted: deletedCount })
 })
