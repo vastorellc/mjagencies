@@ -3,6 +3,7 @@ import 'dotenv/config'
 import { runMigrations } from './db/migrate.js'
 import { getBoss, registerCleanupJob } from './lib/boss.js'
 import { registerMetaTokenRefreshJob } from './lib/meta-refresh.js'
+import { registerUploadWorkers } from './lib/upload-worker.js'
 import { initStorage } from './lib/storage.js'
 import { app } from './app.js'
 
@@ -16,7 +17,8 @@ const REQUIRED_ENV = [
   'GOOGLE_CLIENT_SECRET',
   'META_APP_ID',
   'META_APP_SECRET',
-  'APP_URL', // OAuth redirect URI base
+  'APP_URL',        // OAuth redirect URI base
+  'VPS_PUBLIC_URL', // Phase 6: required for Meta video fetch (STORE-02)
 ] as const
 for (const key of REQUIRED_ENV) {
   if (!process.env[key]) throw new Error(`Missing required env var: ${key}`)
@@ -38,6 +40,7 @@ async function main(): Promise<void> {
   const boss = await getBoss()
   await registerCleanupJob(boss)
   await registerMetaTokenRefreshJob(boss)  // Phase 2 SETTINGS-07
+  await registerUploadWorkers(boss)        // Phase 6 AUTOUP-07
 
   // 4. Start Express server last — only accept requests after all deps are ready
   const PORT = process.env.PORT ?? 3001

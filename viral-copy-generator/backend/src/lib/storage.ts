@@ -9,7 +9,19 @@ export async function initStorage(): Promise<void> {
   console.log(`[storage] uploads directory: ${UPLOADS_ROOT}`)
 }
 
-// deleteFile() — implemented in Phase 6 after upload job completes (STORE-03)
+/**
+ * STORE-03: Delete a single file after successful social upload.
+ * Path-traversal guard: resolved path must be inside UPLOADS_ROOT.
+ */
+export async function deleteFile(filePath: string): Promise<void> {
+  const root = path.resolve(UPLOADS_ROOT)
+  const resolved = path.resolve(filePath)
+  if (!resolved.startsWith(root + path.sep)) {
+    throw new Error(`deleteFile: path traversal rejected: ${filePath}`)
+  }
+  await unlink(resolved)
+  console.log(`[storage] deleted: ${resolved}`)
+}
 
 // STORE-04: Cleanup job deletes files older than maxAgeMs (default: 1 hour)
 // Called by the pg-boss cleanup-stale-files schedule job
