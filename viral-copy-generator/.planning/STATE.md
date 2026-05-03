@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 8 (Admin Panel) — executing (3/8 plans complete)
+current_phase: Phase 8 (Admin Panel) — executing (4/8 plans complete)
 status: executing
-stopped_at: "Completed 08-03-PLAN.md — user management endpoints (GET /users, PATCH /users/:userId/disable, PATCH /users/:userId/enable)"
-last_updated: "2026-05-03T20:22:33.785Z"
+stopped_at: "Completed 08-04-PLAN.md — learning data reset + platform stats (DELETE /users/:userId/learning, GET /stats/platforms)"
+last_updated: "2026-05-03T20:28:00Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 53
-  completed_plans: 41
-  percent: 77
+  completed_plans: 42
+  percent: 79
 ---
 
 # Project State — Viral Copy Generator
@@ -22,13 +22,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 8 (Admin Panel) — executing (1/8 plans complete)
+**Current phase:** Phase 8 (Admin Panel) — executing (4/8 plans complete)
 
 ## Current Position
 
 Phase: 8 of 10 (Admin Panel)
-Plan: 08-03 complete (3/8 plans)
-Status: Executing Phase 8. 08-03 complete — user management endpoints (GET /users with ADMIN-10 safe-field allowlist, PATCH /users/:userId/disable with 87600h ban, PATCH /users/:userId/enable to clear ban, admin self-lockout guard) added to adminRouter. Next: 08-04.
+Plan: 08-04 complete (4/8 plans)
+Status: Executing Phase 8. 08-04 complete — DELETE /users/:userId/learning (atomic db.transaction: DELETE learning_signals + NULL learned_weights) and GET /stats/platforms (COUNT FILTER + AVG JOIN aggregate SQL, no individual content) added to adminRouter. Next: 08-05.
 Last activity: 2026-05-03
 
 Progress: [████████░░] 77%
@@ -44,7 +44,7 @@ Progress: [████████░░] 77%
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
 | 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
-| 8 | Admin Panel | 🔄 Executing (3/8 plans) |
+| 8 | Admin Panel | 🔄 Executing (4/8 plans) |
 | 9 | Content Research Engine | ⬜ Not started |
 | 10 | Polish + Resilience | ⬜ Not started |
 
@@ -147,6 +147,9 @@ Progress: [████████░░] 77%
 - **pg-boss v12 resume/cancel take (name, id) not (id)** — boss.resume(name, jobId) and boss.cancel(name, jobId); queue name looked up from pgboss.job before each call so the public API remains jobId-only; returns 404 if job not found
 - **Supabase ban_duration '87600h' for permanent disable, 'none' to restore** — updateUserById with ban_duration disables login; reversible with 'none'; admin self-lockout guard compares targetUserId vs res.locals.userId (ADMIN-05)
 - **GET /admin/users ADMIN-10 allowlist** — explicit object literal (id, email, created_at, last_sign_in_at, banned bool, upload_count, connected_platforms); platform_config keys extracted via Object.keys only — token values never touched (ADMIN-04, ADMIN-10)
+- **Learning reset COUNT inside transaction** — COUNT(*) executed inside db.transaction() before DELETE so count is atomic with the delete; avoids a separate pre-flight query that could race with concurrent deletions (ADMIN-06)
+- **Platform stats as two separate GROUP BY queries** — uploadStatsRows + scoreStatsRows merged in JS rather than OUTER JOIN; cleaner sql template, avoids NULL/0 ambiguity in conditional aggregates across joined tables (ADMIN-09)
+- **avg_virality_score returns null not 0 when no data** — scoreMap falsy guard returns null explicitly so UI can distinguish "no uploads with scores" from "average score of 0" (ADMIN-10)
 
 ### Critical Bugs to Avoid
 
@@ -169,8 +172,8 @@ Progress: [████████░░] 77%
 
 ## Session Continuity
 
-Last session: 2026-05-03T20:22:25.818Z
-Stopped at: Completed 08-03-PLAN.md — user management endpoints (GET /users, PATCH /users/:userId/disable, PATCH /users/:userId/enable)
+Last session: 2026-05-03T20:28:00Z
+Stopped at: Completed 08-04-PLAN.md — learning reset + platform stats (DELETE /users/:userId/learning, GET /stats/platforms)
 Resume:
 
 - Phase 8: `/gsd-plan-phase 8` → Admin Panel
