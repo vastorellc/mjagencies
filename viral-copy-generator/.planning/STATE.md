@@ -4,15 +4,15 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 8 (Admin Panel) — ready to plan
 status: planning
-stopped_at: Phase 7 provisionally complete — all 20 automated checks pass; smoke test deferred pending backend .env + Vite proxy restart
-last_updated: "2026-05-03T21:00:00Z"
+stopped_at: Completed 08-01-PLAN.md — adminMiddleware + adminRouter scaffold
+last_updated: "2026-05-03T20:11:34.042Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
   completed_phases: 6
-  total_plans: 45
-  completed_plans: 44
-  percent: 88
+  total_plans: 53
+  completed_plans: 39
+  percent: 74
 ---
 
 # Project State — Viral Copy Generator
@@ -22,7 +22,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 8 (Admin Panel) — ready to plan
+**Current phase:** Phase 8 (Admin Panel) — executing (1/8 plans complete)
 
 ## Current Position
 
@@ -31,7 +31,7 @@ Plan: —
 Status: Phase 7 provisionally complete (20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` once backend .env is configured and both servers restarted). Ready to plan Phase 8.
 Last activity: 2026-05-03
 
-Progress: [█████████░] 88%
+Progress: [███████░░░] 74%
 
 ## Phase Status
 
@@ -44,7 +44,7 @@ Progress: [█████████░] 88%
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
 | 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
-| 8 | Admin Panel | ⬜ Not started |
+| 8 | Admin Panel | 🔄 Executing (1/8 plans) |
 | 9 | Content Research Engine | ⬜ Not started |
 | 10 | Polish + Resilience | ⬜ Not started |
 
@@ -142,6 +142,8 @@ Progress: [█████████░] 88%
 - **handleScheduleConfirm optimistic upload status** — sets 'uploading' immediately; Supabase Realtime pushes 'posted'/'failed' from platform_posts without polling
 - **setUTCDate before setUTCHours in candidate construction** — setUTCHours first then setUTCDate causes month-rollover on last-day-of-month; correct order: advance date first, then set hours
 - **vitest.config.ts include covers both test directories** — backend uses tests/ (integration) and src/test/ (unit); include: ['tests/**/*.test.ts', 'src/test/**/*.test.ts']
+- **adminMiddleware is synchronous** — reads already-populated res.locals.user; no async/await; avoids Express 5 async error forwarding edge case for sync handlers; app_metadata.role read exclusively from server-side Supabase field
+- **Double-gate admin auth pattern** — authMiddleware at app.use('/api') (401 without JWT) then adminMiddleware at router.use() inside adminRouter (403 without admin role); both required per ADMIN-01
 
 ### Critical Bugs to Avoid
 
@@ -164,8 +166,8 @@ Progress: [█████████░] 88%
 
 ## Session Continuity
 
-Last session: 2026-05-03T19:30:00Z
-Stopped at: Completed 07-05-PLAN.md — LearningPage + learning injection in GeneratorPage + App.tsx routing
+Last session: 2026-05-03T20:11:33.980Z
+Stopped at: Completed 08-01-PLAN.md — adminMiddleware + adminRouter scaffold
 Resume:
 
 - Phase 8: `/gsd-plan-phase 8` → Admin Panel
