@@ -40,7 +40,7 @@ by the admin only — no public registration.
 - [x] **Phase 5: AI Copy + Platform Cards** — Gemini Files API, OpenAI proxy, Anthropic browser flag, 5 platform cards, Realtime upload state, Get Better Version *(complete 2026-05-03 — 6/6 plans, 206/206 tests, tsc clean)*
 - [ ] **Phase 6: Auto-Upload + Scheduling** — YouTube resumable, Meta two-step Reels with container-in-job fix, pg-boss PKT scheduling, Instagram 100 MB gate
 - [ ] **Phase 7: History + Learning Loops** — Post history (per-user RLS), atomic view logging transaction, EMA calibration, corrected hashtag unnest queries
-- [ ] **Phase 8: Admin Panel** — Queue manager, user management, learning data editor, system health, logs viewer
+- [x] **Phase 8: Admin Panel** — Queue manager, user management, learning data editor, system health, logs viewer *(provisionally complete 2026-05-03 — 8/8 plans, human checkpoint approved; smoke test confirmation via /gsd-verify-work 8)*
 - [ ] **Phase 9: Content Research Engine** — External trend APIs + user learning data + AI → content ideas, briefs, hashtag intelligence, 7-day calendar
 - [ ] **Phase 10: Polish + Resilience** — Async tensor dispose, unified API error mapping, iOS Safari layout, indeterminate progress, error boundaries
 
@@ -419,7 +419,7 @@ Plans:
 - [x] 08-05-PLAN.md -- System health + logs: GET /health, GET /logs *(complete 2026-05-03)*
 - [x] 08-06-PLAN.md -- Frontend admin types (AdminJob, AdminUser etc.) + api.ts admin functions *(complete 2026-05-03)*
 - [x] 08-07-PLAN.md -- AdminPage.tsx: 5-tab admin panel UI (queue, users, health, logs, stats) *(complete 2026-05-03)*
-- [ ] 08-08-PLAN.md -- App.tsx admin routing + isAdmin guard + human verification checkpoint
+- [x] 08-08-PLAN.md -- App.tsx admin routing + isAdmin guard + human verification checkpoint *(complete 2026-05-03 — human checkpoint approved)*
 **UI hint:** yes
 
 ---
@@ -533,6 +533,6 @@ indeterminate progress animation, and error boundaries throughout.
 | 5. AI Copy + Platform Cards | 0/TBD | Not started | - |
 | 6. Auto-Upload + Scheduling | 0/TBD | Not started | - |
 | 7. History + Learning Loops | 0/TBD | Not started | - |
-| 8. Admin Panel | 7/8 | Executing | 2026-05-03 |
+| 8. Admin Panel | 8/8 | Provisionally complete (human checkpoint approved) | 2026-05-03 |
 | 9. Content Research Engine | 0/TBD | Not started | - |
 | 10. Polish + Resilience | 0/TBD | Not started | - |

@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 8 (Admin Panel) — checkpoint pending (8/8 plans committed, human verification required)
-status: executing
-stopped_at: Completed 08-08-PLAN.md — App.tsx wired with AdminPage import, isAdmin derivation from app_metadata, admin screen branch with frontend guard, floating Admin button for admin users. Checkpoint at task 2 (human-verify). Phase 8 complete pending verification.
-last_updated: "2026-05-03T20:51:00.000Z"
+current_phase: Phase 9 (Content Research Engine) — not started
+status: ready
+stopped_at: Phase 8 complete — human checkpoint approved. All 8 plans done, all ADMIN-01..10 requirements addressed. Phase 8 provisionally complete (smoke test can be confirmed via /gsd-verify-work 8 when servers are running). Next phase is Phase 9 Content Research Engine.
+last_updated: "2026-05-03T21:10:00.000Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 10
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 53
-  completed_plans: 46
-  percent: 87
+  completed_plans: 47
+  percent: 89
 ---
 
 # Project State — Viral Copy Generator
@@ -22,13 +22,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 8 (Admin Panel) — checkpoint pending (8/8 plans committed, human verification required)
+**Current phase:** Phase 9 (Content Research Engine) — not started
 
 ## Current Position
 
-Phase: 8 of 10 (Admin Panel)
-Plan: 08-08 committed (8/8 plans), checkpoint pending human verification
-Status: All 8 Phase 8 plans committed. 08-08 wired App.tsx with AdminPage import, isAdmin derivation from session.user.app_metadata.role, admin screen branch (frontend guard: non-admin redirected to GeneratorPage), and floating Admin button (bottom-right, admin-only). Frontend + backend tsc clean. Awaiting human checkpoint verification of full admin panel end-to-end.
+Phase: 9 of 10 (Content Research Engine) — not started
+Plan: Phase 8 complete (8/8 plans). Human checkpoint approved. ADMIN-01..10 all addressed. Phase 8 provisionally complete.
+Status: Phase 8 done. All 8 plans committed. App.tsx wired with AdminPage + isAdmin guard (from Supabase app_metadata), admin screen branch with double frontend guard, floating Admin button. Backend: adminMiddleware + 11 routes across admin.ts. Frontend: AdminPage 5-tab panel. Human verified end-to-end. Ready for Phase 9.
 Last activity: 2026-05-03
 
 Progress: [████████░░] 87%
@@ -44,7 +44,7 @@ Progress: [████████░░] 87%
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
 | 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
-| 8 | Admin Panel | 🔄 Checkpoint pending verification (8/8 plans committed) |
+| 8 | Admin Panel | 🟢 Provisionally complete (8/8 plans done; human checkpoint approved 2026-05-03; smoke test confirmation via `/gsd-verify-work 8` when servers running) |
 | 9 | Content Research Engine | ⬜ Not started |
 | 10 | Polish + Resilience | ⬜ Not started |
 
@@ -184,13 +184,12 @@ Progress: [████████░░] 87%
 
 ## Session Continuity
 
-Last session: 2026-05-03T20:51:00.000Z
-Stopped at: Completed 08-08-PLAN.md — App.tsx wired with AdminPage import, isAdmin guard, admin screen routing, floating Admin button. Checkpoint: human-verify for full Phase 8 admin panel end-to-end.
+Last session: 2026-05-03T21:10:00.000Z
+Stopped at: Phase 8 complete — human checkpoint approved. All 8 plans done, ADMIN-01..10 addressed. Phase 8 provisionally complete.
 Resume:
 
-- Phase 8: Awaiting human checkpoint verification (start backend + frontend, test as regular user + admin user per checkpoint checklist)
-- Phase 8: After "approved" signal → `/gsd-verify-work 8` to close Phase 8 officially
 - Phase 9: `/gsd-plan-phase 9` → Content Research Engine (not started)
+- Phase 8: `/gsd-verify-work 8` to formally close Phase 8 (confirm smoke test when backend servers running)
 - Phase 7: `/gsd-verify-work 7` once backend `.env` configured + servers restarted
 - Phase 6: `/gsd-verify-work 6` once OAuth accounts connected
 - Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`
