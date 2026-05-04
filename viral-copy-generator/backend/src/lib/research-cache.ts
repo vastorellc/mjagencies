@@ -1,34 +1,88 @@
 // backend/src/lib/research-cache.ts
-// Phase 9: Content Research Engine — RESEARCH-06
-// Trend cache read/write + refreshAllNiches orchestrator
-// Full implementation in Plan 09-03. This stub satisfies tsc for boss.ts dynamic import.
+// RESEARCH-06: 24-hour trend data cache with upsert pattern
+// trend_cache is global (no user_id) — all users sharing a niche get the same data
+import { sql } from 'drizzle-orm'
+import { db } from '../db/index.js'
 import type { TrendItem } from '../db/schema.js'
 
-// Stub: getTrendCache — returns null when no fresh row exists (source, niche)
-export async function getTrendCache(_source: string, _niche: string): Promise<TrendItem[] | null> {
-  // TODO Plan 09-03: implement with db.execute sql`SELECT ... WHERE fetched_at > NOW() - INTERVAL '24 hours'`
-  throw new Error('research-cache.ts not yet implemented — available in Plan 09-03')
+const ALL_NICHES = ['travel', 'hotels', 'cars', 'bikes', 'coding', 'lifestyle'] as const
+
+// ── Cache query ───────────────────────────────────────────────────────────────
+// Returns null on cache miss. Returns { data, fetchedAt } on cache hit.
+export async function getTrendCache(
+  source: string,
+  niche: string,
+): Promise<{ data: TrendItem[]; fetchedAt: string } | null> {
+  const rows = await db.execute<{ data: TrendItem[]; fetched_at: string }>(
+    sql`SELECT data, fetched_at::text AS fetched_at
+        FROM trend_cache
+        WHERE source = ${source}
+          AND niche = ${niche}
+          AND fetched_at > NOW() - INTERVAL '24 hours'
+        ORDER BY fetched_at DESC
+        LIMIT 1`,
+  )
+  const row = rows.rows[0]
+  if (!row) return null
+  return { data: row.data, fetchedAt: row.fetched_at }
 }
 
-// Stub: setTrendCache — upserts (source, niche) row
+// ── Cache upsert ──────────────────────────────────────────────────────────────
+// ON CONFLICT requires unique('trend_cache_source_niche_unique') — set in schema.ts Plan 09-01
 export async function setTrendCache(
-  _source: string,
-  _niche: string,
-  _data: TrendItem[],
+  source: string,
+  niche: string,
+  data: TrendItem[],
 ): Promise<void> {
-  // TODO Plan 09-03: implement with ON CONFLICT (source, niche) DO UPDATE
-  throw new Error('research-cache.ts not yet implemented — available in Plan 09-03')
+  await db.execute(
+    sql`INSERT INTO trend_cache (source, niche, data, fetched_at)
+        VALUES (${source}, ${niche}, ${JSON.stringify(data)}::jsonb, NOW())
+        ON CONFLICT (source, niche)
+        DO UPDATE SET data = ${JSON.stringify(data)}::jsonb, fetched_at = NOW()`,
+  )
 }
 
-// Stub: isCacheFresh — checks if cached row is within 24h TTL
-export async function isCacheFresh(_source: string, _niche: string): Promise<boolean> {
-  // TODO Plan 09-03
-  return false
+// ── Cache freshness check ─────────────────────────────────────────────────────
+export async function isCacheFresh(source: string, niche: string): Promise<boolean> {
+  const result = await getTrendCache(source, niche)
+  return result !== null
 }
 
-// Stub: refreshAllNiches — called by pg-boss refresh-trends job
-// Fetches all 4 trend sources for all 6 niches and upserts into trend_cache
+// ── Niche refresh — called by pg-boss job handler ────────────────────────────
+// Lazy-imports all four fetchers to avoid circular dep between boss.ts and db module
 export async function refreshAllNiches(): Promise<void> {
-  // TODO Plan 09-03: iterate NICHES, call all 4 fetchers, call setTrendCache
-  throw new Error('refreshAllNiches not yet implemented — available in Plan 09-03')
+  const [
+    { fetchYouTubeTrends },
+    { fetchGoogleTrends },
+    { fetchRedditTrends },
+    { fetchExplodingTopics },
+  ] = await Promise.all([
+    import('./trends/youtube.js'),
+    import('./trends/google-trends.js'),
+    import('./trends/reddit.js'),
+    import('./trends/exploding.js'),
+  ])
+
+  for (const niche of ALL_NICHES) {
+    try {
+      const [yt, gt, rd, et] = await Promise.allSettled([
+        fetchYouTubeTrends(niche),
+        fetchGoogleTrends(niche),
+        fetchRedditTrends(niche),
+        fetchExplodingTopics(niche),
+      ])
+
+      const merged: TrendItem[] = [
+        ...(yt.status === 'fulfilled' ? yt.value : []),
+        ...(gt.status === 'fulfilled' ? gt.value : []),
+        ...(rd.status === 'fulfilled' ? rd.value : []),
+        ...(et.status === 'fulfilled' ? et.value : []),
+      ]
+
+      await setTrendCache('all', niche, merged)
+    } catch (err) {
+      // Per-niche failure never aborts the refresh loop
+      console.error(`[research-cache] refresh failed for niche=${niche}:`, err)
+    }
+  }
 }
