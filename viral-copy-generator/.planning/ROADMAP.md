@@ -526,7 +526,14 @@ indeterminate progress animation, and error boundaries throughout.
 6. Error boundary catches uncaught errors on all main screens — shows recovery UI, not blank
 7. ffmpeg progress shows indeterminate animation — no broken percentage bar
 
-**Plans:** TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — parseProviderError + oauth_expired surfacing (ai.ts + GeneratorPage + upload workers)
+- [ ] 10-02-PLAN.md — ErrorBoundary component + Generator/Research/Admin screen wrapping
+- [ ] 10-03-PLAN.md — iOS safe-area fixes (App.tsx + ScheduleModal) + Vite optimizeDeps
+- [ ] 10-04-PLAN.md — Phase verification checkpoint (automated checks + human verify + state update)
+
 **UI hint:** yes
 
 ---
@@ -544,4 +551,4 @@ indeterminate progress animation, and error boundaries throughout.
 | 7. History + Learning Loops | 0/TBD | Not started | - |
 | 8. Admin Panel | 8/8 | Provisionally complete (human checkpoint approved) | 2026-05-03 |
 | 9. Content Research Engine | 6/7 + checkpoint | At human-verify checkpoint (all 4 tabs implemented, Research nav wired; awaiting approval) | 2026-05-04 |
-| 10. Polish + Resilience | 0/TBD | Not started | - |
+| 10. Polish + Resilience | 0/4 | Not started — plans created 2026-05-04 | - |
