@@ -246,6 +246,7 @@ adminRouter.patch('/users/:userId/disable', async (req, res) => {
 // Clears the ban by setting ban_duration to 'none'. User can log in immediately.
 adminRouter.patch('/users/:userId/enable', async (req, res) => {
   const targetUserId = req.params.userId
+  const adminUserId: string | undefined = res.locals.userId
 
   if (!targetUserId || typeof targetUserId !== 'string') {
     res.status(400).json({ error: 'Missing userId' })
@@ -253,6 +254,18 @@ adminRouter.patch('/users/:userId/enable', async (req, res) => {
   }
   if (!UUID_RE.test(targetUserId)) {
     res.status(400).json({ error: 'Invalid userId format' })
+    return
+  }
+
+  // Fail-closed if authMiddleware invariant is violated
+  if (!adminUserId) {
+    res.status(500).json({ error: 'Internal Server Error' })
+    return
+  }
+
+  // Defensive parity with /disable — admin should manage their own account via Supabase dashboard
+  if (targetUserId === adminUserId) {
+    res.status(400).json({ error: 'Cannot re-enable your own account' })
     return
   }
 
