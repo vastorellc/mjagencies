@@ -15,6 +15,11 @@ import { readFile } from 'fs/promises'
 
 const execAsync = promisify(exec)
 
+// UUID v4 format validation — used to guard :userId and :id route params before DB/Supabase calls.
+// Express always provides params as strings so typeof checks are insufficient; a regex guard
+// ensures invalid values are rejected before they reach Supabase or Drizzle.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export const adminRouter = Router()
 
 // Apply admin guard to ALL routes on this router.
@@ -95,6 +100,10 @@ adminRouter.post('/jobs/:id/retry', async (req, res) => {
     res.status(400).json({ error: 'Missing job id' })
     return
   }
+  if (!UUID_RE.test(jobId)) {
+    res.status(400).json({ error: 'Invalid job id format' })
+    return
+  }
 
   // Look up the queue name for this job (required by pg-boss v12 API)
   const lookup = await db.execute<{ name: string }>(
@@ -120,6 +129,10 @@ adminRouter.delete('/jobs/:id', async (req, res) => {
   const jobId = req.params.id
   if (!jobId || typeof jobId !== 'string') {
     res.status(400).json({ error: 'Missing job id' })
+    return
+  }
+  if (!UUID_RE.test(jobId)) {
+    res.status(400).json({ error: 'Invalid job id format' })
     return
   }
 
@@ -199,6 +212,10 @@ adminRouter.patch('/users/:userId/disable', async (req, res) => {
     res.status(400).json({ error: 'Missing userId' })
     return
   }
+  if (!UUID_RE.test(targetUserId)) {
+    res.status(400).json({ error: 'Invalid userId format' })
+    return
+  }
 
   // This should never happen — authMiddleware guarantees userId is set.
   // Guard fail-closed: if invariant is violated, refuse rather than allow self-lockout.
@@ -234,6 +251,10 @@ adminRouter.patch('/users/:userId/enable', async (req, res) => {
     res.status(400).json({ error: 'Missing userId' })
     return
   }
+  if (!UUID_RE.test(targetUserId)) {
+    res.status(400).json({ error: 'Invalid userId format' })
+    return
+  }
 
   const { error } = await supabaseAdmin.auth.admin.updateUserById(targetUserId, {
     ban_duration: 'none',
@@ -257,6 +278,10 @@ adminRouter.delete('/users/:userId/learning', async (req, res) => {
 
   if (!targetUserId || typeof targetUserId !== 'string') {
     res.status(400).json({ error: 'Missing userId' })
+    return
+  }
+  if (!UUID_RE.test(targetUserId)) {
+    res.status(400).json({ error: 'Invalid userId format' })
     return
   }
 
