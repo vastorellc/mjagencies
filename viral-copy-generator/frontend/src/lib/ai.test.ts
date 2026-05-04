@@ -83,3 +83,88 @@ describe('Gemini config — AI-06', () => {
     expect(config.responseSchema.properties.script_outline).toBeDefined()
   })
 })
+
+// =============================================================================
+// Phase 10: parseProviderError tests (SC-01 through SC-04, SC-07)
+// =============================================================================
+import { parseProviderError } from './ai'
+
+describe('parseProviderError — Claude (SC-01, SC-02)', () => {
+  it('SC-01: overloaded_error → model_busy, retryable', () => {
+    const result = parseProviderError('claude', { error: { type: 'overloaded_error' } })
+    expect(result.kind).toBe('model_busy')
+    expect(result.retryable).toBe(true)
+    expect(result.message).toBeTruthy()
+  })
+
+  it('SC-02: authentication_error → invalid_key, not retryable', () => {
+    const result = parseProviderError('claude', { error: { type: 'authentication_error' } })
+    expect(result.kind).toBe('invalid_key')
+    expect(result.retryable).toBe(false)
+  })
+
+  it('rate_limit_error → rate_limited, retryable', () => {
+    const result = parseProviderError('claude', { error: { type: 'rate_limit_error' } })
+    expect(result.kind).toBe('rate_limited')
+    expect(result.retryable).toBe(true)
+  })
+})
+
+describe('parseProviderError — Gemini (SC-03)', () => {
+  it('SC-03: UNAVAILABLE → model_busy, retryable', () => {
+    const result = parseProviderError('gemini', { error: { status: 'UNAVAILABLE' } })
+    expect(result.kind).toBe('model_busy')
+    expect(result.retryable).toBe(true)
+  })
+
+  it('RESOURCE_EXHAUSTED → quota_exhausted, not retryable', () => {
+    const result = parseProviderError('gemini', { error: { status: 'RESOURCE_EXHAUSTED' } })
+    expect(result.kind).toBe('quota_exhausted')
+    expect(result.retryable).toBe(false)
+  })
+})
+
+describe('parseProviderError — OpenAI (SC-04)', () => {
+  it('SC-04: insufficient_quota → quota_exhausted, not retryable', () => {
+    const result = parseProviderError('openai', { error: { code: 'insufficient_quota' } })
+    expect(result.kind).toBe('quota_exhausted')
+    expect(result.retryable).toBe(false)
+  })
+
+  it('rate_limit_exceeded → rate_limited, retryable', () => {
+    const result = parseProviderError('openai', { error: { code: 'rate_limit_exceeded' } })
+    expect(result.kind).toBe('rate_limited')
+    expect(result.retryable).toBe(true)
+  })
+})
+
+describe('parseProviderError — network and fallback (SC-07)', () => {
+  it('SC-07: navigator.onLine=false → network_error, retryable', () => {
+    const original = Object.getOwnPropertyDescriptor(navigator, 'onLine')
+    Object.defineProperty(navigator, 'onLine', { value: false, configurable: true })
+    try {
+      const result = parseProviderError('claude', new Error('some error'))
+      expect(result.kind).toBe('network_error')
+      expect(result.retryable).toBe(true)
+    } finally {
+      // Restore: use original descriptor if available, else reset to true
+      if (original) {
+        Object.defineProperty(navigator, 'onLine', original)
+      } else {
+        Object.defineProperty(navigator, 'onLine', { value: true, configurable: true })
+      }
+    }
+  })
+
+  it('message contains "Failed to fetch" → network_error, retryable', () => {
+    const result = parseProviderError('gemini', new Error('Failed to fetch'))
+    expect(result.kind).toBe('network_error')
+    expect(result.retryable).toBe(true)
+  })
+
+  it('unknown error shape → unparseable, retryable', () => {
+    const result = parseProviderError('claude', { totally: 'unknown' })
+    expect(result.kind).toBe('unparseable')
+    expect(result.retryable).toBe(true)
+  })
+})

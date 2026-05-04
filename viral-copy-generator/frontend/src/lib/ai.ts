@@ -285,3 +285,88 @@ export async function callAI(options: AICallOptions): Promise<AIOutput> {
   // AI-09: defensive parse — T-5-02: JSON.parse only, never eval
   return parseAIOutput(rawText)
 }
+
+// ============================================================================
+// parseProviderError — structured API error normalization (Phase 10 / SC-01–07)
+// Replaces raw string-matching in GeneratorPage catch block.
+// Messages are hardcoded strings — never interpolated from server responses.
+// ============================================================================
+
+export type AIErrorKind =
+  | 'invalid_key'
+  | 'rate_limited'
+  | 'quota_exhausted'
+  | 'model_busy'
+  | 'network_error'
+  | 'unparseable'
+
+export interface AIError {
+  kind: AIErrorKind
+  message: string   // user-facing; never a raw SDK error string
+  retryable: boolean
+}
+
+export function parseProviderError(provider: AIProvider, err: unknown): AIError {
+  // SC-07: check offline first — navigator may be undefined in test env
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    return { kind: 'network_error', message: 'No internet connection. Check your network and try again.', retryable: true }
+  }
+
+  const raw = err as Record<string, unknown>
+  const errObj = raw?.['error'] as Record<string, string> | undefined
+  const message = (raw?.['message'] as string | undefined) ?? ''
+
+  if (provider === 'claude') {
+    const type = errObj?.['type']
+    if (type === 'authentication_error') {
+      return { kind: 'invalid_key', message: 'API key rejected by Claude. Update it in Settings.', retryable: false }
+    }
+    if (type === 'rate_limit_error') {
+      return { kind: 'rate_limited', message: 'Claude rate limit reached. Wait a moment and retry.', retryable: true }
+    }
+    if (type === 'overloaded_error') {
+      return { kind: 'model_busy', message: 'Claude is busy right now. Try again in a moment.', retryable: true }
+    }
+  }
+
+  if (provider === 'gemini') {
+    const status = errObj?.['status']
+    if (status === 'UNAUTHENTICATED' || status === 'PERMISSION_DENIED' || message.includes('API key')) {
+      return { kind: 'invalid_key', message: 'API key rejected by Gemini. Update it in Settings.', retryable: false }
+    }
+    if (status === 'RESOURCE_EXHAUSTED') {
+      return { kind: 'quota_exhausted', message: 'Gemini quota exhausted. Check your Google AI usage limits.', retryable: false }
+    }
+    if (status === 'UNAVAILABLE') {
+      return { kind: 'model_busy', message: 'Gemini is unavailable right now. Try again in a moment.', retryable: true }
+    }
+    if (message.includes('429') || message.toLowerCase().includes('rate')) {
+      return { kind: 'rate_limited', message: 'Gemini rate limit reached. Wait and retry.', retryable: true }
+    }
+  }
+
+  if (provider === 'openai') {
+    const code = errObj?.['code'] ?? (raw?.['code'] as string | undefined)
+    if (code === 'invalid_api_key') {
+      return { kind: 'invalid_key', message: 'API key rejected by OpenAI. Update it in Settings.', retryable: false }
+    }
+    if (code === 'rate_limit_exceeded' || message.includes('429')) {
+      return { kind: 'rate_limited', message: 'OpenAI rate limit reached. Wait and retry.', retryable: true }
+    }
+    if (code === 'insufficient_quota') {
+      return { kind: 'quota_exhausted', message: 'OpenAI credits exhausted. Add billing at platform.openai.com.', retryable: false }
+    }
+  }
+
+  // Network errors: fetch throws TypeError with message containing 'fetch' / 'network' / 'ENOTFOUND' / 'Failed to fetch'
+  if (
+    message.includes('fetch') ||
+    message.includes('network') ||
+    message.includes('ENOTFOUND') ||
+    message.includes('Failed to fetch')
+  ) {
+    return { kind: 'network_error', message: 'Network error. Check your connection and retry.', retryable: true }
+  }
+
+  return { kind: 'unparseable', message: 'AI generation failed. Try again.', retryable: true }
+}
