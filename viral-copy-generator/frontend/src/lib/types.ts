@@ -1,4 +1,4 @@
-export type Screen = 'generator' | 'settings' | 'history' | 'learning' | 'admin'
+export type Screen = 'generator' | 'settings' | 'history' | 'learning' | 'admin' | 'research'
 
 export type AIProvider = 'claude' | 'gemini' | 'openai'
 export const AI_PROVIDERS: AIProvider[] = ['claude', 'gemini', 'openai']
@@ -364,4 +364,77 @@ export interface AdminPlatformStatsResponse {
     succeeded: number
     overall_success_rate: number
   }
+}
+
+// ============================================================================
+// Phase 9: Content Research Engine
+// ============================================================================
+
+export type ResearchTab = 'ideas' | 'hashtags' | 'calendar' | 'saved'
+
+export interface TrendItem {
+  title: string
+  score: number
+  source: 'youtube' | 'google-trends' | 'reddit' | 'exploding-topics'
+  url?: string
+}
+
+// RESEARCH-09: Full content idea schema returned by POST /api/research/generate
+export interface ContentIdeaData {
+  id?: string                 // UUID from content_ideas table — present after /generate, absent in raw AI parse
+  title: string
+  angle: string
+  hookVariants: [string, string, string]
+  scriptOutline: string
+  keyMoments: Array<{ timestamp: string; description: string }>
+  brollSuggestions: string[]
+  platforms: string[]
+  estimatedStrength: number   // 0-100
+  gapWarnings: string[]       // RESEARCH-10: rule-based pre-analysis warnings
+  hashtagSuggestions: string[]
+}
+
+// RESEARCH-11: Hashtag ranked by trendVelocity * (1 + userAvgViews / 1000)
+export interface HashtagIntel {
+  hashtag: string
+  trendScore: number
+  userAvgViews: number
+  combinedScore: number
+  source: 'external' | 'user' | 'both'
+}
+
+// RESEARCH-12: 7-day calendar slot
+export interface CalendarSlot {
+  platform: string
+  hour: number              // 0-23, PKT (UTC+5)
+  idea: ContentIdeaData | null
+}
+
+export interface CalendarDay {
+  date: string              // YYYY-MM-DD
+  dow: number               // 0=Sunday...6=Saturday
+  slots: CalendarSlot[]
+}
+
+// RESEARCH-15: fetchedAt used to compute "Last updated: Xh ago"
+export interface ResearchTrendsResponse {
+  trends: TrendItem[]
+  fromCache: boolean
+  fetchedAt: string         // ISO-8601
+}
+
+export interface ResearchGenerateResponse {
+  ideas: ContentIdeaData[]
+  calendar: CalendarDay[]
+  hashtags: HashtagIntel[]
+}
+
+// RESEARCH-13: Saved idea row from content_ideas table
+export interface SavedIdea {
+  id: string
+  idea: ContentIdeaData
+  niches: string[]
+  platforms: string[]
+  generated_at: string
+  saved: boolean
 }
