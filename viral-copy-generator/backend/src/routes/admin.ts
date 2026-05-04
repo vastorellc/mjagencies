@@ -193,10 +193,17 @@ adminRouter.get('/users', async (_req, res) => {
 // Admin cannot disable themselves (safety guard).
 adminRouter.patch('/users/:userId/disable', async (req, res) => {
   const targetUserId = req.params.userId
-  const adminUserId = res.locals.userId as string | undefined
+  const adminUserId: string | undefined = res.locals.userId
 
   if (!targetUserId || typeof targetUserId !== 'string') {
     res.status(400).json({ error: 'Missing userId' })
+    return
+  }
+
+  // This should never happen — authMiddleware guarantees userId is set.
+  // Guard fail-closed: if invariant is violated, refuse rather than allow self-lockout.
+  if (!adminUserId) {
+    res.status(500).json({ error: 'Internal Server Error' })
     return
   }
 
