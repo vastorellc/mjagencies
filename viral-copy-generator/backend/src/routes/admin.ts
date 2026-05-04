@@ -45,7 +45,9 @@ adminRouter.get('/jobs', async (req, res) => {
     ? sql`state IN ('created', 'retry', 'active', 'completed', 'cancelled', 'failed')`
     : sql`state IN ('created', 'retry', 'active', 'failed')`
 
-  const rows = await db.execute<{
+  // pg-boss v12 column names use underscores (created_on / started_on / completed_on).
+  // Alias to camelless names to match AdminJob frontend type without changing the UI shape.
+  let rows: { rows: Array<{
     id: string
     name: string
     state: string
@@ -53,15 +55,25 @@ adminRouter.get('/jobs', async (req, res) => {
     createdon: string
     startedon: string | null
     completedon: string | null
-  }>(
-    sql`
-      SELECT id, name, state, data, createdon, startedon, completedon
-      FROM pgboss.job
-      WHERE ${stateFilter}
-      ORDER BY createdon DESC
-      LIMIT 200
-    `
-  )
+  }> }
+  try {
+    rows = await db.execute(
+      sql`
+        SELECT id, name, state, data,
+          created_on   AS createdon,
+          started_on   AS startedon,
+          completed_on AS completedon
+        FROM pgboss.job
+        WHERE ${stateFilter}
+        ORDER BY created_on DESC
+        LIMIT 200
+      `
+    )
+  } catch (err: unknown) {
+    console.error('[admin/jobs] query failed:', (err as Error).message)
+    res.status(500).json({ error: 'jobs_query_failed' })
+    return
+  }
 
   // ADMIN-10: Strip any sensitive fields from job data before returning.
   // Job payloads may contain filePath (safe), platform (safe), userId (safe for admin),
