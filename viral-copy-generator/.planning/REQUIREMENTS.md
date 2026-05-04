@@ -170,10 +170,10 @@ history, learning loops, admin panel, content research engine.
 ### RESEARCH — Content Research Engine
 
 - [ ] **RESEARCH-01**: Content Research is a separate screen ("Research" tab) — completely independent from the Generator upload flow
-- [ ] **RESEARCH-02**: System fetches trending videos and topics from YouTube Data API v3 (`chart=mostPopular`, `regionCode=PK`, category-matched to user's niches) — reuses existing OAuth scope + adds `youtube.readonly`
-- [ ] **RESEARCH-03**: System fetches Google Trends data for user's content niches (rising queries, interest by region Pakistan) via `google-trends-api` npm package
-- [ ] **RESEARCH-04**: System fetches trending posts from Reddit (r/pakistan + niche subreddits: r/travel, r/motorcycles, r/programming, r/CasualPakistan) via Reddit API (read-only, no OAuth required for public subreddits)
-- [ ] **RESEARCH-05**: System fetches emerging topics from ExplodingTopics or similar source (web fetch or API) for early trend detection
+- [x] **RESEARCH-02**: System fetches trending videos and topics from YouTube Data API v3 (`chart=mostPopular`, `regionCode=PK`, category-matched to user's niches) — reuses existing OAuth scope + adds `youtube.readonly`
+- [x] **RESEARCH-03**: System fetches Google Trends data for user's content niches (rising queries, interest by region Pakistan) via `google-trends-api` npm package
+- [x] **RESEARCH-04**: System fetches trending posts from Reddit (r/pakistan + niche subreddits: r/travel, r/motorcycles, r/programming, r/CasualPakistan) via Reddit API (read-only, no OAuth required for public subreddits)
+- [x] **RESEARCH-05**: System fetches emerging topics from ExplodingTopics or similar source (web fetch or API) for early trend detection
 - [ ] **RESEARCH-06**: All external trend data cached in `trend_cache` table per niche per source (24-hour TTL) — user sees instant results from cache; pg-boss job refreshes cache daily
 - [ ] **RESEARCH-07**: Trend data combined with user's own learning data (top-performing niches, hooks, hashtags) to rank content opportunities by predicted performance
 - [ ] **RESEARCH-08**: AI generates 5–10 content ideas per session using combined trend + learning context

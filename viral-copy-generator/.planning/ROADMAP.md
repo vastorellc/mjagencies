@@ -485,7 +485,7 @@ Output: JSON array of 5-10 content ideas, each with:
 
 Plans:
 - [x] 09-01-PLAN.md — DB schema (trend_cache + content_ideas) + pg-boss refresh-trends job + Wave 0 test stubs *(complete 2026-05-04 — tsc clean, migration applied, 3 test stubs in RED state)*
-- [ ] 09-02-PLAN.md — Four trend fetchers (youtube.ts, google-trends.ts, reddit.ts, exploding.ts) — fail-open, tested
+- [x] 09-02-PLAN.md — Four trend fetchers (youtube.ts, google-trends.ts, reddit.ts, exploding.ts) — fail-open, tested *(complete 2026-05-04 — tsc clean, 4/6 fetcher shape tests GREEN, google-trends-api.d.ts added)*
 - [ ] 09-03-PLAN.md — research-cache.ts (24h CRUD) + research-ai.ts (prompt + parser + AI router) + calendar.ts (7-day grid)
 - [ ] 09-04-PLAN.md — research.ts route handler (6 endpoints) + app.ts mount + integration tests GREEN
 - [ ] 09-05-PLAN.md — frontend types.ts Phase 9 extensions + api.ts 6 research client functions
@@ -543,5 +543,5 @@ indeterminate progress animation, and error boundaries throughout.
 | 6. Auto-Upload + Scheduling | 0/TBD | Not started | - |
 | 7. History + Learning Loops | 0/TBD | Not started | - |
 | 8. Admin Panel | 8/8 | Provisionally complete (human checkpoint approved) | 2026-05-03 |
-| 9. Content Research Engine | 0/TBD | Not started | - |
+| 9. Content Research Engine | 2/7 | Executing (09-01 DB + 09-02 trend fetchers done) | 2026-05-04 |
 | 10. Polish + Resilience | 0/TBD | Not started | - |
