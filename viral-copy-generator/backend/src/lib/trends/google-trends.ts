@@ -20,12 +20,16 @@ interface GoogleTrendsResponse {
 
 export async function fetchGoogleTrends(niche: string): Promise<TrendItem[]> {
   try {
-    // relatedQueries returns a JSON string (PITFALL 7 — must JSON.parse)
-    const raw = await googleTrends.relatedQueries({
-      keyword: niche,
-      geo: 'PK',
-      startTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    })
+    // Timeout wrapper: google-trends-api uses Node https with no default timeout;
+    // race against a 8s rejection to prevent route from hanging indefinitely.
+    const raw = await Promise.race([
+      googleTrends.relatedQueries({
+        keyword: niche,
+        geo: 'PK',
+        startTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      }),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('google_trends_timeout')), 8000)),
+    ])
     const parsed = JSON.parse(raw as string) as GoogleTrendsResponse
     // Index 1 = rising queries (index 0 = top/established queries)
     const rising = parsed?.default?.rankedList?.[1]?.rankedKeyword ?? []
