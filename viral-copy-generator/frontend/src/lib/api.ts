@@ -355,11 +355,15 @@ export async function fetchResearchTrends(niche: string): Promise<ResearchTrends
 
 // RESEARCH-08: Generate ideas using combined trend + learning context
 // POST /api/research/generate
-export async function generateResearchIdeas(niche: string): Promise<ResearchGenerateResponse> {
+export async function generateResearchIdeas(
+  niche: string,
+  topic?: string,
+  instructions?: string,
+): Promise<ResearchGenerateResponse> {
   const res = await apiFetch('/research/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ niche }),
+    body: JSON.stringify({ niche, topic: topic || undefined, instructions: instructions || undefined }),
   })
   if (!res.ok) throw new Error('research_generate_failed')
   return res.json() as Promise<ResearchGenerateResponse>

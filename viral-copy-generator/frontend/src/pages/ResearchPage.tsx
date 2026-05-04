@@ -20,6 +20,8 @@ const DOW_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 export default function ResearchPage({ onNavigate }: Props) {
   const [activeTab, setActiveTab] = useState<ResearchTab>('ideas')
   const [niche, setNiche] = useState<ValidNiche>('travel')
+  const [topic, setTopic] = useState('')
+  const [instructions, setInstructions] = useState('')
 
   // Data state
   const [trends, setTrends] = useState<TrendItem[]>([])
@@ -65,7 +67,7 @@ export default function ResearchPage({ onNavigate }: Props) {
     setGenerating(true)
     setError(null)
     try {
-      const data = await generateResearchIdeas(niche)
+      const data = await generateResearchIdeas(niche, topic.trim() || undefined, instructions.trim() || undefined)
       setIdeas(data.ideas)
       setCalendar(data.calendar)
       setHashtags(data.hashtags)
@@ -189,6 +191,36 @@ export default function ResearchPage({ onNavigate }: Props) {
         {/* -- IDEAS TAB -------------------------------------------------------- */}
         {activeTab === 'ideas' && (
           <div className="py-4">
+            {/* Manual topic + instructions inputs */}
+            <div className="mb-4 flex flex-col gap-3 rounded-lg bg-zinc-900 border border-zinc-800 p-4">
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  Topic / Idea <span className="normal-case font-normal text-zinc-600">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder="e.g. Motorway road trip from Lahore to Islamabad"
+                  maxLength={300}
+                  className="w-full rounded-lg bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  Scope & Instructions <span className="normal-case font-normal text-zinc-600">(optional)</span>
+                </label>
+                <textarea
+                  value={instructions}
+                  onChange={(e) => setInstructions(e.target.value)}
+                  placeholder="e.g. Focus on budget-friendly tips, target young couples, include Islamabad food stops"
+                  maxLength={600}
+                  rows={3}
+                  className="w-full resize-none rounded-lg bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
             {/* Generate button */}
             <button
               type="button"

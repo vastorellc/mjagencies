@@ -127,6 +127,8 @@ researchRouter.get('/trends', async (req: Request, res: Response) => {
 researchRouter.post('/generate', async (req: Request, res: Response) => {
   const userId = res.locals.userId as string
   const niche = (req.body?.niche as string | undefined) ?? 'travel'
+  const topic = typeof req.body?.topic === 'string' ? req.body.topic.slice(0, 300).trim() : undefined
+  const instructions = typeof req.body?.instructions === 'string' ? req.body.instructions.slice(0, 600).trim() : undefined
 
   if (!isValidNiche(niche)) {
     res.status(400).json({ error: 'invalid_niche' })
@@ -178,7 +180,7 @@ researchRouter.post('/generate', async (req: Request, res: Response) => {
   // Call AI with combined context
   const ideas: ContentIdeaData[] = await callResearchAI({
     userId, trends, topHooks, topHashtags, bestNiche, postingTimes,
-    userNiches: [niche],
+    userNiches: [niche], topic, instructions,
   }).catch(() => [])  // callResearchAI error → empty ideas (no_api_key_configured etc.)
 
   // Persist ideas to content_ideas table (unsaved by default)

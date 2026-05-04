@@ -16,6 +16,8 @@ export interface ResearchAIParams {
   bestNiche: string
   postingTimes: Array<{ dow: number; hour: number; platform: string; avg_views: number }>
   userNiches: string[]
+  topic?: string        // optional: user-supplied topic/idea
+  instructions?: string // optional: user-supplied scope and instructions
 }
 
 // ── Prompt builder ────────────────────────────────────────────────────────────
@@ -42,6 +44,13 @@ export function buildResearchPrompt(params: Omit<ResearchAIParams, 'userId'>): s
     .map(t => `${DOW_LABELS[t.dow] ?? '?'} ${t.hour}:00 PKT (${t.platform})`)
     .join(', ') || 'No posting time data'
 
+  const topicSection = params.topic
+    ? `\nUSER'S TOPIC / IDEA: ${sanitize(params.topic)}`
+    : ''
+  const instructionsSection = params.instructions
+    ? `\nUSER'S SCOPE & INSTRUCTIONS: ${sanitize(params.instructions)}`
+    : ''
+
   return `You are a content strategist for Pakistani short-form video creators.
 
 TRENDING TOPICS (last 24h, Pakistan region):
@@ -55,9 +64,9 @@ ${hashtagsSection}
 
 USER'S BEST NICHE: ${params.bestNiche}
 USER'S CONTENT NICHES: ${params.userNiches.join(', ')}
-PKT OPTIMAL POSTING WINDOWS: ${timesSection}
+PKT OPTIMAL POSTING WINDOWS: ${timesSection}${topicSection}${instructionsSection}
 
-Generate 5 to 10 content ideas for Pakistani short-form video creators in the niches: ${params.userNiches.join(', ')}.
+Generate 5 to 10 content ideas for Pakistani short-form video creators in the niches: ${params.userNiches.join(', ')}.${params.topic ? ` Focus the ideas around the user's topic: "${sanitize(params.topic)}".` : ''}${params.instructions ? ` Follow the user's instructions: ${sanitize(params.instructions)}` : ''}
 
 For face-free outdoor content, include a gapWarning: "expect low face score — compensate with strong hook and high pacing".
 For niche-specific content, add relevant gap warnings about common scoring pitfalls.
@@ -175,6 +184,16 @@ export async function callResearchAI(params: ResearchAIParams): Promise<ContentI
     })
     const block = msg.content[0]
     rawText = block?.type === 'text' ? block.text : ''
+
+  } else if (provider === 'deepseek') {
+    const { default: OpenAI } = await import('openai')
+    const openai = new OpenAI({ apiKey, baseURL: 'https://api.deepseek.com/v1' })
+    const completion = await openai.chat.completions.create({
+      model: 'deepseek-chat',
+      max_tokens: 4096,
+      messages: [{ role: 'user', content: prompt }],
+    })
+    rawText = completion.choices[0]?.message?.content ?? ''
 
   } else {
     throw new Error(`unsupported_provider: ${String(provider)}`)
