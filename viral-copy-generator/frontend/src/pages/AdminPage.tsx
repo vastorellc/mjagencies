@@ -43,6 +43,7 @@ export default function AdminPage({ onNavigate }: Props) {
   const [jobsError, setJobsError] = useState<string | null>(null)
   const [retryingId, setRetryingId] = useState<string | null>(null)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
+  const [jobActionError, setJobActionError] = useState<string | null>(null)
   const [showAllJobs, setShowAllJobs] = useState(false)
 
   const loadJobs = useCallback(async () => {
@@ -63,11 +64,12 @@ export default function AdminPage({ onNavigate }: Props) {
 
   async function handleRetry(jobId: string) {
     setRetryingId(jobId)
+    setJobActionError(null)
     try {
       await retryAdminJob(jobId)
       await loadJobs()
     } catch {
-      // Non-blocking — state badge will show updated on next refresh
+      setJobActionError('Failed to retry job. It may have already transitioned state.')
     } finally {
       setRetryingId(null)
     }
@@ -76,11 +78,12 @@ export default function AdminPage({ onNavigate }: Props) {
   async function handleCancel(jobId: string) {
     if (!confirm('Cancel this job?')) return
     setCancellingId(jobId)
+    setJobActionError(null)
     try {
       await cancelAdminJob(jobId)
       await loadJobs()
     } catch {
-      // Non-blocking
+      setJobActionError('Failed to cancel job. It may have already transitioned state.')
     } finally {
       setCancellingId(null)
     }
@@ -247,6 +250,7 @@ export default function AdminPage({ onNavigate }: Props) {
 
             {jobsLoading && <p className="text-center text-sm text-zinc-500 py-6">Loading jobs...</p>}
             {jobsError && <p className="rounded bg-red-900/40 px-3 py-2 text-sm text-red-300 mb-3">{jobsError}</p>}
+            {jobActionError && <p className="rounded bg-amber-900/40 px-3 py-2 text-sm text-amber-300 mb-3">{jobActionError}</p>}
 
             {!jobsLoading && jobs.length === 0 && (
               <p className="text-center text-sm text-zinc-500 py-6">No active or failed jobs.</p>
