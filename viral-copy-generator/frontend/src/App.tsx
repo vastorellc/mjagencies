@@ -9,6 +9,7 @@ import LearningPage from './pages/LearningPage'
 import AdminPage from './pages/AdminPage'
 import ResearchPage from './pages/ResearchPage'
 import type { Screen } from './lib/types'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -74,7 +75,11 @@ export default function App() {
   if (currentScreen === 'admin') {
     // ADMIN-01: Double-check isAdmin before rendering — prevents accidental render if state drifts
     if (!isAdmin) return <GeneratorPage onNavigate={setCurrentScreen} />
-    return <AdminPage onNavigate={setCurrentScreen} />
+    return (
+      <ErrorBoundary screenName="admin">
+        <AdminPage onNavigate={setCurrentScreen} />
+      </ErrorBoundary>
+    )
   }
 
   if (currentScreen === 'settings') {
@@ -96,14 +101,20 @@ export default function App() {
   }
 
   if (currentScreen === 'research') {
-    return <ResearchPage onNavigate={setCurrentScreen} />
+    return (
+      <ErrorBoundary screenName="research">
+        <ResearchPage onNavigate={setCurrentScreen} />
+      </ErrorBoundary>
+    )
   }
 
   // ADMIN-01: Admin nav button shown only for admin users — UX guard only; backend is authoritative
   // Research button visible to all authenticated users
   return (
     <>
-      <GeneratorPage onNavigate={setCurrentScreen} />
+      <ErrorBoundary screenName="generator">
+        <GeneratorPage onNavigate={setCurrentScreen} />
+      </ErrorBoundary>
       <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
         {isAdmin && (
           <button
