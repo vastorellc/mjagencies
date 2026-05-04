@@ -484,7 +484,7 @@ Output: JSON array of 5-10 content ideas, each with:
 **Plans:** 7 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — DB schema (trend_cache + content_ideas) + pg-boss refresh-trends job + Wave 0 test stubs
+- [x] 09-01-PLAN.md — DB schema (trend_cache + content_ideas) + pg-boss refresh-trends job + Wave 0 test stubs *(complete 2026-05-04 — tsc clean, migration applied, 3 test stubs in RED state)*
 - [ ] 09-02-PLAN.md — Four trend fetchers (youtube.ts, google-trends.ts, reddit.ts, exploding.ts) — fail-open, tested
 - [ ] 09-03-PLAN.md — research-cache.ts (24h CRUD) + research-ai.ts (prompt + parser + AI router) + calendar.ts (7-day grid)
 - [ ] 09-04-PLAN.md — research.ts route handler (6 endpoints) + app.ts mount + integration tests GREEN

@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 9 (Content Research Engine) — planned, ready to execute
-status: ready
-stopped_at: Phase 9 planned — 7 plans across 7 waves, plan checker passed (1 revision). RESEARCH-01..15 all covered. Ready for /gsd-execute-phase 9.
+current_phase: Phase 9 (Content Research Engine) — executing (plan 1/7 complete)
+status: in_progress
+stopped_at: Phase 9 plan 09-01 complete — DB foundation (trend_cache + content_ideas tables), pg-boss refresh-trends job, google-trends-api@4.9.2 installed, RED test stubs created. Ready for plan 09-02.
 last_updated: "2026-05-04T00:00:00Z"
 last_activity: 2026-05-04
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 60
-  completed_plans: 47
-  percent: 89
+  completed_plans: 48
+  percent: 80
 ---
 
 # Project State — Viral Copy Generator
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 ## Current Position
 
 Phase: 9 of 10 (Content Research Engine) — planned, ready to execute
-Plan: Phase 9 plan complete (7 plans, 7 waves). Plan checker passed after 1 revision (3 blockers + 2 warnings resolved). RESEARCH-01..15 all covered.
-Status: Phase 9 ready for `/gsd-execute-phase 9`. Phase 8 provisionally complete (smoke test deferred).
+Plan: Phase 9 plan 09-01 executed (1/7 plans). DB foundation complete. Ready for plan 09-02 (trend fetchers).
+Status: Phase 9 executing — 1/7 plans done. Phase 8 provisionally complete (smoke test deferred).
 Last activity: 2026-05-04
 
 Progress: [████████░░] 87%
@@ -45,7 +45,7 @@ Progress: [████████░░] 87%
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
 | 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
 | 8 | Admin Panel | 🟢 Provisionally complete (8/8 plans done; human checkpoint approved 2026-05-03; smoke test confirmation via `/gsd-verify-work 8` when servers running) |
-| 9 | Content Research Engine | 🔵 Planned — 7 plans, 7 waves, ready to execute |
+| 9 | Content Research Engine | 🟡 Executing — 1/7 plans done (09-01 DB foundation + pg-boss job + Wave 0 test stubs) |
 | 10 | Polish + Resilience | ⬜ Not started |
 
 ## Completed Phases
@@ -162,6 +162,10 @@ Progress: [████████░░] 87%
 - **showAllJobs checkbox drives fetchAdminJobs(includeAll)** — default omits cancelled/completed jobs; admin opts in for full pg-boss history; consistent with 08-06 API param design
 - **resetResults Record<string,number> in-memory state** — stores deleted count per userId; AdminPage shows confirmation without a second GET; cleared on page reload (v1 acceptable)
 - **AdminPage tab-scoped data loading** — useEffect fires per-tab; each of 5 tabs manages its own loading/error/data state; tabs load only when activated (not on mount)
+- **trend_cache uses unique() not index()** — ON CONFLICT (source, niche) DO UPDATE requires a UNIQUE constraint; Drizzle index() creates a regular index that does not satisfy ON CONFLICT specification (Pitfall 6 in RESEARCH.md)
+- **YOUTUBE_API_KEY is optional in Phase 9** — fetchYouTubeTrends returns [] if env var absent; key in .env.example as commented-out optional, NOT in REQUIRED_ENV; other 3 trend sources still work
+- **google-trends-api CJS/ESM interop confirmed** — default import returns typeof 'object' in NodeNext ESM; no createRequire wrapper needed; Plan 09-02 uses `import googleTrends from 'google-trends-api'` directly
+- **research-cache.ts stub for tsc dynamic import** — boss.ts worker uses lazy dynamic import; TypeScript NodeNext resolution checks dynamic imports statically; stub file with throwing implementations satisfies tsc until Plan 09-03 implements it
 
 ### Critical Bugs to Avoid
 
@@ -184,11 +188,11 @@ Progress: [████████░░] 87%
 
 ## Session Continuity
 
-Last session: 2026-05-04T00:00:00Z
-Stopped at: Phase 9 planned — 7 plans, 7 waves, checker passed. Ready for execution.
+Last session: 2026-05-04T02:45:00Z
+Stopped at: Phase 9 plan 09-01 complete — DB foundation (trend_cache + content_ideas), pg-boss refresh-trends job, google-trends-api@4.9.2, RED test stubs (3 files). tsc clean. Migration applied.
 Resume:
 
-- Phase 9: `/gsd-execute-phase 9` → Content Research Engine (7 plans ready)
+- Phase 9: `/gsd-execute-phase 9` → Content Research Engine plan 09-02 (trend fetchers: youtube.ts, google-trends.ts, reddit.ts, exploding.ts)
 - Phase 8: `/gsd-verify-work 8` to formally close Phase 8 (confirm smoke test when backend servers running)
 - Phase 7: `/gsd-verify-work 7` once backend `.env` configured + servers restarted
 - Phase 6: `/gsd-verify-work 6` once OAuth accounts connected
