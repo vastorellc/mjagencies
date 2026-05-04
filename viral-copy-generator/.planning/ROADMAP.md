@@ -481,7 +481,16 @@ Output: JSON array of 5-10 content ideas, each with:
 8. User can save an idea — appears in saved list on next session (per-user RLS)
 9. Two different users see different personalised recommendations (their own learning data used as context)
 
-**Plans:** TBD
+**Plans:** 7 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — DB schema (trend_cache + content_ideas) + pg-boss refresh-trends job + Wave 0 test stubs
+- [ ] 09-02-PLAN.md — Four trend fetchers (youtube.ts, google-trends.ts, reddit.ts, exploding.ts) — fail-open, tested
+- [ ] 09-03-PLAN.md — research-cache.ts (24h CRUD) + research-ai.ts (prompt + parser + AI router) + calendar.ts (7-day grid)
+- [ ] 09-04-PLAN.md — research.ts route handler (6 endpoints) + app.ts mount + integration tests GREEN
+- [ ] 09-05-PLAN.md — frontend types.ts Phase 9 extensions + api.ts 6 research client functions
+- [ ] 09-06-PLAN.md — ResearchPage.tsx Ideas tab (cards + hooks + gaps + strength) + Hashtags tab (inline-style bars)
+- [ ] 09-07-PLAN.md — ResearchPage.tsx Calendar + Saved tabs + App.tsx wiring + human verification checkpoint
 **UI hint:** yes
 
 ---
