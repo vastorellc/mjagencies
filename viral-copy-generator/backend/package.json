@@ -13,6 +13,8 @@
     "make-admin": "tsx src/scripts/make-admin.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "0.39.0",
+    "@google/generative-ai": "0.24.0",
     "@supabase/supabase-js": "2.105.1",
     "cors": "2.8.6",
     "dotenv": "17.4.2",
