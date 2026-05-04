@@ -100,11 +100,12 @@ export default function App() {
   }
 
   // ADMIN-01: Admin nav button shown only for admin users — UX guard only; backend is authoritative
+  // Research button visible to all authenticated users
   return (
     <>
       <GeneratorPage onNavigate={setCurrentScreen} />
-      {isAdmin && (
-        <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+        {isAdmin && (
           <button
             type="button"
             onClick={() => setCurrentScreen('admin')}
@@ -112,8 +113,15 @@ export default function App() {
           >
             Admin
           </button>
-        </div>
-      )}
+        )}
+        <button
+          type="button"
+          onClick={() => setCurrentScreen('research')}
+          className="rounded-full bg-purple-900 border border-purple-700 px-3 py-2 text-xs font-medium text-purple-200 shadow-lg hover:bg-purple-800"
+        >
+          Research
+        </button>
+      </div>
     </>
   )
 }
