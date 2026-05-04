@@ -483,7 +483,7 @@ export default function AdminPage({ onNavigate }: Props) {
             {logs && (
               <>
                 <p className="text-xs text-zinc-600 mb-2">
-                  Showing {logs.meta.returned} of {logs.meta.total_lines} lines from {logs.meta.logPath}
+                  Showing {logs.meta.returned} of {logs.meta.total_lines} lines
                   {logs.meta.error && <span className="text-amber-400 ml-2">{logs.meta.error}</span>}
                 </p>
                 <div className="rounded-lg bg-black border border-zinc-800 p-3 overflow-x-auto">

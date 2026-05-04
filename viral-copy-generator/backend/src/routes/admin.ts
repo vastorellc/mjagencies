@@ -438,7 +438,7 @@ adminRouter.get('/logs', async (req, res) => {
   } catch (err: unknown) {
     const msg = (err as Error).message ?? 'unknown error'
     // Graceful degradation: log file may not exist in dev or if pino transport not configured
-    res.json({ lines: [], meta: { logPath, error: msg } })
+    res.json({ lines: [], meta: { error: msg } })
     return
   }
 
@@ -466,7 +466,6 @@ adminRouter.get('/logs', async (req, res) => {
   res.json({
     lines: tailLines,
     meta: {
-      logPath,
       total_lines: allLines.length,
       filtered_lines: filtered.length,
       returned: tailLines.length,

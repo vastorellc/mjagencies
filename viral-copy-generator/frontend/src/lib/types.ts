@@ -336,7 +336,6 @@ export interface AdminHealthResponse {
 
 // AdminLogsResponse — shape returned by GET /api/admin/logs (ADMIN-08)
 export interface AdminLogsMeta {
-  logPath: string
   total_lines: number
   filtered_lines: number
   returned: number
