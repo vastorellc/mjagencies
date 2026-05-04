@@ -490,7 +490,7 @@ Plans:
 - [x] 09-04-PLAN.md — research.ts route handler (6 endpoints) + app.ts mount + integration tests GREEN *(complete 2026-05-04 — tsc clean, 8/8 research.test.ts GREEN, researchRouter mounted at /api/research)*
 - [x] 09-05-PLAN.md — frontend types.ts Phase 9 extensions + api.ts 6 research client functions *(complete 2026-05-04 — tsc clean, Screen union += 'research', 8 Phase 9 interfaces, 6 api client functions)*
 - [x] 09-06-PLAN.md — ResearchPage.tsx Ideas tab (cards + hooks + gaps + strength) + Hashtags tab (inline-style bars) *(complete 2026-05-04 — 449 lines, tsc clean, build clean, App.tsx wired, IdeaCard + HashtagsTab + freshnessLabel + niche selector + refresh)*
-- [ ] 09-07-PLAN.md — ResearchPage.tsx Calendar + Saved tabs + App.tsx wiring + human verification checkpoint
+- [~] 09-07-PLAN.md — ResearchPage.tsx Calendar + Saved tabs + App.tsx wiring + human verification checkpoint *(at checkpoint 2026-05-04 — Tasks 1+2 done: CalendarTab + SavedTab + Research nav button; awaiting human-verify)*
 **UI hint:** yes
 
 ---
@@ -543,5 +543,5 @@ indeterminate progress animation, and error boundaries throughout.
 | 6. Auto-Upload + Scheduling | 0/TBD | Not started | - |
 | 7. History + Learning Loops | 0/TBD | Not started | - |
 | 8. Admin Panel | 8/8 | Provisionally complete (human checkpoint approved) | 2026-05-03 |
-| 9. Content Research Engine | 5/7 | Executing (09-01 through 09-05 done — frontend types/api contract complete) | 2026-05-04 |
+| 9. Content Research Engine | 6/7 + checkpoint | At human-verify checkpoint (all 4 tabs implemented, Research nav wired; awaiting approval) | 2026-05-04 |
 | 10. Polish + Resilience | 0/TBD | Not started | - |
