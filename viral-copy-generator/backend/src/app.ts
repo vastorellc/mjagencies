@@ -12,6 +12,7 @@ import { uploadRouter } from './routes/upload.js'
 import { platformPostsRouter } from './routes/platformPosts.js'
 import { learningRouter } from './routes/learning.js'
 import { adminRouter } from './routes/admin.js'
+import { researchRouter } from './routes/research.js'
 import pino from 'pino'
 
 const logger = pino({
@@ -80,6 +81,9 @@ app.use('/api/learning', learningRouter)
 
 // ── Phase 8: Admin panel (auth-gated by app.use('/api', authMiddleware) + adminMiddleware inside router) ──
 app.use('/api/admin', adminRouter)
+
+// ── Phase 9: Content Research Engine (auth-gated by app.use('/api', authMiddleware) above) ──
+app.use('/api/research', researchRouter)
 
 // ── 404 handler ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {
