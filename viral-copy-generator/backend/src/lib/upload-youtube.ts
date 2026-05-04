@@ -39,7 +39,14 @@ export async function uploadYouTube(payload: UploadJobPayload): Promise<void> {
     let currentAccessToken = accessToken
     let tokenExpiry = ytConfig.expiry
     if (Date.now() + FIVE_MIN_MS > tokenExpiry) {
-      const refreshed = await refreshYouTubeToken(refreshToken)
+      let refreshed: Awaited<ReturnType<typeof refreshYouTubeToken>>
+      try {
+        refreshed = await refreshYouTubeToken(refreshToken)
+      } catch {
+        // Token refresh failed — token is expired or revoked.
+        // Phase 10: throw structured message so updateUploadStatus stores it and frontend detects it.
+        throw new Error('oauth_expired:youtube')
+      }
       currentAccessToken = refreshed.access_token
       tokenExpiry = refreshed.expiry
       // Persist refreshed tokens

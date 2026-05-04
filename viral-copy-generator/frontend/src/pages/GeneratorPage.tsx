@@ -18,7 +18,8 @@ import {
 import { buildChecklist } from '../lib/checklist'
 import { buildGapAnalysis } from '../lib/gaps'
 import { buildPrompt } from '../lib/prompt'
-import { callAI } from '../lib/ai'
+import { callAI, parseProviderError } from '../lib/ai'
+import type { AIErrorKind } from '../lib/ai'
 import { fetchSettings, createPost, fetchApiKey, uploadFile, scheduleUpload, fetchTopHooks, fetchTopHashtags, fetchLearningWeights } from '../lib/api'
 import type { LearningData } from '../lib/types'
 import ScheduleModal from '../components/ScheduleModal'
@@ -47,7 +48,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   post_save_failed: 'Copy generated but save failed. Your copy is still usable above.',
 }
 
-const RETRYABLE_ERRORS = new Set(['rate_limited', 'network_error'])
+const RETRYABLE_ERRORS = new Set<AIErrorKind>(['rate_limited', 'model_busy', 'network_error'])
 
 export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
   // Phase 3/4 state
@@ -63,7 +64,7 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
   const [settingsData, setSettingsData] = useState<SettingsResponse | null>(null)
   const [aiLoading, setAiLoading] = useState<boolean>(false)
   const [aiError, setAiError] = useState<string | null>(null)
-  const [aiErrorKey, setAiErrorKey] = useState<string | null>(null)
+  const [aiErrorKey, setAiErrorKey] = useState<AIErrorKind | null>(null)
   const [postId, setPostId] = useState<string | null>(null)
   const [uploadStatuses, setUploadStatuses] = useState<Record<string, string>>({})
   const isFirstGenerationRef = useRef<boolean>(true)
@@ -110,8 +111,14 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          const row = payload.new as { platform: string; upload_status: string }
+          const row = payload.new as { platform: string; upload_status: string; error_message?: string }
           setUploadStatuses(prev => ({ ...prev, [row.platform]: row.upload_status }))
+          // Phase 10: detect oauth_expired from worker-written error_message (Pitfall 3 in RESEARCH.md)
+          if (row.upload_status === 'failed' && row.error_message?.startsWith('oauth_expired:')) {
+            const platform = row.error_message.split(':')[1] ?? 'platform'
+            const displayName = platform.charAt(0).toUpperCase() + platform.slice(1)
+            setUploadError(`${displayName} connection expired. Reconnect it in Settings.`)
+          }
         },
       )
       .subscribe()
@@ -209,19 +216,9 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
         }
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'unknown_error'
-      let errorKey = 'unparseable'
-      if (msg.includes('invalid_api_key') || msg.includes('401') || msg.includes('invalid key')) {
-        errorKey = 'invalid_key'
-      } else if (msg.includes('rate_limit') || msg.includes('429') || msg.includes('rate limit')) {
-        errorKey = 'rate_limited'
-      } else if (msg.includes('quota') || msg.includes('402')) {
-        errorKey = 'quota_exhausted'
-      } else if (msg.includes('network') || msg.includes('fetch') || msg.includes('ENOTFOUND')) {
-        errorKey = 'network_error'
-      }
-      setAiError(ERROR_MESSAGES[errorKey] ?? ERROR_MESSAGES.unparseable)
-      setAiErrorKey(errorKey)
+      const parsed = parseProviderError(aiProvider, err)
+      setAiError(parsed.message)
+      setAiErrorKey(parsed.kind)
     } finally {
       setAiLoading(false)
     }
@@ -288,7 +285,12 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
       // Realtime subscription will push the status update when worker runs
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'upload_failed'
-      setUploadError(msg)
+      if (msg.startsWith('oauth_expired:')) {
+        const platform2 = msg.split(':')[1] ?? 'platform'
+        setUploadError(`${platform2.charAt(0).toUpperCase() + platform2.slice(1)} connection expired. Reconnect in Settings.`)
+      } else {
+        setUploadError(msg)
+      }
       setUploadStatuses(prev => ({ ...prev, [platform]: 'failed' }))
     }
   }

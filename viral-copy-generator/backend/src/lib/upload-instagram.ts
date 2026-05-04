@@ -134,7 +134,11 @@ export async function uploadInstagram(payload: UploadJobPayload): Promise<void> 
 
     console.log(`[upload-instagram] success: mediaId=${publishedId}`)
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'unknown_error'
+    const rawMessage = err instanceof Error ? err.message : 'unknown_error'
+    // Phase 10: Surface token expiry as structured code for frontend detection
+    const message = (
+      rawMessage.includes('400') || rawMessage.includes('401') || rawMessage.includes('OAuthException')
+    ) ? 'oauth_expired:instagram' : rawMessage
     await updateUploadStatus(platformPostId, 'failed', message)
     console.error('[upload-instagram] failed:', message)
     throw err  // re-throw so pg-boss marks job as failed

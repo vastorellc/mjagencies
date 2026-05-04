@@ -101,7 +101,11 @@ export async function uploadFacebook(payload: UploadJobPayload): Promise<void> {
 
     console.log(`[upload-facebook] success: videoId=${videoId}`)
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'unknown_error'
+    const rawMessage = err instanceof Error ? err.message : 'unknown_error'
+    // Phase 10: Surface token expiry as structured code for frontend detection
+    const message = (
+      rawMessage.includes('400') || rawMessage.includes('401') || rawMessage.includes('OAuthException')
+    ) ? 'oauth_expired:facebook' : rawMessage
     await updateUploadStatus(platformPostId, 'failed', message)
     console.error('[upload-facebook] failed:', message)
     throw err  // re-throw so pg-boss marks job as failed

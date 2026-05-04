@@ -299,6 +299,8 @@ export type AIErrorKind =
   | 'model_busy'
   | 'network_error'
   | 'unparseable'
+  | 'no_api_key'
+  | 'post_save_failed'
 
 export interface AIError {
   kind: AIErrorKind
