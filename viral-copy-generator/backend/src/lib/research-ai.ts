@@ -135,11 +135,32 @@ export async function callResearchAI(params: ResearchAIParams): Promise<ContentI
     rawText = completion.choices[0]?.message?.content ?? ''
 
   } else if (provider === 'gemini') {
-    const { GoogleGenerativeAI } = await import('@google/generative-ai')
+    const { GoogleGenerativeAI, SchemaType } = await import('@google/generative-ai')
     const genAI = new GoogleGenerativeAI(apiKey)
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',
-      generationConfig: { responseMimeType: 'application/json' },
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: SchemaType.ARRAY,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              title:             { type: SchemaType.STRING },
+              angle:             { type: SchemaType.STRING },
+              hookVariants:      { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+              scriptOutline:     { type: SchemaType.STRING },
+              keyMoments:        { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { timestamp: { type: SchemaType.STRING }, description: { type: SchemaType.STRING } }, required: ['timestamp', 'description'] } },
+              brollSuggestions:  { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+              platforms:         { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+              estimatedStrength: { type: SchemaType.NUMBER },
+              gapWarnings:       { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+              hashtagSuggestions:{ type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+            },
+            required: ['title', 'angle', 'hookVariants', 'scriptOutline', 'keyMoments', 'brollSuggestions', 'platforms', 'estimatedStrength', 'gapWarnings', 'hashtagSuggestions'],
+          },
+        },
+      },
     })
     const result = await model.generateContent(prompt)
     rawText = result.response.text()
