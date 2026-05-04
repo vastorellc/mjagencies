@@ -238,18 +238,14 @@ export default function ResearchPage({ onNavigate }: Props) {
           />
         )}
 
-        {/* -- CALENDAR TAB — implemented in Plan 09-07 ------------------------ */}
+        {/* ── CALENDAR TAB ──────────────────────────────────────────────── */}
         {activeTab === 'calendar' && (
-          <div className="py-8 text-center">
-            <p className="text-sm text-zinc-400">Generate ideas first to populate the calendar.</p>
-          </div>
+          <CalendarTab calendar={calendar} />
         )}
 
-        {/* -- SAVED TAB — implemented in Plan 09-07 --------------------------- */}
+        {/* ── SAVED TAB ─────────────────────────────────────────────────── */}
         {activeTab === 'saved' && (
-          <div className="py-8 text-center">
-            <p className="text-sm text-zinc-400">Loading saved ideas...</p>
-          </div>
+          <SavedTab savedIdeas={savedIdeas} onSaveToggle={handleSaveToggle} />
         )}
 
       </main>
@@ -364,6 +360,144 @@ function IdeaCard({ idea, onSave }: IdeaCardProps) {
         >
           Save
         </button>
+      </div>
+    </div>
+  )
+}
+
+// ── CalendarTab — RESEARCH-12: 7-day PKT content calendar ─────────────────
+interface CalendarTabProps {
+  calendar: CalendarDay[]
+}
+
+function CalendarTab({ calendar }: CalendarTabProps) {
+  if (calendar.length === 0) {
+    return (
+      <div className="py-8 text-center">
+        <p className="text-sm text-zinc-400">Generate content ideas to populate the 7-day calendar.</p>
+        <p className="mt-1 text-xs text-zinc-600">Ideas will be assigned to your optimal PKT posting windows.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="py-4">
+      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        7-Day Content Calendar (PKT)
+      </h2>
+      <div className="flex flex-col gap-3">
+        {calendar.map((day) => (
+          <div key={day.date} className="rounded-lg bg-zinc-900 border border-zinc-800 p-3">
+            {/* Day header */}
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-bold text-zinc-200">
+                {DOW_LABELS[day.dow]}
+              </span>
+              <span className="text-xs text-zinc-500">{day.date}</span>
+            </div>
+
+            {day.slots.length === 0 && (
+              <p className="text-xs text-zinc-600">No optimal posting slot — log more views to activate.</p>
+            )}
+
+            {day.slots.map((slot, si) => (
+              <div key={si} className="mt-1 flex items-start gap-2 rounded bg-zinc-800 px-2 py-1.5">
+                {/* Time + platform */}
+                <div className="shrink-0 text-right">
+                  <p className="text-xs font-mono text-zinc-400">
+                    {slot.hour < 10 ? `0${slot.hour}` : slot.hour}:00
+                  </p>
+                  <p className="text-xs text-zinc-500 capitalize">{slot.platform.slice(0, 2).toUpperCase()}</p>
+                </div>
+                {/* Assigned idea */}
+                {slot.idea ? (
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-zinc-200 truncate">{slot.idea.title}</p>
+                    <p className="text-xs text-zinc-500 truncate">{slot.idea.angle}</p>
+                    <p className="text-xs text-purple-400 mt-0.5">
+                      Strength: {slot.idea.estimatedStrength}/100
+                    </p>
+                  </div>
+                ) : (
+                  <p className="flex-1 text-xs text-zinc-600">No idea assigned</p>
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── SavedTab — RESEARCH-13: User's saved content ideas ────────────────────
+interface SavedTabProps {
+  savedIdeas: SavedIdea[]
+  onSaveToggle: (id: string) => void
+}
+
+function SavedTab({ savedIdeas, onSaveToggle }: SavedTabProps) {
+  if (savedIdeas.length === 0) {
+    return (
+      <div className="py-8 text-center">
+        <p className="text-sm text-zinc-400">No saved ideas yet.</p>
+        <p className="mt-1 text-xs text-zinc-600">Press "Save" on any idea card to keep it here.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="py-4">
+      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        Saved Ideas ({savedIdeas.length})
+      </h2>
+      <div className="flex flex-col gap-4">
+        {savedIdeas.map((saved) => (
+          <div key={saved.id} className="rounded-lg bg-zinc-900 border border-zinc-800 p-4">
+            {/* Title + unsave button */}
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <h3 className="text-sm font-bold text-zinc-100 flex-1">{saved.idea.title}</h3>
+              <button
+                type="button"
+                onClick={() => onSaveToggle(saved.id)}
+                className="shrink-0 rounded bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400 hover:text-red-400"
+              >
+                Unsave
+              </button>
+            </div>
+
+            <p className="text-xs text-zinc-400 mb-2">{saved.idea.angle}</p>
+
+            {/* Gap warnings */}
+            {saved.idea.gapWarnings.length > 0 && (
+              <div className="mb-2 rounded bg-amber-900/20 border border-amber-800/30 px-2 py-1.5">
+                {saved.idea.gapWarnings.map((w, wi) => (
+                  <p key={wi} className="text-xs text-amber-300">⚠ {w}</p>
+                ))}
+              </div>
+            )}
+
+            {/* Hook variants */}
+            <div className="mb-2 flex flex-col gap-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1">Hook Variants</p>
+              {saved.idea.hookVariants.map((hook, hi) => (
+                <p key={hi} className="text-xs text-zinc-300 rounded bg-zinc-800 px-2 py-1">"{hook}"</p>
+              ))}
+            </div>
+
+            {/* Platforms + generated at */}
+            <div className="flex items-center justify-between">
+              <div className="flex flex-wrap gap-1">
+                {saved.idea.platforms.map(p => (
+                  <span key={p} className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400 capitalize">{p}</span>
+                ))}
+              </div>
+              <span className="text-xs text-zinc-600">
+                {new Date(saved.generated_at).toLocaleDateString('en-PK')}
+              </span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
