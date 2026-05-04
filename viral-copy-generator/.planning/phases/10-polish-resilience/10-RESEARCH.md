@@ -666,17 +666,19 @@ export default defineConfig({
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`oauth_expired` surfacing timing**
    - What we know: The frontend only learns about upload worker failures through Supabase Realtime `platform_posts` row updates. The `error_message` column gets the raw error string from `updateUploadStatus()`.
    - What's unclear: Does the Realtime payload include `error_message` in `payload.new`? It should (the subscription is on `*` events on `platform_posts`), but the current Realtime handler in GeneratorPage (line 113) only extracts `platform` and `upload_status` from `payload.new`.
    - Recommendation: Extend the Realtime handler to also read `error_message` from `payload.new` and check for `oauth_expired` prefix.
+   - RESOLVED: Plan 10-01 Task 2 implements the Realtime handler path — `row.error_message` is read from `payload.new` on `upload_status === 'failed'`; this satisfies ROADMAP SC-3. If Assumption A2 fails at runtime (Realtime payload excludes error_message), the implementation will be updated to poll `GET /api/platform-posts/:id` instead.
 
 2. **Phase 3 dependency scope**
    - What we know: TF.js tensor dispose and ffmpeg progress both require engine.ts, which is paused.
    - What's unclear: Will Phase 3 be resumed before or after Phase 10 is verified?
    - Recommendation: Phase 10 adds the Vite `optimizeDeps.exclude` now (anticipatory). The tensor dispose and ffmpeg progress patterns are documented in RESEARCH.md but not tasked for implementation — that belongs in Phase 3 Wave X.
+   - RESOLVED: TF.js tensor dispose and ffmpeg indeterminate spinner are scoped to Phase 3 (when engine.ts is built). Phase 10 delivers the `optimizeDeps.exclude` config as Phase 3 readiness.
 
 ---
 
