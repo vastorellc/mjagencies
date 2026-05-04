@@ -4,6 +4,7 @@
 // to be set when this runs. It is a SEPARATE file from auth.ts (CLAUDE.md: never mix concerns).
 import type { Request, Response, NextFunction } from 'express'
 import type { User } from '@supabase/supabase-js'
+import { PermissionError } from '../lib/errors.js'
 
 // Extend Express locals so TypeScript knows res.locals.user is a Supabase User.
 // This matches the shape set by authMiddleware in auth.ts.
@@ -26,8 +27,7 @@ export function adminMiddleware(
   const role = res.locals.user?.app_metadata?.role as string | undefined
   if (role !== 'admin') {
     // ADMIN-10 baseline: always 403, never expose why (enumeration risk)
-    res.status(403).json({ error: 'Forbidden' })
-    return
+    throw new PermissionError('Access denied', 'User does not have admin role')
   }
   next()
 }

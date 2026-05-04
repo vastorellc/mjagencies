@@ -3,6 +3,7 @@ import { eq, sql } from 'drizzle-orm'
 import { db } from '../db/index.js'
 import { settings, type PlatformConfig } from '../db/schema.js'
 import { encrypt, decrypt, maskKey } from '../lib/encryption.js'
+import { ValidationError, DatabaseError, StorageError } from '../lib/errors.js'
 
 export const settingsRouter = Router()
 
@@ -23,7 +24,17 @@ interface SettingsResponse {
 
 settingsRouter.get('/', async (_req: Request, res: Response) => {
   const userId = res.locals.userId as string
-  const rows = await db.select().from(settings).where(eq(settings.user_id, userId)).limit(1)
+  let rows: Array<typeof settings.$inferSelect>
+  try {
+    rows = await db.select().from(settings).where(eq(settings.user_id, userId)).limit(1)
+  } catch (err) {
+    throw new DatabaseError(
+      'Failed to load settings',
+      `Could not fetch user settings: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
+  }
+
   if (rows.length === 0) {
     const fallback: SettingsResponse = {
       ai_provider: 'gemini',
@@ -74,8 +85,11 @@ settingsRouter.patch('/', async (req: Request, res: Response) => {
   const body = req.body as PatchBody
 
   if (body.ai_provider !== undefined && !VALID_PROVIDERS.includes(body.ai_provider as Provider)) {
-    res.status(400).json({ error: 'invalid ai_provider' })
-    return
+    throw new ValidationError(
+      `Unknown AI provider "${body.ai_provider}"`,
+      `ai_provider not in [${VALID_PROVIDERS.join(', ')}]`,
+      { field: 'ai_provider' }
+    )
   }
   if (body.enabled_platforms !== undefined) {
     if (
@@ -84,21 +98,30 @@ settingsRouter.patch('/', async (req: Request, res: Response) => {
         (p) => !VALID_PLATFORMS.includes(p as (typeof VALID_PLATFORMS)[number]),
       )
     ) {
-      res.status(400).json({ error: 'invalid enabled_platforms' })
-      return
+      throw new ValidationError(
+        `Invalid platform selection`,
+        `enabled_platforms contains invalid values. Valid: [${VALID_PLATFORMS.join(', ')}]`,
+        { field: 'enabled_platforms' }
+      )
     }
   }
   if (
     body.default_niche !== undefined &&
     !VALID_NICHES.includes(body.default_niche as (typeof VALID_NICHES)[number])
   ) {
-    res.status(400).json({ error: 'invalid default_niche' })
-    return
+    throw new ValidationError(
+      `Unknown niche "${body.default_niche}"`,
+      `default_niche not in [${VALID_NICHES.join(', ')}]`,
+      { field: 'default_niche' }
+    )
   }
   if (body.api_key !== undefined) {
     if (typeof body.api_key !== 'string' || body.api_key.length === 0 || body.api_key.length > 200) {
-      res.status(400).json({ error: 'invalid api_key' })
-      return
+      throw new ValidationError(
+        'API key must be 1-200 characters',
+        `api_key length=${body.api_key?.length || 0}, must be 1-200`,
+        { field: 'api_key' }
+      )
     }
   }
 
@@ -107,24 +130,60 @@ settingsRouter.patch('/', async (req: Request, res: Response) => {
   if (body.ai_provider !== undefined) update.ai_provider = body.ai_provider
   if (body.default_niche !== undefined) update.default_niche = body.default_niche
   if (body.enabled_platforms !== undefined) update.enabled_platforms = body.enabled_platforms
-  if (body.api_key !== undefined) update.api_key_encrypted = encrypt(body.api_key.trim())
+  if (body.api_key !== undefined) {
+    try {
+      update.api_key_encrypted = encrypt(body.api_key.trim())
+    } catch (err) {
+      throw new StorageError(
+        'Failed to encrypt API key',
+        `Encryption error: ${err instanceof Error ? err.message : String(err)}`,
+        { original: err }
+      )
+    }
+  }
 
   // UPSERT keyed on user_id (UNIQUE in schema). On first save, INSERT defaults for unspecified columns.
-  await db
-    .insert(settings)
-    .values({
-      user_id: userId,
-      ai_provider: (body.ai_provider as Provider) ?? 'gemini',
-      api_key_encrypted: body.api_key ? encrypt(body.api_key.trim()) : null,
-      default_niche: body.default_niche ?? 'travel',
-      enabled_platforms: body.enabled_platforms ?? ['youtube', 'instagram', 'facebook'],
-    })
-    .onConflictDoUpdate({ target: settings.user_id, set: update })
+  try {
+    await db
+      .insert(settings)
+      .values({
+        user_id: userId,
+        ai_provider: (body.ai_provider as Provider) ?? 'gemini',
+        api_key_encrypted: body.api_key ? encrypt(body.api_key.trim()) : null,
+        default_niche: body.default_niche ?? 'travel',
+        enabled_platforms: body.enabled_platforms ?? ['youtube', 'instagram', 'facebook'],
+      })
+      .onConflictDoUpdate({ target: settings.user_id, set: update })
+  } catch (err) {
+    throw new DatabaseError(
+      'Failed to update settings',
+      `Database error: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
+  }
 
   // Return masked + summary
-  const refreshed = await db.select().from(settings).where(eq(settings.user_id, userId)).limit(1)
+  let refreshed: Array<typeof settings.$inferSelect>
+  try {
+    refreshed = await db.select().from(settings).where(eq(settings.user_id, userId)).limit(1)
+  } catch (err) {
+    throw new DatabaseError(
+      'Settings updated but failed to refresh',
+      `Could not fetch updated settings: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
+  }
+
   const row = refreshed[0]
-  const masked = row?.api_key_encrypted ? maskKey(decrypt(row.api_key_encrypted)) : null
+  let masked: string | null = null
+  if (row?.api_key_encrypted) {
+    try {
+      masked = maskKey(decrypt(row.api_key_encrypted))
+    } catch {
+      masked = null
+    }
+  }
+
   res.json({
     ok: true,
     api_key_masked: masked,
@@ -139,11 +198,20 @@ settingsRouter.patch('/', async (req: Request, res: Response) => {
 // Frontend calls this only immediately before callAI() — key stays in function scope.
 settingsRouter.get('/key', async (_req: Request, res: Response) => {
   const userId = res.locals.userId as string
-  const rows = await db
-    .select({ api_key_encrypted: settings.api_key_encrypted })
-    .from(settings)
-    .where(eq(settings.user_id, userId))
-    .limit(1)
+  let rows: Array<{ api_key_encrypted: string | null }>
+  try {
+    rows = await db
+      .select({ api_key_encrypted: settings.api_key_encrypted })
+      .from(settings)
+      .where(eq(settings.user_id, userId))
+      .limit(1)
+  } catch (err) {
+    throw new DatabaseError(
+      'Failed to load API key',
+      `Could not fetch user settings: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
+  }
 
   if (!rows[0]?.api_key_encrypted) {
     res.json({ api_key: null })
@@ -153,9 +221,12 @@ settingsRouter.get('/key', async (_req: Request, res: Response) => {
   let api_key: string | null = null
   try {
     api_key = decrypt(rows[0].api_key_encrypted)
-  } catch {
-    res.status(500).json({ error: 'key_decrypt_failed' })
-    return
+  } catch (err) {
+    throw new StorageError(
+      'Failed to decrypt API key',
+      `Decryption error: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
   }
 
   // T-5-01: key returned to authenticated owner only — never logged, never in general GET
@@ -168,20 +239,31 @@ settingsRouter.delete('/connections/:platform', async (req: Request, res: Respon
   const userId = res.locals.userId as string
   const platform: string = req.params['platform'] as string
   if (!['youtube', 'instagram', 'facebook'].includes(platform)) {
-    res.status(400).json({ error: 'invalid platform' })
-    return
+    throw new ValidationError(
+      `Unknown platform "${platform}"`,
+      `platform not in [youtube, instagram, facebook]`,
+      { field: 'platform' }
+    )
   }
   const patch: Record<string, null> = { [platform]: null }
-  await db.transaction(async (tx) => {
-    // Lock the row to prevent concurrent JSONB writes (research Pitfall 3)
-    await tx.execute(sql`SELECT id FROM settings WHERE user_id = ${userId} FOR UPDATE`)
-    await tx
-      .update(settings)
-      .set({
-        platform_config: sql`COALESCE(${settings.platform_config}, '{}')::jsonb || ${JSON.stringify(patch)}::jsonb`,
-        updated_at: sql`NOW()`,
-      })
-      .where(eq(settings.user_id, userId))
-  })
+  try {
+    await db.transaction(async (tx) => {
+      // Lock the row to prevent concurrent JSONB writes (research Pitfall 3)
+      await tx.execute(sql`SELECT id FROM settings WHERE user_id = ${userId} FOR UPDATE`)
+      await tx
+        .update(settings)
+        .set({
+          platform_config: sql`COALESCE(${settings.platform_config}, '{}')::jsonb || ${JSON.stringify(patch)}::jsonb`,
+          updated_at: sql`NOW()`,
+        })
+        .where(eq(settings.user_id, userId))
+    })
+  } catch (err) {
+    throw new DatabaseError(
+      'Failed to disconnect platform',
+      `Database error: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
+  }
   res.json({ ok: true })
 })

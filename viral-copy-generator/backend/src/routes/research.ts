@@ -15,6 +15,7 @@ import { callResearchAI } from '../lib/research-ai.js'
 import { buildCalendar } from '../lib/calendar.js'
 import { getBoss } from '../lib/boss.js'
 import type { TrendItem, ContentIdeaData } from '../db/schema.js'
+import { ValidationError, DatabaseError, NotFoundError, QueueJobError } from '../lib/errors.js'
 
 export const researchRouter = Router()
 
@@ -128,12 +129,16 @@ function buildHashtagIntel(
 // ── GET /api/research/trends ────────────────────────────────────────────────
 // RESEARCH-06: Cache-first; fetch live on miss; store result
 // RESEARCH-15: Returns fetchedAt for freshness indicator
+// Fail-open: always returns trends (cached, live, or fallback)
 researchRouter.get('/trends', async (req: Request, res: Response) => {
   const niche = (req.query['niche'] as string | undefined) ?? 'travel'
 
   if (!isValidNiche(niche)) {
-    res.status(400).json({ error: 'invalid_niche' })
-    return
+    throw new ValidationError(
+      `Unknown niche "${niche}"`,
+      `niche not in [${VALID_NICHES.join(', ')}]`,
+      { field: 'niche' }
+    )
   }
 
   try {
@@ -181,7 +186,7 @@ researchRouter.get('/trends', async (req: Request, res: Response) => {
     res.json({ trends, fromCache: false, fetchedAt })
 
   } catch (err) {
-    // Outer safety net — should never be reached, but guarantees 200 with fallback data
+    // Outer safety net — fail-open with fallback data
     console.error('[research/trends] unexpected error:', (err as Error).message)
     const fallback = FALLBACK_TRENDS[niche] ?? []
     res.json({ trends: fallback, fromCache: false, fetchedAt: new Date().toISOString() })
@@ -197,8 +202,11 @@ researchRouter.post('/generate', async (req: Request, res: Response) => {
   const instructions = typeof req.body?.instructions === 'string' ? req.body.instructions.slice(0, 600).trim() : undefined
 
   if (!isValidNiche(niche)) {
-    res.status(400).json({ error: 'invalid_niche' })
-    return
+    throw new ValidationError(
+      `Unknown niche "${niche}"`,
+      `niche not in [${VALID_NICHES.join(', ')}]`,
+      { field: 'niche' }
+    )
   }
 
   // Fetch trend cache + user learning data in parallel
@@ -253,17 +261,25 @@ researchRouter.post('/generate', async (req: Request, res: Response) => {
   // .returning() so the frontend receives real UUIDs for save/unsave
   let ideasWithIds: Array<ContentIdeaData & { id: string }> = ideas.map(idea => ({ ...idea, id: '' }))
   if (ideas.length > 0) {
-    const inserted = await db.insert(content_ideas).values(
-      ideas.map(idea => ({
-        user_id: userId,
-        idea,
-        niches: [niche],
-        platforms: idea.platforms,
-        saved: false,
-      }))
-    ).returning({ id: content_ideas.id })
-    // Zip inserted UUIDs back onto idea objects
-    ideasWithIds = ideas.map((idea, i) => ({ ...idea, id: inserted[i]?.id ?? '' }))
+    try {
+      const inserted = await db.insert(content_ideas).values(
+        ideas.map(idea => ({
+          user_id: userId,
+          idea,
+          niches: [niche],
+          platforms: idea.platforms,
+          saved: false,
+        }))
+      ).returning({ id: content_ideas.id })
+      // Zip inserted UUIDs back onto idea objects
+      ideasWithIds = ideas.map((idea, i) => ({ ...idea, id: inserted[i]?.id ?? '' }))
+    } catch (err) {
+      throw new DatabaseError(
+        'Failed to save ideas',
+        `Could not persist ideas to content_ideas: ${err instanceof Error ? err.message : String(err)}`,
+        { original: err }
+      )
+    }
   }
 
   const calendar = buildCalendar(ideas, postingTimes)
@@ -275,17 +291,23 @@ researchRouter.post('/generate', async (req: Request, res: Response) => {
 
 // ── GET /api/research/saved ────────────────────────────────────────────────
 // RESEARCH-13: Returns only the authenticated user's saved ideas (RLS on content_ideas)
+// Fail-open: returns [] on error
 researchRouter.get('/saved', async (req: Request, res: Response) => {
   const userId = res.locals.userId as string
 
-  const rows = await db
-    .select()
-    .from(content_ideas)
-    .where(and(eq(content_ideas.user_id, userId), eq(content_ideas.saved, true)))
-    .orderBy(desc(content_ideas.generated_at))
-    .limit(50)
+  try {
+    const rows = await db
+      .select()
+      .from(content_ideas)
+      .where(and(eq(content_ideas.user_id, userId), eq(content_ideas.saved, true)))
+      .orderBy(desc(content_ideas.generated_at))
+      .limit(50)
 
-  res.json({ ideas: rows })
+    res.json({ ideas: rows })
+  } catch (err) {
+    // Fail-open: return empty list on error
+    res.json({ ideas: [] })
+  }
 })
 
 // ── POST /api/research/ideas/:id/save ──────────────────────────────────────
@@ -295,60 +317,85 @@ researchRouter.post('/ideas/:id/save', async (req: Request, res: Response) => {
   const userId = res.locals.userId as string
   const { id } = req.params as { id: string }
 
-  const existing = await db
-    .select({ id: content_ideas.id, saved: content_ideas.saved })
-    .from(content_ideas)
-    .where(and(eq(content_ideas.id, id), eq(content_ideas.user_id, userId)))
-    .limit(1)
+  try {
+    const existing = await db
+      .select({ id: content_ideas.id, saved: content_ideas.saved })
+      .from(content_ideas)
+      .where(and(eq(content_ideas.id, id), eq(content_ideas.user_id, userId)))
+      .limit(1)
 
-  if (!existing[0]) {
-    res.status(404).json({ error: 'idea_not_found' })
-    return
+    if (!existing[0]) {
+      throw new NotFoundError('Idea not found', `Idea ${id} does not exist or does not belong to user`)
+    }
+
+    const newSaved = !existing[0].saved
+    await db
+      .update(content_ideas)
+      .set({ saved: newSaved })
+      .where(and(eq(content_ideas.id, id), eq(content_ideas.user_id, userId)))
+
+    res.json({ ok: true, saved: newSaved })
+  } catch (err) {
+    if (err instanceof NotFoundError) throw err
+    throw new DatabaseError(
+      'Failed to save idea',
+      `Could not update idea: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
   }
-
-  const newSaved = !existing[0].saved
-  await db
-    .update(content_ideas)
-    .set({ saved: newSaved })
-    .where(and(eq(content_ideas.id, id), eq(content_ideas.user_id, userId)))
-
-  res.json({ ok: true, saved: newSaved })
 })
 
 // ── POST /api/research/refresh ─────────────────────────────────────────────
 // RESEARCH-14: On-demand refresh — bypasses 24h cache by firing pg-boss job immediately
 researchRouter.post('/refresh', async (_req: Request, res: Response) => {
-  const boss = await getBoss()
-  await boss.send('refresh-trends', {})
-  res.json({ ok: true })
+  try {
+    const boss = await getBoss()
+    await boss.send('refresh-trends', {})
+    res.json({ ok: true })
+  } catch (err) {
+    throw new QueueJobError(
+      'Failed to refresh trends',
+      `Could not enqueue refresh job: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err, retryable: true }
+    )
+  }
 })
 
 // ── GET /api/research/hashtags ─────────────────────────────────────────────
 // RESEARCH-11: Standalone hashtag intelligence (no AI generation)
+// Fail-open: returns [] on error
 researchRouter.get('/hashtags', async (req: Request, res: Response) => {
   const userId = res.locals.userId as string
   const niche = (req.query['niche'] as string | undefined) ?? 'travel'
 
   if (!isValidNiche(niche)) {
-    res.status(400).json({ error: 'invalid_niche' })
-    return
+    throw new ValidationError(
+      `Unknown niche "${niche}"`,
+      `niche not in [${VALID_NICHES.join(', ')}]`,
+      { field: 'niche' }
+    )
   }
 
-  const [trendResult, hashtagsResult] = await Promise.allSettled([
-    getTrendCache('all', niche),
-    db.execute<{ hashtag: string; avg_views: number }>(
-      sql`SELECT unnest(hashtags) AS hashtag, AVG(actual_views) AS avg_views
-          FROM learning_signals
-          WHERE user_id = ${userId} AND niche = ${niche} AND actual_views IS NOT NULL
-          GROUP BY hashtag ORDER BY avg_views DESC NULLS LAST LIMIT 20`
-    ),
-  ])
+  try {
+    const [trendResult, hashtagsResult] = await Promise.allSettled([
+      getTrendCache('all', niche),
+      db.execute<{ hashtag: string; avg_views: number }>(
+        sql`SELECT unnest(hashtags) AS hashtag, AVG(actual_views) AS avg_views
+            FROM learning_signals
+            WHERE user_id = ${userId} AND niche = ${niche} AND actual_views IS NOT NULL
+            GROUP BY hashtag ORDER BY avg_views DESC NULLS LAST LIMIT 20`
+      ),
+    ])
 
-  const trends = trendResult.status === 'fulfilled' && trendResult.value
-    ? trendResult.value.data : []
-  const userHashtags = hashtagsResult.status === 'fulfilled'
-    ? hashtagsResult.value.rows : []
+    const trends = trendResult.status === 'fulfilled' && trendResult.value
+      ? trendResult.value.data : []
+    const userHashtags = hashtagsResult.status === 'fulfilled'
+      ? hashtagsResult.value.rows : []
 
-  const hashtags = buildHashtagIntel(trends, userHashtags)
-  res.json({ hashtags })
+    const hashtags = buildHashtagIntel(trends, userHashtags)
+    res.json({ hashtags })
+  } catch (err) {
+    // Fail-open: return empty list on error
+    res.json({ hashtags: [] })
+  }
 })

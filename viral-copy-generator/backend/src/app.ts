@@ -1,6 +1,7 @@
 // backend/src/app.ts
 import express from 'express'
 import cors from 'cors'
+import { requestIdMiddleware } from './middleware/request-id.js'
 import { authMiddleware } from './middleware/auth.js'
 import { healthRouter } from './routes/health.js'
 import { postsRouter } from './routes/posts.js'
@@ -14,12 +15,16 @@ import { learningRouter } from './routes/learning.js'
 import { adminRouter } from './routes/admin.js'
 import { researchRouter } from './routes/research.js'
 import pino from 'pino'
+import { isAppError, toErrorResponse, DatabaseError, UnknownSystemError } from './lib/errors.js'
 
 const logger = pino({
   redact: ['req.headers.authorization', 'body.password', 'body.api_key'],
 })
 
 export const app = express()
+
+// ── Request ID — attach before all other processing ───────────────────────────
+app.use(requestIdMiddleware)
 
 // ── Security headers — required on all responses ────────────────────────────
 app.use((_req, res, next) => {
@@ -86,14 +91,67 @@ app.use('/api/admin', adminRouter)
 app.use('/api/research', researchRouter)
 
 // ── 404 handler ──────────────────────────────────────────────────────────────
-app.use((_req, res) => {
-  res.status(404).json({ error: 'Not Found' })
+app.use((req, res) => {
+  const errorResponse = toErrorResponse(
+    new Error('Route not found'),
+    req.id,
+  )
+  res.status(404).json(errorResponse)
 })
 
 // ── Express 5 error handler ───────────────────────────────────────────────────
 // Express 5 forwards async errors natively — no express-async-errors needed
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  logger.error({ err }, 'unhandled error')
-  // Never expose internal error details to clients (CLAUDE.md Security)
-  res.status(500).json({ error: 'Internal Server Error' })
+app.use((err: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  let appErr = err
+
+  // Map Drizzle/Postgres errors to DatabaseError
+  if (err.constructor.name === 'PostgresError' || (err instanceof Error && err.message.includes('error executing'))) {
+    appErr = new DatabaseError(
+      'Database operation failed',
+      `${err.name}: ${err.message}`,
+      { original: err }
+    )
+  }
+
+  // Map Multer file upload errors
+  if (err instanceof Error && err.message.includes('File too large')) {
+    const match = err.message.match(/File too large \((\d+)\)/i)
+    const size = match ? parseInt(match[1], 10) : 0
+    const maxMB = Math.floor(size / 1024 / 1024)
+    const errMsg = new Error(`Video is ${maxMB}MB. Maximum is 260MB.`)
+    appErr = new Error(errMsg.message)
+  }
+
+  // Map Multer MIME type errors
+  if (err instanceof Error && (err.message.includes('only video files') || err.message === 'only_video_files')) {
+    appErr = new Error('Video file required. Supported formats: MP4, MOV, AVI, MKV')
+  }
+
+  // If not already an AppError, wrap in UnknownSystemError
+  if (!isAppError(appErr)) {
+    appErr = new UnknownSystemError(
+      undefined,
+      appErr instanceof Error ? appErr.message : String(appErr),
+      { original: err },
+    )
+  }
+
+  // Log the full error server-side (with request ID for tracing)
+  logger.error(
+    {
+      requestId: req.id,
+      errorCode: (appErr as any).errorCode,
+      statusCode: (appErr as any).statusCode,
+      developerMessage: (appErr as any).developerMessage,
+      originalError: (appErr as any).original instanceof Error ? {
+        name: (appErr as any).original.name,
+        message: (appErr as any).original.message,
+      } : (appErr as any).original,
+    },
+    'request error',
+  )
+
+  // Return structured error response (never expose internals)
+  const errorResponse = toErrorResponse(appErr as any, req.id)
+  res.status((appErr as any).statusCode || 500).json(errorResponse)
 })

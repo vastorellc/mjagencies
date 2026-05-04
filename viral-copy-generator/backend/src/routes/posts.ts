@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from 'express'
 import { eq, desc, and, gte, lte, inArray, sql, type SQL } from 'drizzle-orm'
 import { db } from '../db/index.js'
 import { posts, platform_posts } from '../db/schema.js'
+import { ValidationError, DatabaseError, NotFoundError } from '../lib/errors.js'
 
 export const postsRouter = Router()
 
@@ -34,21 +35,31 @@ postsRouter.get('/', async (req: Request, res: Response) => {
   if (from) conditions.push(gte(posts.created_at, new Date(from)))
   if (to) conditions.push(lte(posts.created_at, new Date(to)))
 
-  const rows = await db
-    .select()
-    .from(posts)
-    .where(and(...conditions))
-    .orderBy(desc(posts.created_at))
+  let rows: Array<typeof posts.$inferSelect>
+  let platformRows: Array<typeof platform_posts.$inferSelect>
+  try {
+    rows = await db
+      .select()
+      .from(posts)
+      .where(and(...conditions))
+      .orderBy(desc(posts.created_at))
 
-  // Fetch platform_posts for all returned posts in a single batch query
-  const postIds = rows.map((p) => p.id)
-  const platformRows =
-    postIds.length > 0
-      ? await db
-          .select()
-          .from(platform_posts)
-          .where(inArray(platform_posts.post_id, postIds))
-      : []
+    // Fetch platform_posts for all returned posts in a single batch query
+    const postIds = rows.map((p) => p.id)
+    platformRows =
+      postIds.length > 0
+        ? await db
+            .select()
+            .from(platform_posts)
+            .where(inArray(platform_posts.post_id, postIds))
+        : []
+  } catch (err) {
+    throw new DatabaseError(
+      'Failed to load posts',
+      `Could not fetch posts: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
+  }
 
   // Group platform_posts by post_id
   const platformByPost = platformRows.reduce<Record<string, typeof platformRows>>(
@@ -74,20 +85,36 @@ postsRouter.delete('/:id', async (req: Request, res: Response) => {
   const postId = req.params.id as string
 
   // Ownership check — return 404 (not 403) to avoid UUID enumeration (T-07-02)
-  const [existing] = await db
-    .select({ id: posts.id })
-    .from(posts)
-    .where(and(eq(posts.id, postId), eq(posts.user_id, userId)))
+  let existing: Array<{ id: string }>
+  try {
+    existing = await db
+      .select({ id: posts.id })
+      .from(posts)
+      .where(and(eq(posts.id, postId), eq(posts.user_id, userId)))
+  } catch (err) {
+    throw new DatabaseError(
+      'Failed to check post',
+      `Could not fetch post: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
+  }
 
-  if (!existing) {
-    res.status(404).json({ error: 'not_found' })
-    return
+  if (!existing[0]) {
+    throw new NotFoundError('Post not found', `Post ${postId} does not exist or does not belong to user`)
   }
 
   // FK ON DELETE CASCADE handles platform_posts + learning_signals
-  await db
-    .delete(posts)
-    .where(and(eq(posts.id, postId), eq(posts.user_id, userId)))
+  try {
+    await db
+      .delete(posts)
+      .where(and(eq(posts.id, postId), eq(posts.user_id, userId)))
+  } catch (err) {
+    throw new DatabaseError(
+      'Failed to delete post',
+      `Could not delete post: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
+  }
 
   res.json({ ok: true })
 })
@@ -112,38 +139,62 @@ postsRouter.post('/', async (req: Request, res: Response) => {
       )
     )
   ) {
-    res.status(400).json({ error: 'invalid_enabled_platforms' })
-    return
+    throw new ValidationError(
+      'Invalid platform selection',
+      `enabled_platforms contains invalid values. Valid: [${VALID_PLATFORMS.join(', ')}]`,
+      { field: 'enabled_platforms' }
+    )
   }
 
   if (
     body.niche !== undefined &&
     !VALID_NICHES.includes(body.niche as (typeof VALID_NICHES)[number])
   ) {
-    res.status(400).json({ error: 'invalid_niche' })
-    return
+    throw new ValidationError(
+      `Unknown niche "${body.niche}"`,
+      `niche not in [${VALID_NICHES.join(', ')}]`,
+      { field: 'niche' }
+    )
   }
 
   // T-5-03: user_id always from res.locals, never from req.body
-  const [post] = await db.insert(posts).values({
-    user_id: userId,
-    title: body.title ?? 'Untitled',
-    niche: body.niche ?? 'travel',
-    virality_score: body.virality_score ?? 0,
-    engine_signals: body.engine_signals ?? {},
-    ai_output: body.ai_output ?? {},
-  }).returning()
+  let post: typeof posts.$inferSelect
+  try {
+    const result = await db.insert(posts).values({
+      user_id: userId,
+      title: body.title ?? 'Untitled',
+      niche: body.niche ?? 'travel',
+      virality_score: body.virality_score ?? 0,
+      engine_signals: body.engine_signals ?? {},
+      ai_output: body.ai_output ?? {},
+    }).returning()
+    post = result[0]
+  } catch (err) {
+    throw new DatabaseError(
+      'Failed to create post',
+      `Could not insert post: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
+  }
 
   const enabledPlatforms = body.enabled_platforms ?? []
   if (enabledPlatforms.length > 0) {
-    await db.insert(platform_posts).values(
-      enabledPlatforms.map((platform) => ({
-        user_id: userId,
-        post_id: post.id,
-        platform,
-        upload_status: 'idle' as const,
-      }))
-    )
+    try {
+      await db.insert(platform_posts).values(
+        enabledPlatforms.map((platform) => ({
+          user_id: userId,
+          post_id: post.id,
+          platform,
+          upload_status: 'idle' as const,
+        }))
+      )
+    } catch (err) {
+      throw new DatabaseError(
+        'Failed to link platforms',
+        `Could not insert platform_posts: ${err instanceof Error ? err.message : String(err)}`,
+        { original: err }
+      )
+    }
   }
 
   res.status(201).json({ postId: post.id })

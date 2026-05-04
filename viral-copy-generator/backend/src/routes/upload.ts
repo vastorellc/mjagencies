@@ -14,6 +14,7 @@ import { db } from '../db/index.js'
 import { platform_posts } from '../db/schema.js'
 import { eq, and } from 'drizzle-orm'
 import type { UploadJobPayload } from '../lib/upload-worker.js'
+import { ValidationError, DatabaseError, FileUploadError, FileTypeError, FileSizeError, NotFoundError, QueueJobError } from '../lib/errors.js'
 
 export const uploadRouter = Router()
 
@@ -59,31 +60,46 @@ uploadRouter.post(
   async (req: Request, res: Response): Promise<void> => {
     // multer size limit returns a multer error before reaching handler
     if (!req.file) {
-      res.status(400).json({ error: 'no_file' })
-      return
+      throw new FileUploadError('No video file provided', 'Missing multipart field "video"', { field: 'video' })
     }
 
     const userId = res.locals.userId as string
     const vpsUrl = process.env.VPS_PUBLIC_URL
     if (!vpsUrl) {
-      res.status(500).json({ error: 'VPS_PUBLIC_URL not configured' })
-      return
+      throw new FileUploadError('Server not configured for uploads', 'VPS_PUBLIC_URL env var not set')
     }
 
     // fileId is the uuid portion of the multer-generated filename
     const fileId = path.basename(req.file.filename, '.mp4')
     const userDir = path.resolve(UPLOADS_ROOT, userId)
-    await mkdir(userDir, { recursive: true })
+
+    try {
+      await mkdir(userDir, { recursive: true })
+    } catch (err) {
+      throw new FileUploadError(
+        'Failed to create upload directory',
+        `mkdir failed: ${err instanceof Error ? err.message : String(err)}`,
+        { original: err }
+      )
+    }
+
     const destPath = path.resolve(userDir, `${fileId}.mp4`)
 
     // Path-traversal guard on destination (T-06-01)
     const root = path.resolve(UPLOADS_ROOT)
     if (!destPath.startsWith(root + path.sep)) {
-      res.status(400).json({ error: 'invalid_path' })
-      return
+      throw new FileUploadError('Invalid file path', 'Path traversal detected', { source: 'path-guard' })
     }
 
-    await rename(req.file.path, destPath)
+    try {
+      await rename(req.file.path, destPath)
+    } catch (err) {
+      throw new FileUploadError(
+        'Failed to save video file',
+        `rename failed: ${err instanceof Error ? err.message : String(err)}`,
+        { original: err }
+      )
+    }
 
     const publicUrl = `${vpsUrl}/uploads/${userId}/${fileId}.mp4`
     res.json({ fileId, publicUrl })
@@ -95,8 +111,12 @@ uploadRouter.use(
   '/file',
   (err: Error, _req: Request, res: Response, next: (e?: unknown) => void): void => {
     if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
-      res.status(413).json({ error: 'file_too_large', message: 'Max file size is 260 MB.' })
-      return
+      const appErr = new FileSizeError('Video is too large. Maximum is 260 MB.', 'Multer LIMIT_FILE_SIZE')
+      return next(appErr)
+    }
+    if (err instanceof Error && err.message === 'only_video_files') {
+      const appErr = new FileTypeError('Video file required. Supported formats: MP4, MOV, AVI, MKV', 'Multer fileFilter rejected non-video MIME type')
+      return next(appErr)
     }
     next(err)
   },
@@ -127,13 +147,19 @@ uploadRouter.post('/schedule', async (req: Request, res: Response): Promise<void
 
   // Validate required fields
   if (!body.postId || !body.platform || !body.fileId) {
-    res.status(400).json({ error: 'missing_required_fields' })
-    return
+    throw new ValidationError(
+      'Missing required fields: postId, platform, fileId',
+      `postId=${body.postId}, platform=${body.platform}, fileId=${body.fileId}`,
+      { field: 'body' }
+    )
   }
 
   if (!VALID_PLATFORMS.has(body.platform)) {
-    res.status(400).json({ error: 'invalid_platform' })
-    return
+    throw new ValidationError(
+      `Unknown platform "${body.platform}"`,
+      `platform not in [${Array.from(VALID_PLATFORMS).join(', ')}]`,
+      { field: 'platform' }
+    )
   }
 
   // Derive filePath and publicUrl server-side — never accept from client (T-06-03)
@@ -144,32 +170,46 @@ uploadRouter.post('/schedule', async (req: Request, res: Response): Promise<void
 
   // AUTOUP-02 / T-06-06: Instagram 100 MB gate — reads actual file size via stat(), not client value
   if (body.platform === 'instagram') {
-    const { size } = await stat(filePath)
-    if (size > INSTAGRAM_MAX_SIZE) {
-      res.status(413).json({
-        error: 'instagram_file_too_large',
-        message: 'Instagram maximum is 100 MB. Please compress the video before uploading.',
-      })
-      return
+    try {
+      const { size } = await stat(filePath)
+      if (size > INSTAGRAM_MAX_SIZE) {
+        const sizeMB = Math.ceil(size / 1024 / 1024)
+        throw new FileSizeError(`Video is ${sizeMB}MB. Instagram maximum is 100 MB.`, 'Instagram size gate exceeded', { source: 'instagram-100mb' })
+      }
+    } catch (err) {
+      if (err instanceof FileSizeError) throw err
+      throw new FileUploadError(
+        'Could not check video file size',
+        `stat failed: ${err instanceof Error ? err.message : String(err)}`,
+        { original: err }
+      )
     }
   }
 
   // Lookup platform_posts row for status updates
-  const platformPostRows = await db
-    .select({ id: platform_posts.id })
-    .from(platform_posts)
-    .where(
-      and(
-        eq(platform_posts.post_id, body.postId),
-        eq(platform_posts.user_id, userId),
-        eq(platform_posts.platform, body.platform),
-      ),
+  let platformPostRows: Array<{ id: string }>
+  try {
+    platformPostRows = await db
+      .select({ id: platform_posts.id })
+      .from(platform_posts)
+      .where(
+        and(
+          eq(platform_posts.post_id, body.postId),
+          eq(platform_posts.user_id, userId),
+          eq(platform_posts.platform, body.platform),
+        ),
+      )
+      .limit(1)
+  } catch (err) {
+    throw new DatabaseError(
+      'Failed to check upload status',
+      `Could not fetch platform_posts: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
     )
-    .limit(1)
+  }
 
   if (platformPostRows.length === 0) {
-    res.status(404).json({ error: 'platform_post_not_found' })
-    return
+    throw new NotFoundError('Post not found on this platform', `No platform_posts row for post ${body.postId} on ${body.platform}`)
   }
 
   const platformPostId = platformPostRows[0].id
@@ -189,16 +229,31 @@ uploadRouter.post('/schedule', async (req: Request, res: Response): Promise<void
   }
 
   // Mark upload as in-progress before enqueuing
-  await db
-    .update(platform_posts)
-    .set({ upload_status: 'uploading' })
-    .where(eq(platform_posts.id, platformPostId))
+  try {
+    await db
+      .update(platform_posts)
+      .set({ upload_status: 'uploading' })
+      .where(eq(platform_posts.id, platformPostId))
+  } catch (err) {
+    throw new DatabaseError(
+      'Failed to update upload status',
+      `Could not update platform_posts: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err }
+    )
+  }
 
-  const boss = await getBoss()
-  const jobName = `upload-${body.platform}`
-  const sendOptions = body.scheduledAt ? { startAfter: new Date(body.scheduledAt).toISOString() } : {}
-
-  await boss.send(jobName, payload, sendOptions)
+  try {
+    const boss = await getBoss()
+    const jobName = `upload-${body.platform}`
+    const sendOptions = body.scheduledAt ? { startAfter: new Date(body.scheduledAt).toISOString() } : {}
+    await boss.send(jobName, payload, sendOptions)
+  } catch (err) {
+    throw new QueueJobError(
+      'Failed to schedule upload',
+      `Could not enqueue job: ${err instanceof Error ? err.message : String(err)}`,
+      { original: err, retryable: true }
+    )
+  }
 
   res.json({ ok: true, platformPostId })
 })
@@ -211,8 +266,11 @@ const PEAK_VALID_PLATFORMS = ['youtube', 'instagram', 'tiktok', 'facebook', 'x']
 uploadRouter.get('/peak-times', (req: Request, res: Response): void => {
   const platform = req.query['platform'] as string | undefined
   if (!platform || !PEAK_VALID_PLATFORMS.includes(platform)) {
-    res.status(400).json({ error: 'invalid_platform' })
-    return
+    throw new ValidationError(
+      `Unknown platform "${platform}"`,
+      `platform not in [${PEAK_VALID_PLATFORMS.join(', ')}]`,
+      { field: 'platform' }
+    )
   }
   const slots = getPeakTimes(platform as SchedulablePlatform)
   res.json({ slots })
