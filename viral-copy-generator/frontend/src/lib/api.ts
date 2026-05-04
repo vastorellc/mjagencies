@@ -5,6 +5,7 @@ import type {
   PostWithPlatforms, LogViewsResponse, TopHook, TopHashtag,
   PostingTimeSlot, NichePerformance, LearningWeightsResponse, PostFilters,
   AdminJob, AdminUser, AdminHealthResponse, AdminLogsResponse, AdminPlatformStatsResponse,
+  ResearchTrendsResponse, ResearchGenerateResponse, SavedIdea, HashtagIntel,
 } from './types'
 
 async function getAccessToken(): Promise<string | null> {
@@ -339,4 +340,66 @@ export async function fetchAdminPlatformStats(): Promise<AdminPlatformStatsRespo
   const res = await apiFetch('/admin/stats/platforms')
   if (!res.ok) throw new Error('admin_platform_stats_fetch_failed')
   return res.json() as Promise<AdminPlatformStatsResponse>
+}
+
+// ============================================================================
+// Phase 9: Content Research Engine
+// ============================================================================
+
+// RESEARCH-06 + RESEARCH-15: Fetch trend data for a niche (cache-first, returns fetchedAt)
+export async function fetchResearchTrends(niche: string): Promise<ResearchTrendsResponse> {
+  const res = await apiFetch(`/research/trends?niche=${encodeURIComponent(niche)}`)
+  if (!res.ok) throw new Error('research_trends_fetch_failed')
+  return res.json() as Promise<ResearchTrendsResponse>
+}
+
+// RESEARCH-08: Generate ideas using combined trend + learning context
+// POST /api/research/generate
+export async function generateResearchIdeas(niche: string): Promise<ResearchGenerateResponse> {
+  const res = await apiFetch('/research/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ niche }),
+  })
+  if (!res.ok) throw new Error('research_generate_failed')
+  return res.json() as Promise<ResearchGenerateResponse>
+}
+
+// RESEARCH-13: Get authenticated user's saved ideas (fail-open — returns [] on error)
+export async function fetchSavedIdeas(): Promise<SavedIdea[]> {
+  try {
+    const res = await apiFetch('/research/saved')
+    if (!res.ok) return []
+    const json = await res.json() as { ideas: SavedIdea[] }
+    return json.ideas ?? []
+  } catch {
+    return []
+  }
+}
+
+// RESEARCH-13: Toggle save state for a content idea
+export async function saveIdea(ideaId: string): Promise<{ saved: boolean }> {
+  const res = await apiFetch(`/research/ideas/${encodeURIComponent(ideaId)}/save`, {
+    method: 'POST',
+  })
+  if (!res.ok) throw new Error('save_idea_failed')
+  return res.json() as Promise<{ saved: boolean }>
+}
+
+// RESEARCH-14: Trigger on-demand cache refresh (bypasses 24h TTL)
+export async function refreshTrends(): Promise<void> {
+  const res = await apiFetch('/research/refresh', { method: 'POST' })
+  if (!res.ok) throw new Error('refresh_trends_failed')
+}
+
+// RESEARCH-11: Fetch standalone hashtag intelligence for a niche
+export async function fetchResearchHashtags(niche: string): Promise<HashtagIntel[]> {
+  try {
+    const res = await apiFetch(`/research/hashtags?niche=${encodeURIComponent(niche)}`)
+    if (!res.ok) return []
+    const json = await res.json() as { hashtags: HashtagIntel[] }
+    return json.hashtags ?? []
+  } catch {
+    return []
+  }
 }
