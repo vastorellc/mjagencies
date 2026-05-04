@@ -1,7 +1,7 @@
 // backend/src/db/schema.ts
 import {
   pgTable, uuid, text, integer, boolean, timestamp, jsonb,
-  index, foreignKey
+  index, foreignKey, unique
 } from 'drizzle-orm/pg-core'
 import { pgPolicy } from 'drizzle-orm/pg-core'
 import { authenticatedRole, authUsers } from 'drizzle-orm/supabase'
@@ -151,4 +151,72 @@ export const settings = pgTable('settings', {
     using: sql`${authUid} = user_id`,
     withCheck: sql`${authUid} = user_id`,
   }),
+])
+
+// ============================================================
+// Phase 9: Content Research Engine
+// ============================================================
+
+// TypeScript-only type aliases for JSONB columns
+export type TrendItem = {
+  title: string
+  score: number
+  source: 'youtube' | 'google-trends' | 'reddit' | 'exploding-topics'
+  url?: string
+}
+
+export type ContentIdeaData = {
+  title: string
+  angle: string
+  hookVariants: [string, string, string]
+  scriptOutline: string
+  keyMoments: Array<{ timestamp: string; description: string }>
+  brollSuggestions: string[]
+  platforms: string[]
+  estimatedStrength: number
+  gapWarnings: string[]
+  hashtagSuggestions: string[]
+}
+
+// ============================================================
+// trend_cache
+// RESEARCH-06: Global cache — no user_id, no RLS needed.
+// Shared across all users for the same (source, niche) pair.
+// unique() NOT index() — ON CONFLICT (source, niche) requires UNIQUE constraint.
+// ============================================================
+export const trend_cache = pgTable('trend_cache', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  source: text('source').notNull(),
+  niche: text('niche').notNull(),
+  data: jsonb('data').$type<TrendItem[]>().notNull().default([]),
+  fetched_at: timestamp('fetched_at').defaultNow().notNull(),
+}, (table) => [
+  unique('trend_cache_source_niche_unique').on(table.source, table.niche),
+])
+
+// ============================================================
+// content_ideas
+// RESEARCH-13: Per-user saved ideas with RLS.
+// ============================================================
+export const content_ideas = pgTable('content_ideas', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  user_id: uuid('user_id').notNull(),
+  idea: jsonb('idea').$type<ContentIdeaData>().notNull(),
+  niches: text('niches').array().notNull().default([]),
+  platforms: text('platforms').array().notNull().default([]),
+  generated_at: timestamp('generated_at').defaultNow().notNull(),
+  saved: boolean('saved').notNull().default(false),
+}, (table) => [
+  foreignKey({
+    columns: [table.user_id],
+    foreignColumns: [authUsers.id],
+    name: 'content_ideas_user_id_fk',
+  }).onDelete('cascade'),
+  pgPolicy('content_ideas_user_own', {
+    for: 'all',
+    to: authenticatedRole,
+    using: sql`${authUid} = user_id`,
+    withCheck: sql`${authUid} = user_id`,
+  }),
+  index('content_ideas_user_generated_idx').on(table.user_id, table.generated_at),
 ])
