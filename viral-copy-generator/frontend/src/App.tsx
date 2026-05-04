@@ -115,7 +115,7 @@ export default function App() {
       <ErrorBoundary screenName="generator">
         <GeneratorPage onNavigate={setCurrentScreen} />
       </ErrorBoundary>
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2 pb-[env(safe-area-inset-bottom)]">
         {isAdmin && (
           <button
             type="button"

@@ -67,7 +67,7 @@ export default function ScheduleModal({ platform, onConfirm, onCancel }: Props) 
       aria-modal="true"
       aria-label={`Schedule upload to ${PLATFORM_LABELS[platform]}`}
     >
-      <div className="w-full max-w-sm rounded-t-2xl bg-zinc-900 p-5 sm:rounded-2xl flex flex-col gap-4">
+      <div className="w-full max-w-sm rounded-t-2xl bg-zinc-900 p-5 pb-[env(safe-area-inset-bottom)] sm:rounded-2xl flex flex-col gap-4">
         <h2 className="text-base font-bold text-white">
           Upload to {PLATFORM_LABELS[platform]}
         </h2>
