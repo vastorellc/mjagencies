@@ -7,6 +7,7 @@ import SettingsPage from './pages/SettingsPage'
 import HistoryPage from './pages/HistoryPage'
 import LearningPage from './pages/LearningPage'
 import AdminPage from './pages/AdminPage'
+import ResearchPage from './pages/ResearchPage'
 import type { Screen } from './lib/types'
 
 export default function App() {
@@ -92,6 +93,10 @@ export default function App() {
 
   if (currentScreen === 'learning') {
     return <LearningPage onNavigate={setCurrentScreen} />
+  }
+
+  if (currentScreen === 'research') {
+    return <ResearchPage onNavigate={setCurrentScreen} />
   }
 
   // ADMIN-01: Admin nav button shown only for admin users — UX guard only; backend is authoritative
