@@ -348,9 +348,15 @@ export async function fetchAdminPlatformStats(): Promise<AdminPlatformStatsRespo
 
 // RESEARCH-06 + RESEARCH-15: Fetch trend data for a niche (cache-first, returns fetchedAt)
 export async function fetchResearchTrends(niche: string): Promise<ResearchTrendsResponse> {
-  const res = await apiFetch(`/research/trends?niche=${encodeURIComponent(niche)}`)
-  if (!res.ok) throw new Error('research_trends_fetch_failed')
-  return res.json() as Promise<ResearchTrendsResponse>
+  try {
+    const res = await apiFetch(`/research/trends?niche=${encodeURIComponent(niche)}`)
+    if (!res.ok) throw new Error(`trends_${res.status}`)
+    return res.json() as Promise<ResearchTrendsResponse>
+  } catch (err) {
+    // Re-throw so callers can set trendsOffline state — but log for diagnostics
+    console.warn('[api] fetchResearchTrends failed:', (err as Error).message)
+    throw err
+  }
 }
 
 // RESEARCH-08: Generate ideas using combined trend + learning context

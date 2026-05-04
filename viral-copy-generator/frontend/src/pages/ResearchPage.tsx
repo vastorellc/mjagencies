@@ -36,22 +36,28 @@ export default function ResearchPage({ onNavigate }: Props) {
   const [generating, setGenerating] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [trendsOffline, setTrendsOffline] = useState(false)
+
+  async function loadTrends(n: ValidNiche): Promise<void> {
+    setLoadingTrends(true)
+    setTrendsOffline(false)
+    try {
+      const data = await fetchResearchTrends(n)
+      setTrends(data.trends)
+      setFetchedAt(data.fetchedAt)
+      setTrendsOffline(false)
+    } catch {
+      // Non-blocking: trend unavailability doesn't prevent idea generation.
+      // The backend uses hardcoded fallback trends automatically.
+      setTrendsOffline(true)
+    } finally {
+      setLoadingTrends(false)
+    }
+  }
 
   // Load trend data when niche changes (RESEARCH-06 cache-first)
   useEffect(() => {
-    void (async () => {
-      setLoadingTrends(true)
-      setError(null)
-      try {
-        const data = await fetchResearchTrends(niche)
-        setTrends(data.trends)
-        setFetchedAt(data.fetchedAt)
-      } catch {
-        setError('Failed to load trend data. Try refreshing.')
-      } finally {
-        setLoadingTrends(false)
-      }
-    })()
+    void loadTrends(niche)
   }, [niche])
 
   // Load saved ideas when Saved tab is activated
@@ -82,15 +88,11 @@ export default function ResearchPage({ onNavigate }: Props) {
     setRefreshing(true)
     try {
       await refreshTrends()
-      // Re-fetch after triggering refresh (may still return cached data until job runs)
-      const data = await fetchResearchTrends(niche)
-      setTrends(data.trends)
-      setFetchedAt(data.fetchedAt)
     } catch {
-      setError('Refresh failed. Try again.')
-    } finally {
-      setRefreshing(false)
+      // Non-fatal — still attempt re-fetch below
     }
+    await loadTrends(niche)
+    setRefreshing(false)
   }
 
   async function handleSaveToggle(ideaId: string): Promise<void> {
@@ -179,7 +181,7 @@ export default function ResearchPage({ onNavigate }: Props) {
         ))}
       </div>
 
-      {/* Error banner */}
+      {/* Generation error banner */}
       {error && (
         <div className="mx-4 mt-3 rounded bg-red-900/30 border border-red-800 px-3 py-2 text-sm text-red-300">
           {error}
@@ -231,15 +233,30 @@ export default function ResearchPage({ onNavigate }: Props) {
               {generating ? 'Generating ideas...' : loadingTrends ? 'Loading trends...' : 'Generate Content Ideas'}
             </button>
 
-            {/* Trend source summary (RESEARCH-02..05) */}
-            {trends.length > 0 && !generating && (
-              <div className="mb-4 rounded-lg bg-zinc-900 border border-zinc-800 px-3 py-2">
-                <p className="text-xs text-zinc-500">
-                  {trends.length} trending signals loaded from {
-                    [...new Set(trends.map(t => t.source))].join(', ')
-                  }
-                </p>
-              </div>
+            {/* Trend status — either live signal count or offline notice */}
+            {!generating && !loadingTrends && (
+              trendsOffline ? (
+                <div className="mb-4 flex items-center justify-between rounded-lg bg-amber-900/20 border border-amber-800/30 px-3 py-2">
+                  <p className="text-xs text-amber-300">
+                    Trend data unavailable — generation uses built-in topic defaults.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void loadTrends(niche)}
+                    className="ml-3 shrink-0 text-xs text-amber-400 hover:text-amber-200 underline"
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : trends.length > 0 ? (
+                <div className="mb-4 rounded-lg bg-zinc-900 border border-zinc-800 px-3 py-2">
+                  <p className="text-xs text-zinc-500">
+                    {trends.length} trending signals loaded from {
+                      [...new Set(trends.map(t => t.source))].join(', ')
+                    }
+                  </p>
+                </div>
+              ) : null
             )}
 
             {/* Idea cards */}
