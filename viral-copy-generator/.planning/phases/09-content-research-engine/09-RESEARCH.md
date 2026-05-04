@@ -814,22 +814,25 @@ Phase 9 should be 7 plans across 4 waves:
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **YOUTUBE_API_KEY vs per-user OAuth token**
+1. (RESOLVED) **YOUTUBE_API_KEY vs per-user OAuth token**
    - What we know: Public chart data (`videos.list?chart=mostPopular`) requires only a server-side API key, not per-user OAuth
    - What's unclear: Whether the team wants to maintain one global API key or route through each user's connected YouTube account
    - Recommendation: Use `YOUTUBE_API_KEY` server-side env var. Add it to `.env.example` and the `REQUIRED_ENV` check in `index.ts` — OR make it optional (skip YouTube source if absent) to avoid a hard startup dependency.
+   - Resolution: Made optional — `fetchYouTubeTrends` guards on `process.env.YOUTUBE_API_KEY` and returns `[]` if absent. Not added to REQUIRED_ENV (Plan 09-01 Task 2).
 
-2. **google-trends-api CJS/ESM compatibility**
+2. (RESOLVED) **google-trends-api CJS/ESM compatibility**
    - What we know: `backend/package.json` has `"type": "module"`; `google-trends-api` 4.9.2 is a CommonJS module
    - What's unclear: Whether `import googleTrends from 'google-trends-api'` works or requires a `createRequire` workaround
    - Recommendation: Test immediately in Wave 0 with a small spike: `tsx -e "import googleTrends from 'google-trends-api'; console.log(typeof googleTrends)"`. If it fails, wrap with `import { createRequire } from 'module'; const require = createRequire(import.meta.url); const googleTrends = require('google-trends-api')`.
+   - Resolution: Plan 09-01 Task 2 includes a spike step to verify interop. Plan 09-02 Task 1 includes both import options (A/B) with instructions to check the spike result and uncomment the appropriate one.
 
-3. **ResearchPage UI complexity vs phase scope**
+3. (RESOLVED) **ResearchPage UI complexity vs phase scope**
    - What we know: ROADMAP specifies 4 sub-tabs (Ideas, Hashtags, Calendar, Saved)
    - What's unclear: Whether the calendar should be a visual grid or a simple list
    - Recommendation: Implement as a 7-row table (one row per day, columns per platform) using Tailwind. Avoid any charting library — inline styles only per project rules.
+   - Resolution: Implemented as 7 CalendarDayData rows (not a visual grid/table) in CalendarTab component — one day card per row with per-slot blocks. No charting library used. Inline styles for any width bars per project rules (Plan 09-06 and 09-07).
 
 ---
 
