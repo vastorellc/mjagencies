@@ -489,7 +489,7 @@ Plans:
 - [x] 09-03-PLAN.md — research-cache.ts (24h CRUD) + research-ai.ts (prompt + parser + AI router) + calendar.ts (7-day grid) *(complete 2026-05-04 — tsc clean, 5/5 research-ai.test.ts GREEN, @google/generative-ai + @anthropic-ai/sdk installed)*
 - [x] 09-04-PLAN.md — research.ts route handler (6 endpoints) + app.ts mount + integration tests GREEN *(complete 2026-05-04 — tsc clean, 8/8 research.test.ts GREEN, researchRouter mounted at /api/research)*
 - [x] 09-05-PLAN.md — frontend types.ts Phase 9 extensions + api.ts 6 research client functions *(complete 2026-05-04 — tsc clean, Screen union += 'research', 8 Phase 9 interfaces, 6 api client functions)*
-- [ ] 09-06-PLAN.md — ResearchPage.tsx Ideas tab (cards + hooks + gaps + strength) + Hashtags tab (inline-style bars)
+- [x] 09-06-PLAN.md — ResearchPage.tsx Ideas tab (cards + hooks + gaps + strength) + Hashtags tab (inline-style bars) *(complete 2026-05-04 — 449 lines, tsc clean, build clean, App.tsx wired, IdeaCard + HashtagsTab + freshnessLabel + niche selector + refresh)*
 - [ ] 09-07-PLAN.md — ResearchPage.tsx Calendar + Saved tabs + App.tsx wiring + human verification checkpoint
 **UI hint:** yes
 
