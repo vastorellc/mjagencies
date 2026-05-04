@@ -382,7 +382,8 @@ adminRouter.get('/health', async (_req, res) => {
       }
     }
   } catch (err: unknown) {
-    diskError = (err as Error).message ?? 'df command failed'
+    console.error('[admin/health] df command failed:', err)
+    diskError = 'Disk info unavailable'
   }
 
   // Supabase DB size — raw SQL query on current database
@@ -394,7 +395,8 @@ adminRouter.get('/health', async (_req, res) => {
     )
     dbSize = result.rows[0]?.db_size ?? null
   } catch (err: unknown) {
-    dbError = (err as Error).message ?? 'DB size query failed'
+    console.error('[admin/health] DB size query failed:', err)
+    dbError = 'Database size unavailable'
   }
 
   // pg-boss queue depth — count of pending/active jobs
