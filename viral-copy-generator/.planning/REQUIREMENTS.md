@@ -174,13 +174,13 @@ history, learning loops, admin panel, content research engine.
 - [x] **RESEARCH-03**: System fetches Google Trends data for user's content niches (rising queries, interest by region Pakistan) via `google-trends-api` npm package
 - [x] **RESEARCH-04**: System fetches trending posts from Reddit (r/pakistan + niche subreddits: r/travel, r/motorcycles, r/programming, r/CasualPakistan) via Reddit API (read-only, no OAuth required for public subreddits)
 - [x] **RESEARCH-05**: System fetches emerging topics from ExplodingTopics or similar source (web fetch or API) for early trend detection
-- [ ] **RESEARCH-06**: All external trend data cached in `trend_cache` table per niche per source (24-hour TTL) — user sees instant results from cache; pg-boss job refreshes cache daily
-- [ ] **RESEARCH-07**: Trend data combined with user's own learning data (top-performing niches, hooks, hashtags) to rank content opportunities by predicted performance
-- [ ] **RESEARCH-08**: AI generates 5–10 content ideas per session using combined trend + learning context
-- [ ] **RESEARCH-09**: Each content idea includes: concept title, hook options (3 variations), script outline, key moments (3–5 timestamps), B-roll suggestions, target platform(s), estimated virality signal strength
-- [ ] **RESEARCH-10**: Each content idea includes a gap pre-analysis: checklist items likely to fail based on the content type (e.g. "Face-free lifestyle video — low face score expected, compensate with strong hook + pacing")
-- [ ] **RESEARCH-11**: System provides hashtag intelligence tab: trending hashtags by niche from external sources ranked by trend velocity, combined with user's own top performers
-- [ ] **RESEARCH-12**: System generates a 7-day content calendar: suggested topics, target platforms, PKT optimal posting times, based on trends + user's own best-performing day/time patterns
+- [x] **RESEARCH-06**: All external trend data cached in `trend_cache` table per niche per source (24-hour TTL) �� user sees instant results from cache; pg-boss job refreshes cache daily
+- [x] **RESEARCH-07**: Trend data combined with user's own learning data (top-performing niches, hooks, hashtags) to rank content opportunities by predicted performance
+- [x] **RESEARCH-08**: AI generates 5–10 content ideas per session using combined trend + learning context
+- [x] **RESEARCH-09**: Each content idea includes: concept title, hook options (3 variations), script outline, key moments (3–5 timestamps), B-roll suggestions, target platform(s), estimated virality signal strength
+- [x] **RESEARCH-10**: Each content idea includes a gap pre-analysis: checklist items likely to fail based on the content type (e.g. "Face-free lifestyle video — low face score expected, compensate with strong hook + pacing")
+- [x] **RESEARCH-11**: System provides hashtag intelligence tab: trending hashtags by niche from external sources ranked by trend velocity, combined with user's own top performers
+- [x] **RESEARCH-12**: System generates a 7-day content calendar: suggested topics, target platforms, PKT optimal posting times, based on trends + user's own best-performing day/time patterns
 - [ ] **RESEARCH-13**: User can save any content idea (stored in `content_ideas` table, per-user RLS)
 - [ ] **RESEARCH-14**: User can trigger on-demand refresh of trend data (bypasses 24h cache)
 - [ ] **RESEARCH-15**: Research results show data freshness indicator ("Last updated: 3h ago")

@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 9 (Content Research Engine) — executing (plan 2/7 complete)
+current_phase: Phase 9 (Content Research Engine) — executing (plan 3/7 complete)
 status: in_progress
-stopped_at: Phase 9 plan 09-02 complete — four trend fetchers (youtube.ts, google-trends.ts, reddit.ts, exploding.ts) all fail-open, 4/6 fetcher shape tests GREEN, tsc clean. Ready for plan 09-03 (research-cache.ts + pg-boss refresh job).
-last_updated: "2026-05-04T02:55:00Z"
+stopped_at: Phase 9 plan 09-03 complete — research-cache.ts (getTrendCache + setTrendCache + refreshAllNiches), research-ai.ts (buildResearchPrompt + safeParseIdeas + callResearchAI), calendar.ts (buildCalendar pure function). 5/5 research-ai.test.ts GREEN, tsc clean. Ready for plan 09-04 (research routes).
+last_updated: "2026-05-04T03:10:00Z"
 last_activity: 2026-05-04
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 60
-  completed_plans: 49
-  percent: 82
+  completed_plans: 50
+  percent: 83
 ---
 
 # Project State — Viral Copy Generator
@@ -27,11 +27,11 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 ## Current Position
 
 Phase: 9 of 10 (Content Research Engine) — executing
-Plan: Phase 9 plan 09-02 executed (2/7 plans). Trend fetchers complete. Ready for plan 09-03 (research-cache.ts + pg-boss job).
-Status: Phase 9 executing — 2/7 plans done. Phase 8 provisionally complete (smoke test deferred).
+Plan: Phase 9 plan 09-03 executed (3/7 plans). Cache CRUD + AI router + calendar builder complete. Ready for plan 09-04 (research routes).
+Status: Phase 9 executing — 3/7 plans done. Phase 8 provisionally complete (smoke test deferred).
 Last activity: 2026-05-04
 
-Progress: [████████░░] 88%
+Progress: [████████░░] 83%
 
 ## Phase Status
 
@@ -45,7 +45,7 @@ Progress: [████████░░] 88%
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
 | 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
 | 8 | Admin Panel | 🟢 Provisionally complete (8/8 plans done; human checkpoint approved 2026-05-03; smoke test confirmation via `/gsd-verify-work 8` when servers running) |
-| 9 | Content Research Engine | 🟡 Executing — 2/7 plans done (09-01 DB foundation + 09-02 trend fetchers) |
+| 9 | Content Research Engine | 🟡 Executing — 3/7 plans done (09-01 DB foundation + 09-02 trend fetchers + 09-03 cache/AI/calendar utils) |
 | 10 | Polish + Resilience | ⬜ Not started |
 
 ## Completed Phases
@@ -168,6 +168,9 @@ Progress: [████████░░] 88%
 - **research-cache.ts stub for tsc dynamic import** — boss.ts worker uses lazy dynamic import; TypeScript NodeNext resolution checks dynamic imports statically; stub file with throwing implementations satisfies tsc until Plan 09-03 implements it
 - **google-trends-api.d.ts hand-rolled** — no @types/google-trends-api package on npm (404); minimal interface covers relatedQueries + interestOverTime; placed in backend/src/types/ within tsconfig include scope
 - **reddit.ts outer try/catch** — per-subreddit inner catch handles individual failures; outer catch returns [] for full fail-open guarantee; satisfies grep verification for return [] in all 4 fetcher files
+- **@google/generative-ai + @anthropic-ai/sdk installed on backend** — multi-provider AI routing in research-ai.ts requires both SDKs server-side; frontend has different package names (@google/genai vs @google/generative-ai); backend/package.json pinned to exact versions (0.24.0 and 0.39.0)
+- **safeParseIdeas uses lastIndexOf(']') not indexOf(']')** — handles AI responses with trailing text or whitespace after JSON array closes; same robustness pattern as Phase 5 platform card JSON parsing (Pitfall 8)
+- **buildCalendar setDate before setUTCHours** — prevents month-rollover on last day of month; calendar.ts line 38-39; consistent with STATE.md setUTCDate-before-setUTCHours pitfall
 
 ### Critical Bugs to Avoid
 
@@ -190,11 +193,11 @@ Progress: [████████░░] 88%
 
 ## Session Continuity
 
-Last session: 2026-05-04T02:55:00Z
-Stopped at: Phase 9 plan 09-02 complete — four trend fetchers (youtube.ts, google-trends.ts, reddit.ts, exploding.ts), google-trends-api.d.ts type declarations. 4/6 research-cache.test.ts fetcher shape tests GREEN. tsc clean.
+Last session: 2026-05-04T03:10:00Z
+Stopped at: Phase 9 plan 09-03 complete — research-cache.ts (getTrendCache 24h TTL + setTrendCache ON CONFLICT upsert + refreshAllNiches lazy-import loop), research-ai.ts (buildResearchPrompt + safeParseIdeas + callResearchAI 3-provider router), calendar.ts (buildCalendar pure 7-day grid). 5/5 research-ai.test.ts GREEN, tsc clean. @google/generative-ai@0.24.0 + @anthropic-ai/sdk@0.39.0 installed on backend.
 Resume:
 
-- Phase 9: `/gsd-execute-phase 9` → Content Research Engine plan 09-03 (research-cache.ts full implementation + pg-boss refresh job)
+- Phase 9: `/gsd-execute-phase 9` → Content Research Engine plan 09-04 (research routes — GET /trends, POST /generate, GET /saved, POST /ideas/:id/save, POST /refresh)
 - Phase 8: `/gsd-verify-work 8` to formally close Phase 8 (confirm smoke test when backend servers running)
 - Phase 7: `/gsd-verify-work 7` once backend `.env` configured + servers restarted
 - Phase 6: `/gsd-verify-work 6` once OAuth accounts connected

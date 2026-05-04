@@ -486,7 +486,7 @@ Output: JSON array of 5-10 content ideas, each with:
 Plans:
 - [x] 09-01-PLAN.md — DB schema (trend_cache + content_ideas) + pg-boss refresh-trends job + Wave 0 test stubs *(complete 2026-05-04 — tsc clean, migration applied, 3 test stubs in RED state)*
 - [x] 09-02-PLAN.md — Four trend fetchers (youtube.ts, google-trends.ts, reddit.ts, exploding.ts) — fail-open, tested *(complete 2026-05-04 — tsc clean, 4/6 fetcher shape tests GREEN, google-trends-api.d.ts added)*
-- [ ] 09-03-PLAN.md — research-cache.ts (24h CRUD) + research-ai.ts (prompt + parser + AI router) + calendar.ts (7-day grid)
+- [x] 09-03-PLAN.md — research-cache.ts (24h CRUD) + research-ai.ts (prompt + parser + AI router) + calendar.ts (7-day grid) *(complete 2026-05-04 — tsc clean, 5/5 research-ai.test.ts GREEN, @google/generative-ai + @anthropic-ai/sdk installed)*
 - [ ] 09-04-PLAN.md — research.ts route handler (6 endpoints) + app.ts mount + integration tests GREEN
 - [ ] 09-05-PLAN.md — frontend types.ts Phase 9 extensions + api.ts 6 research client functions
 - [ ] 09-06-PLAN.md — ResearchPage.tsx Ideas tab (cards + hooks + gaps + strength) + Hashtags tab (inline-style bars)
