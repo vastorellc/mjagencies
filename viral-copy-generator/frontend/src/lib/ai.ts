@@ -276,6 +276,16 @@ export async function callAI(options: AICallOptions): Promise<AIOutput> {
       break
     }
 
+    case 'deepseek': {
+      // DeepSeek is OpenAI-compatible but CORS-blocked from browser — route through backend proxy.
+      // The backend detects ai_provider='deepseek' from settings and switches baseURL + model.
+      const body: AIProxyBody = { prompt }
+      // DeepSeek-chat does not support vision in the current API — frames omitted
+      const result = await proxyAIGenerate(body)
+      rawText = result.text
+      break
+    }
+
     default: {
       const exhaustive: never = provider
       throw new Error(`Unknown provider: ${exhaustive as string}`)
@@ -357,6 +367,19 @@ export function parseProviderError(provider: AIProvider, err: unknown): AIError 
     }
     if (code === 'insufficient_quota') {
       return { kind: 'quota_exhausted', message: 'OpenAI credits exhausted. Add billing at platform.openai.com.', retryable: false }
+    }
+  }
+
+  if (provider === 'deepseek') {
+    const code = errObj?.['code'] ?? (raw?.['code'] as string | undefined)
+    if (code === 'invalid_api_key' || message.toLowerCase().includes('authentication')) {
+      return { kind: 'invalid_key', message: 'API key rejected by DeepSeek. Update it in Settings.', retryable: false }
+    }
+    if (code === 'rate_limit_exceeded' || message.includes('429')) {
+      return { kind: 'rate_limited', message: 'DeepSeek rate limit reached. Wait and retry.', retryable: true }
+    }
+    if (code === 'insufficient_quota' || message.toLowerCase().includes('quota')) {
+      return { kind: 'quota_exhausted', message: 'DeepSeek quota exhausted. Check your DeepSeek usage.', retryable: false }
     }
   }
 

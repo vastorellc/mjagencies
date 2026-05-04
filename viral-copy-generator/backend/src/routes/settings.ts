@@ -6,7 +6,7 @@ import { encrypt, decrypt, maskKey } from '../lib/encryption.js'
 
 export const settingsRouter = Router()
 
-const VALID_PROVIDERS = ['claude', 'gemini', 'openai'] as const
+const VALID_PROVIDERS = ['claude', 'gemini', 'openai', 'deepseek'] as const
 type Provider = (typeof VALID_PROVIDERS)[number]
 const VALID_PLATFORMS = ['youtube', 'instagram', 'tiktok', 'facebook', 'x'] as const
 const VALID_NICHES = ['travel', 'hotels', 'cars', 'bikes', 'coding', 'lifestyle', 'food', 'other'] as const

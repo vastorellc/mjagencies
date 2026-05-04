@@ -23,6 +23,7 @@ aiRouter.post('/generate', async (req: Request, res: Response) => {
 
   const rows = await db.select({
     api_key_encrypted: settings.api_key_encrypted,
+    ai_provider: settings.ai_provider,
   }).from(settings).where(eq(settings.user_id, userId)).limit(1)
 
   if (!rows[0]?.api_key_encrypted) {
@@ -38,12 +39,23 @@ aiRouter.post('/generate', async (req: Request, res: Response) => {
     return
   }
 
-  const openai = new OpenAI({ apiKey })
+  const provider = rows[0].ai_provider ?? 'openai'
+
+  if (provider !== 'openai' && provider !== 'deepseek') {
+    res.status(400).json({ error: 'provider_not_supported_by_proxy' })
+    return
+  }
+
+  const isDeepSeek = provider === 'deepseek'
+  const openai = new OpenAI({
+    apiKey,
+    ...(isDeepSeek ? { baseURL: 'https://api.deepseek.com/v1' } : {}),
+  })
 
   type ContentPart = OpenAI.Chat.ChatCompletionContentPart
   const content: ContentPart[] = []
 
-  if (frames?.length) {
+  if (frames?.length && !isDeepSeek) {
     for (const b64 of frames) {
       content.push({
         type: 'image_url',
@@ -53,8 +65,10 @@ aiRouter.post('/generate', async (req: Request, res: Response) => {
   }
   content.push({ type: 'text', text: prompt })
 
+  const model = isDeepSeek ? 'deepseek-chat' : 'gpt-4.1'
+
   const completion = await openai.chat.completions.create({
-    model: 'gpt-4.1',
+    model,
     max_tokens: 2048,
     messages: [{ role: 'user', content }],
     response_format: { type: 'json_object' },

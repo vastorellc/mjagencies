@@ -1,7 +1,7 @@
 export type Screen = 'generator' | 'settings' | 'history' | 'learning' | 'admin' | 'research'
 
-export type AIProvider = 'claude' | 'gemini' | 'openai'
-export const AI_PROVIDERS: AIProvider[] = ['claude', 'gemini', 'openai']
+export type AIProvider = 'claude' | 'gemini' | 'openai' | 'deepseek'
+export const AI_PROVIDERS: AIProvider[] = ['claude', 'gemini', 'openai', 'deepseek']
 
 export type Platform = 'youtube' | 'instagram' | 'tiktok' | 'facebook' | 'x'
 export const ALL_PLATFORMS: Platform[] = ['youtube', 'instagram', 'tiktok', 'facebook', 'x']
