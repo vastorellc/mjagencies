@@ -487,7 +487,7 @@ Plans:
 - [x] 09-01-PLAN.md — DB schema (trend_cache + content_ideas) + pg-boss refresh-trends job + Wave 0 test stubs *(complete 2026-05-04 — tsc clean, migration applied, 3 test stubs in RED state)*
 - [x] 09-02-PLAN.md — Four trend fetchers (youtube.ts, google-trends.ts, reddit.ts, exploding.ts) — fail-open, tested *(complete 2026-05-04 — tsc clean, 4/6 fetcher shape tests GREEN, google-trends-api.d.ts added)*
 - [x] 09-03-PLAN.md — research-cache.ts (24h CRUD) + research-ai.ts (prompt + parser + AI router) + calendar.ts (7-day grid) *(complete 2026-05-04 — tsc clean, 5/5 research-ai.test.ts GREEN, @google/generative-ai + @anthropic-ai/sdk installed)*
-- [ ] 09-04-PLAN.md — research.ts route handler (6 endpoints) + app.ts mount + integration tests GREEN
+- [x] 09-04-PLAN.md — research.ts route handler (6 endpoints) + app.ts mount + integration tests GREEN *(complete 2026-05-04 — tsc clean, 8/8 research.test.ts GREEN, researchRouter mounted at /api/research)*
 - [ ] 09-05-PLAN.md — frontend types.ts Phase 9 extensions + api.ts 6 research client functions
 - [ ] 09-06-PLAN.md — ResearchPage.tsx Ideas tab (cards + hooks + gaps + strength) + Hashtags tab (inline-style bars)
 - [ ] 09-07-PLAN.md — ResearchPage.tsx Calendar + Saved tabs + App.tsx wiring + human verification checkpoint
@@ -543,5 +543,5 @@ indeterminate progress animation, and error boundaries throughout.
 | 6. Auto-Upload + Scheduling | 0/TBD | Not started | - |
 | 7. History + Learning Loops | 0/TBD | Not started | - |
 | 8. Admin Panel | 8/8 | Provisionally complete (human checkpoint approved) | 2026-05-03 |
-| 9. Content Research Engine | 2/7 | Executing (09-01 DB + 09-02 trend fetchers done) | 2026-05-04 |
+| 9. Content Research Engine | 4/7 | Executing (09-01 DB + 09-02 trend fetchers + 09-03 cache/AI/calendar + 09-04 research routes done) | 2026-05-04 |
 | 10. Polish + Resilience | 0/TBD | Not started | - |

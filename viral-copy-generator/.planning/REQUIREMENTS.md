@@ -181,9 +181,9 @@ history, learning loops, admin panel, content research engine.
 - [x] **RESEARCH-10**: Each content idea includes a gap pre-analysis: checklist items likely to fail based on the content type (e.g. "Face-free lifestyle video — low face score expected, compensate with strong hook + pacing")
 - [x] **RESEARCH-11**: System provides hashtag intelligence tab: trending hashtags by niche from external sources ranked by trend velocity, combined with user's own top performers
 - [x] **RESEARCH-12**: System generates a 7-day content calendar: suggested topics, target platforms, PKT optimal posting times, based on trends + user's own best-performing day/time patterns
-- [ ] **RESEARCH-13**: User can save any content idea (stored in `content_ideas` table, per-user RLS)
-- [ ] **RESEARCH-14**: User can trigger on-demand refresh of trend data (bypasses 24h cache)
-- [ ] **RESEARCH-15**: Research results show data freshness indicator ("Last updated: 3h ago")
+- [x] **RESEARCH-13**: User can save any content idea (stored in `content_ideas` table, per-user RLS)
+- [x] **RESEARCH-14**: User can trigger on-demand refresh of trend data (bypasses 24h cache)
+- [x] **RESEARCH-15**: Research results show data freshness indicator ("Last updated: 3h ago")
 
 ### UI — Interface and UX
 
