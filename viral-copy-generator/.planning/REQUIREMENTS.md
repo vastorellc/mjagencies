@@ -169,7 +169,7 @@ history, learning loops, admin panel, content research engine.
 
 ### RESEARCH — Content Research Engine
 
-- [ ] **RESEARCH-01**: Content Research is a separate screen ("Research" tab) — completely independent from the Generator upload flow
+- [x] **RESEARCH-01**: Content Research is a separate screen ("Research" tab) — completely independent from the Generator upload flow
 - [x] **RESEARCH-02**: System fetches trending videos and topics from YouTube Data API v3 (`chart=mostPopular`, `regionCode=PK`, category-matched to user's niches) — reuses existing OAuth scope + adds `youtube.readonly`
 - [x] **RESEARCH-03**: System fetches Google Trends data for user's content niches (rising queries, interest by region Pakistan) via `google-trends-api` npm package
 - [x] **RESEARCH-04**: System fetches trending posts from Reddit (r/pakistan + niche subreddits: r/travel, r/motorcycles, r/programming, r/CasualPakistan) via Reddit API (read-only, no OAuth required for public subreddits)
