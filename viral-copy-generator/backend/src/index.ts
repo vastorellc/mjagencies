@@ -1,7 +1,7 @@
 // backend/src/index.ts
 import 'dotenv/config'
 import { runMigrations } from './db/migrate.js'
-import { getBoss, registerCleanupJob } from './lib/boss.js'
+import { getBoss, registerCleanupJob, registerResearchRefreshJob } from './lib/boss.js'
 import { registerMetaTokenRefreshJob } from './lib/meta-refresh.js'
 import { registerUploadWorkers } from './lib/upload-worker.js'
 import { initStorage } from './lib/storage.js'
@@ -41,6 +41,7 @@ async function main(): Promise<void> {
   await registerCleanupJob(boss)
   await registerMetaTokenRefreshJob(boss)  // Phase 2 SETTINGS-07
   await registerUploadWorkers(boss)        // Phase 6 AUTOUP-07
+  await registerResearchRefreshJob(boss)  // Phase 9 RESEARCH-06
 
   // 4. Start Express server last — only accept requests after all deps are ready
   const PORT = process.env.PORT ?? 3001

@@ -40,3 +40,29 @@ export async function registerCleanupJob(bossInstance: PgBoss): Promise<void> {
 
   console.log('[pg-boss] cleanup-stale-files job registered')
 }
+
+// ── Phase 9: Content Research Engine — RESEARCH-06 ───────────────────────────
+// Refreshes all trend sources for all niches daily at 5am UTC.
+// refreshAllNiches imported lazily to avoid circular dep with research-cache.ts
+// CJS/ESM interop note: google-trends-api default import returns 'object' — confirmed working
+export async function registerResearchRefreshJob(bossInstance: PgBoss): Promise<void> {
+  // CRITICAL: createQueue() BEFORE schedule() — pg-boss v12 FK constraint
+  // pgboss.schedule.name has a FK referencing pgboss.queue.name
+  await bossInstance.createQueue('refresh-trends')
+
+  try {
+    await bossInstance.schedule('refresh-trends', '0 5 * * *', {})
+  } catch (err: unknown) {
+    const msg = (err as Error).message ?? ''
+    if (!msg.includes('duplicate') && !msg.includes('unique')) throw err
+  }
+
+  await bossInstance.work<Record<string, never>>('refresh-trends', async (_jobs) => {
+    // Lazy import to avoid circular dep: research-cache imports db, boss imports nothing from db
+    const { refreshAllNiches } = await import('./research-cache.js')
+    await refreshAllNiches()
+    console.log('[pg-boss] refresh-trends completed')
+  })
+
+  console.log('[pg-boss] refresh-trends job registered')
+}
