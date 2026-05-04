@@ -11,17 +11,23 @@ const REQUIRED_ENV = [
   'DATABASE_URL',
   'SUPABASE_URL',
   'SUPABASE_SERVICE_ROLE_KEY',
-  // Phase 2: per-user crypto + OAuth (T-02-07)
   'ENCRYPTION_KEY',
-  'GOOGLE_CLIENT_ID',
-  'GOOGLE_CLIENT_SECRET',
-  'META_APP_ID',
-  'META_APP_SECRET',
-  'APP_URL',        // OAuth redirect URI base
-  'VPS_PUBLIC_URL', // Phase 6: required for Meta video fetch (STORE-02)
+  'APP_URL',
 ] as const
 for (const key of REQUIRED_ENV) {
   if (!process.env[key]) throw new Error(`Missing required env var: ${key}`)
+}
+
+// Optional vars — warn on startup if absent so operator knows what features are disabled
+const OPTIONAL_ENV: { key: string; feature: string }[] = [
+  { key: 'GOOGLE_CLIENT_ID',    feature: 'YouTube OAuth' },
+  { key: 'GOOGLE_CLIENT_SECRET', feature: 'YouTube OAuth' },
+  { key: 'META_APP_ID',          feature: 'Instagram/Facebook OAuth' },
+  { key: 'META_APP_SECRET',      feature: 'Instagram/Facebook OAuth' },
+  { key: 'VPS_PUBLIC_URL',       feature: 'Phase 6 file uploads / Meta video fetch' },
+]
+for (const { key, feature } of OPTIONAL_ENV) {
+  if (!process.env[key]) console.warn(`[startup] Optional env var ${key} not set — ${feature} disabled`)
 }
 
 // Defense-in-depth: ENCRYPTION_KEY must be at least 32 chars (T-02-07)

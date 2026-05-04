@@ -79,7 +79,10 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
   async function initiateConnect(provider: 'youtube' | 'instagram' | 'facebook'): Promise<void> {
     const path = provider === 'youtube' ? '/auth/google/connect' : `/auth/${provider}/connect`
     const res = await apiFetch(path)
-    if (!res.ok) throw new Error(`Could not start OAuth (${res.status}) — please retry`)
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({})) as { error?: string }
+      throw new Error(j.error ?? `Could not start OAuth (${res.status})`)
+    }
     const json = await res.json() as { auth_url?: string }
     if (!json.auth_url || typeof json.auth_url !== 'string') {
       throw new Error('Could not start OAuth — invalid response')

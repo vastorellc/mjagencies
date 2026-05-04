@@ -22,6 +22,10 @@ function failRedirect(res: Response, reason: string): void {
 // authMiddleware applied per-route here: this router is mounted before app.use('/api', authMiddleware)
 // so that /callback can accept Google's redirect (no Bearer token). /connect still requires auth.
 authGoogleRouter.get('/connect', authMiddleware, (_req: Request, res: Response) => {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    res.status(503).json({ error: 'YouTube OAuth not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env.' })
+    return
+  }
   const userId = res.locals['userId'] as string
   const state = createOAuthState(userId)
   const oauth = getGoogleOAuthClient()

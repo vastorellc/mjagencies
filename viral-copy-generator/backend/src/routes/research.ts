@@ -85,13 +85,18 @@ researchRouter.get('/trends', async (req: Request, res: Response) => {
     return
   }
 
-  const cached = await getTrendCache('all', niche)
-  if (cached) {
-    res.json({ trends: cached.data, fromCache: true, fetchedAt: cached.fetchedAt })
-    return
+  try {
+    const cached = await getTrendCache('all', niche)
+    if (cached) {
+      res.json({ trends: cached.data, fromCache: true, fetchedAt: cached.fetchedAt })
+      return
+    }
+  } catch (err) {
+    console.error('[research/trends] cache read error:', (err as Error).message)
+    // Fall through to live fetch — do not fail on cache miss error
   }
 
-  // Cache miss — fetch from all sources in parallel (fail-open via Promise.allSettled)
+  // Cache miss (or cache error) — fetch from all sources in parallel (fail-open via Promise.allSettled)
   const [yt, gt, rd, et] = await Promise.allSettled([
     fetchYouTubeTrends(niche),
     fetchGoogleTrends(niche),
@@ -106,7 +111,13 @@ researchRouter.get('/trends', async (req: Request, res: Response) => {
     ...(et.status === 'fulfilled' ? et.value : []),
   ]
 
-  await setTrendCache('all', niche, trends)
+  try {
+    await setTrendCache('all', niche, trends)
+  } catch (err) {
+    console.error('[research/trends] cache write error:', (err as Error).message)
+    // Non-fatal — still return the live data to the client
+  }
+
   const fetchedAt = new Date().toISOString()
   res.json({ trends, fromCache: false, fetchedAt })
 })

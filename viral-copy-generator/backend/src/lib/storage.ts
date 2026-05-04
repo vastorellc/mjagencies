@@ -5,8 +5,14 @@ import path from 'node:path'
 export const UPLOADS_ROOT = process.env.UPLOADS_PATH ?? '/var/uploads'
 
 export async function initStorage(): Promise<void> {
-  await mkdir(UPLOADS_ROOT, { recursive: true })
-  console.log(`[storage] uploads directory: ${UPLOADS_ROOT}`)
+  try {
+    await mkdir(UPLOADS_ROOT, { recursive: true })
+    console.log(`[storage] uploads directory: ${UPLOADS_ROOT}`)
+  } catch (err) {
+    // Non-fatal on dev machines — uploads will fail at request time until directory is accessible
+    console.warn(`[storage] WARNING: could not create uploads directory at ${UPLOADS_ROOT}:`, (err as Error).message)
+    console.warn('[storage] Set UPLOADS_PATH in .env to a writable path (e.g. UPLOADS_PATH=./uploads)')
+  }
 }
 
 /**

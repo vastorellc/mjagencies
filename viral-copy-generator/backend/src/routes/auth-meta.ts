@@ -45,6 +45,10 @@ async function mergePlatformConfig(userId: string, patch: Partial<PlatformConfig
 // Per-route authMiddleware here: this router is mounted before app.use('/api', authMiddleware)
 // so that /callback can accept Meta's redirect (no Bearer token). /connect still requires auth.
 authMetaRouter.get('/instagram/connect', authMiddleware, (_req: Request, res: Response) => {
+  if (!process.env.META_APP_ID || !process.env.META_APP_SECRET) {
+    res.status(503).json({ error: 'Instagram OAuth not configured. Set META_APP_ID and META_APP_SECRET in .env.' })
+    return
+  }
   const userId = res.locals['userId'] as string
   const state = createOAuthState(userId)
   const auth_url = buildInstagramAuthUrl(state)
@@ -104,6 +108,10 @@ authMetaRouter.get('/instagram/callback', async (req: Request, res: Response) =>
 
 // /connect returns JSON { auth_url } — same CORS rationale as /instagram/connect.
 authMetaRouter.get('/facebook/connect', authMiddleware, (_req: Request, res: Response) => {
+  if (!process.env.META_APP_ID || !process.env.META_APP_SECRET) {
+    res.status(503).json({ error: 'Facebook OAuth not configured. Set META_APP_ID and META_APP_SECRET in .env.' })
+    return
+  }
   const userId = res.locals['userId'] as string
   const state = createOAuthState(userId)
   const auth_url = buildFacebookAuthUrl(state)
