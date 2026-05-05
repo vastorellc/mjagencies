@@ -19,17 +19,10 @@ import { ValidationError, DatabaseError, NotFoundError, QueueJobError } from '..
 
 export const researchRouter = Router()
 
-const VALID_NICHES = ['travel', 'hotels', 'cars', 'bikes', 'coding', 'lifestyle'] as const
-type ValidNiche = typeof VALID_NICHES[number]
-
-export function isValidNiche(n: string): n is ValidNiche {
-  return (VALID_NICHES as readonly string[]).includes(n)
-}
-
 // ── Fallback trends — returned when all live sources fail ─────────────────────
 // Hardcoded Pakistan-relevant topics per niche. Allows AI generation to work
 // even when external APIs are blocked, rate-limited, or unreachable.
-const FALLBACK_TRENDS: Record<ValidNiche, TrendItem[]> = {
+const FALLBACK_TRENDS: Record<string, TrendItem[]> = {
   travel: [
     { title: 'Motorway road trip Lahore to Islamabad', score: 80, source: 'google-trends' },
     { title: 'Hidden gems in Hunza Valley 2024', score: 75, source: 'google-trends' },
@@ -75,6 +68,16 @@ const FALLBACK_TRENDS: Record<ValidNiche, TrendItem[]> = {
     { title: 'Pakistani street fashion trends 2024', score: 65, source: 'youtube' },
     { title: 'Budget cooking healthy meals Pakistan', score: 60, source: 'reddit' },
   ],
+  // Generic fallback for custom/unknown niches
+  other: [
+    { title: 'Pakistan trending topics 2024', score: 70, source: 'google-trends' },
+    { title: 'Popular content ideas Pakistan', score: 65, source: 'reddit' },
+    { title: 'Trending in Pakistan right now', score: 60, source: 'youtube' },
+  ],
+}
+
+function getFallbackTrends(niche: string): TrendItem[] {
+  return FALLBACK_TRENDS[niche] ?? FALLBACK_TRENDS['other'] ?? []
 }
 
 // ── RESEARCH-11: Hashtag intelligence ranking ──────────────────────────────
@@ -133,14 +136,6 @@ function buildHashtagIntel(
 researchRouter.get('/trends', async (req: Request, res: Response) => {
   const niche = (req.query['niche'] as string | undefined) ?? 'travel'
 
-  if (!isValidNiche(niche)) {
-    throw new ValidationError(
-      `Unknown niche "${niche}"`,
-      `niche not in [${VALID_NICHES.join(', ')}]`,
-      { field: 'niche' }
-    )
-  }
-
   try {
     // Cache-first: return immediately on hit
     try {
@@ -171,7 +166,7 @@ researchRouter.get('/trends', async (req: Request, res: Response) => {
     // If all live sources failed (blocked, no API keys, network issues),
     // use hardcoded fallback trends so AI generation still gets useful context.
     if (trends.length === 0) {
-      trends = FALLBACK_TRENDS[niche] ?? []
+      trends = getFallbackTrends(niche)
       console.log(`[research/trends] all sources failed for niche=${niche}, using ${trends.length} fallback trends`)
     }
 
@@ -188,7 +183,7 @@ researchRouter.get('/trends', async (req: Request, res: Response) => {
   } catch (err) {
     // Outer safety net — fail-open with fallback data
     console.error('[research/trends] unexpected error:', (err as Error).message)
-    const fallback = FALLBACK_TRENDS[niche] ?? []
+    const fallback = getFallbackTrends(niche)
     res.json({ trends: fallback, fromCache: false, fetchedAt: new Date().toISOString() })
   }
 })
@@ -201,10 +196,10 @@ researchRouter.post('/generate', async (req: Request, res: Response) => {
   const topic = typeof req.body?.topic === 'string' ? req.body.topic.slice(0, 300).trim() : undefined
   const instructions = typeof req.body?.instructions === 'string' ? req.body.instructions.slice(0, 600).trim() : undefined
 
-  if (!isValidNiche(niche)) {
+  if (typeof niche !== 'string' || niche.trim().length === 0) {
     throw new ValidationError(
-      `Unknown niche "${niche}"`,
-      `niche not in [${VALID_NICHES.join(', ')}]`,
+      'niche must be a non-empty string',
+      `niche is "${niche}"`,
       { field: 'niche' }
     )
   }
@@ -367,14 +362,6 @@ researchRouter.post('/refresh', async (_req: Request, res: Response) => {
 researchRouter.get('/hashtags', async (req: Request, res: Response) => {
   const userId = res.locals.userId as string
   const niche = (req.query['niche'] as string | undefined) ?? 'travel'
-
-  if (!isValidNiche(niche)) {
-    throw new ValidationError(
-      `Unknown niche "${niche}"`,
-      `niche not in [${VALID_NICHES.join(', ')}]`,
-      { field: 'niche' }
-    )
-  }
 
   try {
     const [trendResult, hashtagsResult] = await Promise.allSettled([

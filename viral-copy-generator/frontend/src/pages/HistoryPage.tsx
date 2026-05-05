@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import type { Screen, PostWithPlatforms, PlatformPostRow, AccuracyLabel, PostFilters } from '../lib/types'
-import { ALL_PLATFORMS, NICHES } from '../lib/types'
-import { fetchPosts, deletePost, logActualViews } from '../lib/api'
+import type { Screen, PostWithPlatforms, PlatformPostRow, AccuracyLabel, PostFilters, SettingsResponse } from '../lib/types'
+import { ALL_PLATFORMS, DEFAULT_NICHES } from '../lib/types'
+import { fetchPosts, deletePost, logActualViews, apiFetch } from '../lib/api'
 
 interface Props {
   onNavigate: (s: Screen) => void
@@ -43,6 +43,7 @@ export default function HistoryPage({ onNavigate }: Props) {
   const [viewInputs, setViewInputs] = useState<Record<string, string>>({})
   const [loggingIds, setLoggingIds] = useState<Set<string>>(new Set())
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [availableNiches, setAvailableNiches] = useState<string[]>([])
 
   const loadPosts = useCallback(async () => {
     setLoading(true)
@@ -60,6 +61,24 @@ export default function HistoryPage({ onNavigate }: Props) {
   useEffect(() => {
     void loadPosts()
   }, [loadPosts])
+
+  // Load available niches from settings on mount
+  useEffect(() => {
+    const loadSettings = async (): Promise<void> => {
+      try {
+        const res = await apiFetch('/settings')
+        if (res.ok) {
+          const settings = await res.json() as SettingsResponse
+          setAvailableNiches(settings.available_niches)
+        } else {
+          setAvailableNiches(DEFAULT_NICHES as unknown as string[])
+        }
+      } catch {
+        setAvailableNiches(DEFAULT_NICHES as unknown as string[])
+      }
+    }
+    void loadSettings()
+  }, [])
 
   // Pre-populate accuracyMap from existing actual_views in loaded posts
   useEffect(() => {
@@ -176,7 +195,7 @@ export default function HistoryPage({ onNavigate }: Props) {
           aria-label="Filter by niche"
         >
           <option value="">All niches</option>
-          {NICHES.map(n => (
+          {availableNiches.map(n => (
             <option key={n} value={n}>{n.charAt(0).toUpperCase() + n.slice(1)}</option>
           ))}
         </select>

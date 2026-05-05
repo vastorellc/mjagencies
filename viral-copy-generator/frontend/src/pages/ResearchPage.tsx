@@ -1,25 +1,24 @@
 import { useState, useEffect } from 'react'
 import type {
   Screen, ResearchTab, ContentIdeaData, HashtagIntel,
-  CalendarDay, SavedIdea, TrendItem
+  CalendarDay, SavedIdea, TrendItem, SettingsResponse
 } from '../lib/types'
 import {
   fetchResearchTrends, generateResearchIdeas,
-  fetchSavedIdeas, saveIdea, refreshTrends, fetchResearchHashtags,
+  fetchSavedIdeas, saveIdea, refreshTrends, fetchResearchHashtags, apiFetch,
 } from '../lib/api'
+import { DEFAULT_NICHES } from '../lib/types'
 
 interface Props {
   onNavigate: (s: Screen) => void
 }
 
-const VALID_NICHES = ['travel', 'hotels', 'cars', 'bikes', 'coding', 'lifestyle'] as const
-type ValidNiche = typeof VALID_NICHES[number]
-
 const DOW_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 export default function ResearchPage({ onNavigate }: Props) {
   const [activeTab, setActiveTab] = useState<ResearchTab>('ideas')
-  const [niche, setNiche] = useState<ValidNiche>('travel')
+  const [niche, setNiche] = useState('')
+  const [availableNiches, setAvailableNiches] = useState<string[]>([])
   const [topic, setTopic] = useState('')
   const [instructions, setInstructions] = useState('')
 
@@ -38,7 +37,7 @@ export default function ResearchPage({ onNavigate }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [trendsOffline, setTrendsOffline] = useState(false)
 
-  async function loadTrends(n: ValidNiche): Promise<void> {
+  async function loadTrends(n: string): Promise<void> {
     setLoadingTrends(true)
     setTrendsOffline(false)
     try {
@@ -55,9 +54,32 @@ export default function ResearchPage({ onNavigate }: Props) {
     }
   }
 
+  // Load settings and initialize niches on mount
+  useEffect(() => {
+    const loadSettings = async (): Promise<void> => {
+      try {
+        const res = await apiFetch('/settings')
+        if (res.ok) {
+          const settings = await res.json() as SettingsResponse
+          setAvailableNiches(settings.available_niches)
+          setNiche(settings.default_niche || settings.available_niches[0] || 'travel')
+        } else {
+          setAvailableNiches(DEFAULT_NICHES as unknown as string[])
+          setNiche('travel')
+        }
+      } catch {
+        setAvailableNiches(DEFAULT_NICHES as unknown as string[])
+        setNiche('travel')
+      }
+    }
+    void loadSettings()
+  }, [])
+
   // Load trend data when niche changes (RESEARCH-06 cache-first)
   useEffect(() => {
-    void loadTrends(niche)
+    if (niche) {
+      void loadTrends(niche)
+    }
   }, [niche])
 
   // Load saved ideas when Saved tab is activated
@@ -122,6 +144,37 @@ export default function ResearchPage({ onNavigate }: Props) {
     return Math.min(100, Math.round((value / max) * 100))
   }
 
+  // Generate niche-specific placeholder examples
+  function getTopicPlaceholder(n: string): string {
+    const examples: Record<string, string> = {
+      travel: 'e.g. Motorway road trip from Lahore to Islamabad',
+      hotels: 'e.g. Best luxury resorts in northern Pakistan',
+      cars: 'e.g. Toyota Corolla 2024 review and comparison',
+      bikes: 'e.g. Honda CB150F motorcycle tour',
+      coding: 'e.g. React.js tutorial for beginners',
+      lifestyle: 'e.g. Morning routine for productivity',
+      food: 'e.g. Street food tour in Lahore',
+      real_estate: 'e.g. Modern apartment in DHA Lahore',
+      fitness: 'e.g. Home workout routine without equipment',
+    }
+    return examples[n] || `e.g. Content idea for ${n}`
+  }
+
+  function getInstructionsPlaceholder(n: string): string {
+    const examples: Record<string, string> = {
+      travel: 'e.g. Focus on budget-friendly tips, target young couples, include Islamabad food stops',
+      hotels: 'e.g. Highlight luxury amenities, target honeymooners, include pricing tiers',
+      cars: 'e.g. Compare features with competitors, include real road test footage',
+      bikes: 'e.g. Emphasize safety, show long-term reliability, include maintenance tips',
+      coding: 'e.g. Beginner-friendly explanation, include code examples, step-by-step approach',
+      lifestyle: 'e.g. Relatable tone, include before/after, motivational messaging',
+      food: 'e.g. Show preparation process, highlight authentic recipes, target food enthusiasts',
+      real_estate: 'e.g. Showcase property features, highlight location benefits, target first-time buyers',
+      fitness: 'e.g. Include modifications for beginners, show proper form, motivational tone',
+    }
+    return examples[n] || `e.g. Ideas for better ${n} content`
+  }
+
   return (
     <div className="flex h-[100dvh] flex-col bg-zinc-950 text-white">
       {/* Header */}
@@ -131,10 +184,10 @@ export default function ResearchPage({ onNavigate }: Props) {
           {/* Niche selector */}
           <select
             value={niche}
-            onChange={(e) => setNiche(e.target.value as ValidNiche)}
+            onChange={(e) => setNiche(e.target.value)}
             className="rounded bg-zinc-800 px-2 py-1.5 text-sm text-zinc-200 border border-zinc-700 hover:bg-zinc-700"
           >
-            {VALID_NICHES.map(n => (
+            {availableNiches.map(n => (
               <option key={n} value={n} className="capitalize">{n}</option>
             ))}
           </select>
@@ -203,7 +256,7 @@ export default function ResearchPage({ onNavigate }: Props) {
                   type="text"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
-                  placeholder="e.g. Motorway road trip from Lahore to Islamabad"
+                  placeholder={getTopicPlaceholder(niche)}
                   maxLength={300}
                   className="w-full rounded-lg bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-purple-500 focus:outline-none"
                 />
@@ -215,7 +268,7 @@ export default function ResearchPage({ onNavigate }: Props) {
                 <textarea
                   value={instructions}
                   onChange={(e) => setInstructions(e.target.value)}
-                  placeholder="e.g. Focus on budget-friendly tips, target young couples, include Islamabad food stops"
+                  placeholder={getInstructionsPlaceholder(niche)}
                   maxLength={600}
                   rows={3}
                   className="w-full resize-none rounded-lg bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-purple-500 focus:outline-none"

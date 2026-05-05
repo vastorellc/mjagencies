@@ -135,6 +135,7 @@ export const settings = pgTable('settings', {
   api_key_encrypted: text('api_key_encrypted'),
   default_niche: text('default_niche').notNull().default('travel'),
   enabled_platforms: text('enabled_platforms').array().notNull().default(['youtube', 'instagram', 'facebook']),
+  available_niches: text('available_niches').array().notNull().default(sql`ARRAY['travel','hotels','cars','bikes','coding','lifestyle','food','other']::text[]`),
   platform_config: jsonb('platform_config').$type<PlatformConfig>().notNull().default({}),
   learned_weights: jsonb('learned_weights').$type<Record<string, number>>(),
   created_at: timestamp('created_at').defaultNow().notNull(),

@@ -13,13 +13,14 @@ export const settingsRouter = Router()
 const VALID_PROVIDERS = ['claude', 'gemini', 'openai', 'deepseek'] as const
 type Provider = (typeof VALID_PROVIDERS)[number]
 const VALID_PLATFORMS = ['youtube', 'instagram', 'tiktok', 'facebook', 'x'] as const
-const VALID_NICHES = ['travel', 'hotels', 'cars', 'bikes', 'coding', 'lifestyle', 'food', 'other'] as const
+const DEFAULT_NICHES = ['travel', 'hotels', 'cars', 'bikes', 'coding', 'lifestyle', 'food', 'other']
 
 interface SettingsResponse {
   ai_provider: Provider
   api_key_masked: string | null
   default_niche: string
   enabled_platforms: string[]
+  available_niches: string[]
   connected: { youtube: boolean; instagram: boolean; facebook: boolean }
   // SETTINGS-10: server timezone is fixed to PKT
   timezone: 'Asia/Karachi'
@@ -44,6 +45,7 @@ settingsRouter.get('/', async (_req: Request, res: Response) => {
       api_key_masked: null,
       default_niche: 'travel',
       enabled_platforms: ['youtube', 'instagram', 'facebook'],
+      available_niches: DEFAULT_NICHES,
       connected: { youtube: false, instagram: false, facebook: false },
       timezone: 'Asia/Karachi',
     }
@@ -66,6 +68,7 @@ settingsRouter.get('/', async (_req: Request, res: Response) => {
     api_key_masked: masked,
     default_niche: row.default_niche,
     enabled_platforms: row.enabled_platforms,
+    available_niches: row.available_niches ?? DEFAULT_NICHES,
     connected: {
       youtube: !!cfg.youtube,
       instagram: !!cfg.instagram,
@@ -81,6 +84,7 @@ interface PatchBody {
   api_key?: string
   default_niche?: string
   enabled_platforms?: string[]
+  available_niches?: string[]
 }
 
 settingsRouter.patch('/', async (req: Request, res: Response) => {
@@ -108,15 +112,56 @@ settingsRouter.patch('/', async (req: Request, res: Response) => {
       )
     }
   }
-  if (
-    body.default_niche !== undefined &&
-    !VALID_NICHES.includes(body.default_niche as (typeof VALID_NICHES)[number])
-  ) {
-    throw new ValidationError(
-      `Unknown niche "${body.default_niche}"`,
-      `default_niche not in [${VALID_NICHES.join(', ')}]`,
-      { field: 'default_niche' }
-    )
+  if (body.available_niches !== undefined) {
+    if (!Array.isArray(body.available_niches)) {
+      throw new ValidationError(
+        'available_niches must be an array',
+        `available_niches is ${typeof body.available_niches}, expected array`,
+        { field: 'available_niches' }
+      )
+    }
+    if (body.available_niches.length === 0 || body.available_niches.length > 50) {
+      throw new ValidationError(
+        'available_niches must contain 1-50 items',
+        `length=${body.available_niches.length}`,
+        { field: 'available_niches' }
+      )
+    }
+    const seen = new Set<string>()
+    for (const niche of body.available_niches) {
+      if (typeof niche !== 'string') {
+        throw new ValidationError(
+          'Each niche must be a string',
+          `niche is ${typeof niche}`,
+          { field: 'available_niches' }
+        )
+      }
+      const trimmed = niche.trim().toLowerCase()
+      if (trimmed.length === 0 || trimmed.length > 50) {
+        throw new ValidationError(
+          'Each niche must be 1-50 characters (trimmed)',
+          `niche "${niche}" → trimmed length=${trimmed.length}`,
+          { field: 'available_niches' }
+        )
+      }
+      if (seen.has(trimmed)) {
+        throw new ValidationError(
+          'Duplicate niche found',
+          `niche "${trimmed}" appears multiple times`,
+          { field: 'available_niches' }
+        )
+      }
+      seen.add(trimmed)
+    }
+  }
+  if (body.default_niche !== undefined) {
+    if (typeof body.default_niche !== 'string' || body.default_niche.trim().length === 0) {
+      throw new ValidationError(
+        'default_niche must be a non-empty string',
+        `default_niche is "${body.default_niche}"`,
+        { field: 'default_niche' }
+      )
+    }
   }
   if (body.api_key !== undefined) {
     if (typeof body.api_key !== 'string' || body.api_key.length === 0 || body.api_key.length > 200) {
@@ -131,8 +176,11 @@ settingsRouter.patch('/', async (req: Request, res: Response) => {
   // Build the patch object — only include keys the caller sent
   const update: Record<string, unknown> = { updated_at: sql`NOW()` }
   if (body.ai_provider !== undefined) update.ai_provider = body.ai_provider
-  if (body.default_niche !== undefined) update.default_niche = body.default_niche
+  if (body.default_niche !== undefined) update.default_niche = body.default_niche.trim()
   if (body.enabled_platforms !== undefined) update.enabled_platforms = body.enabled_platforms
+  if (body.available_niches !== undefined) {
+    update.available_niches = body.available_niches.map(n => n.trim().toLowerCase())
+  }
   if (body.api_key !== undefined) {
     try {
       update.api_key_encrypted = encrypt(body.api_key.trim())
@@ -153,8 +201,9 @@ settingsRouter.patch('/', async (req: Request, res: Response) => {
         user_id: userId,
         ai_provider: (body.ai_provider as Provider) ?? 'gemini',
         api_key_encrypted: body.api_key ? encrypt(body.api_key.trim()) : null,
-        default_niche: body.default_niche ?? 'travel',
+        default_niche: body.default_niche?.trim() ?? 'travel',
         enabled_platforms: body.enabled_platforms ?? ['youtube', 'instagram', 'facebook'],
+        available_niches: body.available_niches?.map(n => n.trim().toLowerCase()) ?? DEFAULT_NICHES,
       })
       .onConflictDoUpdate({ target: settings.user_id, set: update })
   } catch (err) {
@@ -193,6 +242,7 @@ settingsRouter.patch('/', async (req: Request, res: Response) => {
     ai_provider: row?.ai_provider,
     default_niche: row?.default_niche,
     enabled_platforms: row?.enabled_platforms,
+    available_niches: row?.available_niches ?? DEFAULT_NICHES,
   })
 })
 

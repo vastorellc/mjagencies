@@ -7,7 +7,6 @@ import { ValidationError, DatabaseError, NotFoundError } from '../lib/errors.js'
 export const postsRouter = Router()
 
 const VALID_PLATFORMS = ['youtube', 'instagram', 'tiktok', 'facebook', 'x'] as const
-const VALID_NICHES = ['travel', 'hotels', 'cars', 'bikes', 'coding', 'lifestyle', 'food', 'other'] as const
 
 // GET /api/posts — returns user's posts newest-first with optional filters
 // HISTORY-01, HISTORY-03
@@ -26,8 +25,8 @@ postsRouter.get('/', async (req: Request, res: Response) => {
     )
   }
 
-  // HISTORY-03: niche filter
-  if (niche && VALID_NICHES.includes(niche as (typeof VALID_NICHES)[number])) {
+  // HISTORY-03: niche filter — accept any niche value
+  if (niche) {
     conditions.push(eq(posts.niche, niche))
   }
 
@@ -146,13 +145,10 @@ postsRouter.post('/', async (req: Request, res: Response) => {
     )
   }
 
-  if (
-    body.niche !== undefined &&
-    !VALID_NICHES.includes(body.niche as (typeof VALID_NICHES)[number])
-  ) {
+  if (body.niche !== undefined && (typeof body.niche !== 'string' || body.niche.trim().length === 0)) {
     throw new ValidationError(
-      `Unknown niche "${body.niche}"`,
-      `niche not in [${VALID_NICHES.join(', ')}]`,
+      'niche must be a non-empty string',
+      `niche is "${body.niche}"`,
       { field: 'niche' }
     )
   }

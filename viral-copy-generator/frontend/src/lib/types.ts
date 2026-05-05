@@ -11,12 +11,13 @@ export interface SettingsResponse {
   api_key_masked: string | null
   default_niche: string
   enabled_platforms: string[]
+  available_niches: string[]
   connected: { youtube: boolean; instagram: boolean; facebook: boolean }
   timezone: 'Asia/Karachi'
 }
 
-export const NICHES = ['travel', 'hotels', 'cars', 'bikes', 'coding', 'lifestyle', 'food', 'other'] as const
-export type Niche = typeof NICHES[number]
+export const DEFAULT_NICHES = ['travel', 'hotels', 'cars', 'bikes', 'coding', 'lifestyle', 'food', 'other'] as const
+export type Niche = string
 
 // ============================================================================
 // Phase 4: Virality Score + Checklist (D-03)

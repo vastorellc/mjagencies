@@ -4,7 +4,6 @@ import type {
   Screen,
   EngineSignals,
   LearnedWeights,
-  Niche,
   Platform,
   AIOutput,
   UploadStatus,
@@ -35,7 +34,7 @@ interface Props {
   __testSignals?: EngineSignals
 }
 
-const DEFAULT_NICHE: Niche = 'travel'
+const DEFAULT_NICHE = 'travel'
 const DEFAULT_ENABLED: Platform[] = ['youtube', 'instagram', 'tiktok', 'facebook', 'x']
 const PLATFORM_ORDER: Platform[] = ['youtube', 'instagram', 'tiktok', 'facebook', 'x']
 
@@ -132,7 +131,7 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
   }, [postId, userId])
 
   // Derived settings values with fallbacks
-  const niche = (settingsData?.default_niche as Niche | undefined) ?? DEFAULT_NICHE
+  const niche = settingsData?.default_niche ?? DEFAULT_NICHE
   const enabledPlatforms = (settingsData?.enabled_platforms as Platform[] | undefined) ?? DEFAULT_ENABLED
   const aiProvider = settingsData?.ai_provider ?? 'gemini'
 

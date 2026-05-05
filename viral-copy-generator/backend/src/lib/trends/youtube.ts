@@ -19,7 +19,7 @@ export async function fetchYouTubeTrends(niche: string): Promise<TrendItem[]> {
 
   try {
     const youtube = google.youtube({ version: 'v3', auth: process.env.YOUTUBE_API_KEY })
-    const categoryId = YOUTUBE_CATEGORY_MAP[niche] ?? '24' // Entertainment fallback
+    const categoryId = YOUTUBE_CATEGORY_MAP[niche] ?? '0' // All categories for unknown niches
 
     const res = await youtube.videos.list({
       part: ['snippet', 'statistics'],

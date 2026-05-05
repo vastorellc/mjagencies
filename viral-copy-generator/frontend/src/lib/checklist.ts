@@ -11,7 +11,7 @@ export interface ChecklistOptions {
   enabledPlatforms: Platform[]
 }
 
-const NO_FACE_NICHES: Niche[] = ['travel', 'hotels', 'cars', 'bikes']
+const NO_FACE_NICHES: string[] = ['travel', 'hotels', 'cars', 'bikes']
 
 function pass(id: string, category: ChecklistItem['category'], label: string): ChecklistItem {
   return { id, category, label, status: 'pass', fix: '' }

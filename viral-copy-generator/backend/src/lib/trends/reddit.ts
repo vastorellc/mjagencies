@@ -30,7 +30,7 @@ interface RedditResponse {
 
 export async function fetchRedditTrends(niche: string): Promise<TrendItem[]> {
   try {
-    const subs = SUBREDDIT_MAP[niche] ?? ['pakistan']
+    const subs = SUBREDDIT_MAP[niche] ?? ['pakistan', 'AskPakistan']
     const results: TrendItem[] = []
 
     for (const sub of subs) {

@@ -1,7 +1,8 @@
 import type { EngineSignals, Niche, Platform, LearningData } from './types'
 
 // Real niche hashtag banks for Pakistani short-form creators (AI-07, CLAUDE.md rule 5 — no placeholders)
-export const NICHE_HASHTAGS: Record<Niche, string[]> = {
+// Type: Record<string, string[]> to support custom niches not in the predefined list
+export const NICHE_HASHTAGS: Record<string, string[]> = {
   travel: [
     '#PakistanTravel', '#VisitPakistan', '#TravelVlog', '#PakistanTourism',
     '#BackpackingPakistan', '#HiddenGems', '#TravelReels', '#Wanderlust',

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { apiFetch } from '../lib/api'
 import {
-  AI_PROVIDERS, ALL_PLATFORMS, NICHES,
+  AI_PROVIDERS, ALL_PLATFORMS,
   type Screen, type SettingsResponse, type AIProvider, type Platform,
 } from '../lib/types'
 
@@ -31,6 +31,8 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
   const [keyDraft, setKeyDraft] = useState('')
   const [validating, setValidating] = useState(false)
   const [validationResult, setValidationResult] = useState<{ valid: boolean; error?: string } | null>(null)
+  const [newNiche, setNewNiche] = useState('')
+  const [nicheError, setNicheError] = useState<string | null>(null)
 
   const refetch = useCallback(async () => {
     setLoading(true)
@@ -146,6 +148,39 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
       ? data.enabled_platforms.filter((x) => x !== p)
       : [...data.enabled_platforms, p]
     void patch({ enabled_platforms: enabled })
+  }
+
+  function addNiche(): void {
+    if (!data) return
+    const trimmed = newNiche.trim().toLowerCase()
+    setNicheError(null)
+
+    if (!trimmed) {
+      setNicheError('Niche cannot be empty')
+      return
+    }
+    if (trimmed.length > 50) {
+      setNicheError('Niche must be 50 characters or less')
+      return
+    }
+    if (data.available_niches.map(n => n.toLowerCase()).includes(trimmed)) {
+      setNicheError('Niche already exists')
+      return
+    }
+
+    const updated = [...data.available_niches, trimmed]
+    void patch({ available_niches: updated })
+    setNewNiche('')
+  }
+
+  function deleteNiche(niche: string): void {
+    if (!data) return
+    if (niche === data.default_niche) {
+      setNicheError('Cannot delete the current default niche')
+      return
+    }
+    const updated = data.available_niches.filter(n => n !== niche)
+    void patch({ available_niches: updated })
   }
 
   return (
@@ -269,17 +304,72 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
               )}
             </section>
 
-            {/* Default niche (SETTINGS-02) */}
+            {/* Niche Management (SETTINGS-02) */}
             <section>
-              <h2 className="mb-2 font-bold">Default Niche</h2>
-              <select
-                value={data.default_niche}
-                onChange={(e) => void patch({ default_niche: e.target.value })}
-                disabled={saving}
-                className="rounded bg-zinc-800 px-3 py-2 text-sm"
-              >
-                {NICHES.map((n) => <option key={n} value={n}>{n}</option>)}
-              </select>
+              <h2 className="mb-3 font-bold">Your Niches</h2>
+
+              {/* Default niche dropdown */}
+              <div className="mb-4">
+                <label className="text-sm text-zinc-400 block mb-1">Default Niche</label>
+                <select
+                  value={data.default_niche}
+                  onChange={(e) => void patch({ default_niche: e.target.value })}
+                  disabled={saving}
+                  className="w-full rounded bg-zinc-800 px-3 py-2 text-sm"
+                >
+                  {data.available_niches.map((n) => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </div>
+
+              {/* List of niches */}
+              <div className="mb-4">
+                <label className="text-sm text-zinc-400 block mb-2">Available Niches</label>
+                <div className="flex flex-wrap gap-2">
+                  {data.available_niches.map((niche) => (
+                    <div
+                      key={niche}
+                      className="flex items-center gap-2 rounded bg-zinc-900 px-3 py-1.5 text-sm"
+                    >
+                      <span>{niche}</span>
+                      <button
+                        onClick={() => deleteNiche(niche)}
+                        disabled={saving || niche === data.default_niche}
+                        title={niche === data.default_niche ? 'Cannot delete default niche' : 'Delete niche'}
+                        className="text-red-400 hover:text-red-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Add new niche */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newNiche}
+                  onChange={(e) => {
+                    setNewNiche(e.target.value)
+                    setNicheError(null)
+                  }}
+                  placeholder="Add new niche (e.g., real estate, fitness)"
+                  className="flex-1 rounded bg-zinc-800 px-3 py-2 text-sm"
+                />
+                <button
+                  onClick={() => addNiche()}
+                  disabled={saving || newNiche.trim().length === 0}
+                  className="rounded bg-blue-700 px-3 py-2 text-sm font-bold hover:bg-blue-600 disabled:opacity-40 transition"
+                >
+                  + Add
+                </button>
+              </div>
+
+              {nicheError && (
+                <div className="mt-2 rounded bg-red-900/40 p-2 text-sm text-red-200">
+                  {nicheError}
+                </div>
+              )}
             </section>
 
             {/* Platform toggles (SETTINGS-03) */}
