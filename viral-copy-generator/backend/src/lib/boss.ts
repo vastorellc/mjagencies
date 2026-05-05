@@ -45,6 +45,29 @@ export async function registerCleanupJob(bossInstance: PgBoss): Promise<void> {
 // Refreshes all trend sources for all niches daily at 5am UTC.
 // refreshAllNiches imported lazily to avoid circular dep with research-cache.ts
 // CJS/ESM interop note: google-trends-api default import returns 'object' — confirmed working
+// ── Phase 11: Content Intelligence Layer — pattern aggregation ─────────────
+// Updates platform viral patterns from learning signals daily at 4 AM UTC
+export async function registerPatternUpdateJob(bossInstance: PgBoss): Promise<void> {
+  // CRITICAL: createQueue() BEFORE schedule() — pg-boss v12 FK constraint
+  await bossInstance.createQueue('update-viral-patterns')
+
+  try {
+    await bossInstance.schedule('update-viral-patterns', '0 4 * * *', {})
+  } catch (err: unknown) {
+    const msg = (err as Error).message ?? ''
+    if (!msg.includes('duplicate') && !msg.includes('unique')) throw err
+  }
+
+  await bossInstance.work<Record<string, never>>('update-viral-patterns', async (_jobs) => {
+    // Dynamic import to avoid circular dependency with pattern-analysis.ts
+    const { updatePlatformPatterns } = await import('./pattern-analysis.js')
+    await updatePlatformPatterns()
+    console.log('[pg-boss] update-viral-patterns completed')
+  })
+
+  console.log('[pg-boss] update-viral-patterns job registered')
+}
+
 export async function registerResearchRefreshJob(bossInstance: PgBoss): Promise<void> {
   // CRITICAL: createQueue() BEFORE schedule() — pg-boss v12 FK constraint
   // pgboss.schedule.name has a FK referencing pgboss.queue.name

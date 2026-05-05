@@ -37,6 +37,16 @@ intelligenceRouter.post('/analyze', async (req: Request, res: Response) => {
   }
 
   try {
+    // Normalize field names: frontend camelCase → backend snake_case
+    const normalizedSignals: EngineSignalsData = {
+      ...engineSignals,
+      audio_energy: (engineSignals as Record<string, unknown>).audioEnergy ??
+                    (engineSignals as Record<string, unknown>).audio_energy,
+      duration: (engineSignals as Record<string, unknown>).durationSeconds ??
+                (engineSignals as Record<string, unknown>).durationSec ??
+                (engineSignals as Record<string, unknown>).duration,
+    }
+
     // Step 1: Store video analysis
     const [analysis] = await db
       .insert(video_analysis)
@@ -44,7 +54,7 @@ intelligenceRouter.post('/analyze', async (req: Request, res: Response) => {
         user_id: userId,
         post_id: postId,
         niche,
-        engine_signals: engineSignals,
+        engine_signals: normalizedSignals,
       })
       .returning()
 
@@ -58,7 +68,7 @@ intelligenceRouter.post('/analyze', async (req: Request, res: Response) => {
       videoAnalysisId: analysis.id,
       userId,
       niche,
-      engineSignals,
+      engineSignals: normalizedSignals,
       enabledPlatforms,
     })
 

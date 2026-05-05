@@ -28,6 +28,7 @@ import PlatformCardGrid from '../components/PlatformCardGrid'
 import ChecklistAccordion from '../components/ChecklistAccordion'
 import GapAnalysisPanel from '../components/GapAnalysisPanel'
 import PlatformCopyCard from '../components/PlatformCopyCard'
+import IntelligencePanel from '../components/IntelligencePanel'
 
 interface Props {
   onNavigate: (s: Screen) => void
@@ -73,6 +74,9 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
   // Phase 6: upload modal state
   const [scheduleModal, setScheduleModal] = useState<{ platform: Platform } | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
+
+  // Phase 11: Content Intelligence state
+  const [intelligenceTriggered, setIntelligenceTriggered] = useState<boolean>(false)
 
   // D-13: Fetch settings on mount; populate userId from auth session
   useEffect(() => {
@@ -211,6 +215,7 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
             enabled_platforms: enabledPlatforms,
           })
           setPostId(saved.postId)
+          setIntelligenceTriggered(true)
         } catch {
           setAiError(ERROR_MESSAGES.post_save_failed)
           setAiErrorKey('post_save_failed')
@@ -625,6 +630,14 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
               <PlatformCardGrid perPlatform={scoreResult.perPlatform} />
               <ChecklistAccordion items={checklistItems} />
               <GapAnalysisPanel gaps={gapMessages} />
+              {intelligenceTriggered && postId && signals && settingsData && (
+                <IntelligencePanel
+                  postId={postId}
+                  niche={settingsData.default_niche}
+                  engineSignals={signals}
+                  enabledPlatforms={settingsData.enabled_platforms as Platform[]}
+                />
+              )}
             </div>
           )}
 

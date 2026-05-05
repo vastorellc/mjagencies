@@ -9,7 +9,7 @@ import {
   type EngineSignalsData,
   type PatternGapData,
 } from '../db/schema.js'
-import { eq, and } from 'drizzle-orm'
+import { eq, and, sql } from 'drizzle-orm'
 
 export type { EngineSignalsData }
 
@@ -171,9 +171,73 @@ export async function analyzeVideoPatterns(
  * Run this periodically to update pattern data from user performance
  */
 export async function updatePlatformPatterns(): Promise<void> {
-  // This would be called by a scheduled job to:
-  // 1. Query learning_signals grouped by (platform, niche, view_tier)
-  // 2. Calculate averages for each group
-  // 3. Upsert into platform_viral_patterns
-  // Implementation: See scheduled job in boss.ts
+  try {
+    // Query learning signals grouped by platform, niche, and view tier (based on actual_views)
+    // Join with posts to get engine_signals data
+    const rawResults = await db.execute(sql`
+      SELECT
+        ls.platform,
+        ls.niche,
+        CASE
+          WHEN COALESCE(ls.actual_views, 0) < 1000 THEN '100-1k'
+          WHEN COALESCE(ls.actual_views, 0) < 10000 THEN '1k-10k'
+          WHEN COALESCE(ls.actual_views, 0) < 100000 THEN '10k-100k'
+          ELSE '100k+'
+        END AS view_tier,
+        COUNT(*) AS sample_count,
+        ROUND(AVG(CAST(p.engine_signals->>'motion' AS FLOAT)))::INT AS avg_motion,
+        ROUND(AVG(CAST(p.engine_signals->>'faces' AS FLOAT)))::INT AS avg_faces,
+        ROUND(AVG(CAST(p.engine_signals->>'audioEnergy' AS FLOAT)))::INT AS avg_audio_energy,
+        ROUND(AVG(CAST(p.engine_signals->>'durationSeconds' AS FLOAT)))::INT AS avg_duration,
+        ROUND(AVG(CAST(p.engine_signals->>'brightness' AS FLOAT)))::INT AS avg_brightness,
+        ROUND(AVG(EXTRACT(HOUR FROM ls.created_at AT TIME ZONE 'Asia/Karachi')))::INT AS optimal_posting_hour_pkt,
+        ROUND(AVG(ARRAY_LENGTH(ls.hashtags, 1)))::INT AS avg_hashtag_count
+      FROM learning_signals ls
+      JOIN posts p ON p.id = ls.post_id
+      WHERE ls.actual_views IS NOT NULL
+      GROUP BY ls.platform, ls.niche, view_tier
+      HAVING COUNT(*) >= 5
+      ORDER BY ls.platform, ls.niche, view_tier
+    `)
+
+    // Drizzle's execute() returns either an array (postgres.js) or { rows } (node-postgres)
+    const data: Record<string, unknown>[] = Array.isArray(rawResults)
+      ? rawResults
+      : (rawResults as { rows: Record<string, unknown>[] }).rows
+
+    // Upsert into platform_viral_patterns
+    for (const row of data) {
+      const typedRow = row as Record<string, unknown>
+      await db
+        .insert(platform_viral_patterns)
+        .values({
+          platform: typedRow.platform as string,
+          niche: typedRow.niche as string,
+          view_tier: typedRow.view_tier as string,
+          pattern_data: {
+            avg_motion: (typedRow.avg_motion as number) ?? 0,
+            avg_faces: (typedRow.avg_faces as number) ?? 0,
+            avg_audio_energy: (typedRow.avg_audio_energy as number) ?? 0,
+            avg_duration: (typedRow.avg_duration as number) ?? 0,
+            avg_brightness: (typedRow.avg_brightness as number) ?? 0,
+            optimal_posting_hour_pkt: (typedRow.optimal_posting_hour_pkt as number) ?? 0,
+            avg_hashtag_count: (typedRow.avg_hashtag_count as number) ?? 0,
+            sample_count: (typedRow.sample_count as number) ?? 0,
+            characteristics: [],
+          },
+        })
+        .onConflictDoUpdate({
+          target: [platform_viral_patterns.platform, platform_viral_patterns.niche, platform_viral_patterns.view_tier],
+          set: {
+            pattern_data: sql`excluded.pattern_data`,
+            last_updated: sql`now()`,
+          },
+        })
+    }
+
+    console.log(`[updatePlatformPatterns] Updated ${data.length} pattern rows`)
+  } catch (err: unknown) {
+    console.error('[updatePlatformPatterns] failed:', (err as Error).message)
+    throw err
+  }
 }

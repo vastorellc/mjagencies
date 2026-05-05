@@ -439,3 +439,38 @@ export interface SavedIdea {
   generated_at: string
   saved: boolean
 }
+
+// ============================================================================
+// Phase 11: Content Intelligence Layer
+// ============================================================================
+
+export interface IntelligenceGap {
+  field: string         // 'motion' | 'faces' | 'audio_energy' | 'duration' | 'brightness'
+  current: number
+  pattern_avg: number
+  difference: number    // positive = video is higher
+}
+
+export interface IntelligenceRecommendation {
+  title: string
+  description: string
+  priority: 'high' | 'medium' | 'low'
+  estimated_impact: string
+}
+
+export interface IntelligencePlatformResult {
+  platform: string
+  viewTier: string
+  similarity: number
+  gaps: IntelligenceGap[]
+  aiInsights: {
+    recommendations: IntelligenceRecommendation[]
+    confidenceScore: number
+    summary: string | null
+  } | null
+}
+
+export interface IntelligenceVideoData {
+  videoAnalysis: { id: string; niche: string; created_at: string }
+  patterns: IntelligencePlatformResult[]
+}

@@ -7,6 +7,8 @@ import type {
   PostingTimeSlot, NichePerformance, LearningWeightsResponse, PostFilters,
   AdminJob, AdminUser, AdminHealthResponse, AdminLogsResponse, AdminPlatformStatsResponse,
   ResearchTrendsResponse, ResearchGenerateResponse, SavedIdea, HashtagIntel,
+  EngineSignals, Platform,
+  IntelligenceVideoData, IntelligencePlatformResult,
 } from './types'
 
 async function getAccessToken(): Promise<string | null> {
@@ -424,4 +426,52 @@ export async function fetchResearchHashtags(niche: string): Promise<HashtagIntel
   } catch {
     return []
   }
+}
+
+// ============================================================================
+// Phase 11: Content Intelligence Layer API
+// ============================================================================
+
+// Trigger multi-layer pattern analysis and AI insights generation
+// Fail-silent on error — don't block main generator flow
+export async function triggerIntelligenceAnalysis(
+  postId: string,
+  niche: string,
+  engineSignals: EngineSignals,
+  enabledPlatforms: Platform[],
+): Promise<{ videoAnalysisId: string }> {
+  try {
+    const res = await apiFetch('/intelligence/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        postId,
+        niche,
+        engineSignals,
+        enabledPlatforms,
+      }),
+    })
+    if (!res.ok) {
+      console.warn('[intelligence/analyze] failed:', res.status)
+      throw new Error('Analysis trigger failed')
+    }
+    return res.json() as Promise<{ videoAnalysisId: string }>
+  } catch (err) {
+    console.warn('[triggerIntelligenceAnalysis]', err)
+    throw err
+  }
+}
+
+// Fetch full analysis results for a post (Layer 1 + Layer 2)
+export async function fetchIntelligenceVideo(postId: string): Promise<IntelligenceVideoData> {
+  const res = await apiFetch(`/intelligence/video/${encodeURIComponent(postId)}`)
+  if (!res.ok) throw new Error('Intelligence fetch failed')
+  return res.json() as Promise<IntelligenceVideoData>
+}
+
+// Fetch lightweight platform summary (pattern analysis only)
+export async function fetchIntelligencePlatforms(postId: string): Promise<{ platforms: IntelligencePlatformResult[] }> {
+  const res = await apiFetch(`/intelligence/platforms/${encodeURIComponent(postId)}`)
+  if (!res.ok) throw new Error('Platforms fetch failed')
+  return res.json() as Promise<{ platforms: IntelligencePlatformResult[] }>
 }
