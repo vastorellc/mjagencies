@@ -66,10 +66,9 @@ export class ValidationError extends AppError {
 
 export class AuthError extends AppError {
   constructor(message: string = 'Authentication required', developerMessage?: string, options?: ErrorOptions) {
-    super(401, 'UNAUTHORIZED', message, developerMessage ?? message, options)
+    super(401, 'UNAUTHORIZED', message, developerMessage ?? message, { ...options, retryable: true })
     Object.setPrototypeOf(this, AuthError.prototype)
     this.name = 'AuthError'
-    this.retryable = true
   }
 }
 

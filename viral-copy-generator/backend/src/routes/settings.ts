@@ -1,9 +1,10 @@
 import { Router, type Request, type Response } from 'express'
 import { eq, sql } from 'drizzle-orm'
+import OpenAI from 'openai'
 import { db } from '../db/index.js'
 import { settings, type PlatformConfig } from '../db/schema.js'
 import { encrypt, decrypt, maskKey } from '../lib/encryption.js'
-import { ValidationError, DatabaseError, StorageError } from '../lib/errors.js'
+import { ValidationError, DatabaseError, StorageError, AIProviderError } from '../lib/errors.js'
 
 export const settingsRouter = Router()
 
@@ -266,4 +267,112 @@ settingsRouter.delete('/connections/:platform', async (req: Request, res: Respon
     )
   }
   res.json({ ok: true })
+})
+
+// POST /settings/validate-key — Test an API key by making a minimal test call to the provider
+// Body: { provider: string, api_key: string }
+// Response: { valid: boolean, error?: string }
+interface ValidateKeyBody {
+  provider?: string
+  api_key?: string
+}
+
+settingsRouter.post('/validate-key', async (req: Request, res: Response) => {
+  const body = req.body as ValidateKeyBody
+  const { provider, api_key: key } = body
+
+  if (!provider || typeof provider !== 'string') {
+    throw new ValidationError(
+      'Provider is required',
+      'Missing or invalid provider field',
+      { field: 'provider' }
+    )
+  }
+  if (!key || typeof key !== 'string') {
+    throw new ValidationError(
+      'API key is required',
+      'Missing or invalid api_key field',
+      { field: 'api_key' }
+    )
+  }
+
+  if (!VALID_PROVIDERS.includes(provider as Provider)) {
+    throw new ValidationError(
+      `Unknown provider "${provider}"`,
+      `provider not in [${VALID_PROVIDERS.join(', ')}]`,
+      { field: 'provider' }
+    )
+  }
+
+  // Test the key with a minimal API call
+  let isValid = false
+  let errorMessage = 'Unknown error'
+
+  try {
+    if (provider === 'openai' || provider === 'deepseek') {
+      const isDeepSeek = provider === 'deepseek'
+      const openai = new OpenAI({
+        apiKey: key.trim(),
+        ...(isDeepSeek ? { baseURL: 'https://api.deepseek.com/v1' } : {}),
+      })
+
+      const model = isDeepSeek ? 'deepseek-chat' : 'gpt-4.1'
+
+      // Make a minimal test call with very short timeout expectations
+      await openai.chat.completions.create({
+        model,
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'test' }],
+      })
+      isValid = true
+    } else if (provider === 'claude') {
+      // For Claude, we would need the Anthropic SDK — for now, mark as unsupported
+      throw new ValidationError(
+        'Claude validation not yet implemented',
+        'Claude provider validation requires additional setup',
+        { field: 'provider' }
+      )
+    } else if (provider === 'gemini') {
+      // For Gemini, we would need the Google SDK — for now, mark as unsupported
+      throw new ValidationError(
+        'Gemini validation not yet implemented',
+        'Gemini provider validation requires additional setup',
+        { field: 'provider' }
+      )
+    }
+  } catch (err: unknown) {
+    if (err instanceof ValidationError) {
+      throw err
+    }
+
+    if (err instanceof OpenAI.APIError) {
+      const status = err.status
+      const code = (err as any).code || err.message
+
+      if (status === 401 || code === 'invalid_api_key') {
+        errorMessage = 'Invalid API key'
+        isValid = false
+      } else if (status === 429) {
+        errorMessage = 'Rate limited — key is valid but account is rate-limited'
+        isValid = true
+      } else if (code === 'insufficient_quota' || code === 'quota_exceeded') {
+        errorMessage = 'Quota exceeded — add credits to your account'
+        isValid = true
+      } else if (status === 500 || status === 502 || status === 503) {
+        errorMessage = 'API service temporarily unavailable — try again later'
+        isValid = false
+      } else {
+        errorMessage = err.message || 'API error'
+        isValid = false
+      }
+    } else if (err instanceof Error) {
+      errorMessage = err.message
+      isValid = false
+    }
+  }
+
+  res.json({
+    valid: isValid,
+    error: isValid ? undefined : errorMessage,
+  })
 })

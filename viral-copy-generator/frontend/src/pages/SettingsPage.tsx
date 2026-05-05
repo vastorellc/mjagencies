@@ -29,6 +29,8 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [keyDraft, setKeyDraft] = useState('')
+  const [validating, setValidating] = useState(false)
+  const [validationResult, setValidationResult] = useState<{ valid: boolean; error?: string } | null>(null)
 
   const refetch = useCallback(async () => {
     setLoading(true)
@@ -63,6 +65,41 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
       setError((e as Error).message)
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function validateApiKey(): Promise<void> {
+    if (!keyDraft.trim()) {
+      setError('Please enter an API key to test')
+      return
+    }
+    if (!data) return
+
+    setValidating(true)
+    setValidationResult(null)
+    try {
+      const res = await apiFetch('/settings/validate-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: data.ai_provider,
+          api_key: keyDraft.trim(),
+        }),
+      })
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({} as { error?: string }))
+        throw new Error((j as { error?: string }).error ?? `Validation failed (${res.status})`)
+      }
+      const result = await res.json() as { valid: boolean; error?: string }
+      setValidationResult(result)
+      if (result.valid) {
+        setError(null)
+      }
+    } catch (e) {
+      setError((e as Error).message)
+      setValidationResult({ valid: false, error: (e as Error).message })
+    } finally {
+      setValidating(false)
     }
   }
 
@@ -175,6 +212,7 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
                   if (keyDraft.length > 0) {
                     void patch({ api_key: keyDraft })
                     setKeyDraft('')
+                    setValidationResult(null)
                   }
                 }}
                 className="mt-2 flex gap-2"
@@ -182,18 +220,53 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
                 <input
                   type="password"
                   value={keyDraft}
-                  onChange={(e) => setKeyDraft(e.target.value)}
+                  onChange={(e) => {
+                    setKeyDraft(e.target.value)
+                    setValidationResult(null)
+                  }}
                   placeholder="Paste new API key"
                   className="flex-1 rounded bg-zinc-800 px-3 py-2 text-sm"
                 />
                 <button
+                  type="button"
+                  onClick={() => { void validateApiKey() }}
+                  disabled={validating || keyDraft.length === 0}
+                  className="rounded bg-blue-700 px-3 py-2 text-sm font-bold hover:bg-blue-600 disabled:opacity-40 transition"
+                >
+                  {validating ? '⏳ Testing...' : '🔍 Test'}
+                </button>
+                <button
                   type="submit"
                   disabled={saving || keyDraft.length === 0}
-                  className="rounded bg-emerald-700 px-3 py-2 text-sm font-bold hover:bg-emerald-600 disabled:opacity-40"
+                  className="rounded bg-emerald-700 px-3 py-2 text-sm font-bold hover:bg-emerald-600 disabled:opacity-40 transition"
                 >
                   Save
                 </button>
               </form>
+
+              {/* Validation result display */}
+              {validationResult && (
+                <div className={`mt-3 rounded p-3 text-sm flex items-start gap-2 ${
+                  validationResult.valid
+                    ? 'bg-emerald-900/30 text-emerald-200 border border-emerald-800/50'
+                    : 'bg-red-900/30 text-red-200 border border-red-800/50'
+                }`}>
+                  <span className="text-lg mt-0.5">{validationResult.valid ? '✅' : '❌'}</span>
+                  <div className="flex-1">
+                    {validationResult.valid ? (
+                      <>
+                        <p className="font-semibold">API key is valid!</p>
+                        <p className="text-xs mt-1 opacity-80">This key works with {data.ai_provider}. Click Save to use it.</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-semibold">API key is invalid</p>
+                        <p className="text-xs mt-1 opacity-80">{validationResult.error || 'The key failed validation with your provider.'}</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </section>
 
             {/* Default niche (SETTINGS-02) */}
