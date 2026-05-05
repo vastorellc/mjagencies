@@ -14,6 +14,7 @@ import { platformPostsRouter } from './routes/platformPosts.js'
 import { learningRouter } from './routes/learning.js'
 import { adminRouter } from './routes/admin.js'
 import { researchRouter } from './routes/research.js'
+import { intelligenceRouter } from './routes/intelligence.js'
 import pino from 'pino'
 import {
   isAppError, toErrorResponse, DatabaseError, UnknownSystemError,
@@ -92,6 +93,9 @@ app.use('/api/admin', adminRouter)
 
 // ── Phase 9: Content Research Engine (auth-gated by app.use('/api', authMiddleware) above) ──
 app.use('/api/research', researchRouter)
+
+// ── Phase 11: Content Intelligence Layer (auth-gated by app.use('/api', authMiddleware) above) ──
+app.use('/api/intelligence', intelligenceRouter)
 
 // ── 404 handler ──────────────────────────────────────────────────────────────
 app.use((req, res) => {
