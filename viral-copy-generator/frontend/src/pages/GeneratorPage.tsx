@@ -67,6 +67,7 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
   const [aiErrorKey, setAiErrorKey] = useState<AIErrorKind | null>(null)
   const [postId, setPostId] = useState<string | null>(null)
   const [uploadStatuses, setUploadStatuses] = useState<Record<string, string>>({})
+  const [thumbnail, setThumbnail] = useState<string | null>(null)
   const isFirstGenerationRef = useRef<boolean>(true)
 
   // Phase 6: upload modal state
@@ -231,7 +232,8 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
 
     // STORE-05: Instagram 100 MB gate — enforce before modal opens (UX; backend enforces authoritatively)
     if (platform === 'instagram' && selectedFile && selectedFile.size > 100 * 1024 * 1024) {
-      setUploadError('Instagram: max 100 MB. Compress the video before uploading.')
+      const sizeMB = Math.ceil(selectedFile.size / 1024 / 1024)
+      setUploadError(`Instagram: video is ${sizeMB}MB, max is 100MB. Compress before uploading.`)
       return
     }
 
@@ -297,6 +299,70 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
 
   const canGenerate = (selectedFile !== null || description.trim().length > 0) && !aiLoading
 
+  // Drag and drop state
+  const [isDragging, setIsDragging] = useState<boolean>(false)
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const files = e.dataTransfer.files
+    if (files && files.length > 0) {
+      const file = files[0]
+      if (file.type.startsWith('video/')) {
+        setSelectedFile(file)
+        setPostId(null)
+        setUploadStatuses({})
+        isFirstGenerationRef.current = true
+        setAiOutput(null)
+        extractThumbnail(file)
+      } else {
+        setUploadError('Please drop a video file (MP4, MOV, AVI, MKV)')
+      }
+    }
+  }
+
+  // Extract first frame of video as thumbnail
+  const extractThumbnail = (file: File) => {
+    const video = document.createElement('video')
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+
+    video.onloadedmetadata = () => {
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      video.currentTime = 0.5 // Capture at 0.5 seconds to avoid black frame
+    }
+
+    video.onseeked = () => {
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+        const thumbUrl = canvas.toDataURL('image/jpeg', 0.7)
+        setThumbnail(thumbUrl)
+      }
+    }
+
+    video.onerror = () => {
+      console.warn('Could not extract video thumbnail')
+      setThumbnail(null)
+    }
+
+    video.src = URL.createObjectURL(file)
+  }
+
   return (
     <div className="flex h-[100dvh] flex-col bg-zinc-950 text-white">
       <header className="flex items-center justify-between border-b border-zinc-800 px-6 py-4">
@@ -352,23 +418,39 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
 
             <label
               htmlFor="video-upload"
-              className="cursor-pointer flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-zinc-700 bg-zinc-900/50 px-6 py-8 text-center hover:border-zinc-500 hover:bg-zinc-900 transition"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`cursor-pointer flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-8 text-center transition ${
+                isDragging
+                  ? 'border-purple-500 bg-purple-900/20'
+                  : 'border-zinc-700 bg-zinc-900/50 hover:border-zinc-500 hover:bg-zinc-900'
+              }`}
             >
-              <div className="flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center gap-3 w-full">
                 {selectedFile ? (
                   <>
-                    <span className="text-2xl">✓</span>
-                    <p className="font-medium text-white break-all max-w-sm">{selectedFile.name}</p>
-                    <p className="text-xs text-zinc-400">
-                      {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
-                    </p>
+                    {thumbnail && (
+                      <img
+                        src={thumbnail}
+                        alt="Video thumbnail"
+                        className="w-full max-w-xs h-40 object-cover rounded-lg border border-zinc-600"
+                      />
+                    )}
+                    <div className="text-center">
+                      <span className="text-2xl">✓</span>
+                      <p className="font-medium text-white break-all max-w-sm mt-2">{selectedFile.name}</p>
+                      <p className="text-xs text-zinc-400 mt-1">
+                        {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
+                      </p>
+                    </div>
                   </>
                 ) : (
                   <>
                     <span className="text-3xl">+</span>
                     <p className="text-sm font-medium text-white">Click to upload a video</p>
                     <p className="text-xs text-zinc-400">or drag and drop (MP4, MOV, AVI, MKV)</p>
-                    <p className="text-xs text-zinc-500 mt-1">Max 260 MB</p>
+                    <p className="text-xs text-zinc-500 mt-1">Max 500 MB</p>
                   </>
                 )}
               </div>
@@ -386,6 +468,9 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
                     setUploadStatuses({})
                     isFirstGenerationRef.current = true
                     setAiOutput(null)
+                    extractThumbnail(file)
+                  } else {
+                    setThumbnail(null)
                   }
                 }}
               />
@@ -394,7 +479,10 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
             {selectedFile && (
               <button
                 type="button"
-                onClick={() => setSelectedFile(null)}
+                onClick={() => {
+                  setSelectedFile(null)
+                  setThumbnail(null)
+                }}
                 className="self-start text-xs font-medium text-zinc-400 hover:text-red-400 transition"
               >
                 Remove file
@@ -449,8 +537,16 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
             </span>
           </button>
 
+          {/* Analysis Phase Indicator */}
+          {selectedFile && !signals && !__testSignals && (
+            <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-purple-900/20 border border-purple-800/50">
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-purple-400 border-t-transparent" />
+              <p className="text-sm font-medium text-purple-200">📊 Analysing video...</p>
+            </div>
+          )}
+
           {/* Hint text */}
-          {!canGenerate && (
+          {!canGenerate && !selectedFile && (
             <p className="text-center text-xs text-zinc-500 px-4">
               👆 Upload a video or describe your content to get started
             </p>

@@ -18,7 +18,7 @@ import { ValidationError, DatabaseError, FileUploadError, FileTypeError, FileSiz
 
 export const uploadRouter = Router()
 
-const MAX_FILE_SIZE = 260 * 1024 * 1024 // 260 MB (250 MB limit + 10 MB headroom for multipart)
+const MAX_FILE_SIZE = 500 * 1024 * 1024 // 500 MB max file size
 const INSTAGRAM_MAX_SIZE = 100 * 1024 * 1024 // 100 MB Instagram hard limit (AUTOUP-02)
 
 // multer diskStorage: write to /var/uploads/tmp/{uuid}.mp4 first, then rename to
