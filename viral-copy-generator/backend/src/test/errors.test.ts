@@ -4,7 +4,7 @@ import {
   FileTypeError, FileSizeError, RateLimitError, DatabaseError, StorageError,
   ExternalApiError, AIProviderError, VideoProcessingError, FFmpegError,
   QueueJobError, UnknownSystemError, isAppError, toErrorResponse,
-} from './errors'
+} from '../lib/errors.js'
 
 describe('Error Classes', () => {
   it('ValidationError: 400 VALIDATION_ERROR', () => {

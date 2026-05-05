@@ -214,23 +214,21 @@ export function isAppError(err: unknown): err is AppError {
 
 export function toErrorResponse(err: unknown, requestId?: string): ErrorResponse {
   if (isAppError(err)) {
-    return {
-      error: {
-        code: err.errorCode,
-        message: err.userMessage,
-        field: err.field,
-        retryable: err.retryable,
-        requestId,
-      },
+    const error: any = {
+      code: err.errorCode,
+      message: err.userMessage,
+      retryable: err.retryable,
     }
+    if (err.field) error.field = err.field
+    if (requestId) error.requestId = requestId
+    return { error }
   }
 
-  return {
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: 'An unexpected error occurred',
-      retryable: false,
-      requestId,
-    },
+  const error: any = {
+    code: 'INTERNAL_ERROR',
+    message: 'An unexpected error occurred',
+    retryable: false,
   }
+  if (requestId) error.requestId = requestId
+  return { error }
 }

@@ -75,7 +75,7 @@ describe('POST /api/ai/generate — T-5-01: API key never in response', () => {
     expect(JSON.stringify(res.body)).not.toContain('fake_encrypted_key_base64')
   })
 
-  it('returns 400 when no API key is configured for user', async () => {
+  it('returns 400 VALIDATION_ERROR when no API key is configured for user', async () => {
     // Override DB mock to return no api_key_encrypted
     const { db } = await import('../src/db/index.js')
     vi.mocked(db.select).mockReturnValueOnce({
@@ -92,6 +92,31 @@ describe('POST /api/ai/generate — T-5-01: API key never in response', () => {
       .send({ prompt: 'test' })
 
     expect(res.status).toBe(400)
-    expect(res.body.error).toBe('no_api_key')
+    // New error format: structured error response
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+    expect(res.body.error.message).toContain('API key')
+    expect(res.body.error.retryable).toBe(false)
+    expect(res.body.error.requestId).toBeDefined()
+  })
+
+  it('returns 400 VALIDATION_ERROR when prompt is missing', async () => {
+    const res = await request(app)
+      .post('/api/ai/generate')
+      .set('Authorization', 'Bearer fake-token')
+      .send({})
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+    expect(res.body.error.message).toContain('Prompt')
+  })
+
+  it('includes X-Request-Id header in error response', async () => {
+    const res = await request(app)
+      .post('/api/ai/generate')
+      .set('Authorization', 'Bearer fake-token')
+      .send({})
+
+    expect(res.headers['x-request-id']).toBeDefined()
+    expect(res.body.error.requestId).toBe(res.headers['x-request-id'])
   })
 })
