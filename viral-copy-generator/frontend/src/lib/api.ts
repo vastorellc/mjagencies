@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { parseAPIError } from './errors'
 import type {
   AIProxyBody, SettingsResponse, CreatePostBody, PostSaveResponse,
   UploadFileResponse, ScheduleUploadBody, ScheduleUploadResponse,
@@ -11,6 +12,14 @@ import type {
 async function getAccessToken(): Promise<string | null> {
   const { data: { session } } = await supabase.auth.getSession()
   return session?.access_token ?? null
+}
+
+/**
+ * Throw a structured error that can be parsed by getErrorPayload().
+ * Wraps the APIErrorPayload in JSON so it survives the Error message channel.
+ */
+function throwStructuredError(payload: any): never {
+  throw new Error(JSON.stringify(payload))
 }
 
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
@@ -26,7 +35,10 @@ export async function proxyAIGenerate(body: AIProxyBody): Promise<{ text: string
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
-  if (!res.ok) throw new Error('ai_proxy_failed')
+  if (!res.ok) {
+    const errPayload = await parseAPIError(res)
+    throwStructuredError(errPayload)
+  }
   return res.json() as Promise<{ text: string }>
 }
 
@@ -71,8 +83,8 @@ export async function uploadFile(file: File): Promise<UploadFileResponse> {
     // Content-Type intentionally omitted — browser sets multipart boundary automatically
   })
   if (!res.ok) {
-    const body = await res.json().catch(() => ({})) as { error?: string }
-    throw new Error(body.error ?? 'upload_file_failed')
+    const errPayload = await parseAPIError(res)
+    throwStructuredError(errPayload)
   }
   return res.json() as Promise<UploadFileResponse>
 }
@@ -89,8 +101,8 @@ export async function scheduleUpload(body: ScheduleUploadBody): Promise<Schedule
     body: JSON.stringify(body),
   })
   if (!res.ok) {
-    const json = await res.json().catch(() => ({})) as { error?: string; message?: string }
-    throw new Error(json.message ?? json.error ?? 'schedule_upload_failed')
+    const errPayload = await parseAPIError(res)
+    throwStructuredError(errPayload)
   }
   return res.json() as Promise<ScheduleUploadResponse>
 }
@@ -280,8 +292,8 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
 export async function disableAdminUser(userId: string): Promise<void> {
   const res = await apiFetch(`/admin/users/${encodeURIComponent(userId)}/disable`, { method: 'PATCH' })
   if (!res.ok) {
-    const json = await res.json().catch(() => ({})) as { error?: string }
-    throw new Error(json.error ?? 'admin_disable_user_failed')
+    const errPayload = await parseAPIError(res)
+    throwStructuredError(errPayload)
   }
 }
 

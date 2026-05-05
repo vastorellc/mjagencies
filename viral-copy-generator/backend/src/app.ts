@@ -15,7 +15,10 @@ import { learningRouter } from './routes/learning.js'
 import { adminRouter } from './routes/admin.js'
 import { researchRouter } from './routes/research.js'
 import pino from 'pino'
-import { isAppError, toErrorResponse, DatabaseError, UnknownSystemError } from './lib/errors.js'
+import {
+  isAppError, toErrorResponse, DatabaseError, UnknownSystemError,
+  FileTypeError, FileSizeError,
+} from './lib/errors.js'
 
 const logger = pino({
   redact: ['req.headers.authorization', 'body.password', 'body.api_key'],
@@ -113,25 +116,32 @@ app.use((err: Error, req: express.Request, res: express.Response, _next: express
     )
   }
 
-  // Map Multer file upload errors
+  // Map Multer file upload errors (File too large)
   if (err instanceof Error && err.message.includes('File too large')) {
     const match = err.message.match(/File too large \((\d+)\)/i)
     const size = match ? parseInt(match[1], 10) : 0
     const maxMB = Math.floor(size / 1024 / 1024)
-    const errMsg = new Error(`Video is ${maxMB}MB. Maximum is 260MB.`)
-    appErr = new Error(errMsg.message)
+    appErr = new FileSizeError(
+      `Video is ${maxMB}MB. Maximum is 260MB.`,
+      `Multer: File too large — ${maxMB}MB uploaded, limit is 260MB`,
+      { original: err }
+    )
   }
 
   // Map Multer MIME type errors
   if (err instanceof Error && (err.message.includes('only video files') || err.message === 'only_video_files')) {
-    appErr = new Error('Video file required. Supported formats: MP4, MOV, AVI, MKV')
+    appErr = new FileTypeError(
+      'Video file required. Supported formats: MP4, MOV, AVI, MKV',
+      `Multer: Unsupported MIME type`,
+      { original: err }
+    )
   }
 
   // If not already an AppError, wrap in UnknownSystemError
   if (!isAppError(appErr)) {
     appErr = new UnknownSystemError(
-      undefined,
-      appErr instanceof Error ? appErr.message : String(appErr),
+      err instanceof Error ? err.message : String(err),
+      err instanceof Error ? err.message : String(err),
       { original: err },
     )
   }
