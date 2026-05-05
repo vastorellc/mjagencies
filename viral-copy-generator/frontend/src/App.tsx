@@ -114,7 +114,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen flex-col pb-[env(safe-area-inset-bottom)]">
       <TopNav currentScreen={currentScreen} onNavigate={setCurrentScreen} isAdmin={isAdmin} />
       <div className="flex-1 overflow-y-auto">
         {pageContent}
