@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { render, screen, fireEvent } from '@testing-library/react'
 import ApiErrorDisplay from './ApiErrorDisplay'
 import type { APIErrorPayload } from '../lib/errors'
 
@@ -89,7 +88,7 @@ describe('ApiErrorDisplay', () => {
     expect(screen.queryByRole('button', { name: /Retry/ })).not.toBeInTheDocument()
   })
 
-  it('calls onRetry when retry button clicked', async () => {
+  it('calls onRetry when retry button clicked', () => {
     const payload: APIErrorPayload = {
       code: 'RATE_LIMITED',
       message: 'Too many requests',
@@ -100,7 +99,7 @@ describe('ApiErrorDisplay', () => {
       <ApiErrorDisplay error={payload} onRetry={onRetry} />
     )
 
-    await userEvent.click(screen.getByRole('button', { name: /Retry/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Retry/ }))
     expect(onRetry).toHaveBeenCalled()
   })
 
@@ -117,13 +116,13 @@ describe('ApiErrorDisplay', () => {
     expect(screen.getByRole('button', { name: /Dismiss/ })).toBeInTheDocument()
   })
 
-  it('calls onDismiss when dismiss button clicked', async () => {
+  it('calls onDismiss when dismiss button clicked', () => {
     const onDismiss = vi.fn()
     render(
       <ApiErrorDisplay error="Error message" onDismiss={onDismiss} />
     )
 
-    await userEvent.click(screen.getByRole('button', { name: /Dismiss/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Dismiss/ }))
     expect(onDismiss).toHaveBeenCalled()
   })
 
@@ -142,7 +141,7 @@ describe('ApiErrorDisplay', () => {
     expect(screen.getByText(/12345678…/)).toBeInTheDocument()
   })
 
-  it('copies full request ID to clipboard', async () => {
+  it('copies full request ID to clipboard', () => {
     const payload: APIErrorPayload = {
       code: 'DATABASE_ERROR',
       message: 'Database failed',
@@ -150,17 +149,17 @@ describe('ApiErrorDisplay', () => {
       requestId: 'req_12345678-abcd-1234-abcd-abcdefghijkl',
     }
 
-    const mockClipboard = {
-      writeText: vi.fn().mockResolvedValue(undefined),
-    }
-    Object.assign(navigator, { clipboard: mockClipboard })
+    const mockWriteText = vi.fn().mockResolvedValue(undefined)
+    vi.spyOn(navigator.clipboard, 'writeText').mockImplementation(mockWriteText)
 
     render(
       <ApiErrorDisplay error={payload} />
     )
 
-    await userEvent.click(screen.getByText(/req_1234…/))
-    expect(mockClipboard.writeText).toHaveBeenCalledWith(payload.requestId)
+    fireEvent.click(screen.getByText(/req_1234…/))
+    expect(mockWriteText).toHaveBeenCalledWith(payload.requestId)
+
+    vi.restoreAllMocks()
   })
 
   it('does not show request ID when not present', () => {
@@ -191,7 +190,7 @@ describe('ApiErrorDisplay', () => {
     expect(screen.getByRole('alert')).toHaveAttribute('aria-live', 'polite')
   })
 
-  it('shows all buttons together', async () => {
+  it('shows all buttons together', () => {
     const payload: APIErrorPayload = {
       code: 'RATE_LIMITED',
       message: 'Rate limited',
