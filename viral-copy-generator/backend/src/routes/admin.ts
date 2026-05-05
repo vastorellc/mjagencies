@@ -460,6 +460,71 @@ adminRouter.get('/health', async (_req, res) => {
     // Non-fatal — leave queueDepth at 0
   }
 
+  // API connectivity checks — test each service's reachability
+  const apiStatus: Record<string, { connected: boolean; error?: string }> = {}
+
+  // YouTube API
+  try {
+    const youtubeResp = await fetch('https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&maxResults=1', {
+      headers: { 'User-Agent': 'viral-copy-admin' },
+    })
+    apiStatus.youtube = { connected: youtubeResp.status === 401 || youtubeResp.status === 200 } // 401 = auth required but reachable
+  } catch (err: unknown) {
+    apiStatus.youtube = { connected: false, error: (err as Error).message }
+  }
+
+  // Instagram/Meta Graph API
+  try {
+    const metaResp = await fetch('https://graph.instagram.com/v18.0/me', {
+      headers: { 'User-Agent': 'viral-copy-admin' },
+    })
+    apiStatus.instagram = { connected: metaResp.status === 401 || metaResp.status === 200 }
+  } catch (err: unknown) {
+    apiStatus.instagram = { connected: false, error: (err as Error).message }
+  }
+
+  // Facebook API
+  try {
+    const fbResp = await fetch('https://graph.facebook.com/v18.0/me', {
+      headers: { 'User-Agent': 'viral-copy-admin' },
+    })
+    apiStatus.facebook = { connected: fbResp.status === 401 || fbResp.status === 200 }
+  } catch (err: unknown) {
+    apiStatus.facebook = { connected: false, error: (err as Error).message }
+  }
+
+  // Gemini API (Google AI)
+  try {
+    const geminiResp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
+      method: 'POST',
+      headers: { 'User-Agent': 'viral-copy-admin', 'Content-Type': 'application/json' },
+    })
+    apiStatus.gemini = { connected: geminiResp.status === 401 || geminiResp.status === 400 } // 401/400 = auth required but reachable
+  } catch (err: unknown) {
+    apiStatus.gemini = { connected: false, error: (err as Error).message }
+  }
+
+  // Claude API (Anthropic)
+  try {
+    const claudeResp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'User-Agent': 'viral-copy-admin', 'Content-Type': 'application/json' },
+    })
+    apiStatus.claude = { connected: claudeResp.status === 401 || claudeResp.status === 400 }
+  } catch (err: unknown) {
+    apiStatus.claude = { connected: false, error: (err as Error).message }
+  }
+
+  // OpenAI API
+  try {
+    const openaiResp = await fetch('https://api.openai.com/v1/models', {
+      headers: { 'User-Agent': 'viral-copy-admin' },
+    })
+    apiStatus.openai = { connected: openaiResp.status === 401 || openaiResp.status === 200 }
+  } catch (err: unknown) {
+    apiStatus.openai = { connected: false, error: (err as Error).message }
+  }
+
   res.json({
     cpu: { count: cpuCount },
     memory: {
@@ -473,6 +538,7 @@ adminRouter.get('/health', async (_req, res) => {
       ? { size: dbSize }
       : { error: dbError },
     queue: { pending_jobs: queueDepth },
+    apis: apiStatus,
     timestamp: new Date().toISOString(),
   })
 })

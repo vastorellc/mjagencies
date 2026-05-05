@@ -448,6 +448,24 @@ export default function AdminPage({ onNavigate }: Props) {
                   </div>
                 </div>
 
+                {/* API Status */}
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 mb-4">
+                  <h3 className="text-sm font-semibold text-zinc-200 mb-3">API Connectivity</h3>
+                  <div className="space-y-2 text-sm">
+                    {Object.entries(health.apis).map(([apiName, status]) => (
+                      <div key={apiName} className="flex items-center justify-between">
+                        <span className="text-zinc-400 capitalize">{apiName}</span>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${status.connected ? 'bg-green-500' : 'bg-red-500'}`} />
+                          <span className={status.connected ? 'text-green-400' : 'text-red-400'}>
+                            {status.connected ? 'Connected' : status.error ? 'Disconnected' : 'Offline'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <p className="text-xs text-zinc-600">Last refreshed: {formatDate(health.timestamp)}</p>
               </div>
             )}

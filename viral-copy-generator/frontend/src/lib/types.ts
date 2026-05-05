@@ -331,6 +331,7 @@ export interface AdminHealthResponse {
   disk: AdminDiskInfo | { error: string }
   database: { size: string } | { error: string }
   queue: { pending_jobs: number }
+  apis: Record<string, { connected: boolean; error?: string }>
   timestamp: string
 }
 
