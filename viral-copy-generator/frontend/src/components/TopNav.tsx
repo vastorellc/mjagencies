@@ -9,10 +9,10 @@ interface Props {
 export default function TopNav({ currentScreen, onNavigate, isAdmin }: Props) {
   const navItems: Array<{ screen: Screen; label: string; adminOnly?: boolean }> = [
     { screen: 'generator', label: 'Generator' },
+    { screen: 'research', label: 'Research' },
+    { screen: 'learning', label: 'Learning' },
     { screen: 'settings', label: 'Settings' },
     { screen: 'history', label: 'History' },
-    { screen: 'learning', label: 'Learning' },
-    { screen: 'research', label: 'Research' },
     { screen: 'admin', label: 'Admin', adminOnly: true },
   ]
 
