@@ -1,6 +1,8 @@
 import { Router, type Request, type Response } from 'express'
 import { eq, sql } from 'drizzle-orm'
 import OpenAI from 'openai'
+import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import { db } from '../db/index.js'
 import { settings, type PlatformConfig } from '../db/schema.js'
 import { encrypt, decrypt, maskKey } from '../lib/encryption.js'
@@ -304,7 +306,7 @@ settingsRouter.post('/validate-key', async (req: Request, res: Response) => {
     )
   }
 
-  // Test the key with a minimal API call
+  // Test the key with a minimal API call (provider-specific)
   let isValid = false
   let errorMessage = 'Unknown error'
 
@@ -326,25 +328,27 @@ settingsRouter.post('/validate-key', async (req: Request, res: Response) => {
       })
       isValid = true
     } else if (provider === 'claude') {
-      // For Claude, we would need the Anthropic SDK — for now, mark as unsupported
-      throw new ValidationError(
-        'Claude validation not yet implemented',
-        'Claude provider validation requires additional setup',
-        { field: 'provider' }
-      )
+      // Test Claude API with Anthropic SDK
+      const anthropic = new Anthropic({ apiKey: key.trim() })
+      await anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'test' }],
+      })
+      isValid = true
     } else if (provider === 'gemini') {
-      // For Gemini, we would need the Google SDK — for now, mark as unsupported
-      throw new ValidationError(
-        'Gemini validation not yet implemented',
-        'Gemini provider validation requires additional setup',
-        { field: 'provider' }
-      )
+      // Test Gemini API with Google SDK
+      const genAI = new GoogleGenerativeAI(key.trim())
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+      await model.generateContent('test')
+      isValid = true
     }
   } catch (err: unknown) {
     if (err instanceof ValidationError) {
       throw err
     }
 
+    // Handle OpenAI/DeepSeek errors
     if (err instanceof OpenAI.APIError) {
       const status = err.status
       const code = (err as any).code || err.message
@@ -365,6 +369,36 @@ settingsRouter.post('/validate-key', async (req: Request, res: Response) => {
         errorMessage = err.message || 'API error'
         isValid = false
       }
+    }
+    // Handle Anthropic (Claude) errors
+    else if (err instanceof Anthropic.APIError) {
+      const status = err.status
+      const code = (err as any).code
+
+      if (status === 401 || code === 'invalid_api_key') {
+        errorMessage = 'Invalid API key'
+        isValid = false
+      } else if (status === 429) {
+        errorMessage = 'Rate limited — key is valid but account is rate-limited'
+        isValid = true
+      } else if (status === 500 || status === 502 || status === 503) {
+        errorMessage = 'API service temporarily unavailable — try again later'
+        isValid = false
+      } else {
+        errorMessage = err.message || 'API error'
+        isValid = false
+      }
+    }
+    // Handle Google (Gemini) errors
+    else if (err instanceof Error && (err.message.includes('401') || err.message.includes('UNAUTHENTICATED'))) {
+      errorMessage = 'Invalid API key'
+      isValid = false
+    } else if (err instanceof Error && (err.message.includes('429') || err.message.includes('RESOURCE_EXHAUSTED'))) {
+      errorMessage = 'Rate limited — key is valid but account is rate-limited'
+      isValid = true
+    } else if (err instanceof Error && (err.message.includes('quota') || err.message.includes('QUOTA'))) {
+      errorMessage = 'Quota exceeded — add credits to your account'
+      isValid = true
     } else if (err instanceof Error) {
       errorMessage = err.message
       isValid = false
