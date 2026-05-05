@@ -271,6 +271,60 @@ settingsRouter.delete('/connections/:platform', async (req: Request, res: Respon
   res.json({ ok: true })
 })
 
+// Helper to extract clean error message from provider-specific errors
+function extractErrorMessage(err: unknown, provider: string): string {
+  const errStr = String(err)
+  const errMsg = err instanceof Error ? err.message : errStr
+
+  // Google Gemini errors
+  if (provider === 'gemini') {
+    if (errMsg.includes('API_KEY_INVALID') || errMsg.includes('API key not valid')) {
+      return 'Invalid API key'
+    }
+    if (errMsg.includes('UNAUTHENTICATED')) {
+      return 'Invalid API key'
+    }
+    if (errMsg.includes('QUOTA') || errMsg.includes('Resource has been exhausted')) {
+      return 'Quota exceeded — add credits to your account'
+    }
+    if (errMsg.includes('RESOURCE_EXHAUSTED')) {
+      return 'Rate limited — key is valid but account is rate-limited'
+    }
+    if (errMsg.includes('PERMISSION_DENIED')) {
+      return 'API key does not have permission for this model'
+    }
+  }
+
+  // Anthropic Claude errors
+  if (provider === 'claude') {
+    if (errMsg.includes('invalid_api_key') || errMsg.includes('401')) {
+      return 'Invalid API key'
+    }
+    if (errMsg.includes('rate_limit')) {
+      return 'Rate limited — key is valid but account is rate-limited'
+    }
+    if (errMsg.includes('overloaded')) {
+      return 'API temporarily overloaded — try again in a moment'
+    }
+  }
+
+  // OpenAI / DeepSeek errors (already handled in catch block, but fallback here)
+  if (provider === 'openai' || provider === 'deepseek') {
+    if (errMsg.includes('invalid_api_key') || errMsg.includes('401')) {
+      return 'Invalid API key'
+    }
+    if (errMsg.includes('rate_limit') || errMsg.includes('429')) {
+      return 'Rate limited — key is valid but account is rate-limited'
+    }
+    if (errMsg.includes('insufficient_quota') || errMsg.includes('quota_exceeded')) {
+      return 'Quota exceeded — add credits to your account'
+    }
+  }
+
+  // Fallback: don't expose raw error
+  return 'API validation failed — please check your key and try again'
+}
+
 // POST /settings/validate-key — Test an API key by making a minimal test call to the provider
 // Body: { provider: string, api_key: string }
 // Response: { valid: boolean, error?: string }
@@ -348,34 +402,28 @@ settingsRouter.post('/validate-key', async (req: Request, res: Response) => {
       throw err
     }
 
-    // Handle OpenAI/DeepSeek errors
+    // Handle OpenAI/DeepSeek errors — check status codes
     if (err instanceof OpenAI.APIError) {
       const status = err.status
-      const code = (err as any).code || err.message
-
-      if (status === 401 || code === 'invalid_api_key') {
+      if (status === 401) {
         errorMessage = 'Invalid API key'
         isValid = false
       } else if (status === 429) {
         errorMessage = 'Rate limited — key is valid but account is rate-limited'
         isValid = true
-      } else if (code === 'insufficient_quota' || code === 'quota_exceeded') {
-        errorMessage = 'Quota exceeded — add credits to your account'
-        isValid = true
       } else if (status === 500 || status === 502 || status === 503) {
         errorMessage = 'API service temporarily unavailable — try again later'
         isValid = false
       } else {
-        errorMessage = err.message || 'API error'
+        // Fallback for other OpenAI errors
+        errorMessage = extractErrorMessage(err, provider)
         isValid = false
       }
     }
-    // Handle Anthropic (Claude) errors
+    // Handle Anthropic (Claude) errors — check status codes
     else if (err instanceof Anthropic.APIError) {
       const status = err.status
-      const code = (err as any).code
-
-      if (status === 401 || code === 'invalid_api_key') {
+      if (status === 401) {
         errorMessage = 'Invalid API key'
         isValid = false
       } else if (status === 429) {
@@ -385,22 +433,14 @@ settingsRouter.post('/validate-key', async (req: Request, res: Response) => {
         errorMessage = 'API service temporarily unavailable — try again later'
         isValid = false
       } else {
-        errorMessage = err.message || 'API error'
+        // Fallback for other Anthropic errors
+        errorMessage = extractErrorMessage(err, provider)
         isValid = false
       }
     }
-    // Handle Google (Gemini) errors
-    else if (err instanceof Error && (err.message.includes('401') || err.message.includes('UNAUTHENTICATED'))) {
-      errorMessage = 'Invalid API key'
-      isValid = false
-    } else if (err instanceof Error && (err.message.includes('429') || err.message.includes('RESOURCE_EXHAUSTED'))) {
-      errorMessage = 'Rate limited — key is valid but account is rate-limited'
-      isValid = true
-    } else if (err instanceof Error && (err.message.includes('quota') || err.message.includes('QUOTA'))) {
-      errorMessage = 'Quota exceeded — add credits to your account'
-      isValid = true
-    } else if (err instanceof Error) {
-      errorMessage = err.message
+    // Handle Google (Gemini) errors — uses generic Error, parse message
+    else if (err instanceof Error) {
+      errorMessage = extractErrorMessage(err, provider)
       isValid = false
     }
   }
