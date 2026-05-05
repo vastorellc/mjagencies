@@ -299,164 +299,232 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
 
   return (
     <div className="flex h-[100dvh] flex-col bg-zinc-950 text-white">
-      <header className="flex items-center justify-between px-4 py-3">
-        <span className="font-bold">Viral Copy Generator</span>
+      <header className="flex items-center justify-between border-b border-zinc-800 px-6 py-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Viral Copy Generator</h1>
+          <p className="text-xs text-zinc-400 mt-0.5">Create platform-specific copy from your videos</p>
+        </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => onNavigate('history')}
-            className="rounded bg-zinc-800 px-3 py-1.5 text-sm hover:bg-zinc-700"
+            className="rounded bg-zinc-800 px-3 py-2 text-sm font-medium hover:bg-zinc-700 transition"
           >
             History
           </button>
           <button
             type="button"
             onClick={() => onNavigate('learning')}
-            className="rounded bg-zinc-800 px-3 py-1.5 text-sm hover:bg-zinc-700"
+            className="rounded bg-zinc-800 px-3 py-2 text-sm font-medium hover:bg-zinc-700 transition"
           >
             Insights
           </button>
           <button
             type="button"
             onClick={() => onNavigate('settings')}
-            className="rounded bg-zinc-800 px-3 py-1.5 text-sm hover:bg-zinc-700"
+            className="rounded bg-zinc-800 px-3 py-2 text-sm font-medium hover:bg-zinc-700 transition"
           >
             Settings
           </button>
           <button
             type="button"
             onClick={() => { void supabase.auth.signOut() }}
-            className="rounded bg-zinc-800 px-3 py-1.5 text-sm hover:bg-zinc-700"
+            className="rounded bg-zinc-800 px-3 py-2 text-sm font-medium hover:bg-zinc-700 transition"
           >
             Sign out
           </button>
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto px-4 pb-[env(safe-area-inset-bottom)]">
-        <div className="flex flex-col gap-4 py-4">
+      <main className="flex-1 overflow-y-auto pb-[env(safe-area-inset-bottom)]">
+        <div className="flex flex-col gap-6 px-6 py-6 max-w-4xl">
 
-          {/* D-08: Minimal file picker + description textarea */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <label className="cursor-pointer rounded-lg bg-zinc-800 px-4 py-3 text-sm text-zinc-200 hover:bg-zinc-700">
-                {selectedFile
-                  ? selectedFile.name.length > 30
-                    ? `${selectedFile.name.slice(0, 27)}...`
-                    : selectedFile.name
-                  : 'Pick a video to analyse — or skip and use description below'}
-                <input
-                  type="file"
-                  accept="video/*"
-                  className="sr-only"
-                  onChange={e => {
-                    const file = e.target.files?.[0] ?? null
-                    setSelectedFile(file)
-                    if (file) {
-                      setPostId(null)
-                      setUploadStatuses({})
-                      isFirstGenerationRef.current = true
-                      setAiOutput(null)
-                    }
-                  }}
-                />
-              </label>
-              {selectedFile && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedFile(null)}
-                  className="text-xs text-zinc-500 hover:text-zinc-300"
-                >
-                  Remove
-                </button>
-              )}
+          {/* Upload Video Section */}
+          <div className="flex flex-col gap-3 p-5 rounded-xl bg-gradient-to-b from-zinc-900 to-zinc-950 border border-zinc-800 hover:border-zinc-700 transition">
+            <div className="flex items-start justify-between">
+              <div>
+                <label htmlFor="video-upload" className="block text-sm font-semibold text-white mb-2">
+                  📹 Upload Your Video
+                </label>
+                <p className="text-xs text-zinc-400">Upload a video file or describe your content to get AI-generated copy</p>
+              </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <textarea
-                rows={2}
-                maxLength={280}
-                placeholder="Optional: brief description — helps AI when video is ambiguous"
-                aria-label="Optional description to help AI generate better copy"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                className="w-full rounded-lg bg-zinc-800 px-4 py-3 text-sm text-white placeholder-zinc-400 outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+
+            <label
+              htmlFor="video-upload"
+              className="cursor-pointer flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-zinc-700 bg-zinc-900/50 px-6 py-8 text-center hover:border-zinc-500 hover:bg-zinc-900 transition"
+            >
+              <div className="flex flex-col items-center gap-2">
+                {selectedFile ? (
+                  <>
+                    <span className="text-2xl">✓</span>
+                    <p className="font-medium text-white break-all max-w-sm">{selectedFile.name}</p>
+                    <p className="text-xs text-zinc-400">
+                      {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-3xl">+</span>
+                    <p className="text-sm font-medium text-white">Click to upload a video</p>
+                    <p className="text-xs text-zinc-400">or drag and drop (MP4, MOV, AVI, MKV)</p>
+                    <p className="text-xs text-zinc-500 mt-1">Max 260 MB</p>
+                  </>
+                )}
+              </div>
+              <input
+                id="video-upload"
+                type="file"
+                accept="video/*"
+                className="sr-only"
+                aria-label="Upload video file for analysis"
+                onChange={e => {
+                  const file = e.target.files?.[0] ?? null
+                  setSelectedFile(file)
+                  if (file) {
+                    setPostId(null)
+                    setUploadStatuses({})
+                    isFirstGenerationRef.current = true
+                    setAiOutput(null)
+                  }
+                }}
               />
-              <span className="text-right text-xs text-zinc-500">{description.length}/280</span>
+            </label>
+
+            {selectedFile && (
+              <button
+                type="button"
+                onClick={() => setSelectedFile(null)}
+                className="self-start text-xs font-medium text-zinc-400 hover:text-red-400 transition"
+              >
+                Remove file
+              </button>
+            )}
+          </div>
+
+          {/* Description Section */}
+          <div className="flex flex-col gap-3 p-5 rounded-xl bg-gradient-to-b from-zinc-900 to-zinc-950 border border-zinc-800">
+            <div>
+              <label htmlFor="description-input" className="block text-sm font-semibold text-white mb-2">
+                ✍️ Add Context (Optional)
+              </label>
+              <p className="text-xs text-zinc-400">Describe what's in your video to get better AI copy. Leave blank if uploading.</p>
+            </div>
+            <textarea
+              id="description-input"
+              rows={3}
+              maxLength={280}
+              placeholder="E.g., 'A travel vlog of hiking in the mountains with sunset views' or 'Product unboxing and review of new laptop'"
+              aria-label="Optional description to help AI generate better copy"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              className="w-full rounded-lg bg-zinc-800 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-purple-500 resize-none border border-zinc-700"
+            />
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-zinc-500">{description.length}/280 characters</span>
+              <span className={`text-xs font-medium ${description.length > 250 ? 'text-yellow-500' : 'text-zinc-500'}`}>
+                {description.length > 250 ? '⚠️ Getting long' : description.length > 0 ? '✓ Good' : 'Optional'}
+              </span>
             </div>
           </div>
 
-          {/* Generate Copy button */}
+          {/* Generate Copy Button */}
           <button
             type="button"
             disabled={!canGenerate}
             onClick={() => { void handleGenerate() }}
-            className={
+            className={`w-full py-4 px-6 rounded-lg font-bold text-white text-lg transition flex items-center justify-center gap-3 ${
               !canGenerate
-                ? 'w-full rounded-lg bg-purple-600 py-3 font-bold text-white opacity-50 cursor-not-allowed'
+                ? 'bg-purple-600/50 cursor-not-allowed text-zinc-300'
                 : aiLoading
-                  ? 'w-full rounded-lg bg-purple-600 py-3 font-bold text-white opacity-75 cursor-not-allowed flex items-center justify-center gap-2'
-                  : 'w-full rounded-lg bg-purple-600 py-3 font-bold text-white transition hover:bg-purple-500'
-            }
+                  ? 'bg-purple-600 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 shadow-lg hover:shadow-purple-500/50'
+            }`}
           >
             {aiLoading && (
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
             )}
-            {aiLoading ? 'Generating copy…' : aiOutput ? 'Regenerate' : 'Generate Copy'}
+            <span>
+              {aiLoading ? 'Generating copy…' : aiOutput ? '✨ Regenerate' : '🚀 Generate Copy'}
+            </span>
           </button>
 
-          {/* Error display */}
+          {/* Hint text */}
+          {!canGenerate && (
+            <p className="text-center text-xs text-zinc-500 px-4">
+              👆 Upload a video or describe your content to get started
+            </p>
+          )}
+
+          {/* Error display with better styling */}
           {aiError && (
-            <div>
-              <p className="rounded bg-red-900/40 px-3 py-2 text-sm text-red-300">{aiError}</p>
+            <div className="flex flex-col gap-2 p-4 rounded-lg bg-red-900/20 border border-red-800/50">
+              <div className="flex items-start gap-2">
+                <span className="text-lg">❌</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-red-200">{aiError}</p>
+                </div>
+              </div>
               {aiErrorKey && RETRYABLE_ERRORS.has(aiErrorKey) && (
                 <button
                   type="button"
                   onClick={() => { void handleGenerate() }}
-                  className="mt-1 rounded bg-zinc-700 px-3 py-1 text-xs text-zinc-200 hover:bg-zinc-600"
+                  className="self-start mt-1 px-3 py-1.5 rounded bg-red-900/50 hover:bg-red-900 text-xs font-medium text-red-200 transition border border-red-800"
                 >
-                  Try Again
+                  🔄 Try Again
                 </button>
               )}
             </div>
           )}
 
-          {/* D-02: Five platform copy cards */}
+          {/* Generated Copy Cards */}
           {aiOutput && (
-            <div className="flex flex-col gap-4">
-              {PLATFORM_ORDER.map(platform => (
-                <PlatformCopyCard
-                  key={platform}
-                  platform={platform}
-                  aiOutput={aiOutput}
-                  uploadStatus={(uploadStatuses[platform] as UploadStatus | undefined) ?? 'idle'}
-                  onUpload={() => { void handleUpload(platform) }}
-                />
-              ))}
+            <div className="flex flex-col gap-4 pt-2">
+              <div className="flex items-center gap-2 px-1">
+                <span className="text-lg">📋</span>
+                <h2 className="text-lg font-semibold text-white">Your Copy</h2>
+                <span className="ml-auto text-xs text-zinc-500">Choose platforms and upload</span>
+              </div>
+              <div className="flex flex-col gap-3">
+                {PLATFORM_ORDER.map(platform => (
+                  <PlatformCopyCard
+                    key={platform}
+                    platform={platform}
+                    aiOutput={aiOutput}
+                    uploadStatus={(uploadStatuses[platform] as UploadStatus | undefined) ?? 'idle'}
+                    onUpload={() => { void handleUpload(platform) }}
+                  />
+                ))}
+              </div>
             </div>
           )}
 
-          {/* Get Better Version — only visible after first generation */}
+          {/* Get Better Version Button */}
           {aiOutput && (
             <button
               type="button"
               disabled={aiLoading}
               onClick={() => { void handleGenerate({ isSecondPass: true }) }}
-              className={
+              className={`w-full py-3 px-6 rounded-lg font-semibold transition flex items-center justify-center gap-2 border ${
                 aiLoading
-                  ? 'w-full rounded-lg border border-zinc-600 bg-zinc-800 py-3 text-sm text-zinc-400 cursor-not-allowed flex items-center justify-center gap-2'
-                  : 'w-full rounded-lg border border-zinc-600 bg-zinc-800 py-3 text-sm text-zinc-200 transition hover:bg-zinc-700'
-              }
+                  ? 'border-zinc-700 bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                  : 'border-purple-500/50 bg-purple-500/10 text-purple-200 hover:bg-purple-500/20 hover:border-purple-500'
+              }`}
             >
               {aiLoading && (
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               )}
-              {aiLoading ? 'Improving copy…' : 'Get Better Version'}
+              {aiLoading ? '⏳ Improving copy…' : '✨ Get Better Version'}
             </button>
           )}
 
-          {/* Phase 4 score panels — visible when signals available */}
+          {/* Video Analysis Results */}
           {signals && scoreResult && checklistItems && gapMessages && (
-            <div data-testid="score-results" className="flex flex-col gap-4 mt-6">
+            <div data-testid="score-results" className="flex flex-col gap-4 pt-4 border-t border-zinc-800">
+              <div className="flex items-center gap-2 px-1">
+                <span className="text-lg">📊</span>
+                <h2 className="text-lg font-semibold text-white">Video Analysis</h2>
+              </div>
               <ScorePanel score={scoreResult.overall} dataPoints={dataPoints} />
               <PlatformCardGrid perPlatform={scoreResult.perPlatform} />
               <ChecklistAccordion items={checklistItems} />
@@ -464,9 +532,23 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
             </div>
           )}
 
-          {/* Phase 6: Upload error */}
+          {/* Upload Error Alert */}
           {uploadError && (
-            <p className="rounded bg-red-900/40 px-3 py-2 text-sm text-red-300">{uploadError}</p>
+            <div className="flex flex-col gap-2 p-4 rounded-lg bg-yellow-900/20 border border-yellow-800/50">
+              <div className="flex items-start gap-2">
+                <span className="text-lg">⚠️</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-yellow-200">{uploadError}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setUploadError(null)}
+                className="self-start text-xs text-yellow-300 hover:text-yellow-100 transition font-medium"
+              >
+                Dismiss
+              </button>
+            </div>
           )}
 
         </div>
