@@ -39,7 +39,7 @@ Progress: [██████████] 100%
 |---|-------|--------|
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
-| 3 | Video Upload + Analysis Engine | 🟡 Paused at Wave 0 (1/8 plans partial — vitest infra installed; awaiting 5 fixture videos in `frontend/test/fixtures/`) |
+| 3 | Video Upload + Analysis Engine | 🟡 Ready to execute (1/8 plans partial — vitest infra installed; 5 fixture videos added 2026-05-05) |
 | 4 | Virality Score + Checklist | ✅ Complete (8/8 plans, 179/179 tests, verification 6/6 passed 2026-05-02) |
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
