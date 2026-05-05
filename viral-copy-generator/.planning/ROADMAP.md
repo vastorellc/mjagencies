@@ -38,11 +38,11 @@ by the admin only — no public registration.
 - [~] **Phase 3: Video Upload + Analysis Engine** — In-browser ffmpeg.wasm + TF.js + Web Audio + Canvas with researched bug workarounds *(paused 2026-05-02 at Wave 0 — vitest infra installed; fixture videos deferred; pivoted to Phase 4)*
 - [x] **Phase 4: Virality Score + Checklist** — Weighted score, per-platform variants, three-state checklist, rule-based gap analysis *(complete 2026-05-02 — 8/8 plans, 179/179 tests, tsc clean, build 84 modules / 424 kB, verification 6/6 passed)*
 - [x] **Phase 5: AI Copy + Platform Cards** — Gemini Files API, OpenAI proxy, Anthropic browser flag, 5 platform cards, Realtime upload state, Get Better Version *(complete 2026-05-03 — 6/6 plans, 206/206 tests, tsc clean)*
-- [ ] **Phase 6: Auto-Upload + Scheduling** — YouTube resumable, Meta two-step Reels with container-in-job fix, pg-boss PKT scheduling, Instagram 100 MB gate
-- [ ] **Phase 7: History + Learning Loops** — Post history (per-user RLS), atomic view logging transaction, EMA calibration, corrected hashtag unnest queries
+- [x] **Phase 6: Auto-Upload + Scheduling** — YouTube resumable, Meta two-step Reels with container-in-job fix, pg-boss PKT scheduling, Instagram 100 MB gate *(provisionally complete 2026-05-03 — 5/5 plans, 206/206 tests)*
+- [x] **Phase 7: History + Learning Loops** — Post history (per-user RLS), atomic view logging transaction, EMA calibration, corrected hashtag unnest queries *(provisionally complete 2026-05-03 — 6/6 plans, 251+ tests)*
 - [x] **Phase 8: Admin Panel** — Queue manager, user management, learning data editor, system health, logs viewer *(provisionally complete 2026-05-03 — 8/8 plans, human checkpoint approved; smoke test confirmation via /gsd-verify-work 8)*
-- [ ] **Phase 9: Content Research Engine** — External trend APIs + user learning data + AI → content ideas, briefs, hashtag intelligence, 7-day calendar
-- [ ] **Phase 10: Polish + Resilience** — Async tensor dispose, unified API error mapping, iOS Safari layout, indeterminate progress, error boundaries
+- [x] **Phase 9: Content Research Engine** — External trend APIs + user learning data + AI → content ideas, briefs, hashtag intelligence, 7-day calendar *(complete 2026-05-04 — 7/7 plans, 15/15 RESEARCH requirements)*
+- [x] **Phase 10: Polish + Resilience** — Structured API error parsing, OAuth expiry surfacing, error boundaries, iOS safe-area fixes, persistent top navigation *(complete 2026-05-05 — 4/4 plans, all SC-01–SC-10 passed)*
 
 ---
 
@@ -529,10 +529,10 @@ indeterminate progress animation, and error boundaries throughout.
 **Plans:** 4 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — parseProviderError + oauth_expired surfacing (ai.ts + GeneratorPage + upload workers)
-- [ ] 10-02-PLAN.md — ErrorBoundary component + Generator/Research/Admin screen wrapping
-- [ ] 10-03-PLAN.md — iOS safe-area fixes (App.tsx + ScheduleModal) + Vite optimizeDeps
-- [ ] 10-04-PLAN.md — Phase verification checkpoint (automated checks + human verify + state update)
+- [x] 10-01-PLAN.md — parseProviderError + oauth_expired surfacing (ai.ts + GeneratorPage + upload workers)
+- [x] 10-02-PLAN.md — ErrorBoundary component + Generator/Research/Admin screen wrapping
+- [x] 10-03-PLAN.md — iOS safe-area fixes (App.tsx + ScheduleModal) + Vite optimizeDeps
+- [x] 10-04-PLAN.md — Phase verification checkpoint (automated checks + human verify + state update)
 
 **UI hint:** yes
 
@@ -550,5 +550,5 @@ Plans:
 | 6. Auto-Upload + Scheduling | 0/TBD | Not started | - |
 | 7. History + Learning Loops | 0/TBD | Not started | - |
 | 8. Admin Panel | 8/8 | Provisionally complete (human checkpoint approved) | 2026-05-03 |
-| 9. Content Research Engine | 6/7 + checkpoint | At human-verify checkpoint (all 4 tabs implemented, Research nav wired; awaiting approval) | 2026-05-04 |
-| 10. Polish + Resilience | 0/4 | Not started — plans created 2026-05-04 | - |
+| 9. Content Research Engine | 7/7 | Complete | 2026-05-04 |
+| 10. Polish + Resilience | 4/4 | Complete | 2026-05-05 |
