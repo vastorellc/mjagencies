@@ -10,6 +10,7 @@ import AdminPage from './pages/AdminPage'
 import ResearchPage from './pages/ResearchPage'
 import type { Screen } from './lib/types'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import TopNav from './components/TopNav'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -72,67 +73,52 @@ export default function App() {
   // ADMIN-01: Derive admin status from Supabase app_metadata (set by service role — not forgeable by client)
   const isAdmin = session.user.app_metadata?.['role'] === 'admin'
 
+  let pageContent: React.ReactNode = null
+
   if (currentScreen === 'admin') {
     // ADMIN-01: Double-check isAdmin before rendering — prevents accidental render if state drifts
-    if (!isAdmin) return <GeneratorPage onNavigate={setCurrentScreen} />
-    return (
-      <ErrorBoundary screenName="admin">
-        <AdminPage onNavigate={setCurrentScreen} />
-      </ErrorBoundary>
-    )
-  }
-
-  if (currentScreen === 'settings') {
-    return (
+    if (!isAdmin) {
+      pageContent = <GeneratorPage onNavigate={setCurrentScreen} />
+    } else {
+      pageContent = (
+        <ErrorBoundary screenName="admin">
+          <AdminPage onNavigate={setCurrentScreen} />
+        </ErrorBoundary>
+      )
+    }
+  } else if (currentScreen === 'settings') {
+    pageContent = (
       <SettingsPage
         onNavigate={setCurrentScreen}
         oauthBanner={oauthBanner}
         clearBanner={() => setOauthBanner(null)}
       />
     )
-  }
-
-  if (currentScreen === 'history') {
-    return <HistoryPage onNavigate={setCurrentScreen} />
-  }
-
-  if (currentScreen === 'learning') {
-    return <LearningPage onNavigate={setCurrentScreen} />
-  }
-
-  if (currentScreen === 'research') {
-    return (
+  } else if (currentScreen === 'history') {
+    pageContent = <HistoryPage onNavigate={setCurrentScreen} />
+  } else if (currentScreen === 'learning') {
+    pageContent = <LearningPage onNavigate={setCurrentScreen} />
+  } else if (currentScreen === 'research') {
+    pageContent = (
       <ErrorBoundary screenName="research">
         <ResearchPage onNavigate={setCurrentScreen} />
       </ErrorBoundary>
     )
-  }
-
-  // ADMIN-01: Admin nav button shown only for admin users — UX guard only; backend is authoritative
-  // Research button visible to all authenticated users
-  return (
-    <>
+  } else {
+    // Generator (default)
+    pageContent = (
       <ErrorBoundary screenName="generator">
         <GeneratorPage onNavigate={setCurrentScreen} />
       </ErrorBoundary>
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2 pb-[env(safe-area-inset-bottom)]">
-        {isAdmin && (
-          <button
-            type="button"
-            onClick={() => setCurrentScreen('admin')}
-            className="rounded-full bg-zinc-800 border border-zinc-600 px-3 py-2 text-xs font-medium text-zinc-300 shadow-lg hover:bg-zinc-700"
-          >
-            Admin
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={() => setCurrentScreen('research')}
-          className="rounded-full bg-purple-900 border border-purple-700 px-3 py-2 text-xs font-medium text-purple-200 shadow-lg hover:bg-purple-800"
-        >
-          Research
-        </button>
+    )
+  }
+
+  return (
+    <div className="flex h-screen flex-col">
+      <TopNav currentScreen={currentScreen} onNavigate={setCurrentScreen} isAdmin={isAdmin} />
+      <div className="flex-1 overflow-y-auto">
+        {pageContent}
       </div>
-    </>
+    </div>
   )
 }
