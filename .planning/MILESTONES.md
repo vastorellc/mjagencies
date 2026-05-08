@@ -70,11 +70,17 @@ Multi-agency SaaS platform with all 11 agencies + brand.com ready for simultaneo
 
 ## Next Milestone (v9.2.0)
 
-**Scope:** App scaffolding, image pipeline completion, phantom-shell resolution.
+**Status:** Planning  
+**Scope:** Deferred infrastructure items (Doppler, phantom apps, migrations)
 
-**Expected phases:**
-1. App Scaffolding — Generate 11 agency package.json + entry points
-2. Image Pipeline — Populate 300+ cloudflare_image_id slots in seed manifest
-3. Deployment Checkpoints — Doppler bootstrap, Payload migrations, ZAP/E2E gates
+**Confirmed phases (from deferred items):**
+1. **Doppler Foundation** — Secrets management workspace + CI/CD integration
+2. **Phantom-Shell Scaffolding** — Complete 5 orphaned apps (automotive, brand, education, healthcare, petcare)
+3. **Payload Migrations Framework** — Runtime migration runner for per-agency databases
 
-**See:** `.planning/ROADMAP.md` for current planning status.
+**Status Notes:**
+- 5 phantom apps confirmed (not 11; actual count via codebase scan)
+- Doppler CLI already integrated in `canary-deploy.yml`; needs credentials + workspace setup
+- All 26 agencies now have matching app directories (21 functional + 5 phantom)
+
+**See:** `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`, `.planning/STATE.md` for detailed planning.

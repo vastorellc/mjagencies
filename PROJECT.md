@@ -175,3 +175,35 @@ KEY CONSTRAINTS
 - Server actions: MUST verify session as first line (see CLAUDE.md)
 - Stock API keys: Server-side proxy only, NEVER exposed to browser
 - No dangerouslyAllowSVG globally on Next.js Image component
+
+==============================================================
+POST-LAUNCH MILESTONES (v9.x)
+==============================================================
+
+**v9.0.0 - Launch**
+- All M001-M012 phases completed
+- 12 agencies live (ecommerce, growth, webdev, ai, branding, strategy, finance, engineering, product, video, graphic, main)
+- Deployment pipeline (canary + rollback)
+- Production monitoring + SLA
+
+**v9.1.0 - v9.1.20 (Current)**
+- Phase 1-10 complete
+- 21 of 26 total apps built
+- Viral copy generator + niche engine live
+- Content intelligence layer implemented
+- 5 apps still phantom-shell (automotive, brand, education, healthcare, petcare)
+
+**v9.2.0 - Deferred Items (In Planning)**
+- Phase 1: Doppler secrets management + CI/CD integration
+- Phase 2: Phantom-shell app scaffolding (5 apps → functional)
+- Phase 3: Payload migrations framework
+- **Scope:** Completes infrastructure foundation for deployment readiness
+- **Deferred from:** v9.1.20
+- **Owner:** TBD
+- **Status:** Planning
+
+**Future (v9.3.0+)**
+- VPS deployment + production hardening
+- Yjs collaboration (v2 feature, deferred from v1)
+- Advanced analytics + compliance audit
+- Second agency wave (if expanding beyond initial 12)
