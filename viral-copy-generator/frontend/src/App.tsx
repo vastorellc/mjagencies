@@ -114,10 +114,12 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen flex-col pb-[env(safe-area-inset-bottom)]">
+    <div className="flex min-h-screen flex-col bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
       <TopNav currentScreen={currentScreen} onNavigate={setCurrentScreen} isAdmin={isAdmin} />
       <div className="flex-1 overflow-y-auto">
-        {pageContent}
+        <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-6 py-6">
+          {pageContent}
+        </div>
       </div>
     </div>
   )

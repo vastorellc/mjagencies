@@ -21,6 +21,7 @@ import { callAI, parseProviderError } from '../lib/ai'
 import type { AIErrorKind } from '../lib/ai'
 import { fetchSettings, createPost, fetchApiKey, uploadFile, scheduleUpload, fetchTopHooks, fetchTopHashtags, fetchLearningWeights } from '../lib/api'
 import type { LearningData } from '../lib/types'
+import { analyzeVideoWithProgressTracking } from '../lib/engineWithProgress'
 import ScheduleModal from '../components/ScheduleModal'
 import ScorePanel from '../components/ScorePanel'
 import PlatformCardGrid from '../components/PlatformCardGrid'
@@ -28,6 +29,7 @@ import ChecklistAccordion from '../components/ChecklistAccordion'
 import GapAnalysisPanel from '../components/GapAnalysisPanel'
 import PlatformCopyCard from '../components/PlatformCopyCard'
 import IntelligencePanel from '../components/IntelligencePanel'
+import ProgressSidebar, { type AnalysisStep } from '../components/ProgressSidebar'
 
 interface Props {
   onNavigate: (s: Screen) => void
@@ -76,6 +78,10 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
 
   // Phase 11: Content Intelligence state
   const [intelligenceTriggered, setIntelligenceTriggered] = useState<boolean>(false)
+
+  // Video analysis progress tracking
+  const [analysisStep, setAnalysisStep] = useState<AnalysisStep>('idle')
+  const [analysisProgress, setAnalysisProgress] = useState<number>(0)
 
   // D-13: Fetch settings on mount; populate userId from auth session
   useEffect(() => {
@@ -367,47 +373,56 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
     video.src = URL.createObjectURL(file)
   }
 
-  return (
-    <div className="flex h-[100dvh] flex-col bg-zinc-950 text-white">
-      <header className="flex items-center justify-between border-b border-zinc-800 px-6 py-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Viral Copy Generator</h1>
-          <p className="text-xs text-zinc-400 mt-0.5">Create platform-specific copy from your videos</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onNavigate('history')}
-            className="rounded bg-zinc-800 px-3 py-2 text-sm font-medium hover:bg-zinc-700 transition"
-          >
-            History
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate('learning')}
-            className="rounded bg-zinc-800 px-3 py-2 text-sm font-medium hover:bg-zinc-700 transition"
-          >
-            Insights
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate('settings')}
-            className="rounded bg-zinc-800 px-3 py-2 text-sm font-medium hover:bg-zinc-700 transition"
-          >
-            Settings
-          </button>
-          <button
-            type="button"
-            onClick={() => { void supabase.auth.signOut() }}
-            className="rounded bg-zinc-800 px-3 py-2 text-sm font-medium hover:bg-zinc-700 transition"
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
+  // Manual video analysis when button clicked
+  const startVideoAnalysis = async () => {
+    if (!selectedFile) return
 
-      <main className="flex-1 overflow-y-auto pb-[env(safe-area-inset-bottom)]">
-        <div className="flex flex-col gap-6 px-6 py-6 max-w-4xl">
+    setAnalysisStep('loading')
+    setAnalysisProgress(0)
+
+    try {
+      const signals = await analyzeVideoWithProgressTracking(selectedFile, {
+        onStepStart: (stepId: string) => {
+          const step = parseInt(stepId, 10)
+          if (step <= 2) setAnalysisStep('loading')
+          else if (step <= 4) setAnalysisStep('extracting-frames')
+          else if (step <= 6) setAnalysisStep('detecting-scenes')
+          else if (step <= 8) setAnalysisStep('detecting-faces')
+          else if (step <= 10) setAnalysisStep('analyzing-audio')
+          else setAnalysisStep('computing-scores')
+        },
+        onProgress: (_stepId: string, progress: number) => {
+          setAnalysisProgress(progress)
+        },
+        onStepComplete: () => null,
+        onStepError: () => setAnalysisStep('error'),
+      })
+
+      if (signals) {
+        _setSignals(signals)
+        setAnalysisStep('complete')
+        setAnalysisProgress(100)
+      }
+    } catch (err) {
+      console.error('Analysis failed:', err)
+      setAnalysisStep('error')
+    }
+  }
+
+  return (
+    <div className="min-h-[100dvh] bg-zinc-950 text-white">
+      <ProgressSidebar currentStep={analysisStep} progress={analysisProgress} />
+
+      <main className={`flex-1 overflow-y-auto pb-[env(safe-area-inset-bottom)] transition-all ${
+        analysisStep !== 'idle' ? 'pr-80' : ''
+      }`}>
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6">
+          <section className="rounded-3xl border border-zinc-800 bg-zinc-900/80 p-6 shadow-sm shadow-black/20">
+            <h1 className="text-3xl font-bold text-white">Viral Copy Generator</h1>
+            <p className="mt-2 max-w-2xl text-sm text-zinc-400">
+              Upload video content or describe the clip, then generate professional platform copy in one place.
+            </p>
+          </section>
 
           {/* Upload Video Section */}
           <div className="flex flex-col gap-3 p-5 rounded-xl bg-gradient-to-b from-zinc-900 to-zinc-950 border border-zinc-800 hover:border-zinc-700 transition">
@@ -480,17 +495,28 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
               />
             </label>
 
+            {/* Analysis button - only show after file selected */}
             {selectedFile && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedFile(null)
-                  setThumbnail(null)
-                }}
-                className="self-start text-xs font-medium text-zinc-400 hover:text-red-400 transition"
-              >
-                Remove file
-              </button>
+              <div className="mt-3 flex gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => { void startVideoAnalysis() }}
+                  disabled={analysisStep !== 'idle'}
+                  className="rounded px-3 py-2 font-medium text-blue-400 hover:text-blue-300 disabled:text-zinc-600 bg-zinc-800 hover:bg-zinc-700 transition"
+                >
+                  📊 Analyze Video
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null)
+                    setThumbnail(null)
+                  }}
+                  className="rounded px-3 py-2 font-medium text-zinc-400 hover:text-red-400 bg-zinc-800 hover:bg-zinc-700 transition"
+                >
+                  ✕ Remove
+                </button>
+              </div>
             )}
           </div>
 
@@ -540,14 +566,6 @@ export default function GeneratorPage({ onNavigate, __testSignals }: Props) {
               {aiLoading ? 'Generating copy…' : aiOutput ? '✨ Regenerate' : '🚀 Generate Copy'}
             </span>
           </button>
-
-          {/* Analysis Phase Indicator */}
-          {selectedFile && !signals && !__testSignals && (
-            <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-purple-900/20 border border-purple-800/50">
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-purple-400 border-t-transparent" />
-              <p className="text-sm font-medium text-purple-200">📊 Analysing video...</p>
-            </div>
-          )}
 
           {/* Hint text */}
           {!canGenerate && !selectedFile && (

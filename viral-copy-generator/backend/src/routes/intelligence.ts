@@ -72,34 +72,40 @@ intelligenceRouter.post('/analyze', async (req: Request, res: Response) => {
       enabledPlatforms,
     })
 
-    // Step 3: Layer 2 — AI insights (parallel for each platform)
+    // Step 3: Layer 2 — AI insights (background, non-blocking)
+    // Fire-and-forget: don't await AI generation so endpoint responds immediately
     const aiInsightsPromises = patternResults.map(async (result) => {
-      const rows = await db
-        .select()
-        .from(video_pattern_analysis)
-        .where(
-          and(
-            eq(video_pattern_analysis.user_id, userId),
-            eq(video_pattern_analysis.video_analysis_id, analysis.id),
-            eq(video_pattern_analysis.platform, result.platform),
-          ),
-        )
+      try {
+        const rows = await db
+          .select()
+          .from(video_pattern_analysis)
+          .where(
+            and(
+              eq(video_pattern_analysis.user_id, userId),
+              eq(video_pattern_analysis.video_analysis_id, analysis.id),
+              eq(video_pattern_analysis.platform, result.platform),
+            ),
+          )
 
-      const pa = rows[0]
-      if (!pa) return null
+        const pa = rows[0]
+        if (!pa) return
 
-      return generateAIInsights({
-        userId,
-        videoPatternAnalysisId: pa.id,
-        platform: result.platform,
-        niche,
-        similarityScore: result.similarityScore,
-        matchedViewTier: result.viewTier,
-        gaps: result.gaps,
-      })
+        await generateAIInsights({
+          userId,
+          videoPatternAnalysisId: pa.id,
+          platform: result.platform,
+          niche,
+          similarityScore: result.similarityScore,
+          matchedViewTier: result.viewTier,
+          gaps: result.gaps,
+        })
+      } catch (err) {
+        console.error('[intelligence] AI insights failed for', result.platform, ':', (err as Error).message)
+      }
     })
 
-    await Promise.all(aiInsightsPromises)
+    // Start background tasks but don't wait for them
+    Promise.all(aiInsightsPromises).catch(err => console.error('[intelligence] background AI failed:', err))
 
     res.json({
       videoAnalysisId: analysis.id,
