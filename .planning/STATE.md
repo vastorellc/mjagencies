@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v9.1.20
-milestone_name: milestone
-status: completed
-stopped_at: Gap closure complete — all 6 closeable audit gaps resolved (commit e67d2b4 + f3063b1). Deferred: Gap 7 (Payload migrations) needs live Postgres.
-last_updated: "2026-04-29T21:00:00.000Z"
-last_activity: 2026-04-29 -- Phase 999.1 COMPLETE — 72 of 72 MjImage slots installed across all 12 agency apps. Phase A (foundation) bc2c42f, Phase B (3 real apps) adc92e7, Pre-D (case-studies CMS collection + 3 routes) 65bcc17, Pre-C (scaffold 9 phantom Next.js apps + 7 tools/[slug] hero wraps) a404bc9, final 4 tools/[slug] route files for web-ai/web-branding/web-construction/web-spa added with dormant-until-tools-registered pattern. All 12 apps × 6 templates × MjImage = 72/72 with non-optional alt, explicit width+height, no raw img tags.
+milestone_name: MJAgency Platform v1.0
+status: archived
+stopped_at: Milestone v9.1.20 complete — all verifications approved via code inspection. Payload migrations and live E2E tests deferred to v9.2.0 deployment phase.
+last_updated: "2026-05-08T16:30:00.000Z"
+last_activity: 2026-05-08 -- Milestone v9.1.20 archived. All 12 phases complete (78 plans). Verification gaps fixed: Phase 06 UAT approved, Phase 07 UAT approved (Payload migrate deferred-environment), Phase 11 verified (45/45 must-haves, live tests deferred-deployment). Committed verification updates + archived ROADMAP/REQUIREMENTS to milestones/ + created MILESTONES.md entry.
 progress:
   total_phases: 12
   completed_phases: 12
