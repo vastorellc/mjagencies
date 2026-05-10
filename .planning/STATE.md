@@ -8,7 +8,7 @@
 
 | Phase | Task | Status | Owner | Notes |
 |-------|------|--------|-------|-------|
-| 1 | Doppler Foundation | PENDING | — | Awaiting planning |
+| 1 | Doppler Foundation | IN PROGRESS | Human | Tasks 5+6 done; Tasks 1-4 and 7 need human action |
 | 2 | Phantom-Shell Scaffolding | PENDING | — | Awaiting Phase 1 |
 | 3 | Payload Migrations | PENDING | — | Awaiting Phase 2 |
 
@@ -21,7 +21,9 @@
 
 ## In Progress
 
-- [ ] Phase 1 planning (Doppler setup)
+- [x] Phase 1: Tasks 5+6 complete (GitHub Actions wired, doppler.yaml + docs created)
+- [ ] Phase 1: Tasks 1-4 (human — Doppler dashboard + GitHub Secrets setup)
+- [ ] Phase 1: Task 7 (human — local dev validation after Tasks 1-4)
 - [ ] Phase 2 planning (Phantom app scaffolding)
 - [ ] Phase 3 planning (Migrations)
 
