@@ -17,14 +17,16 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - uses: dopplerhq/cli-action@v3
+        with:
+          token: ${{ secrets.DOPPLER_CI_TOKEN }}
+          project: mjagency
+          config: prod
       - run: pnpm install --frozen-lockfile
       - name: REQ-501 Payload version pin
         run: pnpm list payload --depth=0 | grep "payload 3.82.1" || (echo "::error::REQ-501: payload must be 3.82.1 exact" && exit 1)
       - name: CLAUDE.md / PROJECT.md byte-parity
         run: bash scripts/check-claude-md-parity.sh
-      - run: pnpm turbo run lint typecheck test build size-limit
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+      - run: doppler run -- pnpm turbo run lint typecheck test build size-limit
       - name: REQ-427 scan __NEXT_DATA__ for secret patterns
         run: pnpm tsx scripts/scan-next-data.ts
 

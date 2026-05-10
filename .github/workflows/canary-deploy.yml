@@ -44,10 +44,12 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - uses: dopplerhq/cli-action@v3
+        with:
+          token: ${{ secrets.DOPPLER_CI_TOKEN }}
+          project: mjagency
+          config: prod
       - run: pnpm install --frozen-lockfile
-      - run: pnpm turbo run build
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+      - run: doppler run -- pnpm turbo run build
       - id: tag
         run: echo "tag=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 

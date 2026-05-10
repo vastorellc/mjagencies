@@ -1,0 +1,18 @@
+# MJAgency Doppler Configuration
+# Usage: doppler run -- pnpm dev
+#        doppler run -- pnpm turbo run build
+
+setup:
+  project: mjagency
+  config: dev
+
+environments:
+  development:
+    project: mjagency
+    config: dev
+  staging:
+    project: mjagency
+    config: staging
+  production:
+    project: mjagency
+    config: prod

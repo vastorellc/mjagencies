@@ -82,10 +82,12 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - uses: dopplerhq/cli-action@v3
+        with:
+          token: ${{ secrets.DOPPLER_CI_TOKEN }}
+          project: mjagency
+          config: dev
       - run: pnpm install --frozen-lockfile
-      - run: pnpm turbo run build
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+      - run: doppler run -- pnpm turbo run build
 
   bundle-size:
     needs: install
@@ -165,11 +167,13 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - uses: dopplerhq/cli-action@v3
+        with:
+          token: ${{ secrets.DOPPLER_CI_TOKEN }}
+          project: mjagency
+          config: dev
       - run: pnpm install --frozen-lockfile
       - run: docker compose -f docker-compose.yml -f docker-compose.observability.yml --profile dev up -d postgres redis
-      - run: pnpm tsx scripts/dev-smoke.ts
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+      - run: doppler run -- pnpm tsx scripts/dev-smoke.ts
 
   next-data-secret-audit:
     needs: build
@@ -184,10 +188,12 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - uses: dopplerhq/cli-action@v3
+        with:
+          token: ${{ secrets.DOPPLER_CI_TOKEN }}
+          project: mjagency
+          config: dev
       - run: pnpm install --frozen-lockfile
-      - run: pnpm turbo run build --filter=@mjagency/web-main
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_CI_TOKEN }}
+      - run: doppler run -- pnpm turbo run build --filter=@mjagency/web-main
       - name: REQ-427 scan __NEXT_DATA__ for secret patterns
         run: pnpm tsx scripts/scan-next-data.ts
 
