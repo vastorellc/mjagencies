@@ -1,9 +1,10 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import GeneratorPage from './GeneratorPage'
-import type { EngineSignals } from '../lib/types'
+import * as engine from '../lib/engine'
+import type { EngineSignals, ProgressStep } from '../lib/types'
 
-// Mock supabase — GeneratorPage uses auth (signOut, getSession, onAuthStateChange) + Realtime
+// Mock supabase — GeneratorPage uses auth + Realtime
 vi.mock('../lib/supabase', () => ({
   supabase: {
     auth: {
@@ -16,131 +17,147 @@ vi.mock('../lib/supabase', () => ({
   },
 }))
 
-function mockSignals(overrides: Partial<EngineSignals> = {}): EngineSignals {
+// Mock API calls — prevent real network requests
+vi.mock('../lib/api', () => ({
+  fetchSettings:        vi.fn().mockResolvedValue({ ai_provider: 'gemini', api_key_masked: null, default_niche: 'travel', enabled_platforms: ['youtube', 'instagram', 'tiktok', 'facebook', 'x'], available_niches: ['travel'], connected: { youtube: false, instagram: false, facebook: false }, timezone: 'Asia/Karachi' }),
+  fetchLearningWeights: vi.fn().mockResolvedValue({ learned_weights: null, data_points: 0, is_calibrated: false }),
+  fetchApiKey:          vi.fn().mockResolvedValue({ api_key: null }),
+  fetchTopHooks:        vi.fn().mockResolvedValue([]),
+  fetchTopHashtags:     vi.fn().mockResolvedValue([]),
+  createPost:           vi.fn().mockResolvedValue({ postId: 'test-post-id' }),
+  uploadFile:           vi.fn().mockResolvedValue({ fileId: 'test-file-id', publicUrl: '' }),
+  scheduleUpload:       vi.fn().mockResolvedValue({ ok: true, platformPostId: 'test-pp-id' }),
+}))
+
+afterEach(() => {
+  cleanup()
+  vi.restoreAllMocks()
+})
+
+function fakeFile(size: number, name = 'v.mp4', type = 'video/mp4'): File {
+  const f = new File([new Uint8Array(0)], name, { type })
+  Object.defineProperty(f, 'size', { value: size, configurable: true })
+  return f
+}
+
+function fullSignals(over: Partial<EngineSignals> = {}): EngineSignals {
   return {
-    durationSec: 25,
-    width: 1080,
-    height: 1920,
-    aspectRatio: 0.5625,
-    fps: 30,
-    bitrate: 5_000_000,
-    hasAudio: true,
-    audioEnergy: 0.7,
-    beatPresent: true,
-    silenceGapsSec: [0.3],
-    sceneCount: 8,
-    sceneTimestamps: [0.8, 3.5, 7.0, 11.0, 14.5, 18.0, 21.5, 24.0],
-    faceCount: 1,
-    faceConfidence: 0.9,
-    objectLabels: [],
-    motionScore: 0.4,
-    brightnessScore: 0.5,
-    framesBase64: [],
-    ...overrides,
+    durationSec: 12, width: 1080, height: 1920, aspectRatio: 0.5625,
+    fps: 30, bitrate: 5800000, hasAudio: true,
+    sceneCount: 2, sceneTimestamps: [3.2, 7.4],
+    framesBase64: ['data:image/jpeg;base64,AAA', 'data:image/jpeg;base64,BBB'],
+    faceCount: 1, faceConfidence: 0.9, objectLabels: ['person'], motionScore: 0.4,
+    audioEnergy: 0.5, beatPresent: true, silenceGapsSec: [],
+    brightnessScore: 0.6,
+    ...over,
   }
 }
 
-describe('GeneratorPage — initial empty state', () => {
-  it('renders upload area and generate button when no signals provided', () => {
-    const onNavigate = vi.fn()
-    render(<GeneratorPage onNavigate={onNavigate} />)
-    expect(screen.getByRole('button', { name: /generate copy/i })).toBeInTheDocument()
-    expect(screen.queryByTestId('score-results')).toBeNull()
-  })
-
-  it('preserves header (Settings + Sign out buttons)', () => {
-    const onNavigate = vi.fn()
-    render(<GeneratorPage onNavigate={onNavigate} />)
-    expect(screen.getByText('Viral Copy Generator')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Settings' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Sign out' })).toBeInTheDocument()
-  })
-
-  it("Settings nav button calls onNavigate('settings')", () => {
-    const onNavigate = vi.fn()
-    render(<GeneratorPage onNavigate={onNavigate} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Settings' }))
-    expect(onNavigate).toHaveBeenCalledWith('settings')
-  })
+beforeEach(() => {
+  vi.spyOn(engine, 'canRunEngine').mockReturnValue({ ok: true })
+  vi.spyOn(engine, 'warmup').mockResolvedValue(undefined)
+  Object.defineProperty(navigator, 'maxTouchPoints', { value: 0, configurable: true })
+  Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true })
 })
 
-describe('GeneratorPage — with signals', () => {
-  it('renders score-results block when __testSignals provided', () => {
-    const onNavigate = vi.fn()
-    render(<GeneratorPage onNavigate={onNavigate} __testSignals={mockSignals()} />)
-    expect(screen.getByTestId('score-results')).toBeInTheDocument()
+describe('GeneratorPage', () => {
+  it('renders dropzone in idle state', () => {
+    render(<GeneratorPage onNavigate={() => {}} />)
+    expect(screen.getByTestId('dropzone')).toBeInTheDocument()
   })
 
-  it('renders all 4 phase 4 components', () => {
-    const onNavigate = vi.fn()
-    render(<GeneratorPage onNavigate={onNavigate} __testSignals={mockSignals()} />)
-    expect(screen.getByTestId('score-panel')).toBeInTheDocument()
-    expect(screen.getByTestId('platform-card-grid')).toBeInTheDocument()
-    expect(screen.getByTestId('checklist-accordion')).toBeInTheDocument()
+  it('moves to picked state and shows Analyse button after file pick', async () => {
+    vi.spyOn(engine, 'analyse').mockResolvedValue(fullSignals())
+    render(<GeneratorPage onNavigate={() => {}} />)
+    const input = screen.getByTestId('upload-input') as HTMLInputElement
+    fireEvent.change(input, { target: { files: [fakeFile(50 * 1024 * 1024)] } })
+    await waitFor(() => expect(screen.getByTestId('analyse-button')).toBeInTheDocument())
   })
 
-  it('renders gap-analysis-panel when there are checklist failures', () => {
-    const onNavigate = vi.fn()
-    // 5s duration → duration_in_band fails; brightness 0.05 → brightness_healthy fails
-    render(<GeneratorPage onNavigate={onNavigate} __testSignals={mockSignals({
-      durationSec: 5,
-      brightnessScore: 0.05,
-    })} />)
-    expect(screen.getByTestId('gap-analysis-panel')).toBeInTheDocument()
+  it('shows the 200 MB advisory when picked file >= 200 MB (D-03)', async () => {
+    render(<GeneratorPage onNavigate={() => {}} />)
+    const input = screen.getByTestId('upload-input') as HTMLInputElement
+    fireEvent.change(input, { target: { files: [fakeFile(210 * 1024 * 1024)] } })
+    await waitFor(() => expect(screen.getByTestId('advisory-200mb')).toBeInTheDocument())
   })
 
-  it('hides gap-analysis-panel when all evaluable items pass', () => {
-    const onNavigate = vi.fn()
-    render(<GeneratorPage onNavigate={onNavigate} __testSignals={mockSignals({
-      durationSec: 25,
-      width: 1080,
-      height: 1920,
-      aspectRatio: 0.5625,
-      hasAudio: true,
-      brightnessScore: 0.5,
-      sceneCount: 8,
-      sceneTimestamps: [0.8, 3, 6, 9, 12, 15, 18, 21],
-      motionScore: 0.4,
-      beatPresent: true,
-      silenceGapsSec: [0.2],
-      faceCount: 1,
-      faceConfidence: 0.9,
-    })} />)
-    expect(screen.queryByTestId('gap-analysis-panel')).toBeNull()
+  it('shows the upload-error banner for oversize files', async () => {
+    render(<GeneratorPage onNavigate={() => {}} />)
+    const input = screen.getByTestId('upload-input') as HTMLInputElement
+    fireEvent.change(input, { target: { files: [fakeFile(260 * 1024 * 1024)] } })
+    await waitFor(() => {
+      expect(screen.getByTestId('upload-error').textContent).toMatch(/over 250 MB/)
+    })
   })
 
-  it('platform card grid contains all 5 platform cards', () => {
-    const onNavigate = vi.fn()
-    render(<GeneratorPage onNavigate={onNavigate} __testSignals={mockSignals()} />)
-    expect(screen.getByTestId('platform-card-youtube')).toBeInTheDocument()
-    expect(screen.getByTestId('platform-card-instagram')).toBeInTheDocument()
-    expect(screen.getByTestId('platform-card-tiktok')).toBeInTheDocument()
-    expect(screen.getByTestId('platform-card-facebook')).toBeInTheDocument()
-    expect(screen.getByTestId('platform-card-x')).toBeInTheDocument()
+  it('runs through analysing → done with rotating step labels', async () => {
+    let progressCb: ((step: ProgressStep) => void) | undefined
+    vi.spyOn(engine, 'analyse').mockImplementation(async (_file, opts) => {
+      progressCb = opts?.onProgress
+      progressCb?.('metadata')
+      await Promise.resolve()
+      progressCb?.('frames')
+      await Promise.resolve()
+      progressCb?.('done')
+      return fullSignals()
+    })
+
+    render(<GeneratorPage onNavigate={() => {}} />)
+    const input = screen.getByTestId('upload-input') as HTMLInputElement
+    fireEvent.change(input, { target: { files: [fakeFile(20 * 1024 * 1024)] } })
+    await waitFor(() => expect(screen.getByTestId('analyse-button')).toBeInTheDocument())
+    fireEvent.click(screen.getByTestId('analyse-button'))
+
+    await waitFor(() => expect(screen.getByTestId('analysis-done')).toBeInTheDocument(), { timeout: 5000 })
   })
 
-  it('D-25 durationSec=0 → score 0 + does not crash', () => {
-    const onNavigate = vi.fn()
-    render(<GeneratorPage onNavigate={onNavigate} __testSignals={mockSignals({ durationSec: 0 })} />)
-    expect(screen.getByTestId('score-panel')).toBeInTheDocument()
-    const ring = screen.getByTestId('score-ring')
-    expect(ring.textContent).toBe('0')
+  it('shows AnalysisError with codec-derived cause on engine reject', async () => {
+    vi.spyOn(engine, 'analyse').mockRejectedValue(new Error('decoder failed: invalid data'))
+
+    render(<GeneratorPage onNavigate={() => {}} />)
+    const input = screen.getByTestId('upload-input') as HTMLInputElement
+    fireEvent.change(input, { target: { files: [fakeFile(20 * 1024 * 1024)] } })
+    await waitFor(() => expect(screen.getByTestId('analyse-button')).toBeInTheDocument())
+    fireEvent.click(screen.getByTestId('analyse-button'))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('analysis-error')).toBeInTheDocument()
+      expect(screen.getByText(/Couldn't decode video/)).toBeInTheDocument()
+    })
   })
 
-  it('D-25 hasAudio=false renders without crash', () => {
-    const onNavigate = vi.fn()
-    render(<GeneratorPage onNavigate={onNavigate} __testSignals={mockSignals({
-      hasAudio: false,
-      audioEnergy: 0,
-      beatPresent: false,
-      silenceGapsSec: [],
-    })} />)
-    expect(screen.getByTestId('score-panel')).toBeInTheDocument()
+  it('Cancel during analysing returns to picked state', async () => {
+    vi.spyOn(engine, 'analyse').mockImplementation(() => new Promise(() => {}))
+    render(<GeneratorPage onNavigate={() => {}} />)
+    const input = screen.getByTestId('upload-input') as HTMLInputElement
+    fireEvent.change(input, { target: { files: [fakeFile(20 * 1024 * 1024)] } })
+    await waitFor(() => expect(screen.getByTestId('analyse-button')).toBeInTheDocument())
+    fireEvent.click(screen.getByTestId('analyse-button'))
+    await waitFor(() => expect(screen.getByTestId('analysis-progress')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('Cancel'))
+    await waitFor(() => expect(screen.getByTestId('analyse-button')).toBeInTheDocument())
   })
 
-  it('D-25 NaN aspectRatio renders without crash', () => {
-    const onNavigate = vi.fn()
-    render(<GeneratorPage onNavigate={onNavigate} __testSignals={mockSignals({ aspectRatio: NaN })} />)
-    expect(screen.getByTestId('score-panel')).toBeInTheDocument()
+  it('renders WasmFallbackBanner when canRunEngine is not ok (D-11)', async () => {
+    vi.spyOn(engine, 'canRunEngine').mockReturnValue({ ok: false, reason: 'no SAB' })
+    render(<GeneratorPage onNavigate={() => {}} />)
+    await waitFor(() => expect(screen.getByTestId('wasm-fallback')).toBeInTheDocument())
+    expect(screen.queryByTestId('dropzone')).toBeNull()
+  })
+
+  it('re-pick after done state wipes signals back to picked', async () => {
+    vi.spyOn(engine, 'analyse').mockResolvedValue(fullSignals())
+    render(<GeneratorPage onNavigate={() => {}} />)
+    const input1 = screen.getByTestId('upload-input') as HTMLInputElement
+    fireEvent.change(input1, { target: { files: [fakeFile(20 * 1024 * 1024, 'a.mp4')] } })
+    await waitFor(() => expect(screen.getByTestId('analyse-button')).toBeInTheDocument())
+    fireEvent.click(screen.getByTestId('analyse-button'))
+    await waitFor(() => expect(screen.getByTestId('analysis-done')).toBeInTheDocument(), { timeout: 5000 })
+
+    const inputs = screen.getAllByTestId('upload-input') as HTMLInputElement[]
+    const repickInput = inputs[inputs.length - 1]
+    fireEvent.change(repickInput, { target: { files: [fakeFile(15 * 1024 * 1024, 'b.mp4')] } })
+    await waitFor(() => expect(screen.getByTestId('analyse-button')).toBeInTheDocument())
+    expect(screen.queryByTestId('analysis-done')).toBeNull()
   })
 })
