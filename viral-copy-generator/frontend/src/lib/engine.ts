@@ -1,405 +1,504 @@
-// Video analysis engine with browser-based signal extraction
-// Implements 12 analysis steps with fallbacks for memory/performance constraints
+// In-browser video analysis engine — Phase 3
+// Plans 03-02 (skeleton), 03-04 (ffmpeg), 03-05 (TF.js), 03-06 (audio)
 
-import * as tf from '@tensorflow/tfjs';
-import * as cocoSsd from '@tensorflow-models/coco-ssd';
-import { FaceDetector, FilesetResolver } from '@mediapipe/tasks-vision';
-import type { EngineSignals } from './types';
-
-/**
- * SPIKE-001 Fixes:
- * 1. Face Detection — Load MediaPipe from CDN with proper solutionPath
- * 2. COCO-SSD — Lazy-load, memory check, skip on low-memory devices
- * 3. Scene Detection — Use frame-difference algorithm instead of ffmpeg.wasm
- * 4. Integration — Progressive fallback for large videos (>30MB)
- */
+import { FFmpeg } from '@ffmpeg/ffmpeg'
+import { toBlobURL } from '@ffmpeg/util'
+import * as tf from '@tensorflow/tfjs'
+import '@tensorflow/tfjs-backend-webgl'
+import * as faceDetection from '@tensorflow-models/face-detection'
+import * as cocoSsd from '@tensorflow-models/coco-ssd'
+import Meyda from 'meyda'
+import type { EngineSignals, AnalyseOptions, EnginePreflight, ProgressStep } from './types'
 
 // ============================================================================
-// State Management
+// PREFLIGHT — ANALYSIS-09 / D-11
 // ============================================================================
-
-let faceDetector: FaceDetector | null = null;
-let cocoModel: any = null;
-
-// ============================================================================
-// FIX 1: Face Detection with Proper Initialization
-// ============================================================================
-
-export async function initializeFaceDetector(): Promise<FaceDetector | null> {
-  if (faceDetector) return faceDetector; // Reuse if already loaded
-
-  try {
-    // Load MediaPipe from CDN with explicit solutionPath
-    const vision = await FilesetResolver.forVisionTasks(
-      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
-    );
-
-    faceDetector = await FaceDetector.createFromOptions(vision, {
-      runningMode: 'IMAGE',
-    });
-
-    console.log('✅ Face detector initialized');
-    return faceDetector;
-  } catch (err) {
-    console.warn('⚠️ Face detection initialization failed, skipping', err);
-    return null;
+export function canRunEngine(): EnginePreflight {
+  if (typeof WebAssembly === 'undefined') {
+    return { ok: false, reason: 'WebAssembly not available in this browser' }
   }
-}
-
-async function analyzeFaces(canvas: HTMLCanvasElement): Promise<{
-  faceCount: number;
-  hasFace: boolean;
-  confidence: number;
-}> {
-  const detector = await initializeFaceDetector();
-
-  if (!detector) {
-    return { faceCount: 0, hasFace: false, confidence: 0 };
+  if (typeof SharedArrayBuffer === 'undefined') {
+    return { ok: false, reason: 'SharedArrayBuffer required (cross-origin isolation missing)' }
   }
-
-  try {
-    const results = await detector.detect(canvas as any);
-    const confidence =
-      results.detections && results.detections.length > 0
-        ? (results.detections[0].categories?.[0]?.score || 0)
-        : 0;
-
-    return {
-      faceCount: results.detections?.length || 0,
-      hasFace: (results.detections?.length || 0) > 0,
-      confidence,
-    };
-  } catch (err) {
-    console.warn('Face detection failed', err);
-    return { faceCount: 0, hasFace: false, confidence: 0 };
+  if (typeof window !== 'undefined' && window.crossOriginIsolated !== true) {
+    return { ok: false, reason: 'Cross-origin isolation not active — COOP/COEP misconfig' }
   }
+  return { ok: true }
 }
 
 // ============================================================================
-// FIX 2: COCO-SSD with Memory Management
+// FFMPEG SINGLETON
 // ============================================================================
+const FFMPEG_CORE_BASE_URL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd'
+let ffmpegInstance: FFmpeg | null = null
+let ffmpegLoadPromise: Promise<FFmpeg> | null = null
 
-export async function initializeCOCOSSD(): Promise<any> {
-  if (cocoModel) return cocoModel; // Reuse if already loaded
+export async function getFFmpeg(): Promise<FFmpeg> {
+  if (ffmpegInstance) return ffmpegInstance
+  if (ffmpegLoadPromise) return ffmpegLoadPromise
+  const pre = canRunEngine()
+  if (!pre.ok) throw new Error(`ffmpeg unavailable: ${pre.reason}`)
+  ffmpegLoadPromise = (async () => {
+    const ff = new FFmpeg()
+    await ff.load({
+      coreURL: await toBlobURL(`${FFMPEG_CORE_BASE_URL}/ffmpeg-core.js`, 'text/javascript'),
+      wasmURL: await toBlobURL(`${FFMPEG_CORE_BASE_URL}/ffmpeg-core.wasm`, 'application/wasm'),
+    })
+    ffmpegInstance = ff
+    return ff
+  })()
+  return ffmpegLoadPromise
+}
 
-  try {
-    // Check available memory before loading (Chrome only)
-    const memory = (performance as any).memory;
-    const availableMemory = memory?.jsHeapSizeLimit || 0;
+// ============================================================================
+// TF.JS MODEL SINGLETONS
+// ============================================================================
+let faceDetectorInstance: faceDetection.FaceDetector | null = null
+let faceDetectorPromise: Promise<faceDetection.FaceDetector | null> | null = null
+let cocoDetectorInstance: cocoSsd.ObjectDetection | null = null
+let cocoDetectorPromise: Promise<cocoSsd.ObjectDetection | null> | null = null
 
-    // Skip if <500MB available
-    if (availableMemory > 0 && availableMemory < 500 * 1024 * 1024) {
-      console.log('⚠️ Skipping COCO-SSD: insufficient memory');
-      return null;
+async function getFaceDetector(): Promise<faceDetection.FaceDetector | null> {
+  if (faceDetectorInstance) return faceDetectorInstance
+  if (faceDetectorPromise) return faceDetectorPromise
+  faceDetectorPromise = (async () => {
+    try {
+      await tf.ready()
+      const detector = await faceDetection.createDetector(
+        faceDetection.SupportedModels.MediaPipeFaceDetector,
+        {
+          runtime: 'mediapipe',
+          solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_detection',
+          modelType: 'short',
+        },
+      )
+      faceDetectorInstance = detector
+      return detector
+    } catch {
+      return null
     }
-
-    cocoModel = await cocoSsd.load();
-    console.log('✅ COCO-SSD model loaded');
-    return cocoModel;
-  } catch (err) {
-    console.warn('⚠️ COCO-SSD load failed, skipping', err);
-    return null;
-  }
+  })()
+  return faceDetectorPromise
 }
 
-async function analyzeObjects(canvas: HTMLCanvasElement): Promise<{
-  objectCount: number;
-  mainObjects: string[];
-  sceneComplexity: 'low' | 'medium' | 'high';
-}> {
-  const model = await initializeCOCOSSD();
+async function getCocoDetector(): Promise<cocoSsd.ObjectDetection | null> {
+  if (cocoDetectorInstance) return cocoDetectorInstance
+  if (cocoDetectorPromise) return cocoDetectorPromise
+  cocoDetectorPromise = (async () => {
+    try {
+      await tf.ready()
+      const model = await cocoSsd.load({ base: 'lite_mobilenet_v2' })
+      cocoDetectorInstance = model
+      return model
+    } catch {
+      return null
+    }
+  })()
+  return cocoDetectorPromise
+}
 
-  if (!model) {
-    return { objectCount: 0, mainObjects: [], sceneComplexity: 'low' };
+// ============================================================================
+// WARMUP
+// ============================================================================
+export async function warmup(): Promise<void> {
+  await Promise.allSettled([getFFmpeg(), getFaceDetector(), getCocoDetector()])
+}
+
+// ============================================================================
+// INTERNAL HELPERS
+// ============================================================================
+
+interface ParsedMeta {
+  durationSec: number
+  width: number
+  height: number
+  aspectRatio: number
+  fps: number
+  bitrate: number
+  hasAudio: boolean
+  totalFrames: number
+}
+
+function parseRationalFps(rate: unknown): number {
+  if (typeof rate !== 'string' || !rate.includes('/')) return 0
+  const [num, den] = rate.split('/').map(Number)
+  if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) return 0
+  return num / den
+}
+
+function toNum(v: unknown): number {
+  if (typeof v === 'number' && Number.isFinite(v)) return v
+  if (typeof v === 'string') { const n = Number(v); return Number.isFinite(n) ? n : 0 }
+  return 0
+}
+
+function parseMeta(probe: unknown): ParsedMeta {
+  const empty: ParsedMeta = { durationSec: 0, width: 0, height: 0, aspectRatio: 0, fps: 0, bitrate: 0, hasAudio: false, totalFrames: 0 }
+  if (!probe || typeof probe !== 'object') return empty
+  const p = probe as { streams?: unknown[]; format?: { duration?: unknown; bit_rate?: unknown } }
+  const streams = Array.isArray(p.streams) ? p.streams : []
+  const video = streams.find((s) => (s as { codec_type?: string }).codec_type === 'video') as
+    | { width?: unknown; height?: unknown; r_frame_rate?: unknown; nb_frames?: unknown; duration?: unknown; bit_rate?: unknown }
+    | undefined
+  const audio = streams.find((s) => (s as { codec_type?: string }).codec_type === 'audio')
+  const width = video ? toNum(video.width) : 0
+  const height = video ? toNum(video.height) : 0
+  const fps = video ? parseRationalFps(video.r_frame_rate) : 0
+  const durationSec = toNum(p.format?.duration) || (video ? toNum(video.duration) : 0)
+  const bitrate = toNum(p.format?.bit_rate) || (video ? toNum(video.bit_rate) : 0)
+  const nbFromStream = video ? toNum(video.nb_frames) : 0
+  const totalFrames = nbFromStream > 0 ? nbFromStream : (durationSec > 0 && fps > 0 ? Math.floor(durationSec * fps) : 0)
+  const aspectRatio = width > 0 && height > 0 ? width / height : 0
+  return { durationSec, width, height, aspectRatio, fps, bitrate, hasAudio: Boolean(audio), totalFrames }
+}
+
+function uint8ToBase64(bytes: Uint8Array): string {
+  const CHUNK = 0x8000
+  let binary = ''
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + CHUNK)))
   }
+  return btoa(binary)
+}
 
+async function safeDelete(ff: FFmpeg, names: string[]): Promise<void> {
+  for (const n of names) { try { await ff.deleteFile(n) } catch { /* ignore ENOENT */ } }
+}
+
+async function probeVideo(ff: FFmpeg): Promise<unknown> {
+  // D-17 / ANALYSIS-10 — read meta.json UNCONDITIONALLY; ffprobe returns -1 even on success (#817)
+  await ff.ffprobe(['-v', 'quiet', '-print_format', 'json', '-show_streams', '-show_format', '-o', 'meta.json', 'input.mp4'])
+  const raw = await ff.readFile('meta.json', 'utf8')
+  const text = typeof raw === 'string' ? raw : new TextDecoder().decode(raw as Uint8Array)
+  try { return JSON.parse(text) } catch { return {} }
+}
+
+async function detectScenes(ff: FFmpeg): Promise<number[]> {
+  const sceneTimestamps: number[] = []
+  const onLog = ({ message }: { message: string }) => {
+    const m = message.match(/pts_time:([0-9.]+)/)
+    if (m) { const t = parseFloat(m[1]); if (Number.isFinite(t)) sceneTimestamps.push(t) }
+  }
+  ff.on('log', onLog)
   try {
-    // Wrap in tf.tidy() to auto-dispose tensors
-    const predictions = await model.estimateObjects(canvas, { maxNumBoxes: 5 });
-    tf.disposeVariables();
-
-    const mainObjects = predictions.slice(0, 3).map((p: any) => p.class);
-
-    return {
-      objectCount: predictions.length,
-      mainObjects,
-      sceneComplexity:
-        predictions.length > 5 ? 'high' : predictions.length > 2 ? 'medium' : 'low',
-    };
-  } catch (err) {
-    console.warn('Object detection failed', err);
-    return { objectCount: 0, mainObjects: [], sceneComplexity: 'low' };
+    await ff.exec(['-i', 'input.mp4', '-filter:v', "select='gt(scene,0.4)',showinfo", '-f', 'null', '-'])
+  } finally {
+    ff.off('log', onLog)
   }
+  return Array.from(new Set(sceneTimestamps)).sort((a, b) => a - b)
 }
 
-// ============================================================================
-// FIX 3: Scene Detection via Frame Difference (Not ffmpeg.wasm)
-// ============================================================================
-
-function compareFrames(frame1: ImageData, frame2: ImageData): number {
-  const data1 = frame1.data;
-  const data2 = frame2.data;
-
-  let diff = 0;
-  // Sample every 10th pixel to reduce computation
-  for (let i = 0; i < data1.length; i += 40) {
-    diff += Math.abs(data1[i] - data2[i]); // R
-    diff += Math.abs(data1[i + 1] - data2[i + 1]); // G
-    diff += Math.abs(data1[i + 2] - data2[i + 2]); // B
+async function extractFrames(ff: FFmpeg, totalFrames: number): Promise<string[]> {
+  const N = Math.max(1, Math.floor(totalFrames / 10))
+  try {
+    await ff.exec([
+      '-i', 'input.mp4',
+      '-vf', `select='not(mod(n\\,${N}))',scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2`,
+      '-vsync', 'vfr', '-q:v', '5', 'frame_%03d.jpg',
+    ])
+  } catch { return [] }
+  const frames: string[] = []
+  for (let i = 1; i <= 15; i++) {
+    const name = `frame_${String(i).padStart(3, '0')}.jpg`
+    try {
+      const data = (await ff.readFile(name)) as Uint8Array
+      frames.push(`data:image/jpeg;base64,${uint8ToBase64(data)}`)
+      await ff.deleteFile(name)
+    } catch { break }
   }
-
-  return diff / (data1.length / 10) / 255; // Normalize to 0-1
+  return frames.slice(0, 10)
 }
 
-async function analyzeScenes(video: HTMLVideoElement): Promise<{
-  sceneChanges: number[];
-  sceneCount: number;
-  avgSceneDuration: number;
-}> {
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const ctx = canvas.getContext('2d');
+async function decodeFrameToCanvas(dataUri: string): Promise<HTMLCanvasElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0)
+      resolve(canvas)
+    }
+    img.onerror = reject
+    img.src = dataUri
+  })
+}
 
-  if (!ctx) {
-    return { sceneChanges: [], sceneCount: 1, avgSceneDuration: 0 };
+async function detectFacesAcrossFrames(
+  frames: HTMLCanvasElement[],
+): Promise<{ faceCount: number; faceConfidence: number }> {
+  const detector = await getFaceDetector()
+  if (!detector || frames.length === 0) return { faceCount: 0, faceConfidence: 0 }
+  let maxFaces = 0
+  let totalConf = 0
+  let confCount = 0
+  for (const canvas of frames) {
+    try {
+      const result = await detector.estimateFaces(canvas)
+      if (result.length > maxFaces) maxFaces = result.length
+      for (const face of result) {
+        const score = (face as { score?: number[] }).score?.[0] ?? 0
+        totalConf += score
+        confCount++
+      }
+    } catch { /* skip frame */ }
   }
+  return { faceCount: maxFaces, faceConfidence: confCount > 0 ? totalConf / confCount : 0 }
+}
 
-  const sceneChanges: number[] = [];
-  const sampleRate = 0.5; // Check every 0.5 seconds
-  const threshold = 0.15; // 15% frame difference = scene change
+async function detectObjectsAndMotion(
+  frames: HTMLCanvasElement[],
+): Promise<{ objectLabels: string[]; motionScore: number }> {
+  const model = await getCocoDetector()
+  if (!model || frames.length === 0) return { objectLabels: [], motionScore: 0 }
+  const labelSet = new Set<string>()
+  let prevCentroids: Array<{ x: number; y: number }> = []
+  let totalDelta = 0
+  let deltaCount = 0
+  for (const canvas of frames) {
+    try {
+      const preds = await model.detect(canvas)
+      for (const p of preds) labelSet.add(p.class)
+      const centroids = preds.map((p) => ({ x: p.bbox[0] + p.bbox[2] / 2, y: p.bbox[1] + p.bbox[3] / 2 }))
+      if (prevCentroids.length > 0 && centroids.length > 0) {
+        const pairs = Math.min(prevCentroids.length, centroids.length)
+        let frameDelta = 0
+        for (let i = 0; i < pairs; i++) {
+          const dx = centroids[i].x - prevCentroids[i].x
+          const dy = centroids[i].y - prevCentroids[i].y
+          frameDelta += Math.sqrt(dx * dx + dy * dy)
+        }
+        totalDelta += frameDelta / pairs / Math.max(canvas.width, canvas.height)
+        deltaCount++
+      }
+      prevCentroids = centroids
+    } catch { /* skip frame */ }
+  }
+  const motionScore = deltaCount > 0 ? Math.min(1, totalDelta / deltaCount) : 0
+  return { objectLabels: Array.from(labelSet), motionScore }
+}
 
-  let prevFrame: ImageData | null = null;
+const AUDIO_BUFFER_SIZE = 1024
+const AUDIO_THRESHOLDS = {
+  BEAT_FLUX_THRESHOLD: 0.05,
+  SILENCE_RMS_THRESHOLD: 0.02,
+}
+const BEAT_FLUX_THRESHOLD = AUDIO_THRESHOLDS.BEAT_FLUX_THRESHOLD
+const SILENCE_RMS_THRESHOLD = AUDIO_THRESHOLDS.SILENCE_RMS_THRESHOLD
+const MIN_SILENCE_GAP_SEC = 1.5
 
-  for (let t = 0; t < video.duration; t += sampleRate) {
-    video.currentTime = t;
+interface AudioSignals {
+  audioEnergy: number
+  beatPresent: boolean
+  silenceGapsSec: number[]
+  hasAudio: boolean
+}
 
-    // Wait for seek to complete
-    await new Promise((resolve) => {
-      const handler = () => {
-        video.removeEventListener('seeked', handler);
-        resolve(null);
-      };
-      video.addEventListener('seeked', handler);
-      setTimeout(resolve, 200); // Timeout in case seek doesn't fire
-    });
+const EMPTY_AUDIO: AudioSignals = { audioEnergy: 0, beatPresent: false, silenceGapsSec: [], hasAudio: false }
 
-    ctx.drawImage(video, 0, 0);
-    const frameData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-    if (prevFrame) {
-      const diff = compareFrames(prevFrame, frameData);
-      if (diff > threshold) {
-        sceneChanges.push(t);
+async function analyseAudio(file: File): Promise<AudioSignals> {
+  const noAudio = EMPTY_AUDIO
+  try {
+    const arrayBuffer = await file.arrayBuffer()
+    const ctx = new OfflineAudioContext(1, 1, 44100)
+    let audioBuffer: AudioBuffer
+    try {
+      audioBuffer = await ctx.decodeAudioData(arrayBuffer.slice(0))
+    } catch {
+      return noAudio
+    }
+    const channelData = audioBuffer.getChannelData(0)
+    const sampleRate = audioBuffer.sampleRate
+    const windows: number[] = []
+    const rmsValues: number[] = []
+    const fluxValues: number[] = []
+    let prevSpectrum: Float32Array | null = null
+    for (let start = 0; start + AUDIO_BUFFER_SIZE <= channelData.length; start += AUDIO_BUFFER_SIZE) {
+      const slice = channelData.slice(start, start + AUDIO_BUFFER_SIZE)
+      const features = Meyda.extract(['rms', 'spectralFlux', 'amplitudeSpectrum'], slice) as {
+        rms: number; spectralFlux: number; amplitudeSpectrum: Float32Array
+      } | null
+      if (features) {
+        rmsValues.push(features.rms ?? 0)
+        fluxValues.push(features.spectralFlux ?? 0)
+        windows.push(start)
+        prevSpectrum = features.amplitudeSpectrum
       }
     }
-
-    prevFrame = frameData;
-  }
-
-  return {
-    sceneChanges,
-    sceneCount: sceneChanges.length + 1,
-    avgSceneDuration: video.duration / (sceneChanges.length + 1),
-  };
-}
-
-// ============================================================================
-// Other Analysis Steps (Reliable, No Fixes Needed)
-// ============================================================================
-
-async function analyzeMetadata(video: HTMLVideoElement): Promise<{
-  durationSec: number;
-  width: number;
-  height: number;
-  aspectRatio: number;
-}> {
-  return {
-    durationSec: video.duration,
-    width: video.videoWidth,
-    height: video.videoHeight,
-    aspectRatio: video.videoWidth / video.videoHeight,
-  };
-}
-
-async function analyzeAudio(file: File): Promise<{
-  hasAudio: boolean;
-  channels: number;
-  sampleRate: number;
-  audioEnergy: number;
-}> {
-  try {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const arrayBuffer = await file.arrayBuffer();
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-    const channel = audioBuffer.getChannelData(0);
-    let rms = 0;
-    const sampleCount = Math.min(channel.length, 44100);
-
-    for (let i = 0; i < sampleCount; i++) {
-      rms += channel[i] * channel[i];
+    if (rmsValues.length === 0) return noAudio
+    const avgEnergy = rmsValues.reduce((a, b) => a + b, 0) / rmsValues.length
+    const avgFlux = fluxValues.reduce((a, b) => a + b, 0) / fluxValues.length
+    const silenceGapsSec: number[] = []
+    let silenceStart: number | null = null
+    const winDuration = AUDIO_BUFFER_SIZE / sampleRate
+    for (let i = 0; i < rmsValues.length; i++) {
+      if (rmsValues[i] < SILENCE_RMS_THRESHOLD) {
+        if (silenceStart === null) silenceStart = windows[i] / sampleRate
+      } else {
+        if (silenceStart !== null) {
+          const gapDuration = windows[i] / sampleRate - silenceStart
+          if (gapDuration >= MIN_SILENCE_GAP_SEC) silenceGapsSec.push(gapDuration)
+          silenceStart = null
+        }
+      }
     }
-    rms = Math.sqrt(rms / sampleCount);
+    if (silenceStart !== null) {
+      const gapDuration = channelData.length / sampleRate - silenceStart
+      if (gapDuration >= MIN_SILENCE_GAP_SEC) silenceGapsSec.push(gapDuration)
+    }
+    void prevSpectrum
+    void winDuration
+    return {
+      audioEnergy: Math.min(1, avgEnergy),
+      beatPresent: avgFlux > BEAT_FLUX_THRESHOLD,
+      silenceGapsSec,
+      hasAudio: true,
+    }
+  } catch {
+    return noAudio
+  }
+}
+
+function computeBrightnessAcrossFrames(frames: HTMLCanvasElement[]): number {
+  if (frames.length === 0) return 0
+  let total = 0
+  let count = 0
+  for (const canvas of frames) {
+    const ctx = canvas.getContext('2d')
+    if (!ctx) continue
+    const offscreen = document.createElement('canvas')
+    offscreen.width = 64
+    offscreen.height = 64
+    const octx = offscreen.getContext('2d')!
+    octx.drawImage(canvas, 0, 0, 64, 64)
+    const data = octx.getImageData(0, 0, 64, 64).data
+    for (let i = 0; i < data.length; i += 16) {
+      total += (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255
+      count++
+    }
+  }
+  return count > 0 ? total / count : 0
+}
+
+// ============================================================================
+// ANALYSE — main entry point
+// ============================================================================
+export async function analyse(file: File, opts: AnalyseOptions = {}): Promise<EngineSignals> {
+  const pre = canRunEngine()
+  if (!pre.ok) throw new Error(`engine unavailable: ${pre.reason}`)
+  const onProgress: (s: ProgressStep) => void = opts.onProgress ?? (() => {})
+  await warmup()
+  const ff = await getFFmpeg()
+  const bytes = new Uint8Array(await file.arrayBuffer())
+  await ff.writeFile('input.mp4', bytes)
+  try {
+    onProgress('metadata')
+    const probe = await probeVideo(ff)
+    const meta = parseMeta(probe)
+
+    onProgress('scenes')
+    const sceneTimestamps = await detectScenes(ff)
+
+    onProgress('frames')
+    const framesBase64 = await extractFrames(ff, meta.totalFrames)
+
+    // Decode frames to canvases for TF.js + brightness
+    const canvases: HTMLCanvasElement[] = []
+    for (const uri of framesBase64) {
+      try { canvases.push(await decodeFrameToCanvas(uri)) } catch { /* skip */ }
+    }
+
+    onProgress('faces')
+    const { faceCount, faceConfidence } = await detectFacesAcrossFrames(canvases)
+
+    onProgress('objects')
+    const { objectLabels, motionScore } = await detectObjectsAndMotion(canvases)
+
+    onProgress('audio')
+    const audio = await analyseAudio(file)
+    // audio.hasAudio is the authoritative source (decodeAudioData-based), overrides ffprobe hasAudio
+    const hasAudio = audio.hasAudio
+
+    onProgress('brightness')
+    const brightnessScore = computeBrightnessAcrossFrames(canvases)
+
+    onProgress('done')
 
     return {
-      hasAudio: audioBuffer.numberOfChannels > 0,
-      channels: audioBuffer.numberOfChannels,
-      sampleRate: audioBuffer.sampleRate,
-      audioEnergy: rms,
-    };
-  } catch (err) {
-    console.warn('Audio analysis failed', err);
-    return { hasAudio: false, channels: 0, sampleRate: 0, audioEnergy: 0 };
+      durationSec: meta.durationSec,
+      width: meta.width,
+      height: meta.height,
+      aspectRatio: meta.aspectRatio,
+      fps: meta.fps,
+      bitrate: meta.bitrate,
+      hasAudio,
+      sceneCount: sceneTimestamps.length,
+      sceneTimestamps,
+      framesBase64,
+      faceCount,
+      faceConfidence,
+      objectLabels,
+      motionScore,
+      audioEnergy: audio.audioEnergy,
+      beatPresent: audio.beatPresent,
+      silenceGapsSec: audio.silenceGapsSec,
+      brightnessScore,
+    }
+  } finally {
+    await safeDelete(ff, ['input.mp4', 'meta.json'])
+    for (let i = 1; i <= 15; i++) {
+      await safeDelete(ff, [`frame_${String(i).padStart(3, '0')}.jpg`])
+    }
   }
 }
 
-async function analyzeLuma(video: HTMLVideoElement): Promise<{
-  lumaScore: number;
+/** Test-only helper: returns the raw flux + rms series alongside the AudioSignals.
+ *  Used by engine.calibration.test.ts to empirically tune A2 + A3 thresholds. */
+async function analyseAudioRaw(file: File): Promise<{
+  signals: AudioSignals
+  meanFlux: number
+  meanRms: number
+  windowCount: number
 }> {
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const ctx = canvas.getContext('2d');
-
-  if (!ctx) {
-    return { lumaScore: 0.5 };
-  }
-
-  video.currentTime = video.duration / 2; // Middle of video
-
-  await new Promise((resolve) => {
-    const handler = () => {
-      video.removeEventListener('seeked', handler);
-      resolve(null);
-    };
-    video.addEventListener('seeked', handler);
-    setTimeout(resolve, 500);
-  });
-
-  ctx.drawImage(video, 0, 0);
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imageData.data;
-
-  let lumaSum = 0;
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
-    const luma = 0.299 * r + 0.587 * g + 0.114 * b;
-    lumaSum += luma;
-  }
-
-  const avgLuma = lumaSum / (data.length / 4);
-  return { lumaScore: avgLuma / 255 };
-}
-
-// ============================================================================
-// FIX 4: Integration with Progressive Fallback for Large Videos
-// ============================================================================
-
-export async function analyzeVideoWithFallback(file: File): Promise<EngineSignals> {
-  const fileSizeMB = file.size / 1024 / 1024;
-  const results: Partial<EngineSignals> = {};
-  const skippedSteps: string[] = [];
-
-  console.log(`📹 Analyzing ${fileSizeMB.toFixed(1)}MB video...`);
-
-  // Determine skip thresholds based on file size
-  const skipHeavySteps = fileSizeMB > 30;
-
+  const arrayBuf = await file.arrayBuffer()
+  const tmpCtx = new OfflineAudioContext(1, 1, 44100)
+  let audioBuf: AudioBuffer
   try {
-    // Create video element
-    const video = document.createElement('video');
-    video.src = URL.createObjectURL(file);
-
-    // Wait for metadata to load
-    await new Promise((resolve) => {
-      video.onloadedmetadata = () => resolve(null);
-      setTimeout(resolve, 5000);
-    });
-
-    // Step 1: Metadata (always)
-    console.log('Step 1/6: Metadata...');
-    const metadata = await analyzeMetadata(video);
-    Object.assign(results, metadata);
-
-    // Step 2: Luma (always, fast)
-    console.log('Step 2/6: Luma brightness...');
-    const luma = await analyzeLuma(video);
-    Object.assign(results, luma);
-
-    // Step 3: Audio (always)
-    console.log('Step 3/6: Audio analysis...');
-    const audio = await analyzeAudio(file);
-    Object.assign(results, audio);
-    tf.disposeVariables(); // Cleanup after audio
-
-    // Step 4: Faces (skip if > 30MB)
-    if (!skipHeavySteps) {
-      console.log('Step 4/6: Face detection...');
-      const faces = await analyzeFaces(video as any as HTMLCanvasElement);
-      Object.assign(results, { faceCount: faces.faceCount, hasFace: faces.hasFace });
-    } else {
-      skippedSteps.push('Face Detection');
-      Object.assign(results, { faceCount: 0, hasFace: false });
+    audioBuf = await tmpCtx.decodeAudioData(arrayBuf.slice(0))
+  } catch {
+    return {
+      signals: EMPTY_AUDIO,
+      meanFlux: 0, meanRms: 0, windowCount: 0,
     }
-    tf.disposeVariables(); // Cleanup
-
-    // Step 5: Objects (skip if > 25MB)
-    if (fileSizeMB <= 25) {
-      console.log('Step 5/6: Object detection...');
-      const objects = await analyzeObjects(video as any as HTMLCanvasElement);
-      Object.assign(results, {
-        objectCount: objects.objectCount,
-        sceneComplexity: objects.sceneComplexity,
-      });
-    } else {
-      skippedSteps.push('Object Detection');
-      Object.assign(results, { objectCount: 0, sceneComplexity: 'low' as const });
-    }
-    tf.disposeVariables(); // Cleanup
-
-    // Step 6: Scenes (skip if > 40MB)
-    if (fileSizeMB <= 40) {
-      console.log('Step 6/6: Scene detection...');
-      const scenes = await analyzeScenes(video);
-      Object.assign(results, {
-        sceneChanges: scenes.sceneChanges,
-        sceneCount: scenes.sceneCount,
-      });
-    } else {
-      skippedSteps.push('Scene Detection');
-      Object.assign(results, { sceneChanges: [], sceneCount: 1 });
-    }
-
-    if (skippedSteps.length > 0) {
-      console.log(`⚠️ Skipped steps (large file): ${skippedSteps.join(', ')}`);
-    } else {
-      console.log('✅ All analysis steps completed');
-    }
-  } catch (err) {
-    console.error('Analysis error:', err);
-    throw err;
   }
-
-  return results as EngineSignals;
+  if (audioBuf.numberOfChannels === 0) {
+    return { signals: EMPTY_AUDIO, meanFlux: 0, meanRms: 0, windowCount: 0 }
+  }
+  const channelData = audioBuf.getChannelData(0)
+  const fluxes: number[] = []
+  const rms: number[] = []
+  for (let i = 0; i + AUDIO_BUFFER_SIZE < channelData.length; i += AUDIO_BUFFER_SIZE) {
+    const window = channelData.slice(i, i + AUDIO_BUFFER_SIZE)
+    const features = Meyda.extract(['rms', 'spectralFlux'], window) as
+      | { rms: number; spectralFlux: number }
+      | null
+    if (!features) continue
+    if (Number.isFinite(features.rms)) rms.push(features.rms)
+    if (Number.isFinite(features.spectralFlux)) fluxes.push(features.spectralFlux)
+  }
+  const meanFlux = fluxes.length === 0 ? 0 : fluxes.reduce((a, b) => a + b, 0) / fluxes.length
+  const meanRms = rms.length === 0 ? 0 : rms.reduce((a, b) => a + b, 0) / rms.length
+  const signals = await analyseAudio(file)
+  return { signals, meanFlux, meanRms, windowCount: rms.length }
 }
 
-// ============================================================================
-// Cleanup
-// ============================================================================
-
-export async function cleanupModels(): Promise<void> {
-  // Dispose of TensorFlow models and tensors
-  tf.disposeVariables();
-  cocoModel = null;
-  faceDetector = null;
-
-  // Force garbage collection if available (Chrome only)
-  if ((global as any).gc) {
-    (global as any).gc();
-  }
-
-  console.log('✅ Models and tensors cleaned up');
+export const __testables = { parseMeta, uint8ToBase64, analyseAudioRaw, AUDIO_THRESHOLDS }
+export function __resetEngineForTests(): void {
+  ffmpegInstance = null
+  ffmpegLoadPromise = null
+  faceDetectorInstance = null
+  faceDetectorPromise = null
+  cocoDetectorInstance = null
+  cocoDetectorPromise = null
 }
