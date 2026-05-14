@@ -39,7 +39,7 @@ Progress: [██████████] 100%
 |---|-------|--------|
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
-| 3 | Video Upload + Analysis Engine | 🟡 Ready to execute (1/8 plans partial — vitest infra installed; 5 fixture videos added 2026-05-05) |
+| 3 | Video Upload + Analysis Engine | 🟡 In progress (7/8 plans complete — 03-02 through 03-07 done; 03-08 smoke test remains) |
 | 4 | Virality Score + Checklist | ✅ Complete (8/8 plans, 179/179 tests, verification 6/6 passed 2026-05-02) |
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
@@ -163,6 +163,9 @@ Progress: [██████████] 100%
 - **resetResults Record<string,number> in-memory state** — stores deleted count per userId; AdminPage shows confirmation without a second GET; cleared on page reload (v1 acceptable)
 - **AdminPage tab-scoped data loading** — useEffect fires per-tab; each of 5 tabs manages its own loading/error/data state; tabs load only when activated (not on mount)
 - **trend_cache uses unique() not index()** — ON CONFLICT (source, niche) DO UPDATE requires a UNIQUE constraint; Drizzle index() creates a regular index that does not satisfy ON CONFLICT specification (Pitfall 6 in RESEARCH.md)
+- **GeneratorPage generation counter pattern** — generationRef.current incremented on every Cancel/re-pick/startAnalyse; analyse() result applied only when myGen === generationRef.current; avoids AbortController complexity with WASM workers (T-03-24, T-03-25)
+- **AnalysisError detail as text node** — error.detail rendered as {detail} (never dangerouslySetInnerHTML) to prevent XSS from engine error messages containing script tags (T-03-23)
+- **GeneratorPage D-19 no persistence** — EngineSignals stored only in React useState for session; no localStorage/sessionStorage/IndexedDB round-trip at any state transition
 - **YOUTUBE_API_KEY is optional in Phase 9** — fetchYouTubeTrends returns [] if env var absent; key in .env.example as commented-out optional, NOT in REQUIRED_ENV; other 3 trend sources still work
 - **google-trends-api CJS/ESM interop confirmed** — default import returns typeof 'object' in NodeNext ESM; no createRequire wrapper needed; Plan 09-02 uses `import googleTrends from 'google-trends-api'` directly
 - **research-cache.ts stub for tsc dynamic import** — boss.ts worker uses lazy dynamic import; TypeScript NodeNext resolution checks dynamic imports statically; stub file with throwing implementations satisfies tsc until Plan 09-03 implements it
@@ -196,8 +199,8 @@ Progress: [██████████] 100%
 
 ## Session Continuity
 
-Last session: 2026-05-04T06:24:10Z
-Stopped at: Completed Phase 10 Plan 03 (10-03): iOS safe-area fixed overlays + Vite optimizeDeps
+Last session: 2026-05-14T06:45:00Z
+Stopped at: Completed Phase 3 Plan 07 (03-07): GeneratorPage state machine + 4 analysis UI components
 Resume:
 
 - **Phase 10:** Run `/gsd-plan-phase 10` then `/gsd-execute-phase 10`

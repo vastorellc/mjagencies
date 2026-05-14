@@ -191,7 +191,7 @@ Plans:
 - [ ] 03-04-PLAN.md — ffmpeg pipeline: probeVideo (ANALYSIS-10 unconditional read) + detectScenes (log stream) + extractFrames (~10 base64 JPEGs)
 - [ ] 03-05-PLAN.md — TF.js pipeline: MediaPipe face detector (solutionPath mandatory) + COCO-SSD object labels + motion score + tensor leak regression test
 - [ ] 03-06-PLAN.md — Audio + brightness: Meyda OfflineAudioContext (energy/beat/silence) + BT.601 luma + ANALYSIS-07 network regression test
-- [ ] 03-07-PLAN.md — Generator state machine: AnalysisProgress + AnalysisError + WasmFallbackBanner + MobileAdvisoryBanner + GeneratorPage rewrite
+- [x] 03-07-PLAN.md — Generator state machine: AnalysisProgress + AnalysisError + WasmFallbackBanner + MobileAdvisoryBanner + GeneratorPage rewrite *(complete 2026-05-14 — 3/3 tasks, 28/28 tests, tsc clean)*
 - [ ] 03-08-PLAN.md — A2/A3 calibration evidence + manual smoke test on 5 fixtures (CHECKPOINT)
 **UI hint:** yes
 
