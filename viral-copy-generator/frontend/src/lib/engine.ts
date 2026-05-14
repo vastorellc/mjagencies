@@ -29,7 +29,9 @@ export function canRunEngine(): EnginePreflight {
 // ============================================================================
 // FFMPEG SINGLETON
 // ============================================================================
-const FFMPEG_CORE_BASE_URL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd'
+// Served from public/ — avoids CDN dependency (network-unreliable environments)
+const FFMPEG_CORE_JS_URL = '/ffmpeg-core.js'
+const FFMPEG_CORE_WASM_URL = '/ffmpeg-core.wasm'
 let ffmpegInstance: FFmpeg | null = null
 let ffmpegLoadPromise: Promise<FFmpeg> | null = null
 
@@ -41,8 +43,8 @@ export async function getFFmpeg(): Promise<FFmpeg> {
   ffmpegLoadPromise = (async () => {
     const ff = new FFmpeg()
     await ff.load({
-      coreURL: await toBlobURL(`${FFMPEG_CORE_BASE_URL}/ffmpeg-core.js`, 'text/javascript'),
-      wasmURL: await toBlobURL(`${FFMPEG_CORE_BASE_URL}/ffmpeg-core.wasm`, 'application/wasm'),
+      coreURL: await toBlobURL(FFMPEG_CORE_JS_URL, 'text/javascript'),
+      wasmURL: await toBlobURL(FFMPEG_CORE_WASM_URL, 'application/wasm'),
     })
     ffmpegInstance = ff
     return ff
