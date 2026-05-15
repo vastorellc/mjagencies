@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 10 (Polish + Resilience) — complete
-status: complete
-stopped_at: "Phase 10 complete — all SC-01–SC-10 checks passed, persistent top navigation added, human checkpoint approved 2026-05-05"
-last_updated: "2026-05-05T07:00:00Z"
-last_activity: 2026-05-05
+current_phase: --phase
+status: executing
+stopped_at: "Completed Phase 3 Plan 09 (03-09): bounded extractFrames + AbortSignal threading; manual smoke pending developer re-run"
+last_updated: "2026-05-15T22:50:00.000Z"
+last_activity: 2026-05-15 -- Phase 3 Plan 09 executed (Tasks 1+2 code; Task 3 manual checkpoint pending)
 progress:
   total_phases: 10
-  completed_phases: 10
-  total_plans: 64
-  completed_plans: 64
-  percent: 100
+  completed_phases: 9
+  total_plans: 66
+  completed_plans: 65
+  percent: 98
 ---
 
 # Project State — Viral Copy Generator
@@ -22,14 +22,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** Phase 10 (Polish + Resilience) — ready to plan
+**Current phase:** --phase
 
 ## Current Position
 
-Phase: 10 of 10 (Polish + Resilience) — COMPLETE ✅
-Plan: All 4 plans executed (10-01, 10-02, 10-03, 10-04). All 64 project plans complete.
-Status: Project v1.0 ready for deployment.
-Last activity: 2026-05-05
+Phase: --phase (03) — EXECUTING
+Plan: 1 of --name
+Status: Executing Phase --phase
+Last activity: 2026-05-15 -- Phase --phase execution started
 
 Progress: [██████████] 100%
 
@@ -39,7 +39,7 @@ Progress: [██████████] 100%
 |---|-------|--------|
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
-| 3 | Video Upload + Analysis Engine | 🟡 In progress (7/8 plans complete — 03-02 through 03-07 done; 03-08 smoke test remains) |
+| 3 | Video Upload + Analysis Engine | 🟢 Provisionally complete (9/9 plans done — 03-09 closed both 03-08 bugs; manual smoke re-run pending via `/gsd-verify-work 3`) |
 | 4 | Virality Score + Checklist | ✅ Complete (8/8 plans, 179/179 tests, verification 6/6 passed 2026-05-02) |
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
@@ -199,12 +199,15 @@ Progress: [██████████] 100%
 
 ## Session Continuity
 
-Last session: 2026-05-14T06:45:00Z
-Stopped at: Completed Phase 3 Plan 07 (03-07): GeneratorPage state machine + 4 analysis UI components
+Last session: 2026-05-15T22:50:00Z
+Stopped at: Completed Phase 3 Plan 09 (03-09): bounded extractFrames + AbortSignal threading; awaiting developer manual smoke re-run on real ~20+ MB MP4
 Resume:
 
-- **Phase 10:** Run `/gsd-plan-phase 10` then `/gsd-execute-phase 10`
+- **Phase 3:** Developer manual smoke re-run (see `03-CALIBRATION.md` → "Manual smoke (Task 2 — re-run after 03-09)") → then `/gsd-verify-work 3` to close Phase 3
+- Phase 10: Run `/gsd-plan-phase 10` then `/gsd-execute-phase 10`
 - Phase 8: `/gsd-verify-work 8` to formally close Phase 8 (confirm smoke test when backend servers running)
 - Phase 7: `/gsd-verify-work 7` once backend `.env` configured + servers restarted
 - Phase 6: `/gsd-verify-work 6` once OAuth accounts connected
 - Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`
+
+**Planned Phase:** 3 (video-upload-analysis) — 9 plans — 03-09 code-complete 2026-05-15T22:50Z
