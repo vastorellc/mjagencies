@@ -46,3 +46,41 @@ npm run test:browser -- src/lib/engine.calibration.test.ts --reporter=verbose
   numeric evidence. Until then they exit early on `hasAudio=false` and are informational.
 - T-03-27 (hardware-induced decoder drift): documented here; detectable by re-running the test
   on a different machine and comparing the `[CALIB]` output lines.
+
+## Manual smoke (Task 2)
+
+**Verified by:** vastorellc@gmail.com
+**Date:** 2026-05-15
+**Browser:** unspecified (dev — Chromium-family on Windows)
+**Machine:** Windows local dev environment
+
+| Fixture | Result |
+|---------|--------|
+| with-face.mp4 | blocked — engine hung on `Extracting frames…` >5 min on a 22 MB user-supplied video after WASM init was fixed (10ca10e) |
+| no-audio.mp4  | not tested — frame-extract hang blocks subsequent fixtures |
+| no-face.mp4   | not tested |
+| corrupt.mp4   | not tested |
+| sample.mov    | not tested |
+
+| Flow | Result |
+|------|--------|
+| Cancel mid-analysis | FAIL — `onCancel()` flips React state to `picked` but `analyse()` keeps running; FFmpeg singleton remains locked inside `ff.exec()`, every subsequent Analyse click queues forever. Hard-refresh required to recover |
+| Re-pick after done | not tested — no done state ever reached |
+| WebAssembly fallback | not tested |
+| 250 MB hard reject | not tested |
+
+### Bugs surfaced (filed for 03-09 gap closure)
+
+1. **`extractFrames` hangs on real videos** — `frontend/src/lib/engine.ts:193`
+   - 22 MB user-supplied video stalled >5 minutes inside `ff.exec(...)`
+   - No `ff.on('log', ...)` handler attached, so ffmpeg stderr is silently swallowed and the UI sits on `frames` forever with no diagnostic output
+   - Likely root cause: `meta.totalFrames` returns `0` / `NaN` / a very large value from `probeVideo()`, so `N = Math.max(1, Math.floor(totalFrames / 10))` yields `1`, causing ffmpeg to write one .jpg per source frame into MEMFS — the documented MEMFS-leak pitfall (RESEARCH.md D-04)
+   - Suggested fix surface: clamp `N` against a derived FPS bound, add a log listener that exposes ffmpeg progress, attach a wall-clock timeout, and `safeDelete` all `frame_*.jpg` files in a `finally` block
+
+2. **Cancel button does not abort the engine** — `frontend/src/pages/GeneratorPage.tsx:281`
+   - `onCancel()` only mutates React state. `analyse()` continues, the FFmpeg singleton (`engine.ts:35`) stays locked
+   - Subsequent Analyse clicks queue behind the hung `ff.exec()` instead of starting fresh
+   - The generation-counter pattern guards stale results but does not propagate cancellation into the WASM worker
+   - Suggested fix surface: thread an `AbortSignal` through `analyse(file, { signal })`, call `ff.terminate()` (or recreate the singleton) on abort, and surface the abort up to the React state machine
+
+Both prevent UPLOAD-01..03 and ANALYSIS-01..10 from being exercised end-to-end in the dev browser. They are the entire scope of 03-09.
