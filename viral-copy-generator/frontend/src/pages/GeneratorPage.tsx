@@ -129,6 +129,7 @@ export default function GeneratorPage({ onNavigate }: Props) {
   const [showAdvisory, setShowAdvisory] = useState(false)
   const [touchOrNarrow, setTouchOrNarrow] = useState(false)
   const generationRef = useRef(0)
+  const analyseControllerRef = useRef<AbortController | null>(null)
 
   // ── Phase 4 / 5 state ──
   const [learnedWeights, setLearnedWeights] = useState<LearnedWeights | null>(null)
@@ -254,10 +255,13 @@ export default function GeneratorPage({ onNavigate }: Props) {
     if (!file) return
 
     const myGen = ++generationRef.current
+    const controller = new AbortController()
+    analyseControllerRef.current = controller
     setStatus({ kind: 'analysing', file, step: null, preparing: true })
 
     try {
       const result = await analyse(file, {
+        signal: controller.signal,
         onProgress: (step) => {
           if (myGen !== generationRef.current) return
           setStatus((prev) => {
@@ -271,12 +275,25 @@ export default function GeneratorPage({ onNavigate }: Props) {
       setStatus({ kind: 'done', file, signals: result })
     } catch (err) {
       if (myGen !== generationRef.current) return
+      // Distinguish user-driven abort from real errors
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        setStatus({ kind: 'picked', file })
+        return
+      }
+      // eslint-disable-next-line no-console
+      console.error('[analyse] engine error:', err)
       const { cause, detail } = deriveCause(err)
       setStatus({ kind: 'error', file, cause, detail })
+    } finally {
+      if (analyseControllerRef.current === controller) {
+        analyseControllerRef.current = null
+      }
     }
   }
 
   function onCancel(): void {
+    // Abort the running engine first so it sees the cancel before the gen counter rolls over
+    analyseControllerRef.current?.abort()
     generationRef.current += 1
     if (status.kind === 'analysing') {
       setStatus({ kind: 'picked', file: status.file })

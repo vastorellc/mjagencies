@@ -84,3 +84,43 @@ npm run test:browser -- src/lib/engine.calibration.test.ts --reporter=verbose
    - Suggested fix surface: thread an `AbortSignal` through `analyse(file, { signal })`, call `ff.terminate()` (or recreate the singleton) on abort, and surface the abort up to the React state machine
 
 Both prevent UPLOAD-01..03 and ANALYSIS-01..10 from being exercised end-to-end in the dev browser. They are the entire scope of 03-09.
+
+## Manual smoke (Task 2 — re-run after 03-09)
+
+**Verified by:** _pending developer re-run with real ~20+ MB MP4_
+**Date:** _pending_
+**Browser:** _pending_
+**Machine:** _pending_
+**Real-video file used:** _pending_
+
+| Fixture | Result |
+|---------|--------|
+| (real ~20+ MB video) | pending |
+| with-face.mp4 | pending |
+| no-audio.mp4  | pending |
+| no-face.mp4   | pending |
+| corrupt.mp4   | pending |
+| sample.mov    | pending |
+
+| Flow | Result |
+|------|--------|
+| Cancel mid-analysis (engine actually aborts) | pending |
+| Re-Analyse after Cancel starts fresh within 5s | pending |
+| Re-pick after done | pending |
+| WebAssembly fallback | pending |
+| 250 MB hard reject | pending |
+
+### 03-08 bugs resolution
+
+- Bug 1 (extractFrames hang): **fixed in 03-09 Task 1** — bounded by `FRAME_TARGET=10` clamp + `-frames:v` ffmpeg ceiling + `Promise.race([exec, timeout])` wall-clock guard (`FRAME_EXTRACT_TIMEOUT_MS=60_000`) + `ff.on('log', ...)` progress listener + duration*fps fallback when `meta.totalFrames` is 0/NaN. Verification pending manual re-run.
+- Bug 2 (Cancel doesn't abort): **fixed in 03-09 Task 2** — `AbortSignal` threaded into `analyse()` and checked at every stage boundary (`throwIfAborted`); on `AbortError` the FFmpeg worker is `terminate()`-ed and the singleton reset so a follow-up Analyse starts fresh. `GeneratorPage.onCancel()` calls `AbortController.abort()` before bumping the generation counter. Verification pending manual re-run.
+
+### Code-level evidence (3 acceptance-grep checks)
+
+```text
+grep -c "FRAME_TARGET" frontend/src/lib/engine.ts         => 7   (>=2 required)
+grep -c "throwIfAborted" frontend/src/lib/engine.ts       => 12  (>=9 required)
+grep -c "AbortController" frontend/src/pages/GeneratorPage.tsx => 2 (>=2 required)
+```
+
+Automated suite after 03-09: 337 passed / 3 skipped / 0 failed.

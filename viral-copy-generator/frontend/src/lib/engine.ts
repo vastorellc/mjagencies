@@ -35,6 +35,17 @@ const FFMPEG_CORE_WASM_URL = '/ffmpeg-core.wasm'
 let ffmpegInstance: FFmpeg | null = null
 let ffmpegLoadPromise: Promise<FFmpeg> | null = null
 
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw new DOMException('Analysis aborted', 'AbortError')
+  }
+}
+
+function resetFFmpegSingleton(): void {
+  ffmpegInstance = null
+  ffmpegLoadPromise = null
+}
+
 export async function getFFmpeg(): Promise<FFmpeg> {
   if (ffmpegInstance) return ffmpegInstance
   if (ffmpegLoadPromise) return ffmpegLoadPromise
@@ -190,17 +201,53 @@ async function detectScenes(ff: FFmpeg): Promise<number[]> {
   return Array.from(new Set(sceneTimestamps)).sort((a, b) => a - b)
 }
 
-async function extractFrames(ff: FFmpeg, totalFrames: number): Promise<string[]> {
-  const N = Math.max(1, Math.floor(totalFrames / 10))
+// Frame extraction bounds (T-03-28 mitigation — totalFrames may be 0/NaN/huge)
+const FRAME_TARGET = 10
+const FRAME_EXTRACT_TIMEOUT_MS = 60_000
+const FRAME_FALLBACK_FPS = 30
+const FRAME_FALLBACK_DURATION_SEC = 60
+
+async function extractFrames(ff: FFmpeg, meta: ParsedMeta): Promise<string[]> {
+  const estTotal =
+    meta.totalFrames >= FRAME_TARGET
+      ? meta.totalFrames
+      : (meta.durationSec > 0 && meta.fps > 0
+          ? Math.floor(meta.durationSec * meta.fps)
+          : FRAME_FALLBACK_DURATION_SEC * FRAME_FALLBACK_FPS)
+  const N = Math.max(1, Math.floor(estTotal / FRAME_TARGET))
+
+  const onLog = ({ message }: { message: string }) => {
+    // eslint-disable-next-line no-console
+    console.info(`[ffmpeg:frames] ${message}`)
+  }
+  ff.on('log', onLog)
+
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
   try {
-    await ff.exec([
+    const exec = ff.exec([
       '-i', 'input.mp4',
       '-vf', `select='not(mod(n\\,${N}))',scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2`,
+      '-frames:v', String(FRAME_TARGET),
       '-vsync', 'vfr', '-q:v', '5', 'frame_%03d.jpg',
     ])
-  } catch { return [] }
+    const timeout = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(
+        () => reject(new Error(`frame-extract timeout after ${FRAME_EXTRACT_TIMEOUT_MS}ms`)),
+        FRAME_EXTRACT_TIMEOUT_MS,
+      )
+    })
+    await Promise.race([exec, timeout])
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('[ffmpeg:frames] aborted/failed:', err instanceof Error ? err.message : err)
+    return []
+  } finally {
+    if (timeoutId !== null) clearTimeout(timeoutId)
+    ff.off('log', onLog)
+  }
+
   const frames: string[] = []
-  for (let i = 1; i <= 15; i++) {
+  for (let i = 1; i <= FRAME_TARGET; i++) {
     const name = `frame_${String(i).padStart(3, '0')}.jpg`
     try {
       const data = (await ff.readFile(name)) as Uint8Array
@@ -208,7 +255,7 @@ async function extractFrames(ff: FFmpeg, totalFrames: number): Promise<string[]>
       await ff.deleteFile(name)
     } catch { break }
   }
-  return frames.slice(0, 10)
+  return frames
 }
 
 async function decodeFrameToCanvas(dataUri: string): Promise<HTMLCanvasElement> {
@@ -390,40 +437,55 @@ export async function analyse(file: File, opts: AnalyseOptions = {}): Promise<En
   const pre = canRunEngine()
   if (!pre.ok) throw new Error(`engine unavailable: ${pre.reason}`)
   const onProgress: (s: ProgressStep) => void = opts.onProgress ?? (() => {})
+  const signal = opts.signal
+  throwIfAborted(signal)
+
   await warmup()
+  throwIfAborted(signal)
+
   const ff = await getFFmpeg()
   const bytes = new Uint8Array(await file.arrayBuffer())
   await ff.writeFile('input.mp4', bytes)
+  throwIfAborted(signal)
+
   try {
     onProgress('metadata')
     const probe = await probeVideo(ff)
+    throwIfAborted(signal)
     const meta = parseMeta(probe)
 
     onProgress('scenes')
     const sceneTimestamps = await detectScenes(ff)
+    throwIfAborted(signal)
 
     onProgress('frames')
-    const framesBase64 = await extractFrames(ff, meta.totalFrames)
+    const framesBase64 = await extractFrames(ff, meta)
+    throwIfAborted(signal)
 
     // Decode frames to canvases for TF.js + brightness
     const canvases: HTMLCanvasElement[] = []
     for (const uri of framesBase64) {
       try { canvases.push(await decodeFrameToCanvas(uri)) } catch { /* skip */ }
     }
+    throwIfAborted(signal)
 
     onProgress('faces')
     const { faceCount, faceConfidence } = await detectFacesAcrossFrames(canvases)
+    throwIfAborted(signal)
 
     onProgress('objects')
     const { objectLabels, motionScore } = await detectObjectsAndMotion(canvases)
+    throwIfAborted(signal)
 
     onProgress('audio')
     const audio = await analyseAudio(file)
     // audio.hasAudio is the authoritative source (decodeAudioData-based), overrides ffprobe hasAudio
     const hasAudio = audio.hasAudio
+    throwIfAborted(signal)
 
     onProgress('brightness')
     const brightnessScore = computeBrightnessAcrossFrames(canvases)
+    throwIfAborted(signal)
 
     onProgress('done')
 
@@ -447,10 +509,18 @@ export async function analyse(file: File, opts: AnalyseOptions = {}): Promise<En
       silenceGapsSec: audio.silenceGapsSec,
       brightnessScore,
     }
+  } catch (err) {
+    // On AbortError, terminate the WASM worker and reset the singleton so the next run is fresh.
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      try { ff.terminate() } catch { /* worker may already be dead */ }
+      resetFFmpegSingleton()
+    }
+    throw err
   } finally {
-    await safeDelete(ff, ['input.mp4', 'meta.json'])
-    for (let i = 1; i <= 15; i++) {
-      await safeDelete(ff, [`frame_${String(i).padStart(3, '0')}.jpg`])
+    // Best-effort MEMFS cleanup. After terminate(), these will throw — safeDelete swallows errors.
+    try { await safeDelete(ff, ['input.mp4', 'meta.json']) } catch { /* ignore */ }
+    for (let i = 1; i <= FRAME_TARGET; i++) {
+      try { await safeDelete(ff, [`frame_${String(i).padStart(3, '0')}.jpg`]) } catch { /* ignore */ }
     }
   }
 }
@@ -495,7 +565,11 @@ async function analyseAudioRaw(file: File): Promise<{
   return { signals, meanFlux, meanRms, windowCount: rms.length }
 }
 
-export const __testables = { parseMeta, uint8ToBase64, analyseAudioRaw, AUDIO_THRESHOLDS }
+export const __testables = {
+  parseMeta, uint8ToBase64, analyseAudioRaw, AUDIO_THRESHOLDS,
+  extractFrames,
+  FRAME_TARGET, FRAME_EXTRACT_TIMEOUT_MS,
+}
 export function __resetEngineForTests(): void {
   ffmpegInstance = null
   ffmpegLoadPromise = null
