@@ -4,9 +4,9 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: --phase
 status: executing
-stopped_at: "Completed Phase 3 Plan 09 (03-09): bounded extractFrames + AbortSignal threading; manual smoke pending developer re-run"
-last_updated: "2026-05-15T22:50:00.000Z"
-last_activity: 2026-05-15 -- Phase 3 Plan 09 executed (Tasks 1+2 code; Task 3 manual checkpoint pending)
+stopped_at: "Completed Phase 3 Plan 09 (03-09): engine rewritten to HTMLVideoElement + rVFC; manual smoke PASSED on real 22 MB MP4"
+last_updated: "2026-05-15T23:25:00.000Z"
+last_activity: 2026-05-15 -- Phase 3 verified end-to-end; engine v3 ships
 progress:
   total_phases: 10
   completed_phases: 9
@@ -39,7 +39,7 @@ Progress: [██████████] 100%
 |---|-------|--------|
 | 1 | Backend + Auth Foundation | ✅ Complete (5/5 plans, UAT 11/11 passed, code review fixes applied) |
 | 2 | Settings + Social OAuth | 🟢 Provisionally complete (7/7 plans done; 02-01 credential checkpoint + 02-07 E2E round-trips deferred — automated suite 47/47 passes; close via `/gsd-verify-work 2` after credentials are in `.env`) |
-| 3 | Video Upload + Analysis Engine | 🟢 Provisionally complete (9/9 plans done — 03-09 closed both 03-08 bugs; manual smoke re-run pending via `/gsd-verify-work 3`) |
+| 3 | Video Upload + Analysis Engine | ✅ Complete (9/9 plans done; 03-09 rewrote engine to use HTMLVideoElement + rVFC instead of ffmpeg.wasm; manual smoke verified end-to-end on real 22 MB MP4 2026-05-15) |
 | 4 | Virality Score + Checklist | ✅ Complete (8/8 plans, 179/179 tests, verification 6/6 passed 2026-05-02) |
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
@@ -203,7 +203,7 @@ Last session: 2026-05-15T22:50:00Z
 Stopped at: Completed Phase 3 Plan 09 (03-09): bounded extractFrames + AbortSignal threading; awaiting developer manual smoke re-run on real ~20+ MB MP4
 Resume:
 
-- **Phase 3:** Developer manual smoke re-run (see `03-CALIBRATION.md` → "Manual smoke (Task 2 — re-run after 03-09)") → then `/gsd-verify-work 3` to close Phase 3
+- **Phase 3:** Verified end-to-end (engine v3 — HTMLVideoElement + rVFC). Run `/gsd-verify-work 3` to formally close.
 - Phase 10: Run `/gsd-plan-phase 10` then `/gsd-execute-phase 10`
 - Phase 8: `/gsd-verify-work 8` to formally close Phase 8 (confirm smoke test when backend servers running)
 - Phase 7: `/gsd-verify-work 7` once backend `.env` configured + servers restarted

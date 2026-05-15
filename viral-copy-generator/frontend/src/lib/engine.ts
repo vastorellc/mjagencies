@@ -178,23 +178,80 @@ async function safeDelete(ff: FFmpeg, names: string[]): Promise<void> {
   for (const n of names) { try { await ff.deleteFile(n) } catch { /* ignore ENOENT */ } }
 }
 
-async function probeVideo(ff: FFmpeg): Promise<unknown> {
-  // D-17 / ANALYSIS-10 — read meta.json UNCONDITIONALLY; ffprobe returns -1 even on success (#817)
-  await ff.ffprobe(['-v', 'quiet', '-print_format', 'json', '-show_streams', '-show_format', '-o', 'meta.json', 'input.mp4'])
-  const raw = await ff.readFile('meta.json', 'utf8')
-  const text = typeof raw === 'string' ? raw : new TextDecoder().decode(raw as Uint8Array)
-  try { return JSON.parse(text) } catch { return {} }
+// ffmpeg wall-clock ceilings — every exec/ffprobe is wrapped in Promise.race against
+// these so the engine cannot hang indefinitely on a malformed or pathologically-large video.
+const PROBE_TIMEOUT_MS = 30_000
+const SCENE_DETECT_TIMEOUT_MS = 60_000
+
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(
+      () => reject(new Error(`${label} timeout after ${ms}ms`)),
+      ms,
+    )
+  })
+  return Promise.race([p, timeout]).finally(() => {
+    if (timeoutId !== null) clearTimeout(timeoutId)
+  })
 }
 
-async function detectScenes(ff: FFmpeg): Promise<number[]> {
+// Mutable per-run state shared across ffmpeg stages. When a stage times out, the WASM
+// worker is wedged — `poisoned` flips true so subsequent ffmpeg stages short-circuit
+// instead of queueing behind the stuck command.
+interface FFmpegRunState { poisoned: boolean }
+
+function poisonAndTerminate(ff: FFmpeg, state: FFmpegRunState, source: string): void {
+  if (state.poisoned) return
+  state.poisoned = true
+  // eslint-disable-next-line no-console
+  console.warn(`[ffmpeg:${source}] timeout — terminating worker, downstream ffmpeg stages will skip`)
+  try { ff.terminate() } catch { /* worker may already be dead */ }
+  resetFFmpegSingleton()
+}
+
+async function probeVideo(ff: FFmpeg, state: FFmpegRunState): Promise<unknown> {
+  if (state.poisoned) return {}
+  // D-17 / ANALYSIS-10 — read meta.json UNCONDITIONALLY; ffprobe returns -1 even on success (#817)
+  try {
+    await withTimeout(
+      ff.ffprobe(['-v', 'quiet', '-print_format', 'json', '-show_streams', '-show_format', '-o', 'meta.json', 'input.mp4']),
+      PROBE_TIMEOUT_MS,
+      'ffprobe',
+    )
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('[ffmpeg:probe] failed/timeout:', err instanceof Error ? err.message : err)
+    poisonAndTerminate(ff, state, 'probe')
+    return {}
+  }
+  try {
+    const raw = await ff.readFile('meta.json', 'utf8')
+    const text = typeof raw === 'string' ? raw : new TextDecoder().decode(raw as Uint8Array)
+    try { return JSON.parse(text) } catch { return {} }
+  } catch { return {} }
+}
+
+async function detectScenes(ff: FFmpeg, state: FFmpegRunState): Promise<number[]> {
+  if (state.poisoned) return []
   const sceneTimestamps: number[] = []
   const onLog = ({ message }: { message: string }) => {
+    // eslint-disable-next-line no-console
+    console.info(`[ffmpeg:scenes] ${message}`)
     const m = message.match(/pts_time:([0-9.]+)/)
     if (m) { const t = parseFloat(m[1]); if (Number.isFinite(t)) sceneTimestamps.push(t) }
   }
   ff.on('log', onLog)
   try {
-    await ff.exec(['-i', 'input.mp4', '-filter:v', "select='gt(scene,0.4)',showinfo", '-f', 'null', '-'])
+    await withTimeout(
+      ff.exec(['-i', 'input.mp4', '-filter:v', "select='gt(scene,0.4)',showinfo", '-f', 'null', '-']),
+      SCENE_DETECT_TIMEOUT_MS,
+      'scene-detect',
+    )
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('[ffmpeg:scenes] aborted/failed:', err instanceof Error ? err.message : err)
+    poisonAndTerminate(ff, state, 'scenes')
   } finally {
     ff.off('log', onLog)
   }
@@ -207,7 +264,179 @@ const FRAME_EXTRACT_TIMEOUT_MS = 60_000
 const FRAME_FALLBACK_FPS = 30
 const FRAME_FALLBACK_DURATION_SEC = 60
 
-async function extractFrames(ff: FFmpeg, meta: ParsedMeta): Promise<string[]> {
+// Video-element frame extraction (T-03-28 v2 — replaces ffmpeg.wasm hot path)
+// Uses the browser's hardware-accelerated H.264 decoder via HTMLVideoElement.seek +
+// requestVideoFrameCallback. Single-threaded WASM @ffmpeg/core hangs for minutes on
+// real videos; the native decoder is ~50-100x faster and works on every codec the
+// browser plays.
+const VIDEO_METADATA_TIMEOUT_MS = 10_000
+const VIDEO_SEEK_TIMEOUT_MS = 5_000
+const SCENE_DIFF_THRESHOLD = 0.18 // MAD threshold on 32x32 RGB downsample, 0-1 normalized
+const SCENE_FINGERPRINT_SIZE = 32
+
+interface ExtractedFrames {
+  canvases: HTMLCanvasElement[]
+  framesBase64: string[]
+  duration: number
+  width: number
+  height: number
+}
+
+async function extractFramesViaVideo(
+  file: File,
+  count: number,
+  signal?: AbortSignal,
+): Promise<ExtractedFrames> {
+  // eslint-disable-next-line no-console
+  console.info(`[engine v3] extractFramesViaVideo — file=${file.name} size=${file.size}B target=${count} frames`)
+
+  const url = URL.createObjectURL(file)
+  const video = document.createElement('video')
+  video.muted = true
+  video.playsInline = true
+  video.preload = 'auto'
+  video.crossOrigin = 'anonymous' // safe for blob: URLs
+  // Attach to DOM (hidden) — some Chromium builds won't decode for detached elements
+  video.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none'
+  document.body.appendChild(video)
+  video.src = url
+
+  const empty: ExtractedFrames = { canvases: [], framesBase64: [], duration: 0, width: 0, height: 0 }
+
+  try {
+    // eslint-disable-next-line no-console
+    console.info('[engine v3] awaiting loadedmetadata...')
+    await new Promise<void>((resolve, reject) => {
+      const cleanup = () => {
+        video.onloadedmetadata = null
+        video.onerror = null
+      }
+      const onAbort = () => { cleanup(); reject(new DOMException('Analysis aborted', 'AbortError')) }
+      video.onloadedmetadata = () => {
+        // eslint-disable-next-line no-console
+        console.info(`[engine v3] loadedmetadata fired — duration=${video.duration} ${video.videoWidth}x${video.videoHeight}`)
+        cleanup(); resolve()
+      }
+      video.onerror = () => {
+        // eslint-disable-next-line no-console
+        console.error('[engine v3] video.onerror fired:', video.error)
+        cleanup(); reject(new Error(`video failed to load: ${video.error?.message ?? 'unknown'} (code ${video.error?.code ?? '?'})`))
+      }
+      signal?.addEventListener('abort', onAbort, { once: true })
+      setTimeout(() => {
+        // eslint-disable-next-line no-console
+        console.warn(`[engine v3] metadata timeout after ${VIDEO_METADATA_TIMEOUT_MS}ms — readyState=${video.readyState}`)
+        cleanup(); reject(new Error(`video metadata timeout after ${VIDEO_METADATA_TIMEOUT_MS}ms (readyState=${video.readyState})`))
+      }, VIDEO_METADATA_TIMEOUT_MS)
+    })
+
+    const duration = video.duration
+    const width = video.videoWidth
+    const height = video.videoHeight
+    if (!Number.isFinite(duration) || duration <= 0 || width === 0 || height === 0) {
+      // eslint-disable-next-line no-console
+      console.warn(`[video:frames] invalid metadata — duration=${duration} ${width}x${height} (likely fragmented MP4 without moov atom)`)
+      return empty
+    }
+
+    // Skip first 2% / last 5% to avoid edit lists, black intro/outro frames
+    const start = duration * 0.02
+    const end = duration * 0.95
+    const stride = (end - start) / Math.max(1, count - 1)
+
+    const canvases: HTMLCanvasElement[] = []
+    const framesBase64: string[] = []
+
+    const hasRVFC = typeof (video as HTMLVideoElement & { requestVideoFrameCallback?: unknown }).requestVideoFrameCallback === 'function'
+
+    for (let i = 0; i < count; i++) {
+      if (signal?.aborted) throw new DOMException('Analysis aborted', 'AbortError')
+      const t = Math.min(start + i * stride, duration - 0.1)
+
+      try {
+        await new Promise<void>((resolve, reject) => {
+          let done = false
+          const finish = () => { if (done) return; done = true; clearTimeout(timeoutId); resolve() }
+          const fail = (err: Error) => { if (done) return; done = true; clearTimeout(timeoutId); reject(err) }
+          const timeoutId = setTimeout(() => fail(new Error(`seek timeout at ${t.toFixed(2)}s`)), VIDEO_SEEK_TIMEOUT_MS)
+
+          if (hasRVFC) {
+            // rVFC fires AFTER the frame is composited — only reliable signal for drawImage
+            ;(video as HTMLVideoElement & { requestVideoFrameCallback: (cb: () => void) => void })
+              .requestVideoFrameCallback(finish)
+          } else {
+            // Fallback: seeked event + one-frame composite delay
+            const onSeeked = () => { video.removeEventListener('seeked', onSeeked); setTimeout(finish, 30) }
+            const onErr = () => { video.removeEventListener('error', onErr); fail(new Error('seek error')) }
+            video.addEventListener('seeked', onSeeked, { once: true })
+            video.addEventListener('error', onErr, { once: true })
+          }
+          video.currentTime = t
+        })
+
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d', { willReadFrequently: true })
+        if (!ctx) throw new Error('canvas 2d context unavailable')
+        ctx.drawImage(video, 0, 0)
+        canvases.push(canvas)
+        framesBase64.push(canvas.toDataURL('image/jpeg', 0.85))
+        // eslint-disable-next-line no-console
+        console.info(`[video:frames] captured frame ${i + 1}/${count} at ${t.toFixed(2)}s`)
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') throw err
+        // eslint-disable-next-line no-console
+        console.warn(`[video:frames] skip frame ${i + 1} at ${t.toFixed(2)}s:`, err instanceof Error ? err.message : err)
+      }
+    }
+
+    return { canvases, framesBase64, duration, width, height }
+  } finally {
+    URL.revokeObjectURL(url)
+    video.src = ''
+    try { video.load() } catch { /* ignore */ }
+    try { video.remove() } catch { /* ignore */ }
+  }
+}
+
+function detectScenesFromCanvases(canvases: HTMLCanvasElement[], duration: number): number[] {
+  if (canvases.length < 2) return []
+  const tmp = document.createElement('canvas')
+  tmp.width = SCENE_FINGERPRINT_SIZE
+  tmp.height = SCENE_FINGERPRINT_SIZE
+  const tmpCtx = tmp.getContext('2d', { willReadFrequently: true })
+  if (!tmpCtx) return []
+
+  const fingerprints: Uint8ClampedArray[] = []
+  for (const c of canvases) {
+    tmpCtx.clearRect(0, 0, SCENE_FINGERPRINT_SIZE, SCENE_FINGERPRINT_SIZE)
+    tmpCtx.drawImage(c, 0, 0, SCENE_FINGERPRINT_SIZE, SCENE_FINGERPRINT_SIZE)
+    fingerprints.push(tmpCtx.getImageData(0, 0, SCENE_FINGERPRINT_SIZE, SCENE_FINGERPRINT_SIZE).data)
+  }
+
+  const sceneTimestamps: number[] = []
+  const pxCount = SCENE_FINGERPRINT_SIZE * SCENE_FINGERPRINT_SIZE
+  const maxDiff = pxCount * 3 * 255 // 3 channels (skip alpha) at full diff
+  for (let i = 1; i < fingerprints.length; i++) {
+    const prev = fingerprints[i - 1]
+    const curr = fingerprints[i]
+    let total = 0
+    for (let p = 0; p < prev.length; p += 4) {
+      total += Math.abs(prev[p] - curr[p])
+      total += Math.abs(prev[p + 1] - curr[p + 1])
+      total += Math.abs(prev[p + 2] - curr[p + 2])
+    }
+    const mad = total / maxDiff
+    if (mad > SCENE_DIFF_THRESHOLD) {
+      sceneTimestamps.push((duration * (i + 0.5)) / fingerprints.length)
+    }
+  }
+  return sceneTimestamps
+}
+
+async function extractFrames(ff: FFmpeg, meta: ParsedMeta, state: FFmpegRunState = { poisoned: false }): Promise<string[]> {
+  if (state.poisoned) return []
   const estTotal =
     meta.totalFrames >= FRAME_TARGET
       ? meta.totalFrames
@@ -222,27 +451,24 @@ async function extractFrames(ff: FFmpeg, meta: ParsedMeta): Promise<string[]> {
   }
   ff.on('log', onLog)
 
-  let timeoutId: ReturnType<typeof setTimeout> | null = null
   try {
-    const exec = ff.exec([
-      '-i', 'input.mp4',
-      '-vf', `select='not(mod(n\\,${N}))',scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2`,
-      '-frames:v', String(FRAME_TARGET),
-      '-vsync', 'vfr', '-q:v', '5', 'frame_%03d.jpg',
-    ])
-    const timeout = new Promise<never>((_, reject) => {
-      timeoutId = setTimeout(
-        () => reject(new Error(`frame-extract timeout after ${FRAME_EXTRACT_TIMEOUT_MS}ms`)),
-        FRAME_EXTRACT_TIMEOUT_MS,
-      )
-    })
-    await Promise.race([exec, timeout])
+    await withTimeout(
+      ff.exec([
+        '-i', 'input.mp4',
+        '-vf', `select='not(mod(n\\,${N}))',scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2`,
+        '-frames:v', String(FRAME_TARGET),
+        '-vsync', 'vfr', '-q:v', '5', 'frame_%03d.jpg',
+      ]),
+      FRAME_EXTRACT_TIMEOUT_MS,
+      'frame-extract',
+    )
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn('[ffmpeg:frames] aborted/failed:', err instanceof Error ? err.message : err)
+    poisonAndTerminate(ff, state, 'frames')
+    ff.off('log', onLog)
     return []
   } finally {
-    if (timeoutId !== null) clearTimeout(timeoutId)
     ff.off('log', onLog)
   }
 
@@ -434,39 +660,63 @@ function computeBrightnessAcrossFrames(frames: HTMLCanvasElement[]): number {
 // ANALYSE — main entry point
 // ============================================================================
 export async function analyse(file: File, opts: AnalyseOptions = {}): Promise<EngineSignals> {
+  // eslint-disable-next-line no-console
+  console.info('[engine v3] analyse() starting — video-element extraction (NOT ffmpeg)')
   const pre = canRunEngine()
   if (!pre.ok) throw new Error(`engine unavailable: ${pre.reason}`)
   const onProgress: (s: ProgressStep) => void = opts.onProgress ?? (() => {})
   const signal = opts.signal
   throwIfAborted(signal)
 
-  await warmup()
+  // Warm up TF.js models in parallel with metadata probe — ffmpeg.wasm is no longer
+  // on the hot path; we use HTMLVideoElement + requestVideoFrameCallback for frame
+  // extraction (hardware-accelerated, ~50x faster than single-threaded WASM).
+  await Promise.allSettled([getFaceDetector(), getCocoDetector()])
   throwIfAborted(signal)
 
-  const ff = await getFFmpeg()
-  const bytes = new Uint8Array(await file.arrayBuffer())
-  await ff.writeFile('input.mp4', bytes)
+  onProgress('metadata')
+  // Try ffprobe first for rich metadata (fps, bitrate, totalFrames); fall back to
+  // video-element metadata if ffprobe times out or the FFmpeg load fails.
+  let meta: ParsedMeta = { durationSec: 0, width: 0, height: 0, aspectRatio: 0, fps: 0, bitrate: 0, hasAudio: false, totalFrames: 0 }
+  let ff: FFmpeg | null = null
+  const runState: FFmpegRunState = { poisoned: false }
+  try {
+    ff = await withTimeout(getFFmpeg(), 15_000, 'ffmpeg-load')
+    const bytes = new Uint8Array(await file.arrayBuffer())
+    await ff.writeFile('input.mp4', bytes)
+    const probe = await probeVideo(ff, runState)
+    meta = parseMeta(probe)
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('[ffmpeg:probe] failed — falling back to video-element metadata:', err instanceof Error ? err.message : err)
+    if (ff) {
+      try { ff.terminate() } catch { /* ignore */ }
+      resetFFmpegSingleton()
+    }
+  }
   throwIfAborted(signal)
 
   try {
-    onProgress('metadata')
-    const probe = await probeVideo(ff)
-    throwIfAborted(signal)
-    const meta = parseMeta(probe)
+    onProgress('frames')
+    const { canvases, framesBase64, duration: videoDuration, width: videoWidth, height: videoHeight } =
+      await extractFramesViaVideo(file, FRAME_TARGET, signal)
+
+    // Fall back to video-element metadata if ffprobe didn't yield anything
+    if (meta.durationSec === 0 && videoDuration > 0) {
+      meta = {
+        durationSec: videoDuration,
+        width: videoWidth,
+        height: videoHeight,
+        aspectRatio: videoWidth > 0 && videoHeight > 0 ? videoWidth / videoHeight : 0,
+        fps: FRAME_FALLBACK_FPS,
+        bitrate: 0,
+        hasAudio: false, // detected authoritatively via Web Audio API below
+        totalFrames: 0,
+      }
+    }
 
     onProgress('scenes')
-    const sceneTimestamps = await detectScenes(ff)
-    throwIfAborted(signal)
-
-    onProgress('frames')
-    const framesBase64 = await extractFrames(ff, meta)
-    throwIfAborted(signal)
-
-    // Decode frames to canvases for TF.js + brightness
-    const canvases: HTMLCanvasElement[] = []
-    for (const uri of framesBase64) {
-      try { canvases.push(await decodeFrameToCanvas(uri)) } catch { /* skip */ }
-    }
+    const sceneTimestamps = detectScenesFromCanvases(canvases, meta.durationSec)
     throwIfAborted(signal)
 
     onProgress('faces')
@@ -479,7 +729,6 @@ export async function analyse(file: File, opts: AnalyseOptions = {}): Promise<En
 
     onProgress('audio')
     const audio = await analyseAudio(file)
-    // audio.hasAudio is the authoritative source (decodeAudioData-based), overrides ffprobe hasAudio
     const hasAudio = audio.hasAudio
     throwIfAborted(signal)
 
@@ -510,17 +759,30 @@ export async function analyse(file: File, opts: AnalyseOptions = {}): Promise<En
       brightnessScore,
     }
   } catch (err) {
-    // On AbortError, terminate the WASM worker and reset the singleton so the next run is fresh.
     if (err instanceof DOMException && err.name === 'AbortError') {
-      try { ff.terminate() } catch { /* worker may already be dead */ }
-      resetFFmpegSingleton()
+      if (ff) {
+        try { ff.terminate() } catch { /* ignore */ }
+        resetFFmpegSingleton()
+      }
     }
     throw err
   } finally {
-    // Best-effort MEMFS cleanup. After terminate(), these will throw — safeDelete swallows errors.
-    try { await safeDelete(ff, ['input.mp4', 'meta.json']) } catch { /* ignore */ }
-    for (let i = 1; i <= FRAME_TARGET; i++) {
-      try { await safeDelete(ff, [`frame_${String(i).padStart(3, '0')}.jpg`]) } catch { /* ignore */ }
+    // MEMFS cleanup — bounded so a wedged worker can never hang the analyse() promise.
+    if (ff && !runState.poisoned) {
+      try {
+        await withTimeout(
+          (async () => {
+            try { await safeDelete(ff!, ['input.mp4', 'meta.json']) } catch { /* ignore */ }
+          })(),
+          5_000,
+          'memfs-cleanup',
+        )
+      } catch {
+        // eslint-disable-next-line no-console
+        console.warn('[ffmpeg:cleanup] timeout — terminating worker and resetting singleton')
+        try { ff.terminate() } catch { /* ignore */ }
+        resetFFmpegSingleton()
+      }
     }
   }
 }

@@ -124,3 +124,15 @@ grep -c "AbortController" frontend/src/pages/GeneratorPage.tsx => 2 (>=2 require
 ```
 
 Automated suite after 03-09: 337 passed / 3 skipped / 0 failed.
+
+## Engine rewrite (03-09 follow-up)
+
+**2026-05-15 — ffmpeg.wasm replaced on the hot path** after the bounded-extract + abort fixes still hung on real 22 MB videos. Root cause: single-threaded `@ffmpeg/core` H.264 decode is too slow for real videos — even with timeouts, frame extraction took minutes and `safeDelete` in `finally` queued behind the wedged worker, blocking the analyse() promise.
+
+**New approach (`engine v3`):**
+- `extractFramesViaVideo(file, count, signal)` — uses `HTMLVideoElement` + `requestVideoFrameCallback` (rVFC) to seek the browser's hardware-accelerated H.264 decoder to 10 evenly-spaced timestamps; `canvas.drawImage(video)` captures each frame; `toDataURL('image/jpeg', 0.85)` for base64 output. ~50× faster than WASM single-thread.
+- `detectScenesFromCanvases(canvases, duration)` — 32×32 RGB MAD pixel-diff between adjacent extracted frames, threshold 0.18. Replaces ffmpeg `select='gt(scene,0.4)'` filter.
+- `probeVideo` (ffmpeg) kept for rich metadata (fps, bitrate, totalFrames) but with a 15s `getFFmpeg()` load timeout; on failure, falls back to `video.duration / videoWidth / videoHeight`.
+- Pitfalls covered: `muted=true` + `playsInline=true` + `preload='auto'`, video appended to DOM (hidden), `requestVideoFrameCallback` (NOT just `seeked`) so `drawImage` captures the painted frame, skip first 2% / last 5% for edit-list / black-frame protection, 5s per-seek timeout, `willReadFrequently: true` on canvas context, `URL.revokeObjectURL` + `video.remove()` in finally.
+
+**Verified end-to-end** on a real 22 MB MP4 in the dev browser at http://localhost:5173/ — `[engine v3]` logs streamed, all 10 frames captured, Done state populated with real signals. Replaces "stuck for minutes" with "completes in seconds".
