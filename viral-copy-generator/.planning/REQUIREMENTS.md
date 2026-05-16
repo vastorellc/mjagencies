@@ -174,7 +174,7 @@ history, learning loops, admin panel, content research engine.
 - [x] **RESEARCH-03**: System fetches Google Trends data for user's content niches (rising queries, interest by region Pakistan) via `google-trends-api` npm package
 - [x] **RESEARCH-04**: System fetches trending posts from Reddit (r/pakistan + niche subreddits: r/travel, r/motorcycles, r/programming, r/CasualPakistan) via Reddit API (read-only, no OAuth required for public subreddits)
 - [x] **RESEARCH-05**: System fetches emerging topics from ExplodingTopics or similar source (web fetch or API) for early trend detection
-- [x] **RESEARCH-06**: All external trend data cached in `trend_cache` table per niche per source (24-hour TTL) �� user sees instant results from cache; pg-boss job refreshes cache daily
+- [x] **RESEARCH-06**: All external trend data cached in `trend_cache` table per niche per source (24-hour TTL) — user sees instant results from cache; pg-boss job refreshes cache daily
 - [x] **RESEARCH-07**: Trend data combined with user's own learning data (top-performing niches, hooks, hashtags) to rank content opportunities by predicted performance
 - [x] **RESEARCH-08**: AI generates 5–10 content ideas per session using combined trend + learning context
 - [x] **RESEARCH-09**: Each content idea includes: concept title, hook options (3 variations), script outline, key moments (3–5 timestamps), B-roll suggestions, target platform(s), estimated virality signal strength
@@ -184,6 +184,15 @@ history, learning loops, admin panel, content research engine.
 - [x] **RESEARCH-13**: User can save any content idea (stored in `content_ideas` table, per-user RLS)
 - [x] **RESEARCH-14**: User can trigger on-demand refresh of trend data (bypasses 24h cache)
 - [x] **RESEARCH-15**: Research results show data freshness indicator ("Last updated: 3h ago")
+
+### VERIFY — AI Provider + Model Verification
+
+- [ ] **VERIFY-01**: Single `MODELS` source-of-truth constant per side (frontend + backend); all 6 previously-hardcoded model IDs reference these constants; no other hardcoded model strings outside the constant file (verified by grep)
+- [ ] **VERIFY-02**: All four providers (Gemini, Claude, OpenAI, DeepSeek) use the locked May-2026 model IDs per `.planning/notes/2026-05-15-ai-models-current-state.md`
+- [ ] **VERIFY-03**: `POST /api/settings/validate-key` verifies both API key AND model ID; returns `key_valid`, `model_valid`, `capabilities`, and `error_kind` discriminator (`invalid_key` | `model_not_found` | `rate_limited` | `service_unavailable` | null)
+- [ ] **VERIFY-04**: `parseProviderError` adds `model_not_found` AIErrorKind with `retryable: false` for all 4 providers, with admin-action UX message
+- [ ] **VERIFY-05**: Weekly pg-boss `provider-health-check` job pings each (provider, model) and writes one row per check to `admin_provider_health`; fail-partial (one provider down does not block others); missing service key produces a `not_configured` row, not a job failure; cleanup keeps last 30 rows per (provider, model)
+- [ ] **VERIFY-06**: Admin panel adds Provider Health tab showing last ping per (provider, model), capability matrix, latency p95 over last 7 days; manual Refresh button (no auto-poll per Pitfall 10)
 
 ### UI — Interface and UX
 
@@ -239,3 +248,4 @@ history, learning loops, admin panel, content research engine.
 | 8. Admin Panel | ADMIN-01–10 |
 | 9. Content Research Engine | RESEARCH-01–15 |
 | 10. Polish + Resilience | Quality properties spanning all phases |
+| 11. AI Provider + Model Verification Mechanism | VERIFY-01–06 |

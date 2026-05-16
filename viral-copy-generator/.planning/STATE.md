@@ -4,15 +4,15 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: --phase
 status: executing
-stopped_at: "Completed Phase 3 Plan 09 (03-09): engine rewritten to HTMLVideoElement + rVFC; manual smoke PASSED on real 22 MB MP4"
-last_updated: "2026-05-15T23:25:00.000Z"
-last_activity: 2026-05-15 -- Phase 3 verified end-to-end; engine v3 ships
+stopped_at: "Completed Phase 3 Plan 09 (03-09): bounded extractFrames + AbortSignal threading; awaiting developer manual smoke re-run on real ~20+ MB MP4"
+last_updated: "2026-05-16T03:56:03.743Z"
+last_activity: 2026-05-15 -- Phase --phase execution started
 progress:
-  total_phases: 11
-  completed_phases: 9
-  total_plans: 66
+  total_phases: 12
+  completed_phases: 10
+  total_plans: 71
   completed_plans: 65
-  percent: 98
+  percent: 92
 ---
 
 # Project State — Viral Copy Generator
@@ -76,7 +76,7 @@ Progress: [██████████] 100%
 ### Roadmap Evolution
 
 - 2026-05-15: Phase 11 added — AI Provider + Model Verification Mechanism (centralize 6 stale model IDs, runtime verify key + model, model_not_found discriminant, capability matrix, weekly health-check pg-boss job). Time-critical: `deepseek-chat` retires 2026-07-24.
-
+- 2026-05-16: Phase 12 added — Cover-Frame Scoring & Recommendation. Score the 10 frames extracted by the engine for thumbnail/cover CTR-likelihood (face-on, rule-of-thirds, contrast, text-readable zones, eye-contact, motion-blur). Recommend top 3 frames per video; auto-overlay AI `cover_text` on the winner. New CoverFramePanel between ScorePanel and PlatformCardGrid. Closes audit gap #1 — single biggest YouTube/Instagram growth lever currently missing.
 
 ### Architecture Decisions
 
@@ -215,4 +215,4 @@ Resume:
 - Phase 6: `/gsd-verify-work 6` once OAuth accounts connected
 - Phase 2: `/gsd-verify-work 2` once OAuth credentials provisioned in `.env`
 
-**Planned Phase:** 3 (video-upload-analysis) — 9 plans — 03-09 code-complete 2026-05-15T22:50Z
+**Planned Phase:** 11 (ai-provider-model-verification-mechanism-centralize-model-id) — 6 plans — 2026-05-16T03:56:03.729Z

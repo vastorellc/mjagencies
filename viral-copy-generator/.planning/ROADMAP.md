@@ -44,6 +44,7 @@ by the admin only — no public registration.
 - [x] **Phase 9: Content Research Engine** — External trend APIs + user learning data + AI → content ideas, briefs, hashtag intelligence, 7-day calendar *(complete 2026-05-04 — 7/7 plans, 15/15 RESEARCH requirements)*
 - [x] **Phase 10: Polish + Resilience** — Structured API error parsing, OAuth expiry surfacing, error boundaries, iOS safe-area fixes, persistent top navigation *(complete 2026-05-05 — 4/4 plans, all SC-01–SC-10 passed)*
 - [ ] **Phase 11: AI Provider + Model Verification Mechanism** — Centralize stale model IDs, runtime verify both key + model, model_not_found discriminant, capability matrix, weekly health-check job *(added 2026-05-15 — time-critical: deepseek-chat retires 2026-07-24)*
+- [ ] **Phase 12: Cover-Frame Scoring & Recommendation** — Score 10 extracted frames for thumbnail/cover CTR-likelihood (face-on, rule-of-thirds, contrast, text-readable zones, eye-contact, motion-blur). Recommend top 3 frames; auto-overlay AI `cover_text` on winner. New CoverFramePanel in GeneratorPage *(added 2026-05-16 — closes audit gap #1)*
 
 ---
 
@@ -578,10 +579,51 @@ Plans:
 
 **Estimate:** 6-8 plans, ~1-2 days.
 
+**Plans:** 6 plans
+
+Plans:
+- [ ] 11-01-PLAN.md — MODELS constants (backend) + shared manifest + VERIFY-01..06 REQ-IDs + Wave 0 test stubs
+- [ ] 11-02-PLAN.md — MODELS constants (frontend) + parseProviderError model_not_found + frontend ai.ts model bumps
+- [ ] 11-03-PLAN.md — Backend ai.ts + validate-key extension (model verification + capabilities) + @google/genai migration + DeepSeek baseURL fix
+- [ ] 11-04-PLAN.md — admin_provider_health Drizzle schema + drizzle-kit generate + migrate [BLOCKING]
+- [ ] 11-05-PLAN.md — provider-health-check pg-boss job + GET /api/admin/provider-health + HEALTHCHECK_*_KEY env vars
+- [ ] 11-06-PLAN.md — SettingsPage model dropdown + AdminPage Providers tab + checkpoint:human-verify (DeepSeek V4 smoke)
+
+**UI hint:** yes
+
+### Phase 12: Cover-Frame Scoring & Recommendation
+
+**Goal:** After the engine extracts the 10 candidate frames, the user sees a Cover-Frame Panel ranking each frame by CTR-likelihood across six visual predictors (face-on detection + eye-contact, rule-of-thirds composition, contrast/saturation, text-readable zones, motion-blur penalty, brightness sweet-spot). Top 3 frames are recommended with explainability ("face-on at center, high contrast, clean text zone bottom-third"). The AI-generated `cover_text` from Phase 5 is auto-overlaid on the #1 recommended frame as a downloadable PNG.
+
+**Depends on:** Phase 3 (engine extracts 10 base64 JPEG frames into `EngineSignals.frames`), Phase 5 (AI returns `cover_text` per platform)
+
+**Requirements:** COVER-01..COVER-10 (elaborated during /gsd-spec-phase)
+
+**Why now (closes audit gap #1):** YouTube CTR is dominated by thumbnail quality; Instagram Reels cover and Facebook video preview share the same lever. The engine already extracts frames and scores motion/brightness, but does not score *cover suitability* — a single rule-of-thirds + face-on + contrast model lifts predicted CTR materially with zero new external dependencies.
+
+**Key implementation notes (TBD — refine in /gsd-discuss-phase):**
+- Reuse existing face-detection results from `engine.ts` (per-frame face bounding box already computed) — no new model load
+- Rule-of-thirds: distance of face/subject centroid from nearest power point, normalized to frame diagonal
+- Contrast: stdev of luma channel; saturation: mean S in HSV
+- Text-readable zone: detect uniform-luma rectangular regions (top-third, bottom-third) using sliding-window variance
+- Motion-blur penalty: Laplacian variance per frame (low variance = blurry)
+- Eye-contact bonus: face landmark gaze direction (MediaPipe Face Mesh already loaded for face detection — add `refineLandmarks: true`)
+- Output `coverFrameScores: { frameIndex, score, breakdown, badges[] }[]` on `EngineSignals`
+- New `CoverFramePanel.tsx` between `ScorePanel` and `PlatformCardGrid` showing top-3 carousel + selection + download
+- Canvas overlay: render AI `cover_text` onto chosen frame at bottom-third with auto-contrast outline; `canvas.toBlob()` → PNG download
+
+**Success Criteria (draft — finalize in spec):**
+1. Every analysis produces `coverFrameScores` for all 10 frames; scores are deterministic for identical input
+2. Top-3 frames have score ≥ 60 on at least 4 of the 6 predictors for a well-shot reference video
+3. CoverFramePanel renders top-3 with breakdown badges; user can click any of the 10 frames to inspect
+4. `cover_text` from Phase 5 auto-overlays on the #1 recommended frame; download produces a 1280×720 (YT) and 1080×1080 (IG) PNG
+5. No new heavy dependencies (uses existing TF.js + MediaPipe + canvas)
+6. Edge cases handled: no face detected (skip face-on/eye-contact, recommend on composition+contrast alone); single-frame video (degrades gracefully)
+
 **Plans:** 0 plans
 
 Plans:
-- [ ] TBD (run `/gsd-plan-phase 11` to break down)
+- [ ] TBD (run /gsd-plan-phase 12 to break down)
 
 **UI hint:** yes
 
@@ -602,3 +644,4 @@ Plans:
 | 9. Content Research Engine | 7/7 | Complete | 2026-05-04 |
 | 10. Polish + Resilience | 4/4 | Complete | 2026-05-05 |
 | 11. AI Provider + Model Verification Mechanism | 0/TBD | Not planned (time-critical: deepseek-chat retires 2026-07-24) | - |
+| 12. Cover-Frame Scoring & Recommendation | 0/TBD | Not planned (audit gap #1) | - |
