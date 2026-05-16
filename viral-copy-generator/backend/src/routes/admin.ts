@@ -6,7 +6,8 @@ import { adminMiddleware } from '../middleware/admin.js'
 import { db } from '../db/index.js'
 import { getBoss } from '../lib/boss.js'
 import { eq, sql } from 'drizzle-orm'
-import { learning_signals, settings, platform_posts, posts } from '../db/schema.js'
+import { learning_signals, settings, platform_posts, posts, admin_provider_health } from '../db/schema.js'
+import { MODELS } from '../lib/models.js'
 import { supabaseAdmin } from '../lib/supabase.js'
 import os from 'os'
 import { exec } from 'child_process'
@@ -402,6 +403,79 @@ adminRouter.get('/stats/platforms', async (_req, res) => {
         : 0,
     },
   })
+})
+
+// ── Phase 11 VERIFY-06: Provider Health tab data source ──────────────────────
+// Returns merged: MODELS metadata + latest health row per (provider, model_id) +
+// p95 latency over the last 7 days. Admin can see which models are responding and
+// which have been deprecated / lost connectivity.
+// Read-only — no user inputs in any query parameter. adminMiddleware already applied.
+adminRouter.get('/provider-health', async (_req, res) => {
+  type LatestRow = {
+    provider: string
+    model_id: string
+    status: string
+    latency_ms: number
+    error_message: string | null
+    checked_at: Date
+  }
+  type P95Row = {
+    provider: string
+    model_id: string
+    p95_ms: string  // postgres returns numeric as string
+  }
+
+  // Latest row per (provider, model_id) — DISTINCT ON (PG extension) picks newest.
+  // Typed as {rows: LatestRow[]} following the pattern used in this codebase's admin routes.
+  const latestResult = await db.execute(sql`
+    SELECT DISTINCT ON (provider, model_id)
+      provider, model_id, status, latency_ms, error_message, checked_at
+    FROM admin_provider_health
+    ORDER BY provider, model_id, checked_at DESC
+  `) as unknown as { rows: LatestRow[] }
+
+  // p95 latency over last 7 days (status='ok' rows only — failed pings skew metrics)
+  const p95Result = await db.execute(sql`
+    SELECT provider, model_id,
+      percentile_cont(0.95) WITHIN GROUP (ORDER BY latency_ms)::text AS p95_ms
+    FROM admin_provider_health
+    WHERE checked_at > NOW() - INTERVAL '7 days' AND status = 'ok'
+    GROUP BY provider, model_id
+  `) as unknown as { rows: P95Row[] }
+
+  // Index by composite key for O(1) merge
+  const latestByKey = new Map<string, LatestRow>()
+  for (const row of latestResult.rows) {
+    latestByKey.set(`${row.provider}:${row.model_id}`, row)
+  }
+  const p95ByKey = new Map<string, number>()
+  for (const row of p95Result.rows) {
+    p95ByKey.set(`${row.provider}:${row.model_id}`, Number(row.p95_ms))
+  }
+
+  // Merge MODELS metadata with health data — every model appears in response,
+  // even if no health row exists yet (status='unknown', latency null)
+  const models = Object.values(MODELS).map((m) => {
+    const key = `${m.provider}:${m.id}`
+    const latest = latestByKey.get(key)
+    const p95 = p95ByKey.get(key)
+    return {
+      provider: m.provider,
+      model_id: m.id,
+      displayName: m.displayName,
+      tier: m.tier,
+      capabilities: m.capabilities,
+      pricePerMInput: m.pricePerMInput,
+      pricePerMOutput: m.pricePerMOutput,
+      retiresAt: m.retiresAt ?? null,
+      latestStatus: latest?.status ?? 'unknown',
+      latestErrorMessage: latest?.error_message ?? null,
+      latestCheckedAt: latest?.checked_at ?? null,
+      latencyP95Last7dMs: Number.isFinite(p95) ? p95 : null,
+    }
+  })
+
+  res.json({ models })
 })
 
 // ── ADMIN-07: System health dashboard ────────────────────────────────────────
