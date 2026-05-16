@@ -2,6 +2,7 @@ import { GoogleGenAI, type Content } from '@google/genai'
 import Anthropic from '@anthropic-ai/sdk'
 import type { AIOutput, AIProvider, AIProxyBody } from './types'
 import { proxyAIGenerate } from './api'
+import { MODELS, defaultModelFor } from './models'
 
 // ============================================================================
 // Gemini response schema — mirrors D-03 AIOutput exactly (AI-06)
@@ -216,7 +217,7 @@ export async function callAI(options: AICallOptions): Promise<AIOutput> {
       }
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: defaultModelFor('gemini'),
         contents,
         config: geminiConfig,
       })
@@ -255,7 +256,7 @@ export async function callAI(options: AICallOptions): Promise<AIOutput> {
       content.push({ type: 'text', text: prompt })
 
       const message = await anthropic.messages.create({
-        model: 'claude-sonnet-4-5',
+        model: defaultModelFor('claude'),
         max_tokens: 2048,
         messages: [{ role: 'user', content }],
       })
@@ -280,7 +281,8 @@ export async function callAI(options: AICallOptions): Promise<AIOutput> {
       // DeepSeek is OpenAI-compatible but CORS-blocked from browser — route through backend proxy.
       // The backend detects ai_provider='deepseek' from settings and switches baseURL + model.
       const body: AIProxyBody = { prompt }
-      // DeepSeek-chat does not support vision in the current API — frames omitted
+      // DeepSeek V4 does not yet expose a vision model ID (verified 2026-05-15;
+      // MODELS['deepseek-v4-pro'].capabilities.vision === false). Frames intentionally omitted.
       const result = await proxyAIGenerate(body)
       rawText = result.text
       break
@@ -304,6 +306,7 @@ export async function callAI(options: AICallOptions): Promise<AIOutput> {
 
 export type AIErrorKind =
   | 'invalid_key'
+  | 'model_not_found'        // Phase 11 VERIFY-04
   | 'rate_limited'
   | 'quota_exhausted'
   | 'model_busy'
@@ -339,6 +342,17 @@ export function parseProviderError(provider: AIProvider, err: unknown): AIError 
     if (type === 'overloaded_error') {
       return { kind: 'model_busy', message: 'Claude is busy right now. Try again in a moment.', retryable: true }
     }
+    // Phase 11 VERIFY-04: Claude triple-nested error shape (Pitfall 3)
+    // err.error.error.type === 'not_found_error' OR top-level status === 404
+    const claudeNested = (errObj as Record<string, unknown> | undefined)?.['error'] as Record<string, unknown> | undefined
+    const nestedType = claudeNested?.['type']
+    if (nestedType === 'not_found_error' || (raw as Record<string, unknown> | undefined)?.['status'] === 404) {
+      return {
+        kind: 'model_not_found',
+        message: 'Selected Claude model unavailable. Update model in Settings.',
+        retryable: false,
+      }
+    }
   }
 
   if (provider === 'gemini') {
@@ -355,6 +369,16 @@ export function parseProviderError(provider: AIProvider, err: unknown): AIError 
     if (message.includes('429') || message.toLowerCase().includes('rate')) {
       return { kind: 'rate_limited', message: 'Gemini rate limit reached. Wait and retry.', retryable: true }
     }
+    // Phase 11 VERIFY-04: Gemini SDK has no typed NotFoundError (Pitfall 6)
+    const geminiStatus = (raw as Record<string, unknown> | undefined)?.['status']
+    const geminiMessage = String((raw as Record<string, unknown> | undefined)?.['message'] ?? '')
+    if (geminiStatus === 'NOT_FOUND' || geminiStatus === 404 || /model.*not found/i.test(geminiMessage)) {
+      return {
+        kind: 'model_not_found',
+        message: 'Selected Gemini model unavailable. Update model in Settings.',
+        retryable: false,
+      }
+    }
   }
 
   if (provider === 'openai') {
@@ -368,6 +392,16 @@ export function parseProviderError(provider: AIProvider, err: unknown): AIError 
     if (code === 'insufficient_quota') {
       return { kind: 'quota_exhausted', message: 'OpenAI credits exhausted. Add billing at platform.openai.com.', retryable: false }
     }
+    // Phase 11 VERIFY-04: OpenAI 404 uses code='model_not_found' NOT type (Pitfall 4)
+    const oaCode = (errObj as Record<string, unknown> | undefined)?.['code']
+    const oaStatus = (raw as Record<string, unknown> | undefined)?.['status']
+    if (oaCode === 'model_not_found' || oaStatus === 404) {
+      return {
+        kind: 'model_not_found',
+        message: 'Selected OpenAI model unavailable. Update model in Settings.',
+        retryable: false,
+      }
+    }
   }
 
   if (provider === 'deepseek') {
@@ -380,6 +414,16 @@ export function parseProviderError(provider: AIProvider, err: unknown): AIError 
     }
     if (code === 'insufficient_quota' || message.toLowerCase().includes('quota')) {
       return { kind: 'quota_exhausted', message: 'DeepSeek quota exhausted. Check your DeepSeek usage.', retryable: false }
+    }
+    // Phase 11 VERIFY-04: DeepSeek uses OpenAI SDK — same 404/code pattern (Pitfall 4)
+    const dsCode = (errObj as Record<string, unknown> | undefined)?.['code']
+    const dsStatus = (raw as Record<string, unknown> | undefined)?.['status']
+    if (dsCode === 'model_not_found' || dsStatus === 404) {
+      return {
+        kind: 'model_not_found',
+        message: 'Selected DeepSeek model unavailable. Update model in Settings.',
+        retryable: false,
+      }
     }
   }
 
