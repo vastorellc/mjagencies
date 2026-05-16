@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 11 — AI Provider + Model Verification Mechanism
-status: executing
-stopped_at: Completed Phase 11 Plan 05 — Provider Health Check Worker + Admin Route
-last_updated: "2026-05-16T04:46:04.447Z"
+status: checkpoint-pending
+stopped_at: "Phase 11 Plan 06 — Tasks 1-3 complete; Task 4 checkpoint:human-verify pending smoke test"
+last_updated: "2026-05-16T04:53:00Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 12
   completed_phases: 10
   total_plans: 81
-  completed_plans: 70
-  percent: 86
+  completed_plans: 71
+  percent: 88
 ---
 
 # Project State — Viral Copy Generator
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-05-01)
 
 ## Current Position
 
-Phase: 11 (ai-provider-model-verification-mechanism-centralize-model-id) — EXECUTING
-Plan: 6 of 6
-Status: Ready to execute
+Phase: 11 (ai-provider-model-verification-mechanism-centralize-model-id) — CHECKPOINT PENDING
+Plan: 6 of 6 (Tasks 1-3 complete, Task 4 human-verify pending)
+Status: Awaiting smoke test approval
 Last activity: 2026-05-16
 
 Progress: [█████████░] 92%
@@ -182,6 +182,8 @@ Progress: [█████████░] 92%
 - **isValidNiche exported from research.ts** — enables direct function testing without supertest/DB; isValidNiche('travel') returns true, isValidNiche('__proto__') returns false; both confirmed in 8/8 research.test.ts assertions
 - **content_ideas insert with .returning({id})** — frontend needs real UUIDs from DB to call POST /ideas/:id/save; zipping inserted UUIDs back onto idea objects required before JSON response
 - **POST /ideas/:id/save toggles saved boolean** — implements toggle (newSaved = !existing.saved) not set-to-true; enables unsave flow from Saved tab; user_id ownership check enforced either way
+- **ModelCapabilities in types.ts not models.ts** — models.ts imported AIProvider from types.ts, causing circular import if types.ts imports ModelCapabilities back; fix: define ModelCapabilities in types.ts, models.ts re-exports it
+- **selectedModelId initialized as empty string in SettingsPage** — defaultModelFor() requires data to be non-null; initialize as '' and resolve at use sites with `selectedModelId || defaultModelFor(provider)`
 
 ### Critical Bugs to Avoid
 
@@ -204,8 +206,8 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-05-16T04:46:04.435Z
-Stopped at: Completed Phase 11 Plan 05 — Provider Health Check Worker + Admin Route
+Last session: 2026-05-16T04:53:00Z
+Stopped at: Phase 11 Plan 06 Tasks 1-3 complete; Task 4 checkpoint:human-verify pending
 Resume:
 
 - **Phase 3:** Verified end-to-end (engine v3 — HTMLVideoElement + rVFC). Run `/gsd-verify-work 3` to formally close.
