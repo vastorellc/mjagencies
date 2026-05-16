@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import type {
   Screen, AdminJob, AdminUser,
-  AdminHealthResponse, AdminLogsResponse, AdminPlatformStat
+  AdminHealthResponse, AdminLogsResponse, AdminPlatformStat,
+  AdminProviderHealth,
 } from '../lib/types'
 import {
   fetchAdminJobs, retryAdminJob, cancelAdminJob,
@@ -9,13 +10,14 @@ import {
   fetchAdminHealth,
   fetchAdminLogs,
   fetchAdminPlatformStats,
+  fetchAdminProviderHealth,
 } from '../lib/api'
 
 interface Props {
   onNavigate: (s: Screen) => void
 }
 
-type AdminTab = 'queue' | 'users' | 'health' | 'logs' | 'stats'
+type AdminTab = 'queue' | 'users' | 'health' | 'logs' | 'stats' | 'providers'
 
 // Job state badge styles
 const JOB_STATE_STYLES: Record<string, string> = {
@@ -25,6 +27,18 @@ const JOB_STATE_STYLES: Record<string, string> = {
   completed: 'bg-green-900/50 text-green-300',
   failed:    'bg-red-900/50 text-red-300',
   cancelled: 'bg-zinc-700 text-zinc-400',
+}
+
+// Provider health status badge styles (VERIFY-06)
+const PROVIDER_STATUS_STYLES: Record<string, string> = {
+  ok:                  'bg-emerald-900/40 text-emerald-300',
+  model_not_found:     'bg-red-900/40 text-red-300',
+  invalid_key:         'bg-red-900/40 text-red-300',
+  rate_limited:        'bg-amber-900/40 text-amber-300',
+  service_unavailable: 'bg-amber-900/40 text-amber-300',
+  error:               'bg-red-900/40 text-red-300',
+  not_configured:      'bg-zinc-800 text-zinc-400',
+  unknown:             'bg-zinc-800 text-zinc-400',
 }
 
 function formatDate(iso: string | null): string {
@@ -179,13 +193,35 @@ export default function AdminPage({ onNavigate }: Props) {
     }
   }, [activeTab, logLines])
 
+  // ── Provider Health state (loaded on tab switch) ─────────────────────────────
+  const [providerHealth, setProviderHealth] = useState<AdminProviderHealth[]>([])
+  const [providerHealthLoading, setProviderHealthLoading] = useState(false)
+  const [providerHealthError, setProviderHealthError] = useState<string | null>(null)
+
+  const loadProviderHealth = useCallback(async () => {
+    setProviderHealthLoading(true)
+    setProviderHealthError(null)
+    try {
+      setProviderHealth(await fetchAdminProviderHealth())
+    } catch {
+      setProviderHealthError('Failed to load provider health.')
+    } finally {
+      setProviderHealthLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (activeTab === 'providers') void loadProviderHealth()
+  }, [activeTab, loadProviderHealth])
+
   // Tab nav labels
   const TABS: { id: AdminTab; label: string }[] = [
-    { id: 'queue',  label: 'Queue' },
-    { id: 'users',  label: 'Users' },
-    { id: 'health', label: 'Health' },
-    { id: 'logs',   label: 'Logs' },
-    { id: 'stats',  label: 'Stats' },
+    { id: 'queue',     label: 'Queue' },
+    { id: 'users',     label: 'Users' },
+    { id: 'health',    label: 'Health' },
+    { id: 'logs',      label: 'Logs' },
+    { id: 'stats',     label: 'Stats' },
+    { id: 'providers', label: 'Providers' },
   ]
 
   return (
@@ -571,6 +607,73 @@ export default function AdminPage({ onNavigate }: Props) {
                 </div>
               )
             })()}
+          </div>
+        )}
+
+        {/* ── Provider Health tab ── */}
+        {activeTab === 'providers' && (
+          <div className="py-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-zinc-100">Provider Health</h2>
+              <button
+                type="button"
+                onClick={() => { void loadProviderHealth() }}
+                disabled={providerHealthLoading}
+                className="rounded-md bg-zinc-800 px-3 py-1.5 text-sm text-zinc-200 hover:bg-zinc-700 disabled:opacity-50"
+              >
+                {providerHealthLoading ? 'Refreshing…' : 'Refresh'}
+              </button>
+            </div>
+
+            {providerHealthError && (
+              <div className="rounded bg-red-900/40 px-3 py-2 text-sm text-red-300">
+                {providerHealthError}
+              </div>
+            )}
+
+            {providerHealth.length === 0 && !providerHealthLoading && !providerHealthError && (
+              <div className="text-sm text-zinc-400">No provider data yet. Weekly health check has not run.</div>
+            )}
+
+            <div className="grid gap-2">
+              {providerHealth.map((row) => (
+                <div
+                  key={`${row.provider}-${row.model_id}`}
+                  data-testid={`provider-row-${row.model_id}`}
+                  className="rounded-lg bg-zinc-900 border border-zinc-800 p-3"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <div className="text-sm font-bold text-zinc-100">{row.displayName}</div>
+                      <div className="text-xs text-zinc-400">{row.provider} · {row.model_id}</div>
+                    </div>
+                    <span
+                      data-testid={`status-${row.model_id}`}
+                      className={`rounded px-2 py-0.5 text-xs ${PROVIDER_STATUS_STYLES[row.latestStatus] ?? PROVIDER_STATUS_STYLES.unknown}`}
+                    >
+                      {row.latestStatus}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {row.capabilities.text   && <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-300">Text</span>}
+                    {row.capabilities.vision && <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-300">Vision</span>}
+                    {row.capabilities.audio  && <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-300">Audio</span>}
+                    {row.capabilities.video  && <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-300">Video</span>}
+                  </div>
+                  <div className="mt-2 grid grid-cols-2 gap-1 text-xs text-zinc-400">
+                    <div>p95 latency (7d): {row.latencyP95Last7dMs !== null ? `${Math.round(row.latencyP95Last7dMs)}ms` : '—'}</div>
+                    <div>Last checked: {row.latestCheckedAt ? new Date(row.latestCheckedAt).toLocaleString() : 'never'}</div>
+                    <div>Price in/out: ${row.pricePerMInput}/${row.pricePerMOutput} per 1M</div>
+                    {row.retiresAt && <div className="text-amber-400">Retires: {row.retiresAt}</div>}
+                  </div>
+                  {row.latestErrorMessage && (
+                    <div className="mt-2 rounded bg-zinc-800 px-2 py-1 text-xs text-zinc-300">
+                      {row.latestErrorMessage}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
