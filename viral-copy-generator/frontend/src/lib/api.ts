@@ -9,6 +9,7 @@ import type {
   ResearchTrendsResponse, ResearchGenerateResponse, SavedIdea, HashtagIntel,
   EngineSignals, Platform,
   IntelligenceVideoData, IntelligencePlatformResult,
+  AdminProviderHealth,
 } from './types'
 
 async function getAccessToken(): Promise<string | null> {
@@ -474,4 +475,22 @@ export async function fetchIntelligencePlatforms(postId: string): Promise<{ plat
   const res = await apiFetch(`/intelligence/platforms/${encodeURIComponent(postId)}`)
   if (!res.ok) throw new Error('Platforms fetch failed')
   return res.json() as Promise<{ platforms: IntelligencePlatformResult[] }>
+}
+
+// ============================================================================
+// Phase 11: AI Provider + Model Verification (VERIFY-06)
+// ============================================================================
+
+/**
+ * GET /api/admin/provider-health
+ * Returns weekly health check results per (provider, model) — VERIFY-06.
+ * Admin-only route gated by adminMiddleware server-side.
+ */
+export async function fetchAdminProviderHealth(): Promise<AdminProviderHealth[]> {
+  const res = await apiFetch('/admin/provider-health', { method: 'GET' })
+  if (!res.ok) {
+    throw new Error(`Failed to fetch provider health (${res.status})`)
+  }
+  const json = await res.json() as { models: AdminProviderHealth[] }
+  return json.models
 }

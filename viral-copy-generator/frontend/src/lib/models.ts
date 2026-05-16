@@ -3,23 +3,8 @@
 // equals backend/shared/model-ids.json.
 // Update both sides + the JSON manifest in the same commit when bumping models.
 
-import type { AIProvider } from './types'
-export type { AIProvider }
-
-export interface ModelCapabilities {
-  text: boolean
-  vision: boolean
-  audio: boolean
-  video: boolean
-  maxInputTokens: number
-  maxOutputTokens: number
-  maxImagePixels?: number
-  maxVideoSizeGB?: number
-  supportsJsonMode: boolean
-  supportsFunctionCalling: boolean
-  supportsCaching: boolean
-  supportsSystemPrompt: boolean
-}
+import type { AIProvider, ModelCapabilities } from './types'
+export type { AIProvider, ModelCapabilities }
 
 export interface ModelEntry {
   id: string

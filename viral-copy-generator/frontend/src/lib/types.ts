@@ -442,6 +442,59 @@ export interface SavedIdea {
 }
 
 // ============================================================================
+// Phase 11: AI Provider + Model Verification (VERIFY-03, VERIFY-04, VERIFY-06)
+// ============================================================================
+
+// ModelCapabilities shape (mirrors models.ts — kept in sync manually; no circular import)
+export interface ModelCapabilities {
+  text: boolean
+  vision: boolean
+  audio: boolean
+  video: boolean
+  maxInputTokens: number
+  maxOutputTokens: number
+  maxImagePixels?: number
+  maxVideoSizeGB?: number
+  supportsJsonMode: boolean
+  supportsFunctionCalling: boolean
+  supportsCaching: boolean
+  supportsSystemPrompt: boolean
+}
+
+export interface AdminProviderHealth {
+  provider: AIProvider
+  model_id: string
+  displayName: string
+  tier: 'flagship' | 'fast' | 'premium' | 'experimental'
+  capabilities: ModelCapabilities
+  pricePerMInput: number
+  pricePerMOutput: number
+  retiresAt: string | null
+  latestStatus: 'ok' | 'model_not_found' | 'invalid_key' | 'rate_limited' | 'service_unavailable' | 'error' | 'not_configured' | 'unknown'
+  latestErrorMessage: string | null
+  latestCheckedAt: string | null
+  latencyP95Last7dMs: number | null
+}
+
+export type ValidateKeyErrorKind =
+  | 'invalid_key'
+  | 'model_not_found'
+  | 'rate_limited'
+  | 'service_unavailable'
+  | 'network_error'
+
+export interface ValidateKeyResponse {
+  valid: boolean
+  key_valid: boolean
+  model_valid: boolean
+  error_kind: ValidateKeyErrorKind | null
+  error?: string
+  error_message?: string
+  capabilities?: ModelCapabilities
+  model_id: string
+}
+
+// ============================================================================
 // Phase 11: Content Intelligence Layer
 // ============================================================================
 
@@ -475,3 +528,18 @@ export interface IntelligenceVideoData {
   videoAnalysis: { id: string; niche: string; created_at: string }
   patterns: IntelligencePlatformResult[]
 }
+
+// ============================================================================
+// Phase 3: Engine Progress / Preflight types (D-11, ANALYSIS-09)
+// ============================================================================
+
+export type ProgressStep =
+  | 'metadata' | 'frames' | 'scenes'
+  | 'faces' | 'objects' | 'audio' | 'brightness' | 'done'
+
+export interface AnalyseOptions {
+  onProgress?: (step: ProgressStep) => void
+  signal?: AbortSignal
+}
+
+export type EnginePreflight = { ok: true } | { ok: false; reason: string }
