@@ -4,7 +4,9 @@ import { apiFetch } from '../lib/api'
 import {
   AI_PROVIDERS, ALL_PLATFORMS,
   type Screen, type SettingsResponse, type AIProvider, type Platform,
+  type ValidateKeyResponse,
 } from '../lib/types'
+import { MODELS_BY_PROVIDER, defaultModelFor } from '../lib/models'
 
 interface Props {
   onNavigate: (s: Screen) => void
@@ -30,7 +32,8 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
   const [error, setError] = useState<string | null>(null)
   const [keyDraft, setKeyDraft] = useState('')
   const [validating, setValidating] = useState(false)
-  const [validationResult, setValidationResult] = useState<{ valid: boolean; error?: string } | null>(null)
+  const [validationResult, setValidationResult] = useState<ValidateKeyResponse | null>(null)
+  const [selectedModelId, setSelectedModelId] = useState<string>('')
   const [newNiche, setNewNiche] = useState('')
   const [nicheError, setNicheError] = useState<string | null>(null)
 
@@ -49,6 +52,13 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
   }, [])
 
   useEffect(() => { void refetch() }, [refetch])
+
+  // Reset selectedModelId whenever the provider changes (or on initial data load)
+  useEffect(() => {
+    if (data) {
+      setSelectedModelId(defaultModelFor(data.ai_provider))
+    }
+  }, [data?.ai_provider]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function patch(body: Record<string, unknown>): Promise<void> {
     setSaving(true)
@@ -86,20 +96,28 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
         body: JSON.stringify({
           provider: data.ai_provider,
           api_key: keyDraft.trim(),
+          model_id: selectedModelId || defaultModelFor(data.ai_provider),
         }),
       })
       if (!res.ok) {
         const j = await res.json().catch(() => ({} as { error?: string }))
         throw new Error((j as { error?: string }).error ?? `Validation failed (${res.status})`)
       }
-      const result = await res.json() as { valid: boolean; error?: string }
+      const result = await res.json() as ValidateKeyResponse
       setValidationResult(result)
       if (result.valid) {
         setError(null)
       }
     } catch (e) {
       setError((e as Error).message)
-      setValidationResult({ valid: false, error: (e as Error).message })
+      setValidationResult({
+        valid: false,
+        key_valid: false,
+        model_valid: false,
+        error_kind: null,
+        error: (e as Error).message,
+        model_id: selectedModelId || '',
+      })
     } finally {
       setValidating(false)
     }
@@ -232,13 +250,37 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
               <h2 className="mb-2 font-bold">AI Provider</h2>
               <select
                 value={data.ai_provider}
-                onChange={(e) => void patch({ ai_provider: e.target.value as AIProvider })}
+                onChange={(e) => {
+                  const newProvider = e.target.value as AIProvider
+                  setSelectedModelId(defaultModelFor(newProvider))
+                  void patch({ ai_provider: newProvider })
+                }}
                 disabled={saving}
                 className="mb-2 rounded bg-zinc-800 px-3 py-2 text-sm"
               >
                 {AI_PROVIDERS.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
-              <div className="text-sm text-zinc-400">
+
+              <label className="block mt-3">
+                <span className="text-sm text-zinc-400">AI Model</span>
+                <select
+                  className="mt-1 w-full rounded bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-100"
+                  value={selectedModelId || defaultModelFor(data.ai_provider)}
+                  onChange={(e) => {
+                    setSelectedModelId(e.target.value)
+                    setValidationResult(null)
+                  }}
+                  disabled={saving}
+                >
+                  {(MODELS_BY_PROVIDER[data.ai_provider] ?? []).map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.displayName} ({m.tier})
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="mt-2 text-sm text-zinc-400">
                 Current key: {data.api_key_masked ?? <em>not set</em>}
               </div>
               <form
@@ -279,27 +321,46 @@ export default function SettingsPage({ onNavigate, oauthBanner, clearBanner }: P
                 </button>
               </form>
 
-              {/* Validation result display */}
-              {validationResult && (
-                <div className={`mt-3 rounded p-3 text-sm flex items-start gap-2 ${
-                  validationResult.valid
-                    ? 'bg-emerald-900/30 text-emerald-200 border border-emerald-800/50'
-                    : 'bg-red-900/30 text-red-200 border border-red-800/50'
-                }`}>
-                  <span className="text-lg mt-0.5">{validationResult.valid ? '✅' : '❌'}</span>
-                  <div className="flex-1">
-                    {validationResult.valid ? (
-                      <>
-                        <p className="font-semibold">API key is valid!</p>
-                        <p className="text-xs mt-1 opacity-80">This key works with {data.ai_provider}. Click Save to use it.</p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="font-semibold">API key is invalid</p>
-                        <p className="text-xs mt-1 opacity-80">{validationResult.error || 'The key failed validation with your provider.'}</p>
-                      </>
-                    )}
-                  </div>
+              {/* Validation result display — discriminated by error_kind; plain text only (T-11-20 XSS mitigation) */}
+              {validationResult && !validationResult.valid && validationResult.error_kind === 'model_not_found' && (
+                <div className="mt-3 rounded bg-red-900/40 px-3 py-2 text-sm text-red-300">
+                  Selected model unavailable. Pick a different model below.
+                </div>
+              )}
+
+              {validationResult && !validationResult.valid && validationResult.error_kind === 'invalid_key' && (
+                <div className="mt-3 rounded bg-red-900/40 px-3 py-2 text-sm text-red-300">
+                  API key rejected. Re-check the key.
+                </div>
+              )}
+
+              {validationResult && !validationResult.valid && validationResult.error_kind !== 'model_not_found' && validationResult.error_kind !== 'invalid_key' && (
+                <div className="mt-3 rounded bg-red-900/40 px-3 py-2 text-sm text-red-300">
+                  {validationResult.error_kind
+                    ? `Validation failed: ${validationResult.error_message ?? validationResult.error ?? 'Unknown error'}`
+                    : (validationResult.error ?? 'Key validation failed.')}
+                </div>
+              )}
+
+              {validationResult && validationResult.valid && (
+                <div className="mt-3 rounded bg-emerald-900/40 px-3 py-2 text-sm text-emerald-200">
+                  <div className="mb-1 font-bold">Key + model verified. Click Save to use it.</div>
+                  {validationResult.capabilities && (
+                    <div className="flex gap-1 flex-wrap mt-1">
+                      {validationResult.capabilities.text && (
+                        <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-200">Text</span>
+                      )}
+                      {validationResult.capabilities.vision && (
+                        <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-200">Vision</span>
+                      )}
+                      {validationResult.capabilities.audio && (
+                        <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-200">Audio</span>
+                      )}
+                      {validationResult.capabilities.video && (
+                        <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-200">Video</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </section>
