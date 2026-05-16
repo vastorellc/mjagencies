@@ -620,10 +620,14 @@ Plans:
 5. No new heavy dependencies (uses existing TF.js + MediaPipe + canvas)
 6. Edge cases handled: no face detected (skip face-on/eye-contact, recommend on composition+contrast alone); single-frame video (degrades gracefully)
 
-**Plans:** 0 plans
+**Plans:** 5 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 12 to break down)
+- [ ] 12-01-PLAN.md — npm install @mediapipe/face_mesh + types.ts extension (CoverFrameScore + EngineSignals) + RED test stubs
+- [ ] 12-02-PLAN.md — cover.ts: COVER_THRESHOLDS + 6 predictors + FaceMesh singleton + scoreCoverFrames + renderCoverPng
+- [ ] 12-03-PLAN.md — engine.ts integration: detectFacesAcrossFrames refactor + scoreCoverFrames call + vite.config.ts
+- [ ] 12-04-PLAN.md — CoverFramePanel.tsx: hero carousel + expand-to-10 + 4 download buttons + no-face note
+- [ ] 12-05-PLAN.md — GeneratorPage integration + calibration sweep + manual smoke checkpoint
 
 **UI hint:** yes
 
@@ -644,4 +648,4 @@ Plans:
 | 9. Content Research Engine | 7/7 | Complete | 2026-05-04 |
 | 10. Polish + Resilience | 4/4 | Complete | 2026-05-05 |
 | 11. AI Provider + Model Verification Mechanism | 0/TBD | Not planned (time-critical: deepseek-chat retires 2026-07-24) | - |
-| 12. Cover-Frame Scoring & Recommendation | 0/TBD | Not planned (audit gap #1) | - |
+| 12. Cover-Frame Scoring & Recommendation | 0/5 | Planned — 5 plans in 5 waves | - |
