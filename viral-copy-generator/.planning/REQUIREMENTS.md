@@ -197,7 +197,8 @@ history, learning loops, admin panel, content research engine.
 **: `parseProviderError` adds `model_not_found` AIErrorKind with `retryable: false` for all 4 providers, with admin-action UX message
 - [x] **VERIFY-05
 **: Weekly pg-boss `provider-health-check` job pings each (provider, model) and writes one row per check to `admin_provider_health`; fail-partial (one provider down does not block others); missing service key produces a `not_configured` row, not a job failure; cleanup keeps last 30 rows per (provider, model)
-- [ ] **VERIFY-06**: Admin panel adds Provider Health tab showing last ping per (provider, model), capability matrix, latency p95 over last 7 days; manual Refresh button (no auto-poll per Pitfall 10)
+- [x] **VERIFY-06
+**: Admin panel adds Provider Health tab showing last ping per (provider, model), capability matrix, latency p95 over last 7 days; manual Refresh button (no auto-poll per Pitfall 10)
 
 ### UI — Interface and UX
 
