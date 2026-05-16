@@ -2,11 +2,12 @@ import { Router, type Request, type Response } from 'express'
 import { eq, sql } from 'drizzle-orm'
 import OpenAI from 'openai'
 import Anthropic from '@anthropic-ai/sdk'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 import { db } from '../db/index.js'
 import { settings, type PlatformConfig } from '../db/schema.js'
 import { encrypt, decrypt, maskKey } from '../lib/encryption.js'
-import { ValidationError, DatabaseError, StorageError, AIProviderError } from '../lib/errors.js'
+import { ValidationError, DatabaseError, StorageError } from '../lib/errors.js'
+import { MODELS, defaultModelFor, type ModelCapabilities, type AIProvider } from '../lib/models.js'
 
 export const settingsRouter = Router()
 
@@ -375,128 +376,140 @@ function extractErrorMessage(err: unknown, provider: string): string {
   return 'API validation failed — please check your key and try again'
 }
 
-// POST /settings/validate-key — Test an API key by making a minimal test call to the provider
-// Body: { provider: string, api_key: string }
-// Response: { valid: boolean, error?: string }
+// POST /settings/validate-key — Verify API key AND model ID with the provider.
+// Body: { provider: AIProvider, api_key: string, model_id?: string }
+// Response: ValidateKeyResponse (key_valid, model_valid, capabilities, error_kind)
+// Back-compat: 'error' field retained for existing SettingsPage.tsx caller (line 95)
 interface ValidateKeyBody {
-  provider?: string
-  api_key?: string
+  provider: AIProvider
+  api_key: string
+  model_id?: string  // Phase 11 VERIFY-03 — optional; defaults to defaultModelFor(provider)
+}
+
+interface ValidateKeyResponse {
+  valid: boolean
+  key_valid: boolean
+  model_valid: boolean
+  error_kind: 'invalid_key' | 'model_not_found' | 'rate_limited' | 'service_unavailable' | 'network_error' | null
+  error_message?: string
+  error?: string  // back-compat alias of error_message for existing frontend caller
+  capabilities?: ModelCapabilities
+  model_id: string
 }
 
 settingsRouter.post('/validate-key', async (req: Request, res: Response) => {
-  const body = req.body as ValidateKeyBody
-  const { provider, api_key: key } = body
+  const body = req.body as Partial<ValidateKeyBody>
+  const provider = body.provider
+  const apiKey = body.api_key?.trim() ?? ''
+  const modelIdInput = body.model_id?.trim()
 
-  if (!provider || typeof provider !== 'string') {
-    throw new ValidationError(
-      'Provider is required',
-      'Missing or invalid provider field',
-      { field: 'provider' }
-    )
-  }
-  if (!key || typeof key !== 'string') {
-    throw new ValidationError(
-      'API key is required',
-      'Missing or invalid api_key field',
-      { field: 'api_key' }
-    )
+  // Whitelist provider (T-11-14)
+  if (provider !== 'openai' && provider !== 'deepseek' && provider !== 'claude' && provider !== 'gemini') {
+    return res.status(400).json({
+      valid: false, key_valid: false, model_valid: false,
+      error_kind: null, error: 'unknown provider', error_message: 'unknown provider',
+      model_id: '',
+    } satisfies ValidateKeyResponse)
   }
 
-  if (!VALID_PROVIDERS.includes(provider as Provider)) {
-    throw new ValidationError(
-      `Unknown provider "${provider}"`,
-      `provider not in [${VALID_PROVIDERS.join(', ')}]`,
-      { field: 'provider' }
-    )
+  if (!apiKey) {
+    return res.status(400).json({
+      valid: false, key_valid: false, model_valid: false,
+      error_kind: 'invalid_key', error: 'api_key required', error_message: 'api_key required',
+      model_id: modelIdInput ?? '',
+    } satisfies ValidateKeyResponse)
   }
 
-  // Test the key with a minimal API call (provider-specific)
-  let isValid = false
-  let errorMessage = 'Unknown error'
+  // Resolve model_id (default if omitted) and validate against MODELS whitelist (T-11-02)
+  const modelId = modelIdInput ?? defaultModelFor(provider)
+  if (!MODELS[modelId]) {
+    return res.status(400).json({
+      valid: false, key_valid: false, model_valid: false,
+      error_kind: 'model_not_found',
+      error: `unknown model_id: ${modelId}`,
+      error_message: `Model ID not in registry. Pick one of: ${Object.keys(MODELS).join(', ')}`,
+      model_id: modelId,
+    } satisfies ValidateKeyResponse)
+  }
+
+  const capabilities: ModelCapabilities = MODELS[modelId].capabilities
 
   try {
     if (provider === 'openai' || provider === 'deepseek') {
-      const isDeepSeek = provider === 'deepseek'
-      const openai = new OpenAI({
-        apiKey: key.trim(),
-        ...(isDeepSeek ? { baseURL: 'https://api.deepseek.com/v1' } : {}),
+      const client = new OpenAI({
+        apiKey,
+        ...(provider === 'deepseek' && { baseURL: 'https://api.deepseek.com' }),
       })
-
-      const model = isDeepSeek ? 'deepseek-chat' : 'gpt-4.1'
-
-      // Make a minimal test call with very short timeout expectations
-      await openai.chat.completions.create({
-        model,
-        max_tokens: 10,
-        messages: [{ role: 'user', content: 'test' }],
-      })
-      isValid = true
+      await client.models.retrieve(modelId)
     } else if (provider === 'claude') {
-      // Test Claude API with Anthropic SDK
-      const anthropic = new Anthropic({ apiKey: key.trim() })
-      await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 10,
-        messages: [{ role: 'user', content: 'test' }],
-      })
-      isValid = true
-    } else if (provider === 'gemini') {
-      // Test Gemini API with Google SDK
-      const genAI = new GoogleGenerativeAI(key.trim())
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
-      await model.generateContent('test')
-      isValid = true
-    }
-  } catch (err: unknown) {
-    if (err instanceof ValidationError) {
-      throw err
+      const client = new Anthropic({ apiKey })
+      await client.models.retrieve(modelId)
+    } else {
+      // gemini — use @google/genai (Pitfall 5: not @google/generative-ai)
+      const client = new GoogleGenAI({ apiKey })
+      await client.models.get({ model: modelId })
     }
 
-    // Handle OpenAI/DeepSeek errors — check status codes
-    if (err instanceof OpenAI.APIError) {
-      const status = err.status
-      if (status === 401) {
-        errorMessage = 'Invalid API key'
-        isValid = false
+    return res.json({
+      valid: true, key_valid: true, model_valid: true,
+      error_kind: null,
+      capabilities, model_id: modelId,
+    } satisfies ValidateKeyResponse)
+  } catch (err) {
+    // Discriminate per-provider — see RESEARCH Pitfalls 3/4/6
+    const status = (err as { status?: number | string }).status
+    const code = (err as { code?: string }).code
+    const message = ((err as { message?: string }).message ?? '').slice(0, 500)
+
+    let error_kind: 'invalid_key' | 'model_not_found' | 'rate_limited' | 'service_unavailable' | 'network_error' = 'network_error'
+    let key_valid = false
+    let model_valid = false
+
+    if (provider === 'claude') {
+      // Pitfall 3: Anthropic triple-nesting — err.error.error.type, not err.error.type
+      const errBody = (err as { error?: { error?: { type?: string } } }).error
+      const nestedType = errBody?.error?.type
+      if (status === 401 || nestedType === 'authentication_error') {
+        error_kind = 'invalid_key'
+      } else if (status === 404 || nestedType === 'not_found_error') {
+        error_kind = 'model_not_found'
+        key_valid = true  // 404 means key authenticated; model is the issue
       } else if (status === 429) {
-        errorMessage = 'Rate limited — key is valid but account is rate-limited'
-        isValid = true
-      } else if (status === 500 || status === 502 || status === 503) {
-        errorMessage = 'API service temporarily unavailable — try again later'
-        isValid = false
-      } else {
-        // Fallback for other OpenAI errors
-        errorMessage = extractErrorMessage(err, provider)
-        isValid = false
+        error_kind = 'rate_limited'; key_valid = true; model_valid = true
+      } else if (typeof status === 'number' && status >= 500) {
+        error_kind = 'service_unavailable'
+      }
+    } else if (provider === 'openai' || provider === 'deepseek') {
+      // Pitfall 4: key on code === 'model_not_found', NOT on type
+      if (status === 401 || code === 'invalid_api_key') {
+        error_kind = 'invalid_key'
+      } else if (status === 404 || code === 'model_not_found') {
+        error_kind = 'model_not_found'; key_valid = true
+      } else if (status === 429) {
+        error_kind = 'rate_limited'; key_valid = true; model_valid = true
+      } else if (typeof status === 'number' && status >= 500) {
+        error_kind = 'service_unavailable'
+      }
+    } else {
+      // gemini — Pitfall 6: no typed NotFoundError; check status string or message
+      if (status === 'UNAUTHENTICATED' || status === 401 || /API_KEY_INVALID/.test(message)) {
+        error_kind = 'invalid_key'
+      } else if (status === 'NOT_FOUND' || status === 404 || /model.*not found/i.test(message)) {
+        error_kind = 'model_not_found'; key_valid = true
+      } else if (status === 'RESOURCE_EXHAUSTED' || status === 429) {
+        error_kind = 'rate_limited'; key_valid = true; model_valid = true
+      } else if (typeof status === 'number' && status >= 500) {
+        error_kind = 'service_unavailable'
       }
     }
-    // Handle Anthropic (Claude) errors — check status codes
-    else if (err instanceof Anthropic.APIError) {
-      const status = err.status
-      if (status === 401) {
-        errorMessage = 'Invalid API key'
-        isValid = false
-      } else if (status === 429) {
-        errorMessage = 'Rate limited — key is valid but account is rate-limited'
-        isValid = true
-      } else if (status === 500 || status === 502 || status === 503) {
-        errorMessage = 'API service temporarily unavailable — try again later'
-        isValid = false
-      } else {
-        // Fallback for other Anthropic errors
-        errorMessage = extractErrorMessage(err, provider)
-        isValid = false
-      }
-    }
-    // Handle Google (Gemini) errors — uses generic Error, parse message
-    else if (err instanceof Error) {
-      errorMessage = extractErrorMessage(err, provider)
-      isValid = false
-    }
+
+    // T-11-12: sanitize error — never leak stack traces; truncate to 500 chars
+    const error_message = message || 'Validation failed'
+    return res.json({
+      valid: false, key_valid, model_valid,
+      error_kind, error: error_message, error_message,
+      model_id: modelId,
+      ...(model_valid && key_valid ? { capabilities } : {}),
+    } satisfies ValidateKeyResponse)
   }
-
-  res.json({
-    valid: isValid,
-    error: isValid ? undefined : errorMessage,
-  })
 })
