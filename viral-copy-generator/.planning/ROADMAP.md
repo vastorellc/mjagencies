@@ -43,6 +43,7 @@ by the admin only — no public registration.
 - [x] **Phase 8: Admin Panel** — Queue manager, user management, learning data editor, system health, logs viewer *(provisionally complete 2026-05-03 — 8/8 plans, human checkpoint approved; smoke test confirmation via /gsd-verify-work 8)*
 - [x] **Phase 9: Content Research Engine** — External trend APIs + user learning data + AI → content ideas, briefs, hashtag intelligence, 7-day calendar *(complete 2026-05-04 — 7/7 plans, 15/15 RESEARCH requirements)*
 - [x] **Phase 10: Polish + Resilience** — Structured API error parsing, OAuth expiry surfacing, error boundaries, iOS safe-area fixes, persistent top navigation *(complete 2026-05-05 — 4/4 plans, all SC-01–SC-10 passed)*
+- [ ] **Phase 11: AI Provider + Model Verification Mechanism** — Centralize stale model IDs, runtime verify both key + model, model_not_found discriminant, capability matrix, weekly health-check job *(added 2026-05-15 — time-critical: deepseek-chat retires 2026-07-24)*
 
 ---
 
@@ -536,6 +537,54 @@ Plans:
 
 **UI hint:** yes
 
+### Phase 11: AI Provider + Model Verification Mechanism
+
+**Goal:** Every AI provider integration verifies both API key validity AND the exact configured model ID at runtime. Bump the 6 stale hardcoded model IDs across frontend + backend to the locked May-2026 lineup, centralize them into a single source-of-truth constant per side, add a `model_not_found` discriminant to `parseProviderError`, extend `POST /api/settings/validate-key` to verify the model ID (not just the key), expose a capability matrix (text/vision/audio/video) per model, and add a weekly pg-boss `provider-health-check` job that pings each supported model with a 1-token call.
+
+**Why now (time-critical):** `deepseek-chat` legacy endpoint retires **2026-07-24** — DeepSeek users lose service silently on that date without a bump. Approximately 10 weeks out.
+
+**Depends on:** Phase 10
+
+**Requirements:** VERIFY-01..06 (elaborated during /gsd-plan-phase)
+
+**Stale model IDs to bump (locked lineup target):**
+- frontend/src/lib/ai.ts:219 (`gemini-2.5-flash` → `gemini-3.1-pro-preview` / `gemini-3.1-flash`)
+- frontend/src/lib/ai.ts:258 (`claude-sonnet-4-5` → `claude-opus-4-7`)
+- backend/src/routes/ai.ts:86 (`gpt-4.1` → `gpt-5.5`; `deepseek-chat` → `deepseek-v4-flash`)
+- backend/src/routes/settings.ts:425 (`gpt-4.1` + `deepseek-chat`)
+- backend/src/routes/settings.ts:438 (`claude-3-5-sonnet-20241022`)
+- backend/src/routes/settings.ts:446 (`gemini-2.0-flash`)
+
+**Success Criteria:**
+1. Single `MODELS` constant per side (frontend + backend); all six previously-hardcoded model IDs now reference these constants
+2. All four providers (Gemini, Claude, OpenAI, DeepSeek) use the locked May-2026 model IDs
+3. `POST /api/settings/validate-key` verifies both API key AND model ID; returns `model_not_found` distinct from `invalid_key`
+4. `parseProviderError` in `frontend/src/lib/ai.ts` has `model_not_found` AIErrorKind with `retryable: false` and an admin-action UX message
+5. Capability matrix exported: `{ text, vision, audio, video }` per model — used by Advanced Analysis pre-flight (future phase)
+6. Weekly pg-boss `provider-health-check` job pings each model with a 1-token call, writes rows to a new `admin_provider_health` table
+7. Admin panel Health tab shows current provider/model status and last successful ping per provider
+8. DeepSeek bump verified working before the 2026-07-24 retirement deadline
+
+**Files touched:**
+- frontend/src/lib/models.ts (new — single source of truth)
+- frontend/src/lib/ai.ts (constants + model_not_found discriminant)
+- frontend/src/pages/SettingsPage.tsx (surface model_not_found + capability badges)
+- frontend/src/pages/AdminPage.tsx (provider health tab)
+- backend/src/lib/models.ts (new — parallel constants)
+- backend/src/routes/ai.ts, backend/src/routes/settings.ts (constants + model verification step)
+- backend/src/db/schema.ts (admin_provider_health table)
+- backend/src/lib/boss.ts (provider-health-check job)
+- backend/src/routes/admin.ts (GET /api/admin/provider-health)
+
+**Estimate:** 6-8 plans, ~1-2 days.
+
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run `/gsd-plan-phase 11` to break down)
+
+**UI hint:** yes
+
 ---
 
 ## Progress
@@ -552,3 +601,4 @@ Plans:
 | 8. Admin Panel | 8/8 | Provisionally complete (human checkpoint approved) | 2026-05-03 |
 | 9. Content Research Engine | 7/7 | Complete | 2026-05-04 |
 | 10. Polish + Resilience | 4/4 | Complete | 2026-05-05 |
+| 11. AI Provider + Model Verification Mechanism | 0/TBD | Not planned (time-critical: deepseek-chat retires 2026-07-24) | - |

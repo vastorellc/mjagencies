@@ -8,7 +8,7 @@ stopped_at: "Completed Phase 3 Plan 09 (03-09): engine rewritten to HTMLVideoEle
 last_updated: "2026-05-15T23:25:00.000Z"
 last_activity: 2026-05-15 -- Phase 3 verified end-to-end; engine v3 ships
 progress:
-  total_phases: 10
+  total_phases: 11
   completed_phases: 9
   total_plans: 66
   completed_plans: 65
@@ -72,6 +72,11 @@ Progress: [██████████] 100%
   - Full suite: 179/179 Vitest pass, tsc clean, build 84 modules / 424 kB
 
 ## Accumulated Context
+
+### Roadmap Evolution
+
+- 2026-05-15: Phase 11 added — AI Provider + Model Verification Mechanism (centralize 6 stale model IDs, runtime verify key + model, model_not_found discriminant, capability matrix, weekly health-check pg-boss job). Time-critical: `deepseek-chat` retires 2026-07-24.
+
 
 ### Architecture Decisions
 
