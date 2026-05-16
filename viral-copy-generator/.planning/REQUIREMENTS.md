@@ -191,7 +191,8 @@ history, learning loops, admin panel, content research engine.
 **: Single `MODELS` source-of-truth constant per side (frontend + backend); all 6 previously-hardcoded model IDs reference these constants; no other hardcoded model strings outside the constant file (verified by grep)
 - [x] **VERIFY-02
 **: All four providers (Gemini, Claude, OpenAI, DeepSeek) use the locked May-2026 model IDs per `.planning/notes/2026-05-15-ai-models-current-state.md`
-- [ ] **VERIFY-03**: `POST /api/settings/validate-key` verifies both API key AND model ID; returns `key_valid`, `model_valid`, `capabilities`, and `error_kind` discriminator (`invalid_key` | `model_not_found` | `rate_limited` | `service_unavailable` | null)
+- [x] **VERIFY-03
+**: `POST /api/settings/validate-key` verifies both API key AND model ID; returns `key_valid`, `model_valid`, `capabilities`, and `error_kind` discriminator (`invalid_key` | `model_not_found` | `rate_limited` | `service_unavailable` | null)
 - [x] **VERIFY-04
 **: `parseProviderError` adds `model_not_found` AIErrorKind with `retryable: false` for all 4 providers, with admin-action UX message
 - [ ] **VERIFY-05**: Weekly pg-boss `provider-health-check` job pings each (provider, model) and writes one row per check to `admin_provider_health`; fail-partial (one provider down does not block others); missing service key produces a `not_configured` row, not a job failure; cleanup keeps last 30 rows per (provider, model)
