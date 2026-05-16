@@ -391,3 +391,25 @@ export const video_ai_insights = pgTable('video_ai_insights', {
   }),
   index('video_ai_insights_video_pattern_idx').on(table.video_pattern_analysis_id),
 ])
+
+// ============================================================
+// admin_provider_health
+// Phase 11 VERIFY-05 — append-only health check results from weekly pg-boss job.
+// No RLS: admin-scoped only (route layer enforces via adminMiddleware).
+// No user_id: system-level pings, not user-scoped.
+// Cleanup: Plan 05's worker keeps last 30 rows per (provider, model_id).
+// ============================================================
+export const admin_provider_health = pgTable('admin_provider_health', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  provider: text('provider').notNull(),       // 'gemini' | 'claude' | 'openai' | 'deepseek'
+  model_id: text('model_id').notNull(),       // exact API model ID from MODELS
+  status: text('status').notNull(),           // 'ok' | 'model_not_found' | 'invalid_key' | 'rate_limited' | 'service_unavailable' | 'error' | 'not_configured'
+  latency_ms: integer('latency_ms').notNull(),
+  error_message: text('error_message'),       // nullable when status='ok'
+  checked_at: timestamp('checked_at').defaultNow().notNull(),
+}, (table) => [
+  // Composite for "latest per (provider, model)" admin query
+  index('admin_provider_health_provider_model_idx').on(table.provider, table.model_id, table.checked_at),
+  // Standalone for cleanup ROW_NUMBER OVER (PARTITION BY ... ORDER BY checked_at DESC)
+  index('admin_provider_health_checked_at_idx').on(table.checked_at),
+])
