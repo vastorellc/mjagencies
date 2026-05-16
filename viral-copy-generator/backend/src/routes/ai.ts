@@ -5,6 +5,7 @@ import { db } from '../db/index.js'
 import { settings } from '../db/schema.js'
 import { decrypt } from '../lib/encryption.js'
 import { ValidationError, DatabaseError, StorageError, AIProviderError } from '../lib/errors.js'
+import { MODELS } from '../lib/models.js'
 
 export const aiRouter = Router()
 
@@ -67,7 +68,7 @@ aiRouter.post('/generate', async (req: Request, res: Response) => {
   const isDeepSeek = provider === 'deepseek'
   const openai = new OpenAI({
     apiKey,
-    ...(isDeepSeek ? { baseURL: 'https://api.deepseek.com/v1' } : {}),
+    ...(isDeepSeek ? { baseURL: 'https://api.deepseek.com' } : {}),
   })
 
   type ContentPart = OpenAI.Chat.ChatCompletionContentPart
@@ -83,7 +84,7 @@ aiRouter.post('/generate', async (req: Request, res: Response) => {
   }
   content.push({ type: 'text', text: prompt })
 
-  const model = isDeepSeek ? 'deepseek-chat' : 'gpt-4.1'
+  const model = isDeepSeek ? MODELS['deepseek-v4-flash'].id : MODELS['gpt-5.5'].id
 
   try {
     const completion = await openai.chat.completions.create({
@@ -103,10 +104,13 @@ aiRouter.post('/generate', async (req: Request, res: Response) => {
 
     if (err instanceof OpenAI.APIError) {
       const status = err.status
-      const code = (err as any).code || err.message
+      const code = (err as { code?: string }).code ?? err.message
 
       if (status === 401 || code === 'invalid_api_key') {
         userMessage = 'Invalid API key. Update it in Settings.'
+      } else if (status === 404 || code === 'model_not_found') {
+        userMessage = 'Selected model unavailable. Update in Settings.'
+        retryable = false
       } else if (status === 429 || code === 'rate_limit_error') {
         userMessage = 'Rate limited. Please wait a few minutes and try again.'
         retryable = true
