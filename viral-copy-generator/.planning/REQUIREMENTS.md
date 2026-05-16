@@ -195,7 +195,8 @@ history, learning loops, admin panel, content research engine.
 **: `POST /api/settings/validate-key` verifies both API key AND model ID; returns `key_valid`, `model_valid`, `capabilities`, and `error_kind` discriminator (`invalid_key` | `model_not_found` | `rate_limited` | `service_unavailable` | null)
 - [x] **VERIFY-04
 **: `parseProviderError` adds `model_not_found` AIErrorKind with `retryable: false` for all 4 providers, with admin-action UX message
-- [ ] **VERIFY-05**: Weekly pg-boss `provider-health-check` job pings each (provider, model) and writes one row per check to `admin_provider_health`; fail-partial (one provider down does not block others); missing service key produces a `not_configured` row, not a job failure; cleanup keeps last 30 rows per (provider, model)
+- [x] **VERIFY-05
+**: Weekly pg-boss `provider-health-check` job pings each (provider, model) and writes one row per check to `admin_provider_health`; fail-partial (one provider down does not block others); missing service key produces a `not_configured` row, not a job failure; cleanup keeps last 30 rows per (provider, model)
 - [ ] **VERIFY-06**: Admin panel adds Provider Health tab showing last ping per (provider, model), capability matrix, latency p95 over last 7 days; manual Refresh button (no auto-poll per Pitfall 10)
 
 ### UI — Interface and UX
