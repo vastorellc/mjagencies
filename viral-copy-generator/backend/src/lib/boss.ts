@@ -89,3 +89,33 @@ export async function registerResearchRefreshJob(bossInstance: PgBoss): Promise<
 
   console.log('[pg-boss] refresh-trends job registered')
 }
+
+/**
+ * Phase 11 VERIFY-05 — weekly health check pings every (provider, model) in MODELS.
+ * Service-level HEALTHCHECK_*_KEY env vars; missing keys produce 'not_configured' rows
+ * but do NOT fail the job. Cleanup keeps last 30 rows per (provider, model_id).
+ * Schedule: Mondays 7am UTC = noon PKT (low-traffic window).
+ * Cost: ~$0.08/year across all 4 providers (1-token call × 8 models × 52 weeks).
+ */
+export async function registerProviderHealthCheckJob(bossInstance: PgBoss): Promise<void> {
+  // CRITICAL: createQueue() BEFORE schedule() — pg-boss v12 FK constraint
+  // pgboss.schedule.name has a FK referencing pgboss.queue.name (Pitfall 1)
+  await bossInstance.createQueue('provider-health-check')
+
+  try {
+    // Mondays 7am UTC = noon PKT — low-traffic window
+    await bossInstance.schedule('provider-health-check', '0 7 * * 1', {})
+  } catch (err: unknown) {
+    const msg = (err as Error).message ?? ''
+    if (!msg.includes('duplicate') && !msg.includes('unique')) throw err
+  }
+
+  await bossInstance.work<Record<string, never>>('provider-health-check', async (_jobs) => {
+    // Lazy import — avoid circular dep: provider-health-check imports db, boss imports nothing from db
+    const { runProviderHealthCheck } = await import('./provider-health-check.js')
+    await runProviderHealthCheck()
+    console.log('[pg-boss] provider-health-check completed')
+  })
+
+  console.log('[pg-boss] provider-health-check job registered')
+}
