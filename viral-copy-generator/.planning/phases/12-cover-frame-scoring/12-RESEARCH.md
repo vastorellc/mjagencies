@@ -793,7 +793,7 @@ async function handleDownload(
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`@mediapipe/tasks-vision` as substitute for `@mediapipe/face_mesh`**
    - What we know: `tasks-vision@0.10.35` is already installed. It has a `FaceLandmarker` that produces landmarks including iris positions.
