@@ -20,7 +20,7 @@
     "@mjagency/ai": "workspace:*",
     "@mjagency/config": "workspace:*",
     "@mjagency/queue": "workspace:*",
-    "bullmq": "5.76.2",
+    "bullmq": "5.76.10",
     "ioredis": "5.10.1"
   },
   "devDependencies": {

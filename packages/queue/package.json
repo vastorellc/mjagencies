@@ -17,7 +17,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "bullmq": "5.76.2",
+    "bullmq": "5.76.10",
     "ioredis": "5.10.1",
     "@mjagency/db": "workspace:*",
     "@mjagency/config": "workspace:*"
