@@ -34,7 +34,7 @@
     "@mjagency/queue": "workspace:*",
     "@mjagency/seo": "workspace:*",
     "@mjagency/ui": "workspace:*",
-    "dompurify": "^3.2.3",
+    "dompurify": "^3.4.5",
     "jose": "6.2.2",
     "jsdom": "^25.0.1",
     "server-only": "0.0.1",
