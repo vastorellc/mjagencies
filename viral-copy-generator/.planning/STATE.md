@@ -1,18 +1,18 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
-current_phase: 11 — AI Provider + Model Verification Mechanism
-status: checkpoint-pending
-stopped_at: "Phase 11 Plan 06 — Tasks 1-3 complete; Task 4 checkpoint:human-verify pending smoke test"
-last_updated: "2026-05-16T04:53:00Z"
-last_activity: 2026-05-16
+milestone_name: Viral Copy Generator MVP
+current_phase: archived — milestone closed 2026-05-18
+status: shipped
+stopped_at: "v1.0 milestone close — 12 phases, 81 plans, 721 commits shipped"
+last_updated: "2026-05-18T12:00:00Z"
+last_activity: 2026-05-18
 progress:
   total_phases: 12
-  completed_phases: 10
+  completed_phases: 12
   total_plans: 81
-  completed_plans: 71
-  percent: 88
+  completed_plans: 81
+  percent: 100
 ---
 
 # Project State — Viral Copy Generator
@@ -22,16 +22,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-01)
 
 **Core value:** Upload one video and have platform-specific copy ready to paste in under 30 seconds — eliminating the 20-30 minute per-post metadata grind.
-**Current phase:** 11 — AI Provider + Model Verification Mechanism
+**Current phase:** v1.0 shipped — awaiting `/gsd-new-milestone` for v1.1
 
 ## Current Position
 
-Phase: 11 (ai-provider-model-verification-mechanism-centralize-model-id) — CHECKPOINT PENDING
-Plan: 6 of 6 (Tasks 1-3 complete, Task 4 human-verify pending)
-Status: Awaiting smoke test approval
-Last activity: 2026-05-16
+Milestone: v1.0 shipped 2026-05-18
+Status: 12 phases · 81 plans · 721 commits · ~19k LOC
+Next: Run `/gsd-new-milestone` to start v1.1 planning
 
-Progress: [█████████░] 92%
+Progress: [██████████] 100% — SHIPPED
 
 ## Phase Status
 
@@ -44,9 +43,11 @@ Progress: [█████████░] 92%
 | 5 | AI Copy + Platform Cards | ✅ Complete (6/6 plans, 206/206 tests, tsc clean 2026-05-03) |
 | 6 | Auto-Upload + Scheduling | 🟢 Provisionally complete (5/5 plans done; 15/15 automated checks pass, 206/206 tests; smoke test deferred — close via `/gsd-verify-work 6` when OAuth accounts connected) |
 | 7 | History + Learning Loops | 🟢 Provisionally complete (6/6 plans done; 20/20 automated checks pass; smoke test deferred — close via `/gsd-verify-work 7` after backend .env configured) |
-| 8 | Admin Panel | 🟢 Provisionally complete (8/8 plans done; human checkpoint approved 2026-05-03; smoke test confirmation via `/gsd-verify-work 8` when servers running) |
+| 8 | Admin Panel | ✅ Complete (8/8 plans; 5/5 UAT passed 2026-05-18; verification complete) |
 | 9 | Content Research Engine | ✅ Complete (7/7 plans, 15/15 RESEARCH requirements verified, human checkpoint approved 2026-05-04) |
 | 10 | Polish + Resilience | ✅ Complete (4/4 plans, all SC-01–SC-10 passed, persistent top navigation added, human checkpoint approved 2026-05-05) |
+| 11 | AI Provider + Model Verification | ✅ Complete (6/6 plans; 8/8 UAT passed; 3 issues fixed; human smoke verified 2026-05-17) |
+| 12 | Cover-Frame Scoring & Recommendation | ✅ Complete (5/5 plans; 416/419 tests pass, tsc clean; human smoke verified 2026-05-17) |
 
 ## Completed Phases
 

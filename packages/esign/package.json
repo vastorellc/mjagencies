@@ -19,7 +19,7 @@
     "@mjagency/config": "workspace:*",
     "@mjagency/proposals": "workspace:*",
     "@mjagency/crm": "workspace:*",
-    "@aws-sdk/client-s3": "^3.620.0",
+    "@aws-sdk/client-s3": "^3.1048.0",
     "pdf-lib": "^1.17.1",
     "react-signature-canvas": "^1.0.6",
     "@types/react-signature-canvas": "^1.0.5",

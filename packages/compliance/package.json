@@ -14,7 +14,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "3.620.0",
+    "@aws-sdk/client-s3": "3.1048.0",
     "@mjagency/ai": "workspace:*",
     "@mjagency/analytics": "workspace:*",
     "@mjagency/auth": "workspace:*",
