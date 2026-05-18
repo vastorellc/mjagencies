@@ -67,6 +67,6 @@
     "storybook": "9.1.20",
     "typescript": "5.6.3",
     "vitest": "2.1.8",
-    "wait-on": "8.x"
+    "wait-on": "9.x"
   }
 }
