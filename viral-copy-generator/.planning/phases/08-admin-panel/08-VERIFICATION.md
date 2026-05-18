@@ -1,9 +1,10 @@
 ---
 phase: 08-admin-panel
 verified: 2026-05-03T00:00:00Z
-status: human_needed
-score: 11/11 must-haves verified
+status: verified
+score: 11/11 must-haves verified + 5/5 human UAT passed (2026-05-18)
 overrides_applied: 0
+human_verification_resolved: 2026-05-18
 human_verification:
   - test: "Non-admin user receives 403 on /api/admin/* routes"
     expected: "Any valid JWT with no admin role claim returns HTTP 403 from every /api/admin/* endpoint"
