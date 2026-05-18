@@ -44,7 +44,7 @@
     "@types/react-dom": "19.0.0",
     "tailwindcss": "4.2.4",
     "@tailwindcss/postcss": "4.2.4",
-    "typescript": "5.6.3",
+    "typescript": "6.0.3",
     "size-limit": "11.1.6",
     "@size-limit/preset-app": "11.1.6",
     "vitest": "2.1.8",

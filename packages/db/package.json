@@ -57,7 +57,7 @@
     "drizzle-kit": "0.31.10",
     "drizzle-seed": "0.3.1",
     "eslint": "9.13.0",
-    "typescript": "5.6.3",
+    "typescript": "6.0.3",
     "vitest": "2.1.8"
   }
 }
